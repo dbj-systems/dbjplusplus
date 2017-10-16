@@ -14,7 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
+/*
+The only requirement for this file is not to have any #include's
+*/
 #define STR(X) #X
 #define __YEAR__  (__DATE__ + 7)
 
@@ -22,9 +24,9 @@ namespace dbj {
 	constexpr auto COMPANY = "dbj.systems Ltd."; // your company here
 	constexpr auto YEAR = (__DATE__ + 7);
 }
-
+/* standard suffix for every header here */
 #define DBJVERSION __DATE__ __TIME__
-#pragma message( "============> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " STR(dbj::YEAR) " by dbj@dbj.org | Version: " DBJVERSION ) 
+#pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)
+#pragma comment( user, "(c) " STR(__YEAR__) " by dbj@dbj.org | Version: " DBJVERSION ) 
 #undef DBJVERSION
 
