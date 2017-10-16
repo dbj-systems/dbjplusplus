@@ -1,3 +1,7 @@
+#pragma once
+auto minDBJ = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
+auto maxDBJ = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };
+
 /*
  *  Catch v2.0.0-develop.5
  *  Generated: 2017-10-12 13:05:08.135067
@@ -3657,7 +3661,8 @@ namespace Catch {
 
 namespace Catch {
 
-    struct Colour {
+   
+ struct Colour {
         enum Code {
             None = 0,
 
@@ -3705,7 +3710,6 @@ namespace Catch {
     private:
         bool m_moved = false;
     };
-
     std::ostream& operator << ( std::ostream& os, Colour const& );
 
 } // end namespace Catch
@@ -11946,3 +11950,4 @@ using Catch::Detail::Approx;
 // end catch_reenable_warnings.h
 // end catch.hpp
 #endif // TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
+

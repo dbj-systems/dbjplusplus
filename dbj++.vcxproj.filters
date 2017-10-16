@@ -21,5 +21,17 @@
     <ClInclude Include="dbj++.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_startend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_com.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
