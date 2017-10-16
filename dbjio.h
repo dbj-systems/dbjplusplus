@@ -158,5 +158,5 @@ namespace dbj {
 // #pragma message("-------------------------------------------------------------")
 #pragma message( "============> Compiled: " __FILE__ ", Version: " DBJVERSION)
 // #pragma message("-------------------------------------------------------------")
-#pragma comment( user, "(c) 2017 by dbj@dbj.org | Version: " DBJVERSION ) 
+#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION ) 
 #undef DBJVERSION
