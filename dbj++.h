@@ -1,18 +1,27 @@
 #pragma once
+#ifndef _MSC_VER
+#error This code requires Visual C++ 
+#endif // !_MSC_VER
+#if _MSC_VER < 1911
+#error This code requires Visual C++ 14.1 or better
+#endif
 
 #ifndef UNICODE
 #error __FILE__ requires UNICODE builds
 #endif
 
-#ifndef _MSC_VER
-#error This code requires Visual C++ 
-#else
-#define _VERSION__ _MSC_VER
-#endif // !_MSC_VER
-
-#if _MSC_VER < 1911
-#error This code requires Visual C++ 14.1 or better
+#ifndef __VERSION__ 
+#define __VERSION__ _MSC_VER
 #endif
+
+#ifndef STR
+#define STR(X) #X
+#endif
+
+#ifndef __YEAR__
+#define __YEAR__ STR(__DATE__ + 7)
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -38,7 +47,7 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #define DBJ_FINAL
 #endif
 
-#define STR(X) #X
+
 
 // Taken from MODERN v1.26 - http://moderncpp.com
 // Copyright (c) 2015 Kenny Kerr
@@ -74,6 +83,8 @@ DBJ_INLINE void DBJ_TRACE(const char * const message, Args ... args) noexcept
 #define DBJ_TRACE __noop
 #endif
 #pragma endregion
+
+
 
 namespace dbj {
 	constexpr auto COMPANY = "dbj.systems Ltd."; // your company here
