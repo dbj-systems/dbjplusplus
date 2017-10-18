@@ -91,9 +91,6 @@ namespace dbj {
 
 			} // colour
 
-			template<typename T>
-			struct tpe { const char * name = typeid(T).name; };
-
 			/* overloaded output functions for various types */
 			namespace {
 
@@ -193,6 +190,7 @@ namespace dbj {
 				}
 
 				/*
+				based on idea from
 				http://en.cppreference.com/w/cpp/language/parameter_pack
 				*/
 				template<typename T>

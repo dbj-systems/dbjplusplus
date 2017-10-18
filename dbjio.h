@@ -138,6 +138,12 @@ namespace dbj {
 				char dummy[sizeof...(Targs)] = { ( print(args), 0)... };
 			}
 		}
+/* use above, for example
+   printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
+*/
+#ifndef DBJ_NV
+#define DBJ_NV( symbol) "[", STR(symbol), "] :-> [" , symbol , "]"
+#endif
 	}
 }
 #define DBJVERSION __DATE__ __TIME__

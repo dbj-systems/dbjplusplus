@@ -6,7 +6,10 @@
 
 #ifndef _MSC_VER
 #error This code requires Visual C++ 
+#else
+#define _VERSION__ _MSC_VER
 #endif // !_MSC_VER
+
 #if _MSC_VER < 1911
 #error This code requires Visual C++ 14.1 or better
 #endif
@@ -36,7 +39,6 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #endif
 
 #define STR(X) #X
-#define __YEAR__  (__DATE__ + 7)
 
 // Taken from MODERN v1.26 - http://moderncpp.com
 // Copyright (c) 2015 Kenny Kerr
@@ -78,9 +80,11 @@ namespace dbj {
 	constexpr auto YEAR = (__DATE__ + 7);
 }
 
+#include "dbj_crt.h"
+#include "dbj_testing.h"
+#include "dbj_startend.h"
 #include "dbj_com.h"
 #include "dbj_console.h"
-#include "dbj_startend.h"
 #include "dbjio.h"
 
 /* standard suffix for every header here */

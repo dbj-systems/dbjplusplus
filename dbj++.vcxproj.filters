@@ -30,6 +30,12 @@
     <ClInclude Include="dbj_com.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_crt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_testing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
