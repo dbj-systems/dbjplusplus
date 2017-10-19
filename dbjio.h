@@ -138,11 +138,13 @@ namespace dbj {
 				char dummy[sizeof...(Targs)] = { ( print(args), 0)... };
 			}
 		}
-/* use above, for example
+/* 
+   use print or printex to show the symbol and its value, for example:
    printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
 */
 #ifndef DBJ_NV
-#define DBJ_NV( symbol) "[", STR(symbol), "] :-> [" , symbol , "]"
+#define DBJ_NV_DELIMITER " : "
+#define DBJ_NV( symbol) STR(symbol) DBJ_NV_DELIMITER , (symbol) 
 #endif
 	}
 }
