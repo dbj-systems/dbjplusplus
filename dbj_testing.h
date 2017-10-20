@@ -94,21 +94,21 @@ namespace dbj {
 			// test unit function pointer is the key
 			typedef  std::map<
 				testunittype,
-				std::string, FPcomparator > test_units_map;
+				std::string, FPcomparator > TUMAP;
 
 			DBJ_INLINE bool operator == (
-				test_units_map::value_type pair_,
-				test_units_map::key_type rhs_) noexcept
+				TUMAP::value_type pair_,
+				TUMAP::key_type rhs_) noexcept
 			{
 				return pair_.first == rhs_;
 			}
 
-			DBJ_INLINE test_units_map & tu_map() {
-				static test_units_map test_units_{};
+			static __forceinline TUMAP & tu_map() {
+				static TUMAP test_units_{};
 				return test_units_;
 			}
 
-			DBJ_INLINE test_units_map::iterator find(testunittype tunit_) {
+			DBJ_INLINE TUMAP::iterator find(testunittype tunit_) {
 				return tu_map().find(tunit_);
 			}
 

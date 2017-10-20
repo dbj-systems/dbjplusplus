@@ -96,6 +96,54 @@ namespace dbj {
 	}
 } // dbj
 
+/* 
+DBJ C++RT utilities
+*/
+namespace dbj {
+
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+	/*
+	Tame the full path filenames  in __FILE__
+	Inspired with:	https://stackoverflow.com/questions/8487986/file-macro-shows-full-path/8488201#8488201
+	Usage:
+	#error dbj::nicer_filename(__FILE__) " has a problem."
+	TODO: is wide version necessary?
+	*/
+	static __forceinline 
+		constexpr auto nicer_filename(const char * filename) {
+		return (strrchr(filename, '\\') ? strrchr(filename, '\\') + 1 : filename);
+	}
+
+	template <typename T>
+	inline
+		constexpr
+		auto sizeof_array(const T& iarray) {
+		return (sizeof(iarray) / sizeof(iarray[0]));
+	}
+
+	namespace {
+		using namespace std;
+
+		// http://en.cppreference.com/w/cpp/experimental/to_array
+		namespace {
+			template <class T, size_t N, size_t... I>
+			/*constexpr*/ inline array<remove_cv_t<T>, N>
+				to_array_impl(T(&a)[N], index_sequence<I...>)
+			{
+				return { { a[I]... } };
+			}
+		}
+	}
+
+	/*
+	Transform "C array" into std::array
+	*/
+	template <class T, std::size_t N>
+	constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])
+	{
+		return to_array_impl(a, make_index_sequence<N>{});
+	}
+}
 /* standard suffix for every header here */
 #define DBJVERSION __DATE__ __TIME__
 #pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)

@@ -10,12 +10,14 @@
 #error __FILE__ requires UNICODE builds
 #endif
 
-#ifndef __VERSION__ 
-#define __VERSION__ _MSC_VER
-#endif
-
 #ifndef STR
 #define STR(X) #X
+#endif
+#define DBJ_CONCAT_IMPL( x, y ) x##y
+#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+
+#ifndef __VERSION__ 
+#define __VERSION__  "MSVC " STR(_MSC_VER)
 #endif
 
 #ifndef __YEAR__
@@ -48,30 +50,30 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #endif
 
 
-
-// Taken from MODERN v1.26 - http://moderncpp.com
-// Copyright (c) 2015 Kenny Kerr
+namespace {
+	// Taken from MODERN v1.26 - http://moderncpp.com
+	// Copyright (c) 2015 Kenny Kerr
 #pragma region Independent debug things
 #ifdef _DEBUG
 #define DBJ_ASSERT assert
 #define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
 
-template <typename ... Args>
-DBJ_INLINE void DBJ_TRACE(wchar_t const * const message, Args ... args) noexcept
-{
-	wchar_t buffer[512] = {};
-	assert(-1 != _snwprintf_s(buffer, 512, 512, message, (args) ...));
-	::OutputDebugStringW(buffer);
-}
+	template <typename ... Args>
+	DBJ_INLINE void DBJ_TRACE(wchar_t const * const message, Args ... args) noexcept
+	{
+		wchar_t buffer[512] = {};
+		assert(-1 != _snwprintf_s(buffer, 512, 512, message, (args) ...));
+		::OutputDebugStringW(buffer);
+	}
 
-template <typename ... Args>
-DBJ_INLINE void DBJ_TRACE(const char * const message, Args ... args) noexcept
-{
-	wchar_t buffer[512] = {};
-	assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
-	::OutputDebugStringA(buffer);
+	template <typename ... Args>
+	DBJ_INLINE void DBJ_TRACE(const char * const message, Args ... args) noexcept
+	{
+		wchar_t buffer[512] = {};
+		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
+		::OutputDebugStringA(buffer);
+	}
 }
-
 #else
 // code dissapears
 #define DBJ_ASSERT __noop

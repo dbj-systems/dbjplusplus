@@ -86,29 +86,20 @@ namespace dbj {
 				operator<<(std::ostream& out, const std::string & ns_) {
 				return out << ns_.data();
 			}
+
+			template<typename T, typename std::enable_if_t< std::is_same<bool,T>::value >::type  >
+			inline  std::ostream&
+				operator<<(std::ostream& out, const bool & tf_) {
+					return out << (tf_ ? "true" : "false");
+			}
+
 		} // namespace
 
-#if 0
-		inline void print(const char* format) // base functions
-		{
-			std::cout << format;
-		}
-
-		inline void print(const wchar_t * format) // base functions
-		{
-			std::cout << format;
-		}
-
-		inline void print(const std::string & std_string_) // base functions
-		{
-			std::cout << std_string_.data();
-		}
-#endif
         /* the single gateway to the cout*/
 		template<typename T>
 		inline void print(const T & format) 
 		{
-			std::cout << format;
+			std::cout << std::boolalpha << format;
 		}
 
 		template<typename T, typename... Targs>
@@ -126,7 +117,8 @@ namespace dbj {
 		}
 
 		/* non recursive version 
-		   also with no format token '%', because it is tedious for when ther is a lot of them to remember on the right 
+		   also with no format token '%', because it is tedious for 
+		   when there is a lot of them to remember on the right 
 		   of the format sentence what values to provide and in which order
 		*/
 		template<typename... Targs>
@@ -138,16 +130,19 @@ namespace dbj {
 				char dummy[sizeof...(Targs)] = { ( print(args), 0)... };
 			}
 		}
-/* 
-   use print or printex to show the symbol and its value, for example:
-   printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
-*/
-#ifndef DBJ_NV
-#define DBJ_NV_DELIMITER " : "
-#define DBJ_NV( symbol) STR(symbol) DBJ_NV_DELIMITER , (symbol) 
-#endif
+//		static constexpr const char * const DBJ_NV_DELIMITER = " : ";
 	}
 }
+
+/*
+use print or printex to show the symbol and its value, for example:
+printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
+*/
+#ifndef DBJ_NV
+#define DBJ_NV_DELIMITER " , "
+#define DBJ_NV( symbol) STR(symbol)  DBJ_NV_DELIMITER , (symbol) 
+#endif
+
 #define DBJVERSION __DATE__ __TIME__
 #pragma message( "============> Compiled: " __FILE__ ", Version: " DBJVERSION)
 #pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION ) 
