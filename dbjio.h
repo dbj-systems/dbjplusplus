@@ -140,7 +140,7 @@ printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
 */
 #ifndef DBJ_NV
 #define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) STR(symbol)  DBJ_NV_DELIMITER , (symbol) 
+#define DBJ_NV( symbol) EXPAND(symbol)  DBJ_NV_DELIMITER , (symbol) 
 #endif
 
 #define DBJVERSION __DATE__ __TIME__

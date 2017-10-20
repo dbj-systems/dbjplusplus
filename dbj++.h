@@ -10,18 +10,22 @@
 #error __FILE__ requires UNICODE builds
 #endif
 
-#ifndef STR
-#define STR(X) #X
+#ifndef STRINGIFY
+#define STRINGIFY(s) # s
+#define EXPAND(s) STRINGIFY(s)
 #endif
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 
 #ifndef __VERSION__ 
-#define __VERSION__  "MSVC " STR(_MSC_VER)
+#define __VERSION__  EXPAND(DBJ_CONCAT("MSVC:",_MSC_VER))
 #endif
 
 #ifndef __YEAR__
+// Example of __DATE__ string: "Jul 27 2012"
+//                              01234567890
 #define __YEAR__ (__DATE__ + 7)
+constexpr const char YEAR [] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
 #endif
 
 #include <assert.h>
@@ -103,7 +107,7 @@ namespace dbj {
 /* standard suffix for every header here */
 #define DBJVERSION __DATE__ __TIME__
 #pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " STR(__YEAR__) " by dbj@dbj.org | Version: " DBJVERSION ) 
+#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION )
 #undef DBJVERSION
 /*
 Copyright 2017 by dbj@dbj.org

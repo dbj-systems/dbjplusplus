@@ -190,8 +190,8 @@ namespace dbj {
 } // dbj
 
 #define DBJVERSION __DATE__ __TIME__
-#pragma message( "============> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " STR(__YEAR__) " by dbj@dbj.org | Version: " DBJVERSION ) 
+#pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)
+#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION )
 #undef DBJVERSION
   /*
   Copyright 2017 by dbj@dbj.org
