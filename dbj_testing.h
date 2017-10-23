@@ -59,21 +59,6 @@ namespace dbj {
 		using testunittype = void(*)();
 		static __forceinline void __stdcall null_unit() {}
 
-		struct Exception : public std::runtime_error {
-		public:
-			typedef std::runtime_error _Mybase;
-
-			explicit Exception(const std::string & _Message)
-				: _Mybase(_Message.c_str())
-			{	// construct from message string
-			}
-
-			explicit Exception(const char *_Message)
-				: _Mybase(_Message)
-			{	// construct from message string
-			}
-		};
-
 	}
 }
 
@@ -103,7 +88,7 @@ namespace dbj {
 				return pair_.first == rhs_;
 			}
 
-			static __forceinline TUMAP & tu_map() {
+			/*static*/ __forceinline TUMAP & tu_map() {
 				static TUMAP test_units_{};
 				return test_units_;
 			}
@@ -130,7 +115,7 @@ namespace dbj {
 					return true;
 				}
 				catch (...) {
-					throw dbj::testing::Exception(
+					throw dbj::Exception(
 						std::string("Unknown exception while executing testing unit") + tu_map()[tunit_]
 					);
 				}
@@ -173,7 +158,7 @@ namespace dbj {
 					unit_execute(tunit.first);
 					printex("\n\tTEST END   [", tunit.second, "]\n");
 				}
-				catch (dbj::testing::Exception & x) {
+				catch (dbj::Exception & x) {
 					printex("\n\t\tException: [", x.what(), "] thrown from the testing unit: ");
 				}
 			}
@@ -189,10 +174,8 @@ namespace dbj {
 	} // testing
 } // dbj
 
-#define DBJVERSION __DATE__ __TIME__
-#pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION )
-#undef DBJVERSION
+  /* standard suffix for every other header here */
+#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
   Copyright 2017 by dbj@dbj.org
 

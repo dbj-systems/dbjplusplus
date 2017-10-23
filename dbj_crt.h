@@ -8,9 +8,47 @@
 /*
 2017-10-18	DBJ created
 
-  DBJ CRT (C Run Time) is inside top level dbj namespace
+  DBJ CRT (C++ Run Time) is inside top level dbj namespace
 */
 namespace dbj {
+
+	template< size_t N>
+	__forceinline std::wstring wide(const char(&charar)[N])
+	{
+		return std::wstring(std::begin(charar), std::end(charar));
+	}
+
+	__forceinline std::wstring wide(const char * charP)
+	{
+		std::string_view cv(charP);
+		return std::wstring(cv.begin(), cv.end());
+	}
+
+	struct Exception : public std::runtime_error {
+	public:
+		typedef std::runtime_error _Mybase;
+
+		explicit Exception(const std::string & _Message)
+			: _Mybase(_Message.c_str())
+		{	// construct from message string
+		}
+
+		explicit Exception(const char *_Message)
+			: _Mybase(_Message)
+		{	// construct from message string
+		}
+	};
+
+
+	template<class F, class... Pack>
+	constexpr __forceinline auto
+		call
+		(F&& fun, Pack&&... args) {
+		infoBuf.clear();
+		if (0 == std::invoke(fun, (args)...))
+			throw dbj::Exception(typeid(F).name());
+		return (infoBuf);
+	}
 
 	/* dbj.org avoid's macros as much as possible */
 
@@ -22,6 +60,21 @@ namespace dbj {
 	in here we cater for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
 	*/
+#ifndef __cplusplus
+	/*
+	Inspired by: https://opensource.apple.com/source/bash/bash-80/bash/lib/sh/strnlen.c
+	*/
+		DBJ_INLINE size_t strnlen(const CHAR_T *s, size_t maxlen)
+		{
+			const CHAR_T *e = {};
+			size_t n = {};
+
+			for (e = s, n = 0; *e && n < maxlen; e++, n++)
+				;
+			return n;
+		}
+#endif
+
 	/*
 	(c) 2017 by dbj.org
 	"zero" time modern C++ versions of str(n)len
@@ -101,7 +154,7 @@ DBJ C++RT utilities
 */
 namespace dbj {
 
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+
 	/*
 	Tame the full path filenames  in __FILE__
 	Inspired with:	https://stackoverflow.com/questions/8487986/file-macro-shows-full-path/8488201#8488201
@@ -144,11 +197,8 @@ namespace dbj {
 		return to_array_impl(a, make_index_sequence<N>{});
 	}
 }
-/* standard suffix for every header here */
-#define DBJVERSION __DATE__ __TIME__
-#pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION )
-#undef DBJVERSION
+/* standard suffix for every other header here */
+#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
 Copyright 2017 by dbj@dbj.org
 

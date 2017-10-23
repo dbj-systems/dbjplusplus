@@ -17,15 +17,13 @@
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 
-#ifndef __VERSION__ 
-#define __VERSION__  EXPAND(DBJ_CONCAT("MSVC:",_MSC_VER))
-#endif
-
 #ifndef __YEAR__
 // Example of __DATE__ string: "Jul 27 2012"
 //                              01234567890
 #define __YEAR__ (__DATE__ + 7)
-constexpr const char YEAR [] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
+namespace {
+	constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
+}
 #endif
 
 #include <assert.h>
@@ -39,6 +37,7 @@ constexpr const char YEAR [] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3]
 /*
 dbj begins here
 */
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 /*  __interface msvc keyword
 explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 */
@@ -104,10 +103,11 @@ namespace dbj {
 #include "dbj_console.h"
 #include "dbjio.h"
 
-/* standard suffix for every header here */
-#define DBJVERSION __DATE__ __TIME__
-#pragma message( "--------------> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION )
+/* standard suffix for this header only every header here */
+#pragma message( __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+/* standard suffix for every other header here */
+#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+
 #undef DBJVERSION
 /*
 Copyright 2017 by dbj@dbj.org

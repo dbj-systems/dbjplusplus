@@ -79,12 +79,12 @@ namespace dbj {
 
 			inline  std::ostream& 
 				operator<<(std::ostream& out, const std::wstring & ws_ ) {
-				return out << ws_.data() ;
+				return out << ws_.c_str() ;
 			}
 
 			inline  std::ostream&
 				operator<<(std::ostream& out, const std::string & ns_) {
-				return out << ns_.data();
+				return out << ns_.c_str() ;
 			}
 
 			template<typename T, typename std::enable_if_t< std::is_same<bool,T>::value >::type  >
@@ -92,7 +92,6 @@ namespace dbj {
 				operator<<(std::ostream& out, const bool & tf_) {
 					return out << (tf_ ? "true" : "false");
 			}
-
 		} // namespace
 
         /* the single gateway to the cout*/
@@ -137,16 +136,16 @@ namespace dbj {
 /*
 use print or printex to show the symbol and its value, for example:
 printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
+
+TODO: if symbol contains comma this is not going to work
 */
 #ifndef DBJ_NV
 #define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) EXPAND(symbol)  DBJ_NV_DELIMITER , (symbol) 
+#define DBJ_NV( symbol) EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
 
-#define DBJVERSION __DATE__ __TIME__
-#pragma message( "============> Compiled: " __FILE__ ", Version: " DBJVERSION)
-#pragma comment( user, "(c) " __DATE__ " by dbj@dbj.org | Version: " DBJVERSION ) 
-#undef DBJVERSION
+/* standard suffix for every other header here */
+#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
 Copyright 2017 by dbj@dbj.org
 
