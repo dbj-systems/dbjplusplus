@@ -39,7 +39,7 @@ namespace dbj {
 		}
 	};
 
-
+/*
 	template<class F, class... Pack>
 	constexpr __forceinline auto
 		call
@@ -49,7 +49,7 @@ namespace dbj {
 			throw dbj::Exception(typeid(F).name());
 		return (infoBuf);
 	}
-
+*/
 	/* dbj.org avoid's macros as much as possible */
 
 	static auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
