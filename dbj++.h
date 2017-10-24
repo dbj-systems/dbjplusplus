@@ -34,6 +34,7 @@ namespace {
 #include <string>
 #include <array>
 #include <vector>
+#include <functional>
 /*
 dbj begins here
 */

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #define STRICT
 #include <windows.h>
@@ -6,10 +6,9 @@ namespace dbj {
 	namespace win {
 		namespace console {
 
+
 			/* modification of catch2 console colour mechanism */
-			namespace colour {
-				struct Colour final {
-					enum Code : unsigned {
+					enum class Colour : unsigned {
 						None = 0,
 						White,
 						Red,
@@ -43,24 +42,28 @@ namespace dbj {
 						Headers = White
 					};
 
-				};
+				std::ostream& operator << (std::ostream& os, Colour const&); // no op
 
-				std::ostream& operator << (std::ostream& os, Colour const&) {
-					throw  "Error " __FUNCDNAME__ " : not implemented" ;
-					return os;
-				}
 
-				class Win32 final {
+				class __declspec(novtable) Painter final {
 				public:
-					Win32() : stdoutHandle(GetStdHandle(STD_OUTPUT_HANDLE))
+
+					static const Painter &  obj( HANDLE initial_handle = ::GetStdHandle(STD_OUTPUT_HANDLE) ) {
+						static Painter obj_{ initial_handle };
+						return obj_;
+					}
+
+					Painter (
+						HANDLE another_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE)
+					) : stdoutHandle(another_handle_)
 					{
 						CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-						GetConsoleScreenBufferInfo(stdoutHandle, &csbiInfo);
+						::GetConsoleScreenBufferInfo(stdoutHandle, &csbiInfo);
 						originalForegroundAttributes = csbiInfo.wAttributes & ~(BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY);
 						originalBackgroundAttributes = csbiInfo.wAttributes & ~(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 					}
 
-				const bool txt_colour(const Colour::Code & _colourCode) const {
+				const bool text(const Colour & _colourCode) const {
 					switch (_colourCode) {
 						case Colour::None:      return setTextAttribute(originalForegroundAttributes);
 						case Colour::White:     return setTextAttribute(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
@@ -80,48 +83,93 @@ namespace dbj {
 						}
 				}
 
+				const bool text_reset() const { 	return this->text(Colour::None);	}
+
 				private:
 					bool setTextAttribute(const WORD & _textAttribute) const {
-						return SetConsoleTextAttribute(stdoutHandle, _textAttribute | originalBackgroundAttributes);
+						return ::SetConsoleTextAttribute(stdoutHandle, _textAttribute | originalBackgroundAttributes);
 					}
 					HANDLE stdoutHandle;
 					WORD originalForegroundAttributes;
 					WORD originalBackgroundAttributes;
 				};
 
-			} // colour
+#pragma region "commands"
+				/*
+				Here we define comand id's
+				*/
+				enum class CMD : unsigned {
+					white = 0,
+					red,
+					green,
+					blue,
+					cyan,
+					yellow,
+					grey,
+					bright_red,
+					text_color_reset,
+					nop = (unsigned)-1
+				}
+				;
 
-			/* overloaded output functions for various types */
+				using cmd_fun_t = std::function< bool(void)>;
+
+				struct CMDcomparator {
+					bool operator () (const CMD & lhs, const CMD & rhs) const
+					{
+						return lhs < rhs;
+					};
+				};
+
+				using command_map_t = std::map<CMD, cmd_fun_t, CMDcomparator >;
+
+
+				/*
+				here we map command id's to lambdas that execute them
+				notice we define lambds to capture its run time surroundings by referece
+				*/
+				inline command_map_t & comand_map() {
+					static command_map_t map_ = {
+						{ CMD::nop,				 [&]() { return true; } },
+						{ CMD::text_color_reset, [&]() { Painter::obj().text_reset(); return true; } },
+						{ CMD::white,  [&]() { Painter::obj().text(Colour::White); return true; } },
+						{ CMD::red,  [&]() { Painter::obj().text(Colour::Red); return true; } },
+						{ CMD::green,  [&]() { Painter::obj().text(Colour::Green); return true; } },
+						{ CMD::blue,  [&]() { Painter::obj().text(Colour::Blue); return true; } },
+						{ CMD::bright_red,  [&]() { Painter::obj().text(Colour::BrightRed); return true; } }
+					};
+					return map_;
+				}
+
+				/*	commander's function */
+				inline const void commander(CMD command)
+				{
+					auto executor = [&]() {
+						try {
+							(comand_map().at(command))();
+						}
+						catch (std::out_of_range &) {
+							throw " Unknown command exception";
+						}
+					};
+					return executor();
+				}
+#pragma endregion "commands"
+				
+				/* overloaded output functions for various wide types output to "wide" console */
 			namespace {
 
-				/* the default op */
+				/* the default out op */
 				inline void out(const HANDLE & output_handle_, const std::wstring & wp_) {
 					assert(0 != ::WriteConsoleW(output_handle_, wp_.data(),
 						static_cast<DWORD>(wp_.size()),
 						NULL, NULL));
 				}
-#if 0
-				/* base template */
-				template<typename T>
-				inline void out(HANDLE output_handle_, const T & arg_) {
-					out(output_handle_, arg_);
+
+				inline void out(const HANDLE & output_handle_, const CMD & cmd_) {
+					commander(cmd_);
 				}
 
-				inline void out(const HANDLE & output_handle_, const float & number_) {
-					// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-					out(output_handle_, std::to_wstring(number_));
-				}
-
-				inline void out(const HANDLE & output_handle_, const int & number_) {
-					// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-					out(output_handle_, std::to_wstring(number_));
-				}
-
-				inline void out(const HANDLE & output_handle_, const double & number_) {
-					// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-					out(output_handle_, std::to_wstring(number_));
-				}
-#endif
 				/* by using enable_if we make sure this template instances are made
 				only for types we want
 				*/
@@ -151,8 +199,13 @@ namespace dbj {
 					out(output_handle_, str);
 				}
 
-				inline void out(const HANDLE & output_handle_, const char wp_) {
-					char str[] = { wp_, '\0' };
+				inline void out(const HANDLE & output_handle_, const char c_) {
+					char str[] = { c_ };
+					out(output_handle_, std::wstring(std::begin(str), std::end(str)));
+				}
+
+				inline void single_char(const HANDLE & output_handle_, const char c_) {
+					char str[] = { c_ };
 					out(output_handle_, std::wstring(std::begin(str), std::end(str)));
 				}
 
@@ -189,15 +242,16 @@ namespace dbj {
 					/*			TODO: GetLastError()  		*/
 				}
 
+
 				/*
 				based on idea from
 				http://en.cppreference.com/w/cpp/language/parameter_pack
 				*/
-				template<typename T>
-				const void print(const T & arg) const // base function
+				const void print(const char * arg) const // base function
 				{
 					out(output_handle_, arg);
 				}
+
 				/*
 				Primitive print(). Tries to handle "words" and "numbers".
 				'%' is a replacement token
@@ -209,21 +263,55 @@ namespace dbj {
 				{
 					for (; *format != '\0'; format++) {
 						if (*format == '%') {
-							out(output_handle_, value);
+								out(output_handle_, value);
 							print(format + 1, Fargs...); // recursive call
 							return;
 						}
-						out(output_handle_, *format); // this calls with 'const char'
+						else {
+							single_char(output_handle_, *format);
+						}
 					}
 				}
 
-			};
-
+			}; // WideOut
 
 		} // console
 
 	} // win
 } // dbj
+#pragma region "console testing"
+#ifdef DBJ_TESTING_EXISTS
+namespace {
+	using namespace dbj::win::console;
+	using CMD = dbj::win::console::CMD;
+
+	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
+	
+		WideOut wout{};
+		const static std::wstring doubles = L"║═╚";
+		const static std::wstring singles = L"│─└";
+/*
+here we use them commands through the print()
+*/
+		wout.print(
+			"%\n%\t%\t%"
+			"%\n%\t%\t%"
+			"%\n%\t%\t%"
+			"%\n%\t%\t%"
+			"%\n%\t%\t%"
+			"%\n%\t%\t%"	,
+			CMD::white,				"White",		doubles, singles,
+			CMD::red,				"Red",			doubles, singles,
+			CMD::green,				"Green",		doubles, singles,
+			CMD::blue,				"Blue",			doubles, singles,
+			CMD::bright_red,		"Bright Red",	doubles, singles,
+			CMD::text_color_reset,  "Reset",		doubles, singles
+			
+		);
+	}
+}
+#endif // DBJ_TESTING_EXISTS
+#pragma endregion "console testing"
 
   /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
