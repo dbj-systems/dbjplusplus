@@ -3,6 +3,120 @@
 #define STRICT
 #include <windows.h>
 namespace dbj {
+	/* Command pattern mechanism */
+	namespace cmd {
+#pragma region "commands"
+		/*
+		template<typename T>
+		struct DefaultLess final { 
+			bool operator ()(const T & lhs, const T & rhs) const noexcept { return lhs < rhs; }
+		};
+		*/
+
+		/*  CMD_ENUM defined commands id's
+			CMD_FUN is function type to execute them. Whatever satisfies std::is_function<CMD_FUN>
+			CMD_COMPARATOR is function to compare the CMD_ENUM elements 
+		*/
+		template< 
+			typename CMD_ENUM, typename CMD_FUN, typename CMD_COMPARATOR = std::less<CMD_ENUM>,
+			bool = std::is_function_v<CMD_FUN>
+		>
+		class Commander final {
+		public:
+			using comparator_type = CMD_COMPARATOR;
+			using executor_type = std::function<CMD_FUN>;
+			/* 
+			typename bellow is necessary since compiler at the moment of compilation of the template 
+			does not know that executor_type::result_type exists, it can not predict that 
+			std::function<CMD_FUN> can be compiled in future instantiations and thus can not predict
+			that ::result_type will be possible to use
+			this 'typename' was not required before C++11
+			this is required only when compiling templates even wothout any instantions of them
+
+			DBJ 2017-10-25
+			*/
+			typedef typename executor_type::result_type executor_return_type ;
+			using command_map_type = std::map<	CMD_ENUM, executor_type, comparator_type >;
+
+			/*	commander's function */
+			const executor_return_type execute (const CMD_ENUM & command) const
+			{
+					try {
+							return command_map_.at(command)();
+					}
+					catch (std::out_of_range &) {
+						throw  dbj::Exception(" Unknown command?" );
+					}
+			}
+				Commander() = default;
+		private: 
+			mutable command_map_type command_map_{};
+		};
+
+namespace /* test the Commander*/ {
+	/*
+	Define comand id's first
+	*/
+	enum class CMD : unsigned {
+		white = 0,		red,		green,			blue,				cyan,
+		yellow,			grey,		bright_red,		text_color_reset,
+		nop = (unsigned)-1
+	};
+
+	DBJ_TEST_CASE("dbj cmd Commander<>") {
+		/* 
+		observe carefuly!
+		declaration of a function type, NOT function pointer type 
+		*/
+		using cmd_fun_t = bool (void);
+		/* proof of how the template is concieved */
+		auto proofing = [&]() {
+			auto ok = std::is_function_v<cmd_fun_t>;
+			/* declare std::function wrapper type */
+			using executor_type = std::function<cmd_fun_t>;
+			/* define lambda of a compatible type */
+			auto e1 = []()-> bool { return true; };
+			/* store its copy in the wrapper declared */
+			executor_type fun_wrap = e1;
+			using executor_return_type = executor_type::result_type;
+			executor_return_type result = fun_wrap();
+		};
+		proofing();
+			Commander<CMD, cmd_fun_t > commander_;
+		try {
+			bool r = commander_.execute(CMD::red);
+		}
+		catch (dbj::Exception & x) {
+			dbj::io::printex("\n inside ",__func__,", Exception was caught: ", x.what() );
+		}
+	}
+/*
+	struct CMDcomparator {
+		bool operator ()(const CMD & lhs, const CMD & rhs) const noexcept { return lhs < rhs; }
+	};
+
+	using command_map_t = std::map<	CMD, cmd_fun_t, CMDcomparator >;
+
+	here we map command id's to lambdas that execute them
+	notice we define lambds to capture its run time surroundings by referece
+
+	inline command_map_t & comand_map() {
+		static command_map_t map_ = {
+			{ CMD::nop,				 [&]() { return true; } },
+			{ CMD::text_color_reset, [&]() { Painter::obj().text_reset(); return true; } },
+			{ CMD::white,  [&]() { Painter::obj().text(Colour::White); return true; } },
+			{ CMD::red,  [&]() { Painter::obj().text(Colour::Red); return true; } },
+			{ CMD::green,  [&]() { Painter::obj().text(Colour::Green); return true; } },
+			{ CMD::blue,  [&]() { Painter::obj().text(Colour::Blue); return true; } },
+			{ CMD::bright_red,  [&]() { Painter::obj().text(Colour::BrightRed); return true; } }
+		};
+		return map_;
+	}
+*/
+}
+#pragma endregion "commands"
+	} // cmd
+
 	namespace win {
 		namespace console {
 
@@ -115,13 +229,10 @@ namespace dbj {
 				using cmd_fun_t = std::function< bool(void)>;
 
 				struct CMDcomparator {
-					bool operator () (const CMD & lhs, const CMD & rhs) const
-					{
-						return lhs < rhs;
-					};
+					bool operator ()(const CMD & lhs, const CMD & rhs) const noexcept { return lhs < rhs; }
 				};
 
-				using command_map_t = std::map<CMD, cmd_fun_t, CMDcomparator >;
+				using command_map_t = std::map<	CMD, cmd_fun_t, CMDcomparator >;
 
 
 				/*
@@ -244,8 +355,7 @@ namespace dbj {
 
 
 				/*
-				based on idea from
-				http://en.cppreference.com/w/cpp/language/parameter_pack
+				based on idea from:	http://en.cppreference.com/w/cpp/language/parameter_pack
 				*/
 				const void print(const char * arg) const // base function
 				{
@@ -253,10 +363,7 @@ namespace dbj {
 				}
 
 				/*
-				Primitive print(). Tries to handle "words" and "numbers".
 				'%' is a replacement token
-				No type designators
-				No field width or precision values
 				*/
 				template<typename T, typename... Targs>
 				void print(const char* format, T value, Targs... Fargs) // recursive variadic function
