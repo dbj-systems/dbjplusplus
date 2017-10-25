@@ -6,13 +6,7 @@ namespace dbj {
 	/* Command pattern mechanism */
 	namespace cmd {
 #pragma region "commands"
-		/*
-		template<typename T>
-		struct DefaultLess final { 
-			bool operator ()(const T & lhs, const T & rhs) const noexcept { return lhs < rhs; }
-		};
-		*/
-
+	
 		/*  CMD_ENUM defined commands id's
 			CMD_FUN is function type to execute them. Whatever satisfies std::is_function<CMD_FUN>
 			CMD_COMPARATOR is function to compare the CMD_ENUM elements 
@@ -47,6 +41,30 @@ namespace dbj {
 					catch (std::out_of_range &) {
 						throw  dbj::Exception(" Unknown command?" );
 					}
+			}
+
+			/* register a function by key given 
+			   if function found will throw the exception if replace is false -- this is default
+			   if replace == true will replace if found
+
+			*/
+			template< typename F>
+			const Commander & insert (const CMD_ENUM & command_, F function_ , bool replace = false ) const
+			{
+				if (replace) {
+					command_map_[command_] = executor_type(function_);
+				}
+				else {
+					try {   // ! replace
+						auto fun = command_map_.at(command_);
+						// found + do not replace
+					}
+					catch (std::out_of_range &) {
+						// new registration
+						command_map_[command_] = executor_type(function_);
+					}
+				}
+				return (*this);
 			}
 				Commander() = default;
 		private: 
@@ -90,29 +108,6 @@ namespace /* test the Commander*/ {
 			dbj::io::printex("\n inside ",__func__,", Exception was caught: ", x.what() );
 		}
 	}
-/*
-	struct CMDcomparator {
-		bool operator ()(const CMD & lhs, const CMD & rhs) const noexcept { return lhs < rhs; }
-	};
-
-	using command_map_t = std::map<	CMD, cmd_fun_t, CMDcomparator >;
-
-	here we map command id's to lambdas that execute them
-	notice we define lambds to capture its run time surroundings by referece
-
-	inline command_map_t & comand_map() {
-		static command_map_t map_ = {
-			{ CMD::nop,				 [&]() { return true; } },
-			{ CMD::text_color_reset, [&]() { Painter::obj().text_reset(); return true; } },
-			{ CMD::white,  [&]() { Painter::obj().text(Colour::White); return true; } },
-			{ CMD::red,  [&]() { Painter::obj().text(Colour::Red); return true; } },
-			{ CMD::green,  [&]() { Painter::obj().text(Colour::Green); return true; } },
-			{ CMD::blue,  [&]() { Painter::obj().text(Colour::Blue); return true; } },
-			{ CMD::bright_red,  [&]() { Painter::obj().text(Colour::BrightRed); return true; } }
-		};
-		return map_;
-	}
-*/
 }
 #pragma endregion "commands"
 	} // cmd
@@ -223,47 +218,22 @@ namespace /* test the Commander*/ {
 					bright_red,
 					text_color_reset,
 					nop = (unsigned)-1
-				}
-				;
-
-				using cmd_fun_t = std::function< bool(void)>;
-
-				struct CMDcomparator {
-					bool operator ()(const CMD & lhs, const CMD & rhs) const noexcept { return lhs < rhs; }
-				};
-
-				using command_map_t = std::map<	CMD, cmd_fun_t, CMDcomparator >;
-
-
-				/*
-				here we map command id's to lambdas that execute them
-				notice we define lambds to capture its run time surroundings by referece
-				*/
-				inline command_map_t & comand_map() {
-					static command_map_t map_ = {
-						{ CMD::nop,				 [&]() { return true; } },
-						{ CMD::text_color_reset, [&]() { Painter::obj().text_reset(); return true; } },
-						{ CMD::white,  [&]() { Painter::obj().text(Colour::White); return true; } },
-						{ CMD::red,  [&]() { Painter::obj().text(Colour::Red); return true; } },
-						{ CMD::green,  [&]() { Painter::obj().text(Colour::Green); return true; } },
-						{ CMD::blue,  [&]() { Painter::obj().text(Colour::Blue); return true; } },
-						{ CMD::bright_red,  [&]() { Painter::obj().text(Colour::BrightRed); return true; } }
+				}	;
+				inline cmd::Commander<CMD, bool(void) > & comand_map() {
+					auto maker = []() {
+						cmd::Commander<CMD, bool(void) > commander_;
+						commander_
+							.insert(CMD::nop, [&]() { return true; })
+							.insert(CMD::text_color_reset, [&]() { Painter::obj().text_reset(); return true; })
+							.insert(CMD::white, [&]() { Painter::obj().text(Colour::White); return true; })
+							.insert(CMD::red, [&]() { Painter::obj().text(Colour::Red); return true; })
+							.insert(CMD::green, [&]() { Painter::obj().text(Colour::Green); return true; })
+							.insert(CMD::blue, [&]() { Painter::obj().text(Colour::Blue); return true; })
+							.insert(CMD::bright_red, [&]() { Painter::obj().text(Colour::BrightRed); return true; });
+						return commander_;
 					};
-					return map_;
-				}
-
-				/*	commander's function */
-				inline const void commander(CMD command)
-				{
-					auto executor = [&]() {
-						try {
-							(comand_map().at(command))();
-						}
-						catch (std::out_of_range &) {
-							throw " Unknown command exception";
-						}
-					};
-					return executor();
+					static cmd::Commander<CMD, bool(void) > commander_ = maker();
+					return commander_;
 				}
 #pragma endregion "commands"
 				
@@ -278,7 +248,7 @@ namespace /* test the Commander*/ {
 				}
 
 				inline void out(const HANDLE & output_handle_, const CMD & cmd_) {
-					commander(cmd_);
+					comand_map().execute(cmd_);
 				}
 
 				/* by using enable_if we make sure this template instances are made
