@@ -107,6 +107,7 @@
     <ClInclude Include="dbj_defval.h" />
     <ClInclude Include="dbj_startend.h" />
     <ClInclude Include="dbj_testing.h" />
+    <ClInclude Include="dbj_win32.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

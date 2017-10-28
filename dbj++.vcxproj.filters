@@ -39,6 +39,9 @@
     <ClInclude Include="dbj_defval.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

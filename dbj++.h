@@ -93,7 +93,7 @@ namespace {
 
 
 namespace dbj {
-	constexpr auto COMPANY = "dbj.systems Ltd."; // your company here
+	constexpr auto COMPANY = "DBJ.Systems Ltd."; /
 	constexpr auto YEAR = (__DATE__ + 7);
 }
 
@@ -104,6 +104,7 @@ namespace dbj {
 #include "dbj_console.h"
 #include "dbjio.h"
 #include "dbj_defval.h"
+#include "dbj_win32.h"
 
 /* standard suffix for this header only every header here */
 #pragma message( __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
