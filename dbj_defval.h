@@ -116,14 +116,15 @@ namespace dbj {
 	inline auto holder_maker(T defval_) {
 
 		/*
-		So what do we do? On the first call we execute the lambda and return it. 
+		So what do we do to make this behave as  we want  it to? 
+		On the first call we execute the lambda and return it. 
 		Thus on second and all the other calls it will be used with a proper def val from the first call
-		*/
 
-		// no if we do bellow T new_ = defval_ will not compile, try...
-		// the elegant )(or is it a stunt?) way arround, is to use std::optional
-		// BIG NOTE 2: lambda bellow requires T to be a moveable type
-		// so if T is your class it better be moveable 
+		 No if we do bellow T new_ = defval_ will not compile, try...
+		 the elegant )(or is it a stunt?) way arround, is to use std::optional
+		 BIG NOTE 2: lambda bellow requires T to be a moveable type
+		 so if T is your class it better be moveable 
+		*/
 		auto defval_handler = [&](const std::optional<T> & new_ = std::nullopt) -> const T &&
 		{
 			static T default_value = defval_;
