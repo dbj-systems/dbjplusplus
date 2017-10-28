@@ -93,7 +93,7 @@ namespace {
 
 
 namespace dbj {
-	constexpr auto COMPANY = "DBJ.Systems Ltd."; /
+	constexpr auto COMPANY = "DBJ.Systems Ltd."; 
 	constexpr auto YEAR = (__DATE__ + 7);
 }
 
