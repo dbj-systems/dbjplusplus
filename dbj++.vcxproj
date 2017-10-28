@@ -104,6 +104,7 @@
     <ClInclude Include="dbj_com.h" />
     <ClInclude Include="dbj_console.h" />
     <ClInclude Include="dbj_crt.h" />
+    <ClInclude Include="dbj_defval.h" />
     <ClInclude Include="dbj_startend.h" />
     <ClInclude Include="dbj_testing.h" />
   </ItemGroup>

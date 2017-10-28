@@ -103,6 +103,7 @@ namespace dbj {
 #include "dbj_com.h"
 #include "dbj_console.h"
 #include "dbjio.h"
+#include "dbj_defval.h"
 
 /* standard suffix for this header only every header here */
 #pragma message( __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
