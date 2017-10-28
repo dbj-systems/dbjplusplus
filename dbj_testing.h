@@ -165,9 +165,10 @@ namespace dbj {
 			printex("\n\nFINISHED ALL Tests\n\n");
 		}
 #else // DBJ_TESTING_EXISTS is undefined
-		auto add = [](void(*)()) { return true; };
-		static __forceinline void _stdcall execute() { }
-
+		namespace {
+			auto add = [](void(*)()) { return true; };
+			__forceinline void _stdcall execute() { }
+		}
 #define DBJ_TEST_UNIT(code)
 
 #endif // 

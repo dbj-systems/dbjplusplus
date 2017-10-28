@@ -116,19 +116,7 @@ namespace dbj {
 	inline auto holder_maker(T defval_) {
 
 		/*
-		BIG NOTE 1: be careful! We do return the lambda but it is not executed
-		untill the SECOND call happens!
-		And on that second call defval_ argument to the holder_maker is some random value of type T
-		so that default_value will get it on that second call and not before
-		Therefore we should place the following line here and NOT inside the lambda
-
-		static T default_value = defval_;
-
-		buit then we get: 
-		error C3495: 'default_value': 
-		identifier in capture must be a variable with automatic storage duration declared in the reaching scope of the lambda
-
-		So what do we do? On the first call we execute the lambda return it. 
+		So what do we do? On the first call we execute the lambda and return it. 
 		Thus on second and all the other calls it will be used with a proper def val from the first call
 		*/
 

@@ -5,11 +5,6 @@
 #if _MSC_VER < 1911
 #error This code requires Visual C++ 14.1 or better
 #endif
-
-#ifndef UNICODE
-#error __FILE__ requires UNICODE builds
-#endif
-
 #ifndef STRINGIFY
 #define STRINGIFY(s) # s
 #define EXPAND(s) STRINGIFY(s)
@@ -17,13 +12,12 @@
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 
-#ifndef __YEAR__
-// Example of __DATE__ string: "Jul 27 2012"
-//                              01234567890
-#define __YEAR__ (__DATE__ + 7)
-namespace {
-	constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
-}
+#ifndef __FILENAME__
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#endif
+
+#ifndef UNICODE
+#error __FILE__ requires UNICODE builds
 #endif
 
 #include <assert.h>
@@ -35,17 +29,30 @@ namespace {
 #include <array>
 #include <vector>
 #include <functional>
+#include <iosfwd>
+#include <iostream>
+
+
+
+#ifndef __YEAR__
+// Example of __DATE__ string: "Jul 27 2012"
+//                              01234567890
+#define __YEAR__ (__DATE__ + 7)
+namespace {
+	constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
+}
+#endif
+
+
 /*
 dbj begins here
 */
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 /*  __interface msvc keyword
 explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 */
 #define implements public
 // inline is the keyword, in C++ and C99.
-// #define DBJ_INLINE inline
-#define DBJ_INLINE static __forceinline 
+#define DBJ_INLINE inline 
 
 #ifdef __cpp_lib_is_final
 #define DBJ_FINAL final
@@ -54,7 +61,6 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #endif
 
 
-namespace {
 	// Taken from MODERN v1.26 - http://moderncpp.com
 	// Copyright (c) 2015 Kenny Kerr
 #pragma region Independent debug things
@@ -62,6 +68,7 @@ namespace {
 #define DBJ_ASSERT assert
 #define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
 
+namespace {
 	template <typename ... Args>
 	DBJ_INLINE void DBJ_TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
@@ -73,7 +80,7 @@ namespace {
 	template <typename ... Args>
 	DBJ_INLINE void DBJ_TRACE(const char * const message, Args ... args) noexcept
 	{
-		wchar_t buffer[512] = {};
+		char buffer[512] = {};
 		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
 		::OutputDebugStringA(buffer);
 	}
@@ -110,8 +117,6 @@ namespace dbj {
 #pragma message( __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
-
-#undef DBJVERSION
 /*
 Copyright 2017 by dbj@dbj.org
 

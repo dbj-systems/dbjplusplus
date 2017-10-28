@@ -12,11 +12,90 @@
 
 namespace dbj {
 	namespace win32 {
-#pragma region "dbj win32 strings"
+#pragma region "GDI+ LINE"
+		namespace {
+			static struct dflt {
+				dbj::holder<REAL>			widh{ 10 };
+				dbj::holder<SmoothingMode>	smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
+				dbj::holder<LineCap>		linecap{ LineCap::LineCapRound };
+			} DFLT_;
+		}
+		/*
+		The WIN32 DrawLine function wrapper
+		*/
+		class LINE final {
+		public:
+			using REAL = Gdiplus::REAL;
+			using SmoothingMode = Gdiplus::SmoothingMode;
+			using LineCap = Gdiplus::LineCap;
+			using GraphicP = std::unique_ptr<Gdiplus::Graphics>;
+			using PenP = std::unique_ptr<Gdiplus::Pen>;
+		private:
+			GraphicP				gfx_ = nullptr;
+			PenP					pen_ = nullptr;
+
+		public:
+			~LINE() {	}
+			LINE(HDC hDC, Gdiplus::ARGB clr, Gdiplus::REAL width = DFLT_.widh())
+			{
+				gfx_ = ::std::make_unique<Gdiplus::Graphics>(hDC);
+				if (width < 1) width = DFLT_.widh();
+				pen_ = ::std::make_unique< Gdiplus::Pen>(Gdiplus::Color::Color(clr), width);
+			}
+
+			/* change the pen color and return the ARGB of a new color */
+			Gdiplus::ARGB color(Gdiplus::ARGB clr) {
+
+				Gdiplus::Color color_(clr);
+				// Status SetColor(IN const Color& color)
+				Gdiplus::Status status_ = pen_->SetColor(color_);
+				DBJ_ASSERT(status_ == Gdiplus::Status::Ok);
+				// Status GetColor(OUT Color* color) const
+				status_ = pen_->GetColor(&color_);
+				DBJ_ASSERT(status_ == Gdiplus::Status::Ok);
+				return color_.MakeARGB(color_.GetAlpha(), color_.GetRed(), color_.GetGreen(), color_.GetBlue());
+			}
+
+			void operator () (int sx, int sy, int ex, int ey, Gdiplus::REAL width = 0) {
+				gfx_->SetSmoothingMode(
+					DFLT_.smoothnes()
+				);
+				pen_->SetEndCap(
+					DFLT_.linecap()
+				);
+
+				if (width > 0)
+					pen_->SetWidth(width);
+				else
+					throw TEXT("Pen width less than 1?");
+
+				gfx_->DrawLine(pen_.get(), sx, sy, ex, ey);
+			}
+		};
+
+#if 0
+		static void test_line(HDC hDC, int sx, int sy, int ex, int ey, Gdiplus::ARGB clr, Gdiplus::REAL w)
+		{
+			/*
+			Gdiplus::Graphics g(hDC);
+			g.SetSmoothingMode(Gdiplus::SmoothingMode::SmoothingModeAntiAlias);
+			auto calculated_color = Gdiplus::Color::Color(clr);
+			Gdiplus::Pen p(calculated_color, w);
+			p.SetEndCap(Gdiplus::LineCap::LineCapRound);
+			g.DrawLine(&p, sx, sy, ex, ey);
+			*/
+			LINE liner_(hDC, clr, w);
+			liner_(sx, sy, ex, ey);
+		}
+#endif
+
+#pragma endregion "GDI+ LINE"
+
+#pragma region "dbj win32 string types"
 		using CHAR_T = wchar_t;
 		using STRING = std::wstring;
 		using long_string_pointer = CHAR_T *; // LPWSTR;
-#pragma endregion "dbj win32 strings"
+#pragma endregion "dbj win32 string types"
 
 											  //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 		__forceinline auto getLastErrorMessage(
@@ -51,7 +130,9 @@ namespace dbj {
 
 		namespace sysinfo {
 			using std::string;
-			DWORD	INFO_BUFFER_SIZE = 1024;
+			namespace {
+				DWORD	INFO_BUFFER_SIZE = 1024;
+			}
 			static wstring  infoBuf(INFO_BUFFER_SIZE, (char)0);
 			//
 			template<class F, class... Pack>

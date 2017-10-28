@@ -1,7 +1,5 @@
 ﻿#pragma once
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-#define STRICT
-#include <windows.h>
+// #include <windows.h> before this header
 namespace dbj {
 	/* Command pattern mechanism */
 	namespace cmd {
@@ -71,6 +69,7 @@ namespace dbj {
 			mutable command_map_type command_map_{};
 		};
 
+#ifdef DBJ_TESTING_EXISTS
 namespace /* test the Commander*/ {
 	/*
 	Define comand id's first
@@ -109,6 +108,7 @@ namespace /* test the Commander*/ {
 		}
 	}
 }
+#endif
 #pragma endregion "commands"
 	} // cmd
 

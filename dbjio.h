@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+
 
 namespace dbj {
 
@@ -16,7 +16,7 @@ namespace dbj {
 		*/
 		constexpr auto LEFTPAREN = '(', RIGHTPAREN = ')';
 
-		inline auto & TARGET () { return std::cout; };
+		inline auto & TARGET () { return ::std::cout; };
 		/*
 		bellow we add anonimous one namespace for each newly discovered complex type required
 		to be printed by this lib
