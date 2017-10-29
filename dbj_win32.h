@@ -44,7 +44,7 @@ namespace dbj {
 				DBJ_ASSERT(status_ == Gdiplus::Status::Ok);
 				return color_.MakeARGB(color_.GetAlpha(), color_.GetRed(), color_.GetGreen(), color_.GetBlue());
 			}
-
+			/* draw the line */
 			void operator () (int sx, int sy, int ex, int ey, Gdiplus::REAL width = 0) {
 				gfx_->SetSmoothingMode(
 					DFLT_.smoothnes()
@@ -121,17 +121,18 @@ namespace dbj {
 			using std::string;
 			namespace {
 				DWORD	INFO_BUFFER_SIZE = 1024;
-			}
-			static wstring  infoBuf(INFO_BUFFER_SIZE, (char)0);
-			//
-			template<class F, class... Pack>
-			constexpr __forceinline auto
-				call
-				(F&& fun, Pack&&... args) {
-				infoBuf.clear();
-				if (0 == std::invoke(fun, (args)...))
-					throw getLastErrorMessage(typeid(F).name());
-				return (infoBuf);
+
+				static wstring  infoBuf(INFO_BUFFER_SIZE, (char)0);
+				//
+				template<class F, class... Pack>
+				constexpr __forceinline auto
+					call
+					(F&& fun, Pack&&... args) {
+					infoBuf.clear();
+					if (0 == std::invoke(fun, (args)...))
+						throw getLastErrorMessage(typeid(F).name());
+					return (infoBuf);
+				}
 			}
 			// 
 			__forceinline STRING computer_name() {
