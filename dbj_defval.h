@@ -42,31 +42,33 @@ namespace dbj {
 	No stunts. A plain old function object.
 	Simple usable and working
 	*/
+#pragma warning( push ) 
+#pragma warning( disable : 4522 )
 	template<typename T>
 	class holder {
 		// mutable members of const class instances are modifiable
 		mutable T default_value_{};
-		// in version 0.1 hide ctors, movers and copiers
-		holder();
-		holder(const holder &);
-		holder(const holder &&);
-		holder &  operator = (const holder &);
-		holder && operator = (const holder &&);
+		// ask compiler for default ctor
+		holder() _NOEXCEPT = default;
+		// dbj::holder is neither copyable nor movable.
+		holder(const holder&) = delete;
+		holder& operator=(const holder&) = delete;
+		holder& operator=(const holder&) volatile = delete;
 	public:
-		holder(const T & defval_) : default_value_(defval_) {
-		};
-
+		holder(const T & defval_) : default_value_(defval_) {	};
+		/* first operator () overload just returns the value */
 		const T & operator () () const noexcept {
 			return default_value_;
 		}
 		/*
+		second operator () overload sets and returns the value
 		please read
 		https://msdn.microsoft.com/en-us/library/031k84se.aspx
 		to understand the operator declaration bellow
 		it allows for const isntances to be used
-		through the operator bellow
-		const holder<REAL> width{ 10 };
-		width(1024) ; // OK
+		through the operator bellow. Example 
+		const holder<REAL> width{ 10 }; // set to 10
+		width(1024) ; // OK to change to 1024
 		*/
 		const volatile T & operator ()
 			(const T & new_) const volatile noexcept
@@ -76,7 +78,9 @@ namespace dbj {
 			return default_value_;
 		}
 	};
-	#ifdef	DBJ_TESTING_EXISTS
+#pragma warning( pop ) 
+
+#ifdef	DBJ_TESTING_EXISTS
 	namespace {
 		using namespace Gdiplus;
 
@@ -85,7 +89,7 @@ namespace dbj {
 			mutable holder<REAL> width{ 10 };
 		};
 
-		const S konst_;
+		const S konst_{}; // must  be initialized if const
 
 		holder<SmoothingMode> smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
 		holder<LineCap> linecap{ LineCap::LineCapRound };
@@ -101,7 +105,6 @@ namespace dbj {
 			auto lc_ = linecap();
 			auto sness = smoothnes();
 		}
-
 	}
 #endif
 #pragma endregion "Version THREE"
@@ -109,23 +112,27 @@ namespace dbj {
 #pragma region "Version TWO"
 	/*
 	Function template returning a lambda
-	Closer to real stunt, but works
-	And compiler has less problems disambiguating the instances
+	Closer to real stunt, but works.
+	And compiler has less problems disambiguating the instances	vs the solution one
+	type T has to be move assignable
 	*/
-	template<typename T>
+	template<typename T,
+	typename std::enable_if< std::is_move_assignable_v<T> > * = 0 >
 	inline auto holder_maker(T defval_) {
 
 		/*
+		Requirement: auto df = defval() should return def val on first and all the other calls.
 		So what do we do to make this behave as  we want  it to? 
 		On the first call we execute the lambda and return it. 
 		Thus on second and all the other calls it will be used with a proper def val from the first call
-
-		 No if we do bellow T new_ = defval_ will not compile, try...
-		 the elegant )(or is it a stunt?) way arround, is to use std::optional
-		 BIG NOTE 2: lambda bellow requires T to be a moveable type
-		 so if T is your class it better be moveable 
 		*/
-		auto defval_handler = [&](const std::optional<T> & new_ = std::nullopt) -> const T &&
+		auto defval_handler = [&](
+			/* No if we do bellow T new_ = defval_ , that will not compile, try...
+			   the elegant (or is it a stunt?) way arround, is to use std::optional
+			   BIG NOTE 2: lambda bellow requires T to be a moveable type
+			*/
+			const std::optional<T> & new_ = std::nullopt
+			) -> const T &&
 		{
 			static T default_value = defval_;
 			if (new_ != std::nullopt) {
@@ -136,10 +143,10 @@ namespace dbj {
 			return std::forward<T>( default_value );
 		};
 
+		/* only on the first call execution will reach here and
+		will return the lambda to be used on the rest of the calls */
 		static auto first_call_ = defval_handler();
-
-		return defval_handler; 
-		// on the first call execution will reach here and will return the lambda not its result
+		return defval_handler;
 	}
 
 #ifdef	DBJ_TESTING_EXISTS

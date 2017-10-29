@@ -141,7 +141,7 @@ TODO: if symbol contains comma this is not going to work
 */
 #ifndef DBJ_NV
 #define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
+#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
 
 /* standard suffix for every other header here */

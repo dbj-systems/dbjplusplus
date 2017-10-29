@@ -5,19 +5,15 @@
 #if _MSC_VER < 1911
 #error This code requires Visual C++ 14.1 or better
 #endif
-#ifndef STRINGIFY
-#define STRINGIFY(s) # s
-#define EXPAND(s) STRINGIFY(s)
-#endif
-#define DBJ_CONCAT_IMPL( x, y ) x##y
-#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-
-#ifndef __FILENAME__
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#endif
 
 #ifndef UNICODE
 #error __FILE__ requires UNICODE builds
+#endif
+
+#ifndef _INC_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define STRICT
+#include <windows.h>
 #endif
 
 #include <assert.h>
@@ -31,6 +27,21 @@
 #include <functional>
 #include <iosfwd>
 #include <iostream>
+#include <stdlib.h>
+#include <cstring>
+#include <iosfwd>
+
+#ifndef DBJ_STRINGIFY
+#define DBJ_STRINGIFY(s) # s
+#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
+#endif
+#define DBJ_CONCAT_IMPL( x, y ) x##y
+#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+
+#ifndef __FILENAME__
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#endif
+
 
 
 

@@ -1,10 +1,5 @@
 #pragma once
 
-#include "stdio.h"
-#include "stdlib.h"
-#include <cstring>
-#include <iosfwd>
-
 /*
 2017-10-18	DBJ created
 

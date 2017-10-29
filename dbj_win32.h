@@ -1,15 +1,4 @@
 #pragma once
-
-#ifndef UNICODE
-#error __FILE__ requires UNICODE builds
-#endif
-
-#ifndef _INC_WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#define STRICT
-#include <windows.h>
-#endif
-
 namespace dbj {
 	namespace win32 {
 #pragma region "GDI+ LINE"
