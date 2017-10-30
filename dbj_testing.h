@@ -16,12 +16,10 @@ if constexpr(dbj::testing::RUNING) {
 How to add test unit, with no macros:
 
 #if DBJ_TESTING_EXISTS
-namespace {
-static auto dummy = dbj::testing::add(
-" Critical Test" ,
-[](){ std::cout << "Test" ;}
-) ;
-}
+ namespace {
+   static auto dummy = dbj::testing::add( " Critical Test" , [](){ std::cout << "Test" ;}
+  ) ;
+ }
 #endif
 
 instead of in line lambda one can add function name or lambda name
@@ -45,8 +43,6 @@ return 0;
 No exceptions are thrown outside. They are reported to console.
 
 */
-#include "dbjio.h"
-#include <map>
 
 namespace dbj {
 	namespace testing {
@@ -64,9 +60,6 @@ namespace dbj {
 
 namespace dbj {
 	namespace testing {
-#ifdef DBJ_TESTING_EXISTS
-
-
 		namespace {
 
 			struct FPcomparator {
@@ -97,29 +90,21 @@ namespace dbj {
 				return tu_map().find(tunit_);
 			}
 
-			DBJ_INLINE bool found(testunittype tunit_) {
+	       DBJ_INLINE bool found(testunittype tunit_) {
 				return (
 					tu_map().end() != find(tunit_)
 					);
-			}
+	}
 
-			DBJ_INLINE void append(testunittype tunit_, const std::string & description_) {
+	DBJ_INLINE void append(testunittype tunit_, const std::string & description_) {
 				/* do not insert twice the same test unit */
 				if (!found(tunit_))
 					tu_map()[tunit_] = description_;
-			}
+	}
 
-			DBJ_INLINE bool unit_execute(testunittype tunit_) {
-				try {
-					tunit_();
-					return true;
-				}
-				catch (...) {
-					throw dbj::Exception(
-						std::string("Unknown exception while executing testing unit") + tu_map()[tunit_]
-					);
-				}
-			}
+	DBJ_INLINE bool unit_execute(testunittype tunit_) {
+				tunit_();
+		}
 
 			struct adder {
 				const bool operator ()(const std::string & msg_, testunittype tunit_) const {
@@ -144,37 +129,8 @@ namespace dbj {
 #define DBJ_TEST_CASE_IMPL(description, name ) static void name(); DBJ_TEST_UNIT_REGISTER(description, name); static void name() 
 
 #define DBJ_TEST_CASE( description ) DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
-
-		/*  execute all the tests collected  */
-		DBJ_INLINE void _stdcall execute() noexcept {
-
-			using dbj::io::printex;
-
-			printex("\n\nSTARTING [", tu_map().size(), "] tests\n\n");
-			for (auto tunit : tu_map())
-			{
-				try {
-					printex("\n\tTEST BEGIN [", tunit.second, "]\n");
-					unit_execute(tunit.first);
-					printex("\n\tTEST END   [", tunit.second, "]\n");
-				}
-				catch (dbj::Exception & x) {
-					printex("\n\t\tException: [", x.what(), "] thrown from the testing unit: ");
-				}
-			}
-			printex("\n\nFINISHED ALL Tests\n\n");
-		}
-#else // DBJ_TESTING_EXISTS is undefined
-		namespace {
-			auto add = [](void(*)()) { return true; };
-			__forceinline void _stdcall execute() { }
-		}
-#define DBJ_TEST_UNIT(code)
-
-#endif // 
 	} // testing
 } // dbj
-
   /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
