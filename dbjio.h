@@ -1,19 +1,16 @@
 #pragma once
-
-
 namespace dbj {
+	/*
+	"modern" printf like output in modern c++, without printf type descriptors required.
+	c++14 capable compiler should suffice.
 
+	Inspired with : https://msdn.microsoft.com/magazine/dn973010
+	Which in turn was inspired with http://en.cppreference.com/w/cpp/language/parameter_pack
+	Keny's idea was to implement that, but without std::iostreams.
+	Here is MUCH simpler version using iostreams
+	*/
 	namespace io {
-		/*
-		"modern" printf like output in modern c++, without printf type descriptors required.
-		c++14 capable compiler should suffice.
 
-		Inspired with : https://msdn.microsoft.com/magazine/dn973010
-		Which in turn was inspired with http://en.cppreference.com/w/cpp/language/parameter_pack
-		Kenys idea was to implement that, but without std::iostreams.
-
-		Here is MUCH simpler version using iostreams
-		*/
 		constexpr auto LEFTPAREN = '(', RIGHTPAREN = ')';
 
 		inline auto & TARGET () { return ::std::cout; };
