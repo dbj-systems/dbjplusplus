@@ -66,6 +66,9 @@
     <ClInclude Include="test\dbj_crt_testing.h">
       <Filter>test</Filter>
     </ClInclude>
+    <ClInclude Include="test\dbj_defval_testing.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

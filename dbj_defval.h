@@ -14,18 +14,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+#ifndef _GDIPLUS_H
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
 #include <objidl.h>
 #include <gdiplus.h>
 using namespace Gdiplus;
 #pragma comment(lib, "Gdiplus.lib")
+#endif // _GDIPLUS_H
 
+#ifndef assert
 #include <assert.h>
+#endif
 
 #include <functional>
 #include <utility>
 #include <optional>
+
 namespace dbj {
 
 	/*
@@ -80,34 +86,7 @@ namespace dbj {
 	};
 #pragma warning( pop ) 
 
-#ifdef	DBJ_TESTING_EXISTS
-	namespace {
-		using namespace Gdiplus;
-
-		// test the const onstance behaviour
-		struct S {
-			mutable holder<REAL> width{ 10 };
-		};
-
-		const S konst_{}; // must  be initialized if const
-
-		holder<SmoothingMode> smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
-		holder<LineCap> linecap{ LineCap::LineCapRound };
-
-		DBJ_TEST_CASE("dbj def val option three") {
-			auto width_ = konst_.width(1024);
-			const auto w1_ = konst_.width();
-			auto w2_ = konst_.width();
-
-			assert(width_ == 1024);
-			assert(w2_ == w1_ && w2_ == width_ && w1_ == width_);
-
-			auto lc_ = linecap();
-			auto sness = smoothnes();
-		}
-	}
-#endif
-#pragma endregion "Version THREE"
+#pragma endregion "eof Version THREE"
 
 #pragma region "Version TWO"
 	/*
@@ -149,31 +128,7 @@ namespace dbj {
 		return defval_handler;
 	}
 
-#ifdef	DBJ_TESTING_EXISTS
-	namespace {
-		using namespace Gdiplus;
-
-		DBJ_TEST_CASE("def val option 2") {
-			// create default values holders
-			// creation happens since these are first calls
-			// nice, but what is stopping us to do this 2 or more times?
-			// we will have 2 or more lambdas for each def val type
-			auto default_smoot = holder_maker(SmoothingMode::SmoothingModeAntiAlias);
-			auto default_lncap = holder_maker(LineCap::LineCapRound);
-			auto default_width = holder_maker(10);
-
-			// just get the dflt width
-			auto dw0 = default_width();
-			auto dw1 = default_width();
-			// note: const ref is returned so we can not assign (without stunts) 
-			// to value
-			// somewhere and sometimes latter someone might change the default value
-			auto dw2 = default_width(42);
-		}
-	}
-#endif
-
-#pragma endregion "Version TWO" 
+#pragma endregion "eof Version TWO" 
 
 #pragma region "Version ONE"
 #if 0
@@ -217,3 +172,21 @@ namespace dbj {
 #endif
 #pragma endregion "Version ONE"
 } // namespace dbj
+
+  /* standard suffix for every other header here */
+#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+  /*
+  Copyright 2017 by dbj@dbj.org
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http ://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */

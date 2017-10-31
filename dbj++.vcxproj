@@ -114,6 +114,7 @@
     <ClInclude Include="dbj_testing_interface.h" />
     <ClInclude Include="dbj_win32.h" />
     <ClInclude Include="test\dbj_crt_testing.h" />
+    <ClInclude Include="test\dbj_defval_testing.h" />
     <ClInclude Include="test\dbj_various_tests.h" />
   </ItemGroup>
   <ItemGroup>
