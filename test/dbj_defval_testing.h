@@ -6,13 +6,13 @@ namespace {
 
 	// test the const onstance behaviour
 	struct S {
-		mutable holder<REAL> width{ 10 };
+		mutable dbj::holder<REAL> width{ 10 };
 	};
 
 	const S konst_{}; // must  be initialized if const
 
-	holder<SmoothingMode> smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
-	holder<LineCap> linecap{ LineCap::LineCapRound };
+	dbj::holder<SmoothingMode> smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
+	dbj::holder<LineCap> linecap{ LineCap::LineCapRound };
 
 	DBJ_TEST_CASE("dbj def val option three") {
 		auto width_ = konst_.width(1024);
@@ -37,9 +37,9 @@ namespace {
 		// creation happens since these are first calls
 		// nice, but what is stopping us to do this 2 or more times?
 		// we will have 2 or more lambdas for each def val type
-		auto default_smoot = holder_maker(SmoothingMode::SmoothingModeAntiAlias);
-		auto default_lncap = holder_maker(LineCap::LineCapRound);
-		auto default_width = holder_maker(10);
+		auto default_smoot = dbj::holder_maker(SmoothingMode::SmoothingModeAntiAlias);
+		auto default_lncap = dbj::holder_maker(LineCap::LineCapRound);
+		auto default_width = dbj::holder_maker(10);
 
 		// just get the dflt width
 		auto dw0 = default_width();

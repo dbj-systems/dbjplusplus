@@ -120,6 +120,11 @@ namespace {
 			painter_commander().execute(cmd_);
 		}
 
+        /* here are the out() overloads for intrinsic types */
+		inline void out(const std::wstring & ws_) {
+			console_.out(HANDLE_, ws_);
+		}
+
 		/* by using enable_if we make sure this template instances are made
 		only for types we want
 		*/
@@ -157,6 +162,20 @@ namespace {
 			console_.out(HANDLE_, std::wstring(std::begin(str), std::end(str)));
 		}
 
+		/* 
+		now we have out() overloads for "other" types using the ones above 
+		made for intrinsic types
+		keep in mind that both print() and printex() use this overloads
+		------------------------------------------------------------------------
+		output the exceptions
+		*/
+		inline void out(const dbj::Exception & x_) {
+			out(x_.what());
+		}
+
+		inline void out(const std::exception & x_) {
+			out(x_.what());
+		}
 
 		/* 
 		------------------------------------------------------------------------
@@ -164,12 +183,20 @@ namespace {
 		for example : http://en.cppreference.com/w/cpp/language/parameter_pack
 		------------------------------------------------------------------------
 		
-		bellow is the special print() overload: receives a single CMD and passes it to the 
-		printer commander
+		bellow are the special print() overloads: 
+		
+		receives a single CMD and passes it to the printer commander
 		*/
 		inline void print (const CMD & cmd_) {
 			painter_commander().execute(cmd_);
 		}
+		/* print exception and also color the output */
+		inline void print(const dbj::Exception & x_) {
+			painter_commander().execute(CMD::bright_red);
+			out(x_.what());
+			painter_commander().execute(CMD::text_color_reset);
+		}
+
 
 		/*	recursion stopper		*/
 		inline void print(const char * arg) {
