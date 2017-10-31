@@ -19,31 +19,41 @@ namespace dbj {
 			typedef typename dbj::win::con::CMD CMD;
 			using dbj::win::con::print ;
 
-			auto white_line = [&]() { print("%%", CMD::white, line()); };
-			auto blue_line =  [&]() { print("%%", CMD::blue, line()); };
+			auto white_line = [&]( const char * arg = "") { 
+				print("%%%%", arg, CMD::white,line(), CMD::text_color_reset); 
+			};
+			auto blue_line =  [&]( const char * arg = "") { 
+				print("%%%%", arg, CMD::bright_blue,line(), CMD::text_color_reset); 
+			};
 
-			white_line();
-			print("\n\nStarting [%] tests\n\n", tu_map().size());
-			white_line();
+			white_line("\n");
+			print("\ndbj++ Testing Framework");
+			white_line("\n");
+			print("\nStarting [%] tests", tu_map().size());
+			white_line("\n");
 			for (auto tunit : tu_map())
 			{
+				blue_line("\n");
+				print("\n\tTEST BEGIN [%]", tunit.second);
+				blue_line("\n");
 				try {
-					print("\n\tTEST BEGIN [%]\n", tunit.second);
-					blue_line();
+					print("\n");
 					unit_execute(tunit.first);
-					blue_line();
-					print("\n\tTEST END [%]\n", tunit.second);
+					print("\n");
 				}
 				catch (dbj::Exception & x) {
-					print("%\n\t\tException: [%] thrown from the testing unit: % %", CMD::bright_red, x.what(), tunit.second, CMD::white);
+					print(x);
 				}
 				catch (...) {
-					print("%\n\t\tUnknown Exception thrown from the testing unit: % %", CMD::bright_red, tunit.second, CMD::white);
+					print(dbj::Exception("\nUnknown Exception"));
 				}
+				blue_line("\n");
+				print("\n\tTEST END [%]", tunit.second);
+				blue_line("\n");
 			}
-			white_line();
-			print("\n\nFINISHED ALL Tests\n\n");
-			white_line();
+			white_line("\n");
+			print("\nFINISHED ALL Tests");
+			white_line("\n");
 			print(CMD::text_color_reset);
 		}
 	} // testing
