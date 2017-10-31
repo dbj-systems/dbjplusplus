@@ -81,93 +81,143 @@ namespace /* WideOut*/ {
 } //nspace
 #pragma endregion "WideOut"
 
-#pragma region "printer implementation"
+#pragma region "print-ing implementation"
+/*
+  print-ing implementation+interface is whole inside dbj::win::con::anonymous_name_space
+  that makes it acessible to clients. E.g. :
+
+  using dbj::win::con::print ;  print("Hi!");
+
+  besides parts which are not because they are in :
+
+  dbj::win::con::anonymous_name_space::anonymous_name_space
+*/
 namespace {
-				/* here we hide the single application wide console instance */
-				namespace {
-					WideOut console_{};
-					HANDLE  HANDLE_{ console_.handle() };
+		
+	/* 
+	here we hide the single application wide console instance 
+	it is still acessible to the dbj::win::con::anonymous_name_space
+	but not to the users of it
+	*/
+	namespace {
+		WideOut console_{};
+		/* we expose the HANDLE to the print-ing because of future requirements 
+		   wanting to use error handle etc ...
+		*/
+		HANDLE  HANDLE_{ console_.handle() };
+	}
 
-					/* this is the special out that does not use the console output class 
-					   but painter commander 
-					 */
-					inline void out(const CMD & cmd_) {
-						painter_commander().execute(cmd_);
-					}
+/* 
+	dbj::win::con::print(...)  depends on out() overloads for printing various types 
+	to the console. We add them bellow as required.
 
-					/* by using enable_if we make sure this template instances are made
-					only for types we want
-					*/
-					template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
-					inline void out(const N & number_) {
-						// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-						console_.out(HANDLE_, std::to_wstring(number_));
-					}
+	console.out(...) is the only method to output to a console
 
-					inline void out( const std::string & s_) {
-						console_.out(HANDLE_, std::wstring(s_.begin(), s_.end()));
-					}
+	this is the special out that does not use the console output class 
+	but painter commander 
+*/
+		inline void out(const CMD & cmd_) {
+			painter_commander().execute(cmd_);
+		}
+
+		/* by using enable_if we make sure this template instances are made
+		only for types we want
+		*/
+		template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
+		inline void out(const N & number_) {
+			// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
+			console_.out(HANDLE_, std::to_wstring(number_));
+		}
+
+		inline void out( const std::string & s_) {
+			console_.out(HANDLE_, std::wstring(s_.begin(), s_.end()));
+		}
 
 
-					inline void out(const char * cp) {
-						std::string s(cp);
-						console_.out(HANDLE_, std::wstring(s.begin(), s.end()));
-					}
+		inline void out(const char * cp) {
+			std::string s(cp);
+			console_.out(HANDLE_, std::wstring(s.begin(), s.end()));
+		}
 
-					inline void out(const wchar_t * cp) {
-						console_.out(HANDLE_, std::wstring(cp));
-					}
+		inline void out(const wchar_t * cp) {
+			console_.out(HANDLE_, std::wstring(cp));
+		}
 
-					template<size_t N>
-					inline void out(const wchar_t(&wp_)[N]) {
-						console_.out(HANDLE_, std::wstring(wp_));
-					}
+		template<size_t N>
+		inline void out(const wchar_t(&wp_)[N]) {
+			console_.out(HANDLE_, std::wstring(wp_));
+		}
 
-					inline void out(const wchar_t wp_) {
-						wchar_t str[] = { wp_, L'\0' };
-						console_.out(HANDLE_, str);
-					}
+		inline void out(const wchar_t wp_) {
+			console_.out(HANDLE_, std::wstring(1,wp_));
+		}
 
-					inline void out(const char c_) {
-						char str[] = { c_ };
-						console_.out(HANDLE_, std::wstring(std::begin(str), std::end(str)));
-					}
+		inline void out(const char c_) {
+			char str[] = { c_ };
+			console_.out(HANDLE_, std::wstring(std::begin(str), std::end(str)));
+		}
+
+
+		/* 
+		------------------------------------------------------------------------
+		print(...) implementation. Various sources use the same variadic mechanism, 
+		for example : http://en.cppreference.com/w/cpp/language/parameter_pack
+		------------------------------------------------------------------------
+		
+		bellow is the special print() overload: receives a single CMD and passes it to the 
+		printer commander
+		*/
+		inline void print (const CMD & cmd_) {
+			painter_commander().execute(cmd_);
+		}
+
+		/*	recursion stopper		*/
+		inline void print(const char * arg) {
+			out(arg);
+		}
+
+		/*	'%' is a positioning token	*/
+		constexpr char pos_token = '%';
+
+		template<typename T, typename... Targs>
+		void print(const char* format, T value, Targs... Fargs) 
+			// recursive variadic function
+		{
+			for (; *format != '\0'; format++) {
+				if (*format == pos_token) {
+					out(value);
+					print(format + 1, Fargs...); // recursive call
+					return;
 				}
-
-				/* this is the special print that receives a single CMD and passes it to the 
-				   printer commander
-				*/
-				inline void print (const CMD & cmd_) {
-					painter_commander().execute(cmd_);
-				}
-
-				/*
-				based on idea from:	http://en.cppreference.com/w/cpp/language/parameter_pack
-				*/
-				inline void print(const char * arg) // base function
-				{
-					out(arg);
-				}
-
-				/*	'%' is a positioning token	*/
-				constexpr char pos_token = '%';
-
-				template<typename T, typename... Targs>
-				void print(const char* format, T value, Targs... Fargs) // recursive variadic function
-				{
-					for (; *format != '\0'; format++) {
-						if (*format == pos_token) {
-							out(value);
-							print(format + 1, Fargs...); // recursive call
-							return;
-						}
-						else {
-							// single char one by one ... ok optimization latter
-							out(*format);
-						}
-					}
+				else {
+					// yes ... single char one by one ... 
+					out(*format);
 				}
 			}
+		}
+		/*
+		 for above. NEXT ITERATION print(...): no recursion
+		 1. tokenize the format by pos_token into 'words' sequence
+		 2.  expand the param pack args into dummy array
+		 3.  before each arg take the next 'word' from the step 1.
+		*/
+
+		/*	
+			No format token '%', because it is tedious for
+			when there is a lot of them to remember on the right
+			of the format sentence what values to provide and in which order.
+			non recursive version
+		*/
+		template<typename... Targs>
+		inline	void printex(Targs... args)
+		{
+			if constexpr (sizeof...(Targs) > 0) {
+				// since initializer lists guarantee sequencing, this can be used to
+				// call a function on each element of a pack, in order:
+				char dummy[sizeof...(Targs)] = { (out(args), 0)... };
+			}
+		}
+	} // nspace
 #pragma endregion "printer implementation"
 } // con
 } // win

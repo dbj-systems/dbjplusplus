@@ -61,7 +61,7 @@ namespace {
 					WORD originalForegroundAttributes;
 					WORD originalBackgroundAttributes;
 				};
-        // the one and only 
+        // the one and only is hidden in here
 		Painter painter_{};
 #if 0
 		static const Painter &  obj(HANDLE initial_handle = ::GetStdHandle(STD_OUTPUT_HANDLE)) {
