@@ -62,22 +62,6 @@ namespace dbj {
 			}
 		};
 
-#if 0
-		static void test_line(HDC hDC, int sx, int sy, int ex, int ey, Gdiplus::ARGB clr, Gdiplus::REAL w)
-		{
-			/*
-			Gdiplus::Graphics g(hDC);
-			g.SetSmoothingMode(Gdiplus::SmoothingMode::SmoothingModeAntiAlias);
-			auto calculated_color = Gdiplus::Color::Color(clr);
-			Gdiplus::Pen p(calculated_color, w);
-			p.SetEndCap(Gdiplus::LineCap::LineCapRound);
-			g.DrawLine(&p, sx, sy, ex, ey);
-			*/
-			LINE liner_(hDC, clr, w);
-			liner_(sx, sy, ex, ey);
-		}
-#endif
-
 #pragma endregion "GDI+ LINE"
 
 #pragma region "dbj win32 string types"
@@ -159,24 +143,7 @@ namespace dbj {
 				return windows_directory_;
 			}
 		} // sysinfo
-#ifdef DBJ_TESTING_EXISTS
-		namespace {
-			using namespace sysinfo;
-			DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
-				try {
-					dbj::io::printex(
-						"\n\t\t", DBJ_NV(computer_name()),
-						"\n\t\t", DBJ_NV(user_name()),
-						"\n\t\t", DBJ_NV(system_directory()),
-						"\n\t\t", DBJ_NV(windows_directory())
-					);
-				}
-				catch (...) {
-					dbj::io::printex("\nUknown Exception?");
-				}
-			};
-		}
-#endif // DBJ_TESTING_EXISTS
+
 	} // win32
 } // dbj
 

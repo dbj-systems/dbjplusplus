@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{ac0be64c-db89-4304-841f-ebc6fc9e446b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbjio.h">
@@ -45,17 +48,23 @@
     <ClInclude Include="dbj_commander.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dbj_commander_test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dbj_testing_interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dbj_console_testing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dbj_console_painter.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_console_testing.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_commander_test.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\dbj_various_tests.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="test\dbj_crt_testing.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
