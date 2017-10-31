@@ -122,6 +122,7 @@ namespace dbj {
 #include "dbj_crt.h"
 #include "dbj_testing.h"
 #include "dbj_commander.h"
+#include "dbj_console_painter.h"
 #include "dbj_console.h"
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"

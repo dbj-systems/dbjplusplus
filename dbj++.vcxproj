@@ -105,6 +105,7 @@
     <ClInclude Include="dbj_commander.h" />
     <ClInclude Include="dbj_commander_test.h" />
     <ClInclude Include="dbj_console.h" />
+    <ClInclude Include="dbj_console_painter.h" />
     <ClInclude Include="dbj_console_testing.h" />
     <ClInclude Include="dbj_crt.h" />
     <ClInclude Include="dbj_defval.h" />

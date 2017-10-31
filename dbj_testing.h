@@ -102,8 +102,8 @@ namespace dbj {
 					tu_map()[tunit_] = description_;
 	}
 
-	DBJ_INLINE bool unit_execute(testunittype tunit_) {
-				tunit_();
+	DBJ_INLINE void unit_execute(testunittype tunit_) {
+		         tunit_();
 		}
 
 			struct adder {

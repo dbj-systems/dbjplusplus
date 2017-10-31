@@ -17,35 +17,38 @@ namespace dbj {
 		DBJ_INLINE void _stdcall execute() noexcept {
 
 			typedef typename dbj::win::con::CMD CMD;
-			static dbj::win::con::WideOut wout{};
+			using dbj::win::con::print ;
 
-			auto white_line = [&]() { wout.print("%%", CMD::white, line()); };
+			auto white_line = [&]() { print("%%", CMD::white, line()); };
+			auto blue_line =  [&]() { print("%%", CMD::blue, line()); };
 
 			white_line();
-			wout.print("\n\nStarting [%] tests\n\n", tu_map().size());
+			print("\n\nStarting [%] tests\n\n", tu_map().size());
 			white_line();
 			for (auto tunit : tu_map())
 			{
 				try {
-					wout.print("\n\tTEST BEGIN [%]\n", tunit.second);
+					print("\n\tTEST BEGIN [%]\n", tunit.second);
+					blue_line();
 					unit_execute(tunit.first);
-					wout.print("\n\tTEST END [%]\n", tunit.second);
+					blue_line();
+					print("\n\tTEST END [%]\n", tunit.second);
 				}
 				catch (dbj::Exception & x) {
-					wout.print("%\n\t\tException: [%] thrown from the testing unit: % %", CMD::bright_red, x.what(), tunit.second, CMD::white);
+					print("%\n\t\tException: [%] thrown from the testing unit: % %", CMD::bright_red, x.what(), tunit.second, CMD::white);
 				}
 				catch (...) {
-					wout.print("%\n\t\tUnknown Exception thrown from the testing unit: % %", CMD::bright_red, tunit.second, CMD::white);
+					print("%\n\t\tUnknown Exception thrown from the testing unit: % %", CMD::bright_red, tunit.second, CMD::white);
 				}
 			}
 			white_line();
-			wout.print("\n\nFINISHED ALL Tests\n\n");
+			print("\n\nFINISHED ALL Tests\n\n");
 			white_line();
-			wout.print("%", CMD::text_color_reset);
+			print(CMD::text_color_reset);
 		}
 	} // testing
 } // dbj
-  /* standard suffix for every other header here */
+  /* standard suffix */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
   Copyright 2017 by dbj@dbj.org
