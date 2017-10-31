@@ -6,39 +6,15 @@ namespace con {
 namespace {
 				/* modification of catch.h console colour mechanism */
 				enum class Colour : unsigned {
-					None = 0,
-					White,
-					Red,
-					Green,
-					Blue,
-					Cyan,
-					Yellow,
-					Grey,
-
+					None = 0,		White,	Red,	Green,		Blue,	Cyan,	Yellow,		Grey,
 					Bright = 0x10,
 
-					BrightRed = Bright | Red,
-					BrightGreen = Bright | Green,
-					LightGrey = Bright | Grey,
+					BrightRed = Bright | Red,	BrightGreen = Bright | Green,
+					BrightBlue = Bright | Blue,	LightGrey = Bright | Grey,
 					BrightWhite = Bright | White,
 
-					// By intention
-					FileName = LightGrey,
-					Warning = Yellow,
-					ResultError = BrightRed,
-					ResultSuccess = BrightGreen,
-					ResultExpectedFailure = Warning,
-
-					Error = BrightRed,
-					Success = Green,
-
-					OriginalExpression = Cyan,
-					ReconstructedExpression = Yellow,
-
-					SecondaryText = LightGrey,
-					Headers = White
 				};
-
+				/* stop the colour to text attempts*/
 				std::ostream& operator << (std::ostream& os, Colour const&); // no op
 
 				class __declspec(novtable) Painter final {
@@ -68,6 +44,7 @@ namespace {
 						case Colour::LightGrey:     return setTextAttribute(FOREGROUND_INTENSITY);
 						case Colour::BrightRed:     return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_RED);
 						case Colour::BrightGreen:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_GREEN);
+						case Colour::BrightBlue:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_BLUE);
 						case Colour::BrightWhite:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
 
 						default: throw "Exception in "  __FUNCSIG__ " : not a valid colour code sent";
@@ -95,34 +72,35 @@ namespace {
 } // nspace
 #pragma endregion "colors and painter"
 #pragma region "commander setup"
-				/*
-				Here we use the dbj::cmd::Commander,  define the comand id's and functions to execute them etc..
-				*/
-				enum class CMD : unsigned {
-					white = 0, red, green,
-					blue, cyan, yellow,
-					grey, bright_red, text_color_reset,
-					nop = (unsigned)-1
-				};
-				using PainterCommandFunction = bool(void);
-				using PainterCommander = dbj::cmd::Commander<CMD, PainterCommandFunction >;
+	/*
+	Here we use the dbj::cmd::Commander,  define the comand id's and functions to execute them etc..
+	*/
+	enum class CMD : unsigned {
+		white = 0,		red,		green,
+		blue,			cyan,		yellow,
+		grey,			bright_red, bright_blue, 
+		text_color_reset,			nop = (unsigned)-1
+	};
+	using PainterCommandFunction = bool(void);
+	using PainterCommander = dbj::cmd::Commander<CMD, PainterCommandFunction >;
 
-				inline PainterCommander  & painter_commander() {
-					auto maker = []() {
-						PainterCommander commander_;
-						commander_
-							.insert(CMD::nop, [&]() { return true; })
-							.insert(CMD::text_color_reset, [&]() { painter_.text_reset(); return true; })
-							.insert(CMD::white, [&]() { painter_.text(Colour::White); return true; })
-							.insert(CMD::red, [&]() { painter_.text(Colour::Red); return true; })
-							.insert(CMD::green, [&]() { painter_.text(Colour::Green); return true; })
-							.insert(CMD::blue, [&]() { painter_.text(Colour::Blue); return true; })
-							.insert(CMD::bright_red, [&]() { painter_.text(Colour::BrightRed); return true; });
-						return commander_;
-					};
-					static 	PainterCommander commander_ = maker();
-					return commander_;
-				}
+	inline PainterCommander  & painter_commander() {
+		auto maker = []() {
+			PainterCommander commander_;
+			commander_
+				.insert(CMD::nop, [&]() { return true; })
+				.insert(CMD::text_color_reset, [&]() { painter_.text_reset(); return true; })
+				.insert(CMD::white, [&]() { painter_.text(Colour::White); return true; })
+				.insert(CMD::red, [&]() { painter_.text(Colour::Red); return true; })
+				.insert(CMD::green, [&]() { painter_.text(Colour::Green); return true; })
+				.insert(CMD::blue, [&]() { painter_.text(Colour::Blue); return true; })
+				.insert(CMD::bright_red, [&]() { painter_.text(Colour::BrightRed); return true; })
+				.insert(CMD::bright_blue, [&]() { painter_.text(Colour::BrightBlue); return true; });
+			return commander_;
+		};
+		static 	PainterCommander commander_ = maker();
+		return commander_;
+	}
 #pragma endregion
 } // con
 } // win
