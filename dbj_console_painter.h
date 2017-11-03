@@ -30,45 +30,43 @@ namespace {
 						originalBackgroundAttributes = csbiInfo.wAttributes & ~(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 					}
 
-					const bool text(const Colour & _colourCode) const {
-						switch (_colourCode) {
-						case Colour::None:      return setTextAttribute(originalForegroundAttributes);
-						case Colour::White:     return setTextAttribute(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
-						case Colour::Red:       return setTextAttribute(FOREGROUND_RED);
-						case Colour::Green:     return setTextAttribute(FOREGROUND_GREEN);
-						case Colour::Blue:      return setTextAttribute(FOREGROUND_BLUE);
-						case Colour::Cyan:      return setTextAttribute(FOREGROUND_BLUE | FOREGROUND_GREEN);
-						case Colour::Yellow:    return setTextAttribute(FOREGROUND_RED | FOREGROUND_GREEN);
-						case Colour::Grey:      return setTextAttribute(0);
+	const bool text( Colour _colourCode) const {
+		switch (_colourCode) {
+			case Colour::None:      return setTextAttribute(originalForegroundAttributes);
+			case Colour::White:     return setTextAttribute(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
+			case Colour::Red:       return setTextAttribute(FOREGROUND_RED);
+			case Colour::Green:     return setTextAttribute(FOREGROUND_GREEN);
+			case Colour::Blue:      return setTextAttribute(FOREGROUND_BLUE);
+			case Colour::Cyan:      return setTextAttribute(FOREGROUND_BLUE | FOREGROUND_GREEN);
+			case Colour::Yellow:    return setTextAttribute(FOREGROUND_RED | FOREGROUND_GREEN);
+			case Colour::Grey:      return setTextAttribute(0);
 
-						case Colour::LightGrey:     return setTextAttribute(FOREGROUND_INTENSITY);
-						case Colour::BrightRed:     return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_RED);
-						case Colour::BrightGreen:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_GREEN);
-						case Colour::BrightBlue:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_BLUE);
-						case Colour::BrightWhite:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
-
-						default: throw "Exception in "  __FUNCSIG__ " : not a valid colour code sent";
-						}
-					}
-
-					const bool text_reset() const { return this->text(Colour::None); }
-
-				private:
-					bool setTextAttribute(const WORD & _textAttribute) const {
-						return ::SetConsoleTextAttribute(stdoutHandle, _textAttribute | originalBackgroundAttributes);
-					}
-					HANDLE stdoutHandle;
-					WORD originalForegroundAttributes;
-					WORD originalBackgroundAttributes;
-				};
-        // the one and only is hidden in here
-		Painter painter_{};
-#if 0
-		static const Painter &  obj(HANDLE initial_handle = ::GetStdHandle(STD_OUTPUT_HANDLE)) {
-			static Painter obj_{ initial_handle };
-			return obj_;
+			case Colour::LightGrey:     return setTextAttribute(FOREGROUND_INTENSITY);
+			case Colour::BrightRed:     return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_RED);
+			case Colour::BrightGreen:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_GREEN);
+			case Colour::BrightBlue:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_BLUE);
+			case Colour::BrightWhite:   return setTextAttribute(FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
+			default: throw "Exception in "  __FUNCSIG__ " : not a valid colour code?";
 		}
-#endif
+	}
+	/* modern interface */
+	const bool text( std::variant<Colour> _colourCode) const {
+		return this->text(std::get<Colour>(_colourCode));
+	} 
+
+	const bool text_reset() const { return this->text(Colour::None); }
+
+	private:
+		bool setTextAttribute( WORD _textAttribute) const {
+			return ::SetConsoleTextAttribute(stdoutHandle, _textAttribute | originalBackgroundAttributes);
+		}
+		HANDLE stdoutHandle;
+		WORD originalForegroundAttributes;
+		WORD originalBackgroundAttributes;
+};
+        // the one and only is hidden in here ----------------------------------------
+		Painter painter_{};
+		// ---------------------------------------------------------------------------
 } // nspace
 #pragma endregion "colors and painter"
 #pragma region "commander setup"
@@ -84,22 +82,27 @@ namespace {
 	using PainterCommandFunction = bool(void);
 	using PainterCommander = dbj::cmd::Commander<CMD, PainterCommandFunction >;
 
-	inline PainterCommander  & painter_commander() {
-		auto maker = []() {
-			PainterCommander commander_;
-			commander_
-				.insert(CMD::nop, [&]() { return true; })
-				.insert(CMD::text_color_reset, [&]() { painter_.text_reset(); return true; })
-				.insert(CMD::white, [&]() { painter_.text(Colour::White); return true; })
-				.insert(CMD::red, [&]() { painter_.text(Colour::Red); return true; })
-				.insert(CMD::green, [&]() { painter_.text(Colour::Green); return true; })
-				.insert(CMD::blue, [&]() { painter_.text(Colour::Blue); return true; })
-				.insert(CMD::bright_red, [&]() { painter_.text(Colour::BrightRed); return true; })
-				.insert(CMD::bright_blue, [&]() { painter_.text(Colour::BrightBlue); return true; });
-			return commander_;
+	namespace {
+		auto factory_of_commands = []() -> PainterCommander & {
+			// make the commander instance
+			static PainterCommander commander_;
+	commander_.reg({
+			{ CMD::nop,					[&]() {										return true;  }},
+			{ CMD::text_color_reset,	[&]() {	painter_.text_reset(); 				return true;  }},
+			{ CMD::white,				[&]() { painter_.text(Colour::White);		return true;  }},
+			{ CMD::red,					[&]() { painter_.text(Colour::Red);			return true;  }},
+			{ CMD::green,				[&]() { painter_.text(Colour::Green);		return true;  }},
+			{ CMD::blue,				[&]() { painter_.text(Colour::Blue);		return true;  }},
+			{ CMD::bright_red,			[&]() { painter_.text(Colour::BrightRed);	return true;  }},
+			{ CMD::bright_blue,			[&]() { painter_.text(Colour::BrightBlue);	return true;  }}
+	});
+				return commander_;
 		};
-		static 	PainterCommander commander_ = maker();
-		return commander_;
+	} // nspace
+
+	inline const PainterCommander  & painter_commander() {
+		static 	const PainterCommander & just_call_once = factory_of_commands();
+		return  just_call_once ;
 	}
 #pragma endregion
 } // con

@@ -3,6 +3,15 @@
 /* Command pattern mechanism */
 #pragma region "commands"
 namespace dbj {
+	
+	/* 
+	https://stackoverflow.com/questions/31838611/why-use-invoke-helper-rather-than-just-call-functor
+	*/
+	template<typename F, typename ... Args>
+	inline decltype(auto) call(F &&f, Args &&... args) {
+		return std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+	}
+
 	namespace cmd {
 		
 		template < typename T>
@@ -34,8 +43,6 @@ namespace dbj {
 			class Commander
 			{
 			public:
-				Commander() {}
-
 				using comparator_type = CMD_COMPARATOR;
 				using executor_type = std::function<CMD_FUN>;
 				/*
@@ -55,38 +62,49 @@ namespace dbj {
 				const executor_return_type execute(const CMD_ENUM & command) const
 				{
 					try {
-						return command_map_.at(command)();
+						return dbj::call(command_map_.at(command));
 					}
 					catch (std::out_of_range &) {
 						throw  dbj::Exception(" Unknown command?");
 					}
 				}
 
-				/* register a function by key given
-				if function found will throw the exception if replace is false -- this is default
-				if replace == true will replace if found
-
-				*/
+				/* register a function by key given, do not replace	*/
 				template< typename F>
-				const Commander & insert(const CMD_ENUM & command_, F function_) const
+				const Commander & reg (const CMD_ENUM & command_, F fun_ ) const 
 				{
-					try {   // do not replace
-						auto fun = command_map_.at(command_);
-						// found + do not replace
-					}
-					catch (std::out_of_range &) {
-						// new registration
-						command_map_[command_] = executor_type(function_);
+					command_map_.try_emplace(command_, fun_);
+					return (*this);
+				}
+				/*
+				Prefer this method for commands registration
+				considering: 
+					Commander< int, string (void) >  cmdr ;
+                this would be the registration call
+				cmdr.register( {{ 1, [](){return "A";} },
+								{ 2, [](){return "B";} });
+
+				command_map_type::value_type is a pair of the map we use in here
+				*/
+				typedef typename  command_map_type::value_type map_value_type;
+
+				const Commander & reg (
+					std::initializer_list<map_value_type> initlist
+				) const
+				{
+					for (map_value_type kvp : initlist) {
+						/*	kvp is a pair { k,v } of the  map */
+						this->reg(kvp.first, kvp.second);
 					}
 					return (*this);
 				}
 
 				template< typename F>
-				const Commander & replace(const CMD_ENUM & command_, F function_) const
+				const Commander & replace(const CMD_ENUM & command_, F fun_ ) const
 				{
 					try {   // found it, so replace
 						auto fun = command_map_.at(command_);
-						command_map_[command_] = executor_type(function_);
+						command_map_[command_] = (executor_type(fun_));
 					}
 					catch (std::out_of_range &) {
 						// not found, just ignore
@@ -94,8 +112,16 @@ namespace dbj {
 					return (*this);
 				}
 
+				Commander() { this->command_map_.clear(); }
+
+				friend void swap(Commander& c1, Commander& c2) {
+					  c1.command_map_.swap(c2.command_map_);
+				}
 			private:
 				mutable command_map_type command_map_{};
+
+				Commander& operator=(Commander);   // not assignable
+				Commander(Commander &);				// not copyable
 		};
 	} // cmd
 } // dbj

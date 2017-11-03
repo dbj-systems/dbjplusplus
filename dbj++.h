@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <map>
+#include <variant>
 
 #if _MSC_VER > 1911
 /*This code requires Visual C++ 14.1 or better*/

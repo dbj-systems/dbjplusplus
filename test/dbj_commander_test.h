@@ -46,7 +46,7 @@ namespace dbj {
 				};
 				Commander<CMD, cmd_fun_t > commander_;
 				try {
-					commander_.insert(CMD::red, paint_it_red);
+					commander_.reg(CMD::red, paint_it_red);
 					bool r = commander_.execute(CMD::red);
 				}
 				catch (dbj::Exception & x) {

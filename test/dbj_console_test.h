@@ -4,29 +4,20 @@
 #ifdef DBJ_TESTING_EXISTS
 namespace {
 	using namespace  dbj::win::con ;
-	typedef typename dbj::win::con::CMD CMD;
 
 	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
 
-		const static std::wstring doubles = L"║═╚";
-		const static std::wstring singles = L"│─└";
+		const static std::wstring squiglies = L"αß©∂€αß©∂€αß©∂€αß©∂€αß©∂€";
 		/*
-		here we use them commands through the print()
+		here we use them commands through the printex()
 		*/
-		print(
-			"%\n%\t%\t%"
-			"%\n%\t%\t%"
-			"%\n%\t%\t%"
-			"%\n%\t%\t%"
-			"%\n%\t%\t%"
-			"%\n%\t%\t%",
-			CMD::white, "White", doubles, singles,
-			CMD::red, "Red", doubles, singles,
-			CMD::green, "Green", doubles, singles,
-			CMD::blue, "Blue", doubles, singles,
-			CMD::bright_red, "Bright Red", doubles, singles,
-			CMD::text_color_reset, "Reset", doubles, singles
-
+		printex(
+			"\n", CMD::white,				"White\t\t",		squiglies, 
+			"\n", CMD::red,					"Red\t\t",			squiglies,
+			"\n", CMD::green,				"Green\t\t",		squiglies,
+			"\n", CMD::blue,				"Blue\t\t",			squiglies,
+			"\n", CMD::bright_red,			"Bright Red\t",		squiglies,
+			"\n", CMD::text_color_reset,	"Reset\t\t",		squiglies
 		);
 	}
 }

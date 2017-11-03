@@ -1,6 +1,7 @@
 ﻿#pragma once
 // #include <windows.h> before this header
 #pragma region "Console Interfaces"
+
 namespace dbj {
 	namespace win {
 		namespace con {
@@ -34,8 +35,12 @@ namespace con {
 #pragma region "WideOut"
 namespace /* WideOut*/ {
 	/*
-	Not FILE * but HANDLE based output.
-	It also uses Windows.1252 Code Page.
+	Windows "native" unicode is UTF-16
+	Be warned than proper implementation of UTF-8 related code page did not happen
+	before W7 and perhaps it is full on W10
+	See :	http://www.dostips.com/forum/viewtopic.php?t=5357
+	Bellow is not FILE * but HANDLE based output.
+	It also uses #define CP_UTF8 65001, as defined in winnls.h
 	This two are perhaps why this almost always works.
 
 	https://msdn.microsoft.com/en-us/library/windows/desktop/dd374122(v=vs.85).aspx
@@ -48,7 +53,8 @@ namespace /* WideOut*/ {
 	{
 		HANDLE output_handle_;
 		UINT   previous_code_page_;
-		UINT   code_page_ = 1252;
+		// UINT   code_page_ = 1252;
+		const UINT   code_page_ = 65001;
 	public:
 		WideOut()
 		{
