@@ -100,7 +100,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dbj++.h" />
-    <ClInclude Include="dbjio.h" />
+    <ClInclude Include="dbj_io.h" />
     <ClInclude Include="dbj_com.h" />
     <ClInclude Include="dbj_commander.h" />
     <ClInclude Include="dbj_commander_test.h" />

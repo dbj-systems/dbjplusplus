@@ -18,9 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dbjio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dbj++.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -68,6 +65,9 @@
     </ClInclude>
     <ClInclude Include="test\dbj_defval_testing.h">
       <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_io.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

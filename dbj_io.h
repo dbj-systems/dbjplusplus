@@ -98,6 +98,12 @@ namespace dbj {
 			std::cout << std::boolalpha << format;
 		}
 
+		inline void print(const dbj::Exception & x)
+		{
+			std::cout << std::endl << x.what() << std::endl;
+		}
+
+
 		template<typename T, typename... Targs>
 		inline
 			void print(const char* format, T value, Targs... Fargs) // recursive variadic function

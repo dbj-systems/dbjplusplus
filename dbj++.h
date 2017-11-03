@@ -128,7 +128,7 @@ namespace dbj {
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"
 #include "dbj_com.h"
-#include "dbjio.h"
+#include "dbj_io.h"
 #include "dbj_defval.h"
 #include "dbj_win32.h"
 
