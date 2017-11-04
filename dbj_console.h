@@ -99,90 +99,101 @@ namespace /* WideOut*/ {
   dbj::win::con::anonymous_name_space::anonymous_name_space
 */
 namespace {
-		
-	/* 
-	here we hide the single application wide console instance 
+
+	/*
+	here we hide the single application wide console instance
 	it is still acessible to the dbj::win::con::anonymous_name_space
 	but not to the users of it
 	*/
 	namespace {
 		WideOut console_{};
-		/* we expose the HANDLE to the print-ing because of future requirements 
+		/* we expose the HANDLE to the print-ing because of future requirements
 		   wanting to use error handle etc ...
 		*/
 		HANDLE  HANDLE_{ console_.handle() };
 	}
 
-/* 
-	dbj::win::con::print(...)  depends on out() overloads for printing various types 
-	to the console. We add them bellow as required.
+	/*
+		dbj::win::con::print(...)  depends on out() overloads for printing various types
+		to the console. We add them bellow as required.
 
-	console.out(...) is the only method to output to a console
+		console.out(...) is the only method to output to a console
 
-	this is the special out that does not use the console output class 
-	but painter commander 
-*/
-		inline void out(const CMD & cmd_) {
-			painter_commander().execute(cmd_);
-		}
+		this is the special out that does not use the console output class
+		but painter commander
+	*/
+	inline void out(const CMD & cmd_) {
+		painter_commander().execute(cmd_);
+	}
 
-        /* here are the out() overloads for intrinsic types */
-		inline void out(const std::wstring & ws_) {
-			console_.out(HANDLE_, ws_);
-		}
+	/* here are the out() overloads for intrinsic types */
+	inline void out(const std::wstring & ws_) {
+		console_.out(HANDLE_, ws_);
+	}
 
-		/* by using enable_if we make sure this template instances are made
-		only for types we want
-		*/
-		template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
-		inline void out(const N & number_) {
-			// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-			console_.out(HANDLE_, std::to_wstring(number_));
-		}
+	/* by using enable_if we make sure this template instances are made
+	only for types we want
+	*/
+	template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
+	inline void out(const N & number_) {
+		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
+		console_.out(HANDLE_, std::to_wstring(number_));
+	}
 
-		inline void out( const std::string & s_) {
-			console_.out(HANDLE_, std::wstring(s_.begin(), s_.end()));
-		}
+	inline void out(const std::string & s_) {
+		console_.out(HANDLE_, std::wstring(s_.begin(), s_.end()));
+	}
 
 
-		inline void out(const char * cp) {
-			std::string s(cp);
-			console_.out(HANDLE_, std::wstring(s.begin(), s.end()));
-		}
+	inline void out(const char * cp) {
+		std::string s(cp);
+		console_.out(HANDLE_, std::wstring(s.begin(), s.end()));
+	}
 
-		inline void out(const wchar_t * cp) {
-			console_.out(HANDLE_, std::wstring(cp));
-		}
+	inline void out(const wchar_t * cp) {
+		console_.out(HANDLE_, std::wstring(cp));
+	}
 
-		template<size_t N>
-		inline void out(const wchar_t(&wp_)[N]) {
-			console_.out(HANDLE_, std::wstring(wp_));
-		}
+	template<size_t N>
+	inline void out(const wchar_t(&wp_)[N]) {
+		console_.out(HANDLE_, std::wstring(wp_));
+	}
 
-		inline void out(const wchar_t wp_) {
-			console_.out(HANDLE_, std::wstring(1,wp_));
-		}
+	inline void out(const wchar_t wp_) {
+		console_.out(HANDLE_, std::wstring(1, wp_));
+	}
 
-		inline void out(const char c_) {
-			char str[] = { c_ };
-			console_.out(HANDLE_, std::wstring(std::begin(str), std::end(str)));
-		}
+	inline void out(const char c_) {
+		char str[] = { c_ };
+		console_.out(HANDLE_, std::wstring(std::begin(str), std::end(str)));
+	}
 
-		/* 
-		now we have out() overloads for "other" types using the ones above 
-		made for intrinsic types
-		keep in mind that both print() and printex() use this overloads
-		------------------------------------------------------------------------
-		output the exceptions
-		*/
-		inline void out(const dbj::Exception & x_) {
-			out(x_.what());
-		}
+	/*
+	now we have out() overloads for "other" types using the ones above
+	made for intrinsic types
+	keep in mind that both print() and printex() use this overloads
+	------------------------------------------------------------------------
+	output the exceptions
+	*/
+	inline void out(const dbj::Exception & x_) {
+		out(x_.what());
+	}
 
-		inline void out(const std::exception & x_) {
-			out(x_.what());
-		}
+	inline void out(const std::exception & x_) {
+		out(x_.what());
+	}
 
+	template<typename T>
+	inline void out(const std::variant<T> & x_) {
+		out( std::get<0>(x_) );
+	}
+} // nspace
+} // con
+} // win
+// back to ::dbj nspace
+
+		namespace {
+			using namespace win::con;
 		/* 
 		------------------------------------------------------------------------
 		print(...) implementation. Various sources use the same variadic mechanism, 
@@ -252,6 +263,5 @@ namespace {
 		}
 	} // nspace
 #pragma endregion "printer implementation"
-} // con
-} // win
+
 } // dbj

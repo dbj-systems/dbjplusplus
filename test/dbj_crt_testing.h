@@ -2,8 +2,8 @@
 #pragma region "dbj stlen and strnlen"
 #ifdef DBJ_TESTING_EXISTS
 namespace {
-	using dbj::io::print;
-	using dbj::io::printex;
+	using dbj::print;
+	using dbj::printex;
 
 	/*
 	dbj crt caters for char, wchar_t, char16_t, char32_t

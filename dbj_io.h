@@ -1,4 +1,5 @@
 #pragma once
+#ifdef DBJ_IO_PRINT
 namespace dbj {
 	/*
 	"modern" printf like output in modern c++, without printf type descriptors required.
@@ -144,17 +145,8 @@ namespace dbj {
 //		static constexpr const char * const DBJ_NV_DELIMITER = " : ";
 	}
 }
+#endif // #ifdef DBJ_IO_PRINT
 
-/*
-use print or printex to show the symbol and its value, for example:
-printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
-
-TODO: if symbol contains comma this is not going to work
-*/
-#ifndef DBJ_NV
-#define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
-#endif
 
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 

@@ -11,13 +11,13 @@
 #pragma region "dbj win32"
 namespace {
 	
-	using namespace  dbj::win::con;
+	// using namespace  dbj::win::con;
 	typedef typename dbj::win::con::CMD CMD;
 	using namespace  dbj::win32::sysinfo;
 
 	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
 		try {
-			printex(
+			dbj::printex(
 				"\n\t\t", DBJ_NV(computer_name()),
 				"\n\t\t", DBJ_NV(user_name()),
 				"\n\t\t", DBJ_NV(system_directory()),
@@ -25,7 +25,7 @@ namespace {
 			);
 		}
 		catch (...) {
-			print( dbj::Exception("Uknown Exception?") );
+			dbj::print( dbj::Exception("Uknown Exception?") );
 		}
 	};
 	/*
@@ -102,7 +102,7 @@ namespace {
 				rect.GetLeft(), rect.GetTop(), rect.GetRight(), rect.GetBottom(),
 				argb, 20);
 		} catch (...) {
-			print(dbj::Exception("Exception in " __FUNCSIG__));
+			dbj::print(dbj::Exception("Exception in " __FUNCSIG__));
 		}
 		::GdiplusShutdown(gdiplusToken);
 	}

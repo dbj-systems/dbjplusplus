@@ -17,7 +17,7 @@ namespace dbj {
 		DBJ_INLINE void _stdcall execute() noexcept {
 
 			typedef typename dbj::win::con::CMD CMD;
-			using dbj::win::con::print ;
+			using dbj::print ;
 
 			auto white_line = [&]( const char * arg = "") { 
 				print("%%%%", arg, CMD::white,line(), CMD::text_color_reset); 

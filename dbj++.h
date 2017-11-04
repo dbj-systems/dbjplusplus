@@ -79,39 +79,6 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #endif
 
 
-#pragma region Independent debug things
-#ifdef _DEBUG
-#define DBJ_ASSERT assert
-#define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
-
-namespace dbj {
-	// Inspired by MODERN v1.26 - http://moderncpp.com
-	template <typename ... Args>
-	inline void trace(wchar_t const * const message, Args ... args) noexcept
-	{
-		/* NOTE: 512 happpens to be the BUFSIZ */
-		wchar_t buffer[512] = {};
-		assert(-1 != _snwprintf_s(buffer, 512, 512, message, (args) ...));
-		::OutputDebugStringW(buffer);
-	}
-
-	template <typename ... Args>
-	inline void trace(const char * const message, Args ... args) noexcept
-	{
-		char buffer[512] = {};
-		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
-		::OutputDebugStringA(buffer);
-	}
-}
-#else
-// code dissapears
-#define DBJ_ASSERT __noop
-// code stays
-#define DBJ_VERIFY(expression) (expression)
-// code stays
-#define DBJ_VERIFY_(result, expression) (expression)
-#endif
-#pragma endregion
 
 
 #include "dbj_crt.h"
@@ -122,9 +89,23 @@ namespace dbj {
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"
 #include "dbj_com.h"
+#ifdef DBJ_IO_PRINT
 #include "dbj_io.h"
+#endif
 #include "dbj_defval.h"
 #include "dbj_win32.h"
+
+/*
+use print or printex to show the symbol and its value, for example:
+printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
+
+WARNING: this is primitive, use with caution
+TODO: if symbol contains comma this is not going to work
+*/
+#ifndef DBJ_NV
+#define DBJ_NV_DELIMITER " , "
+#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
+#endif
 
 /* standard suffix for this header only every header here */
 #pragma message( __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 

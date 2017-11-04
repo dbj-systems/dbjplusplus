@@ -11,7 +11,7 @@ namespace {
 		/*
 		here we use them commands through the printex()
 		*/
-		printex(
+		dbj::printex(
 			"\n", CMD::white,				"White\t\t",		squiglies, 
 			"\n", CMD::red,					"Red\t\t",			squiglies,
 			"\n", CMD::green,				"Green\t\t",		squiglies,

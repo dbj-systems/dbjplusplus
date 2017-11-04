@@ -1,5 +1,38 @@
 #pragma once
 
+#pragma region independent debug things
+#ifdef _DEBUG
+#define DBJ_ASSERT assert
+#define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
+
+namespace dbj {
+	// Inspired by MODERN v1.26 - http://moderncpp.com
+	template <typename ... Args>
+	inline void trace(wchar_t const * const message, Args ... args) noexcept
+	{
+		/* NOTE: 512 happpens to be the BUFSIZ */
+		wchar_t buffer[512] = {};
+		assert(-1 != _snwprintf_s(buffer, 512, 512, message, (args) ...));
+		::OutputDebugStringW(buffer);
+	}
+
+	template <typename ... Args>
+	inline void trace(const char * const message, Args ... args) noexcept
+	{
+		char buffer[512] = {};
+		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
+		::OutputDebugStringA(buffer);
+	}
+}
+#else
+// code dissapears
+#define DBJ_ASSERT __noop
+// code stays
+#define DBJ_VERIFY(expression) (expression)
+// code stays
+#define DBJ_VERIFY_(result, expression) (expression)
+#endif
+#pragma endregion eof independent debug things
 /*
 2017-10-18	DBJ created
 
