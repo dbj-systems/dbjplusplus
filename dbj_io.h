@@ -84,6 +84,13 @@ namespace dbj {
 				return out << ns_.c_str() ;
 			}
 
+			template <typename T>
+			inline  std::ostream&
+				operator<<(std::ostream& out, const std::variant<T> & var_) 
+			{
+				return out << std::get<0>(var_) ;
+			}
+
 			template<typename T, typename std::enable_if_t< std::is_same<bool,T>::value >::type  >
 			inline  std::ostream&
 				operator<<(std::ostream& out, const bool & tf_) {
@@ -91,45 +98,47 @@ namespace dbj {
 			}
 		} // namespace
 
-        /* the single gateway to the cout*/
-		template<typename T>
-		inline void print(const T & format) 
-		{
-			std::cout << std::boolalpha << format;
-		}
-
-		inline void print(const dbj::Exception & x)
-		{
-			std::cout << std::endl << x.what() << std::endl;
-		}
-
-
-		template<typename T, typename... Targs>
-		inline
-			void print(const char* format, T value, Targs... Fargs) // recursive variadic function
-		{
-			for (; *format != '\0'; format++) {
-				if (*format == '%') {
-					print(value);
-					print(format + 1, Fargs...); // recursive call
-					return;
-				}
-				print(*format);
+		namespace {
+			/* the single gateway to the cout*/
+			template<typename T>
+			inline void print(const T & format)
+			{
+				std::cout << std::boolalpha << format;
 			}
-		}
 
-		/* non recursive version 
-		   also with no format token '%', because it is tedious for 
-		   when there is a lot of them to remember on the right 
-		   of the format sentence what values to provide and in which order
-		*/
-		template<typename... Targs>
-		inline	void printex(Targs... args) 
-		{
-			if constexpr (sizeof...(Targs) > 0 ) {
-				// since initializer lists guarantee sequencing, this can be used to
-				// call a function on each element of a pack, in order:
-				char dummy[sizeof...(Targs)] = { ( print(args), 0)... };
+			inline void print(const dbj::Exception & x)
+			{
+				std::cout << std::endl << x.what() << std::endl;
+			}
+
+
+			template<typename T, typename... Targs>
+			inline
+				void print(const char* format, T value, Targs... Fargs) // recursive variadic function
+			{
+				for (; *format != '\0'; format++) {
+					if (*format == '%') {
+						print(value);
+						print(format + 1, Fargs...); // recursive call
+						return;
+					}
+					print(*format);
+				}
+			}
+
+			/* non recursive version
+			   also with no format token '%', because it is tedious for
+			   when there is a lot of them to remember on the right
+			   of the format sentence what values to provide and in which order
+			*/
+			template<typename... Targs>
+			inline	void printex(Targs... args)
+			{
+				if constexpr (sizeof...(Targs) > 0) {
+					// since initializer lists guarantee sequencing, this can be used to
+					// call a function on each element of a pack, in order:
+					char dummy[sizeof...(Targs)] = { (print(args), 0)... };
+				}
 			}
 		}
 //		static constexpr const char * const DBJ_NV_DELIMITER = " : ";

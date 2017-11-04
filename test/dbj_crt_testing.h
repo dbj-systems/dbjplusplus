@@ -35,7 +35,7 @@ namespace {
 	}
 
 	DBJ_TEST_CASE("dbj crt") {
-		print("\n(c) % by dbj.org, MSVC version: %", YEAR, _MSC_FULL_VER);
+		print("\n(c) % by dbj.org, MSVC version: %", dbj::YEAR, _MSC_FULL_VER);
 
 		char	 promptA[] = "0123456789";
 		wchar_t  promptW[] = L"0123456789";

@@ -31,6 +31,7 @@
 #include <cstring>
 #include <map>
 #include <variant>
+#include <any>
 
 #if _MSC_VER > 1911
 /*This code requires Visual C++ 14.1 or better*/
@@ -50,18 +51,17 @@
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
 #endif
 
-
-
-
 #ifndef __YEAR__
 // Example of __DATE__ string: "Jul 27 2012"
 //                              01234567890
+// constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
 #define __YEAR__ (__DATE__ + 7)
-namespace {
-	constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
+namespace dbj {
+	constexpr auto COMPANY = "DBJ.Systems Ltd.";
+	constexpr auto YEAR = (__DATE__ + 7);
 }
 #endif
-
+#undef __YEAR__
 /*
 dbj begins here
 
@@ -79,15 +79,15 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #endif
 
 
-// Inspired by MODERN v1.26 - http://moderncpp.com
 #pragma region Independent debug things
 #ifdef _DEBUG
 #define DBJ_ASSERT assert
 #define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
 
-namespace {
+namespace dbj {
+	// Inspired by MODERN v1.26 - http://moderncpp.com
 	template <typename ... Args>
-	DBJ_INLINE void DBJ_TRACE(wchar_t const * const message, Args ... args) noexcept
+	inline void trace(wchar_t const * const message, Args ... args) noexcept
 	{
 		/* NOTE: 512 happpens to be the BUFSIZ */
 		wchar_t buffer[512] = {};
@@ -96,7 +96,7 @@ namespace {
 	}
 
 	template <typename ... Args>
-	DBJ_INLINE void DBJ_TRACE(const char * const message, Args ... args) noexcept
+	inline void trace(const char * const message, Args ... args) noexcept
 	{
 		char buffer[512] = {};
 		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
@@ -110,15 +110,9 @@ namespace {
 #define DBJ_VERIFY(expression) (expression)
 // code stays
 #define DBJ_VERIFY_(result, expression) (expression)
-// code dissapears
-#define DBJ_TRACE __noop
 #endif
 #pragma endregion
 
-namespace dbj {
-	constexpr auto COMPANY = "DBJ.Systems Ltd."; 
-	constexpr auto YEAR = (__DATE__ + 7);
-}
 
 #include "dbj_crt.h"
 #include "dbj_testing.h"
