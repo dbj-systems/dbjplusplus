@@ -52,18 +52,24 @@ namespace dbj {
 		return std::wstring(cv.begin(), cv.end());
 	}
 
-	struct Exception : public std::runtime_error {
+	struct Exception : protected std::runtime_error {
 	public:
 		typedef std::runtime_error _Mybase;
 
-		explicit Exception(const std::string & _Message)
+		Exception(const std::string & _Message)
 			: _Mybase(_Message.c_str())
 		{	// construct from message string
 		}
 
-		explicit Exception(const char *_Message)
+		Exception(const char *_Message)
 			: _Mybase(_Message)
 		{	// construct from message string
+		}
+
+		 // virtual char const* what() const
+		operator std::wstring () const {
+			std::string s_(this->what());
+			return std::wstring(s_.begin(), s_.end());
 		}
 	};
 

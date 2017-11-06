@@ -106,7 +106,7 @@ namespace dbj {
 			{
 				std::cout << std::boolalpha << format;
 			}
-
+#if 0
 			inline void print(const dbj::Exception & x)
 			{
 				std::cout << std::endl << x.what() << std::endl;
@@ -126,7 +126,7 @@ namespace dbj {
 					print(*format);
 				}
 			}
-
+#endif
 			/* non recursive version
 			   also with no format token '%', because it is tedious for
 			   when there is a lot of them to remember on the right

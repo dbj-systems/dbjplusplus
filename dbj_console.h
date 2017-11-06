@@ -11,7 +11,7 @@ namespace dbj {
 				const unsigned code_page() const;
 				/* out is based on HANDLE and std::wstring */
 				HANDLE handle() const;
-				void out(const HANDLE & output_handle_, const std::wstring & wp_);
+				void out(const HANDLE & output_handle_, const std::wstring & wp_) const ;
 			};
 #if 0
 			/* printer uses the console as part of its implementation */
@@ -51,16 +51,18 @@ namespace /* WideOut*/ {
 	struct __declspec(novtable)	WideOut final
 		: implements dbj::win::con::IConsole
 	{
-		HANDLE output_handle_;
-		UINT   previous_code_page_;
-		// UINT   code_page_ = 1252;
-		const UINT   code_page_ = 65001;
+		mutable		HANDLE output_handle_;
+		mutable		UINT   previous_code_page_;
+		const		UINT   code_page_1252_ = 1252;
+		const		UINT   code_page_ = 65001;
 	public:
 		WideOut()
+			: output_handle_ (::GetStdHandle(STD_OUTPUT_HANDLE))
+			, previous_code_page_ (::GetConsoleOutputCP())
 		{
-			this->output_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE);
+			//this->output_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE);
 			assert(INVALID_HANDLE_VALUE != this->output_handle_);
-			previous_code_page_ = ::GetConsoleOutputCP();
+			// previous_code_page_ = ::GetConsoleOutputCP();
 			assert(0 != ::SetConsoleOutputCP(code_page_));
 			/*			TODO: GetLastError()			*/
 		}
@@ -77,13 +79,29 @@ namespace /* WideOut*/ {
 		/* out is based on HANDLE and std::wstring */
 		HANDLE handle() const { return this->output_handle_; }
 
-		/* the default out op */
-		inline void out(const HANDLE & output_handle_, const std::wstring & wp_) {
+		/* the default one and only out-put op-erator */
+		inline void out(const HANDLE & output_handle_, const std::wstring & wp_) const {
 			assert(0 != ::WriteConsoleW(output_handle_, wp_.data(),
 				static_cast<DWORD>(wp_.size()),	NULL, NULL));
 		}
 
 	}; // WideOut
+
+	/*
+	here we hide the single application wide console instance
+	this is single app wide instance
+	*/
+	namespace {
+#ifndef _CONSOLE
+#pragma message (__FILE__ "["  DBJ_STRINGIFY(__LINE__) "]: WARNING: This is not a console app?")  
+#endif
+		WideOut console_ ;
+		/* we expose the HANDLE to the print-ing because of future requirements
+		wanting to use error handle etc ...
+		*/
+		HANDLE  HANDLE_{ console_.handle() };
+	}
+
 } //nspace
 #pragma endregion "WideOut"
 
@@ -99,24 +117,7 @@ namespace /* WideOut*/ {
   dbj::win::con::anonymous_name_space::anonymous_name_space
 */
 namespace {
-
 	/*
-	here we hide the single application wide console instance
-	it is still acessible to the dbj::win::con::anonymous_name_space
-	but not to the users of it
-	*/
-	namespace {
-		WideOut console_{};
-		/* we expose the HANDLE to the print-ing because of future requirements
-		   wanting to use error handle etc ...
-		*/
-		HANDLE  HANDLE_{ console_.handle() };
-	}
-
-	/*
-		dbj::win::con::print(...)  depends on out() overloads for printing various types
-		to the console. We add them bellow as required.
-
 		console.out(...) is the only method to output to a console
 
 		this is the special out that does not use the console output class
@@ -175,9 +176,7 @@ namespace {
 	------------------------------------------------------------------------
 	output the exceptions
 	*/
-	inline void out(const dbj::Exception & x_) {
-		out(x_.what());
-	}
+	// inline void out(const dbj::Exception & x_) { out(x_.what()); }
 
 	inline void out(const std::exception & x_) {
 		out(x_.what());
@@ -187,34 +186,24 @@ namespace {
 	inline void out(const std::variant<T> & x_) {
 		out( std::get<0>(x_) );
 	}
+
+	/* print exception and also color the output red */
+	inline void out(const dbj::Exception & x_) {
+		painter_commander().execute(CMD::bright_red);
+		// "magic" calls std::wstring casting operator
+		// perhaps not a good idea
+		console_.out(HANDLE_, (x_));
+		painter_commander().execute(CMD::text_color_reset);
+	}
 } // nspace
 } // con
 } // win
 // back to ::dbj nspace
 
 		namespace {
-			using namespace win::con;
-		/* 
-		------------------------------------------------------------------------
-		print(...) implementation. Various sources use the same variadic mechanism, 
-		for example : http://en.cppreference.com/w/cpp/language/parameter_pack
-		------------------------------------------------------------------------
-		
-		bellow are the special print() overloads: 
-		
-		receives a single CMD and passes it to the printer commander
-		*/
-		inline void print (const CMD & cmd_) {
-			painter_commander().execute(cmd_);
-		}
-		/* print exception and also color the output */
-		inline void print(const dbj::Exception & x_) {
-			painter_commander().execute(CMD::bright_red);
-			out(x_.what());
-			painter_commander().execute(CMD::text_color_reset);
-		}
+			// using namespace win::con;
 
-
+#if 0
 		/*	recursion stopper		*/
 		inline void print(const char * arg) {
 			out(arg);
@@ -245,23 +234,21 @@ namespace {
 		 2.  expand the param pack args into dummy array
 		 3.  before each arg take the next 'word' from the step 1.
 		*/
-
+#endif
 		/*	
-			No format token '%', because it is tedious for
-			when there is a lot of them to remember on the right
-			of the format sentence what values to provide and in which order.
-			non recursive version
+			No format token '%'
+			No recursion 
 		*/
 		template<typename... Targs>
-		inline	void printex(Targs... args)
+		inline	void print(Targs... args)
 		{
 			if constexpr (sizeof...(Targs) > 0) {
 				// since initializer lists guarantee sequencing, this can be used to
 				// call a function on each element of a pack, in order:
-				char dummy[sizeof...(Targs)] = { (out(args), 0)... };
+				char dummy[sizeof...(Targs)] = { ( win::con::out(args), 0)... };
 			}
 		}
 	} // nspace
-#pragma endregion "printer implementation"
+#pragma endregion "eof printer implementation"
 
 } // dbj

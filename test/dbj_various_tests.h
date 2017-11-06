@@ -17,7 +17,7 @@ namespace {
 
 	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
 		try {
-			dbj::printex(
+			dbj::print(
 				"\n\t\t", DBJ_NV(computer_name()),
 				"\n\t\t", DBJ_NV(user_name()),
 				"\n\t\t", DBJ_NV(system_directory()),
