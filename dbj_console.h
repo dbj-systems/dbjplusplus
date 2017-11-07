@@ -195,60 +195,130 @@ namespace {
 		console_.out(HANDLE_, (x_));
 		painter_commander().execute(CMD::text_color_reset);
 	}
+
+	template <class... Args>
+	inline void out(const std::tuple<Args...>& tple) {
+		std::apply(
+			[](auto&&... xs) {
+			    dbj::print_sequence(xs...);
+		      },
+			tple);
+	}
+
+	/* output the { ... } aka std::initializer_list<T> */
+	template <class... Args>
+	inline void out(std::initializer_list<Args...> il_) {
+		std::apply(
+			[](auto&&... xs) {
+			dbj::print_sequence(xs...);
+		},
+			il_);
+	}
+
 } // nspace
 } // con
 } // win
 // back to ::dbj nspace
 
-		namespace {
-			// using namespace win::con;
+namespace {
 
-#if 0
-		/*	recursion stopper		*/
-		inline void print(const char * arg) {
-			out(arg);
-		}
+	/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
+	template<char prefix = '{', char suffix = '}', char delim = ',', typename... Args >
+	inline	void print_sequence( Args... args)
+	{
+		if constexpr (sizeof...(Args) < 1) return;
+		constexpr size_t argsize = sizeof...(Args);
+		unsigned arg_count = 0;
 
-		/*	'%' is a positioning token	*/
-		constexpr char pos_token = '%';
+		auto delimited_out = [&](auto && val_) {
+			win::con::out(val_);
+			if (++arg_count < argsize ) win::con::out(delim);
+		};
 
-		template<typename T, typename... Targs>
-		void print(const char* format, T value, Targs... Fargs) 
-			// recursive variadic function
-		{
-			for (; *format != '\0'; format++) {
-				if (*format == pos_token) {
-					out(value);
-					print(format + 1, Fargs...); // recursive call
-					return;
-				}
-				else {
-					// yes ... single char one by one ... 
-					out(*format);
-				}
-			}
-		}
-		/*
-		 for above. NEXT ITERATION print(...): no recursion
-		 1. tokenize the format by pos_token into 'words' sequence
-		 2.  expand the param pack args into dummy array
-		 3.  before each arg take the next 'word' from the step 1.
-		*/
-#endif
-		/*	
-			No format token '%'
-			No recursion 
-		*/
-		template<typename... Targs>
-		inline	void print(Targs... args)
-		{
-			if constexpr (sizeof...(Targs) > 0) {
-				// since initializer lists guarantee sequencing, this can be used to
-				// call a function on each element of a pack, in order:
-				char dummy[sizeof...(Targs)] = { ( win::con::out(args), 0)... };
-			}
-		}
+		win::con::out(prefix);
+		char dummy[sizeof...(Args)] = { (delimited_out(args), 0)... };
+		win::con::out(suffix);
+	}
+
 	} // nspace
+	/*	generic print() API */
+	template<typename T, typename... Args>
+	inline	void print( const T & first, Args&&... args)
+	{
+		win::con::out(first);
+		// No recursion
+		if constexpr (sizeof...(Args) > 0) {
+			// since initializer lists guarantee sequencing, this can be used to
+			// call a function on each element of a pack, in order:
+			char dummy[sizeof...(Args)] = { (win::con::out(args), 0)... };
+		}
+	}
+#if 0
+	template<typename T, typename ...Args>
+	inline	void print(std::initializer_list<T> il_, Args&&... args)
+	{
+		print(il_);
+        print(args...);
+	}
+	template<typename T, typename ...Args>
+	inline	void print( const T & val_,  std::initializer_list<Args...> il_)
+	{
+		print(val_);
+		print(il_);
+	}
+#endif
+
 #pragma endregion "eof printer implementation"
 
 } // dbj
+
+/* standard suffix for every other header here */
+#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+/*
+  Copyright 2017 by dbj@dbj.org
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http ://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+
+#if 0
+  /*	recursion stopper		*/
+inline void print(const char * arg) {
+	out(arg);
+}
+
+/*	'%' is a positioning token	*/
+constexpr char pos_token = '%';
+
+template<typename T, typename... Targs>
+void print(const char* format, T value, Targs... Fargs)
+// recursive variadic function
+{
+	for (; *format != '\0'; format++) {
+		if (*format == pos_token) {
+			out(value);
+			print(format + 1, Fargs...); // recursive call
+			return;
+		}
+		else {
+			// yes ... single char one by one ... 
+			out(*format);
+		}
+	}
+}
+/*
+for above. NEXT ITERATION print(...): no recursion
+1. tokenize the format by pos_token into 'words' sequence
+2.  expand the param pack args into dummy array
+3.  before each arg take the next 'word' from the step 1.
+*/
+#endif
