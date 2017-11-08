@@ -20,21 +20,21 @@ namespace dbj {
 			using dbj::print ;
 
 			auto white_line = [&]( const char * arg = "") { 
-				print("%%%%", arg, CMD::white,line(), CMD::text_color_reset); 
+				print(arg, CMD::white,line(), CMD::text_color_reset); 
 			};
 			auto blue_line =  [&]( const char * arg = "") { 
-				print("%%%%", arg, CMD::bright_blue,line(), CMD::text_color_reset); 
+				print(arg, CMD::bright_blue,line(), CMD::text_color_reset); 
 			};
 
 			white_line("\n");
 			print("\ndbj++ Testing Framework");
 			white_line("\n");
-			print("\nStarting [%] tests", tu_map().size());
+			print("\n[", tu_map().size(),"] tests defined");
 			white_line("\n");
 			for (auto tunit : tu_map())
 			{
 				blue_line("\n");
-				print("\n\tTEST BEGIN [%]", tunit.second);
+				print("\n\tBEGIN [", tunit.second, "%]");
 				blue_line("\n");
 				try {
 					print("\n");
@@ -48,7 +48,7 @@ namespace dbj {
 					print(dbj::Exception("\nUnknown Exception"));
 				}
 				blue_line("\n");
-				print("\n\tTEST END [%]", tunit.second);
+				print("\n\tTEND [", tunit.second,"%]");
 				blue_line("\n");
 			}
 			white_line("\n");
