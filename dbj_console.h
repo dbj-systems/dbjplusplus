@@ -207,7 +207,7 @@ namespace {
 
 	/* output the { ... } aka std::initializer_list<T> */
 	template <class... Args>
-	inline void out(std::initializer_list<Args...> il_) {
+	inline void out(const std::initializer_list<Args...> & il_) {
 		std::apply(
 			[](auto&&... xs) {
 			dbj::print_sequence(xs...);
@@ -241,6 +241,9 @@ namespace {
 	}
 
 	} // nspace
+
+#if 0
+
 	/*	generic print() API */
 	template<typename T, typename... Args>
 	inline	void print( const T & first, Args&&... args)
@@ -253,20 +256,33 @@ namespace {
 			char dummy[sizeof...(Args)] = { (win::con::out(args), 0)... };
 		}
 	}
-#if 0
+
 	template<typename T, typename ...Args>
 	inline	void print(std::initializer_list<T> il_, Args&&... args)
 	{
-		print(il_);
-        print(args...);
+		win::con::out(il_);
+		if constexpr (sizeof...(Args) > 0) print(args...);
 	}
 	template<typename T, typename ...Args>
 	inline	void print( const T & val_,  std::initializer_list<Args...> il_)
 	{
-		print(val_);
-		print(il_);
+		win::con::out(val_);
+		if constexpr (sizeof...(Args) > 0) print(il_...);
 	}
 #endif
+/*
+forget templates, variadic generic lambda saves you of declaring them 
+... one example
+https://stackoverflow.com/questions/25885893/how-to-create-a-variadic-generic-lambda
+*/
+	namespace {
+		auto print = [](auto... param)
+		{
+			if constexpr (sizeof...(param) > 0) {
+				char dummy[sizeof...(param)] = { (win::con::out(param), 0)... };
+			}
+		};
+	}
 
 #pragma endregion "eof printer implementation"
 
