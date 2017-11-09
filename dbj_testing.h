@@ -129,6 +129,7 @@ namespace dbj {
 #define DBJ_TEST_CASE_IMPL(description, name ) static void name(); DBJ_TEST_UNIT_REGISTER(description, name); static void name() 
 
 #define DBJ_TEST_CASE( description ) DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
+
 	} // testing
 } // dbj
   /* standard suffix for every other header here */

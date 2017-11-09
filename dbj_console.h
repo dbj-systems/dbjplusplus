@@ -279,7 +279,7 @@ https://stackoverflow.com/questions/25885893/how-to-create-a-variadic-generic-la
 		auto print = [](auto... param)
 		{
 			if constexpr (sizeof...(param) > 0) {
-				char dummy[sizeof...(param)] = { (win::con::out(param), 0)... };
+				char dummy[sizeof...(param)] = { (win::con::out( std::forward<decltype(param)>(param) ), 0)... };
 			}
 		};
 	}

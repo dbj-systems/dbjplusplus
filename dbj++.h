@@ -33,7 +33,7 @@
 #include <variant>
 #include <any>
 
-#if _MSC_VER > 1911
+#if _MSC_VER < 1911
 /*This code requires Visual C++ 14.1 or better*/
 		#ifndef _HAS_CXX17
 			#error __FILE__ requires C++17
@@ -48,7 +48,7 @@
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 
 #ifndef __FILENAME__
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#define __FILENAME__ ((strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
 #endif
 
 #ifndef __YEAR__
@@ -59,6 +59,18 @@
 namespace dbj {
 	constexpr auto COMPANY = "DBJ.Systems Ltd.";
 	constexpr auto YEAR = (__DATE__ + 7);
+	inline std::string  FILENAME(const std::string  &  file_path) {
+		auto pos = file_path.find_last_of('\\');
+		return 
+			( std::string::npos != pos 
+			    ? file_path.substr( pos, file_path.size())
+			  : file_path
+			) ; 
+	}
+	inline std::string FILELINE ( const std::string & file_path, unsigned line_ , const std::string & suffix = 0 ) {
+		return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+			  + ( suffix.empty() ? "" : suffix ) ;
+	}
 }
 #endif
 #undef __YEAR__

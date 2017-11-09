@@ -33,8 +33,8 @@ namespace dbj {
 			white_line("\n");
 			for (auto tunit : tu_map())
 			{
-				blue_line("\n");
-				print("\n\tBEGIN [", tunit.second, "%]");
+				// blue_line("\n");
+				print(CMD::bright_blue, "\nBEGIN [", tunit.second, "]", CMD::text_color_reset);
 				blue_line("\n");
 				try {
 					print("\n");
@@ -48,8 +48,8 @@ namespace dbj {
 					print(dbj::Exception("\nUnknown Exception"));
 				}
 				blue_line("\n");
-				print("\n\tTEND [", tunit.second,"%]");
-				blue_line("\n");
+				print(CMD::bright_blue, "\nEND [", tunit.second,"]\n", CMD::text_color_reset);
+				// blue_line("\n");
 			}
 			white_line("\n");
 			print("\nFINISHED ALL Tests");
