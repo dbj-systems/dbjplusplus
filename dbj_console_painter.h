@@ -1,4 +1,28 @@
 #pragma once
+#ifndef _WINCON_
+#ifndef _INC_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define STRICT
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+#ifndef _GDIPLUS_H
+#include <algorithm>
+namespace Gdiplus
+{
+	using std::min;
+	using std::max;
+}
+#include <objidl.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+#pragma comment(lib, "Gdiplus.lib")
+#endif // _GDIPLUS_H
+#else
+#include <algorithm>
+#endif
+
 namespace dbj {
 namespace win {
 namespace con {

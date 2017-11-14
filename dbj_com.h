@@ -1,5 +1,5 @@
 #pragma once
-#undef DBJ_COM
+// #undef DBJ_COM
 #ifdef DBJ_COM	
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN

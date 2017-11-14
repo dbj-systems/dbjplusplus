@@ -14,12 +14,29 @@
 #error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
 #endif
 
+#ifdef DBJ_WIN
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
 #define NOMINMAX
 #include <windows.h>
 #endif
+
+#ifndef _GDIPLUS_H
+#include <algorithm>
+namespace Gdiplus
+{
+	using std::min;
+	using std::max;
+}
+#include <objidl.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+#pragma comment(lib, "Gdiplus.lib")
+#endif // _GDIPLUS_H
+#else
+#include <algorithm>
+#endif DBJ_WIN
 
 #include <assert.h>
 #include <stdio.h>
@@ -32,6 +49,8 @@
 #include <functional>
 #include <iosfwd>
 #include <iostream>
+#include <strstream>
+#include <optional>
 #include <stdlib.h>
 #include <cstring>
 #include <map>

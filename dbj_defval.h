@@ -14,10 +14,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
+#if 0
 #ifndef _GDIPLUS_H
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define NOMINMAX
 #include <windows.h>
+#include <algorithm>
+namespace Gdiplus
+{
+	using std::min;
+	using std::max;
+}
 #include <objidl.h>
 #include <gdiplus.h>
 using namespace Gdiplus;
@@ -31,6 +38,7 @@ using namespace Gdiplus;
 #include <functional>
 #include <utility>
 #include <optional>
+#endif
 
 namespace dbj {
 
