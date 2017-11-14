@@ -56,6 +56,8 @@ using namespace Gdiplus;
 #include <map>
 #include <variant>
 #include <any>
+#include <string_view>
+
 
 #if _MSC_VER < 1911
 /*This code requires Visual C++ 14.1 or better*/

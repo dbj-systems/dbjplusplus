@@ -216,23 +216,26 @@ namespace {
 	}
 
 } // nspace
+// another (parallel) namespace removes the danger of accidental endles recursion 
+namespace {
+/*
+	TYPEDEFS FOR basic_string_view
+	using string_view = basic_string_view<char>;
+*/
+	inline void out(const std::string_view & sv_) {
+		dbj::win::con::out(
+			std::wstring( sv_.begin() , sv_.end() )
+		);
+	}
+/*	implement for these when required 
+	using u16string_view = basic_string_view<char16_t>;
+	using u32string_view = basic_string_view<char32_t>;
+	using wstring_view = basic_string_view<wchar_t>;
+*/
+}
 } // con
 } // win
 
-#include <string_view>
-namespace dbj {
-	namespace win {
-		namespace con {
-			namespace {
-				inline void out(const std::string_view & sv_) {
-					dbj::win::con::out(
-						sv_.data()
-					);
-				}
-			}
-		}
-	}
-}
 // back to ::dbj nspace
 
 namespace {
