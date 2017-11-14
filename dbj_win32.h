@@ -1,4 +1,28 @@
 #pragma once
+//
+#ifndef _INC_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define STRICT
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+#ifndef _GDIPLUS_H
+// because GDI+ 
+// can not cope with
+// NOMINMAX
+#include <algorithm>
+namespace Gdiplus
+{
+	using std::min;
+	using std::max;
+}
+#include <objidl.h>
+#include <gdiplus.h>
+using namespace Gdiplus;
+#pragma comment(lib, "Gdiplus.lib")
+#endif // _GDIPLUS_H
+//
 namespace dbj {
 	namespace win32 {
 #pragma region "GDI+ LINE"

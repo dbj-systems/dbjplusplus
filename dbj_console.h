@@ -218,6 +218,21 @@ namespace {
 } // nspace
 } // con
 } // win
+
+#include <string_view>
+namespace dbj {
+	namespace win {
+		namespace con {
+			namespace {
+				inline void out(const std::string_view & sv_) {
+					dbj::win::con::out(
+						sv_.data()
+					);
+				}
+			}
+		}
+	}
+}
 // back to ::dbj nspace
 
 namespace {
