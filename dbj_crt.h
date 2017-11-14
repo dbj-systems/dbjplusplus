@@ -30,7 +30,7 @@ namespace dbj {
 // code stays
 #define DBJ_VERIFY(expression) (expression)
 // code stays
-#define DBJ_VERIFY_(result, expression) (expression)
+#define DBJ_VERIFY_(result, expression) assert(result == expression)
 #endif
 #pragma endregion eof independent debug things
 /*
@@ -84,7 +84,7 @@ namespace dbj {
 		return (infoBuf);
 	}
 */
-	/* dbj.org avoid's macros as much as possible */
+	/* avoid macros as much as possible */
 
 	static auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
 	static auto MAX = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };

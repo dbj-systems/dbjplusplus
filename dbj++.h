@@ -10,9 +10,14 @@
 #error __FILE__ requires UNICODE builds
 #endif
 
+#ifdef _SCL_SECURE_NO_WARNINGS
+#error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
+#endif
+
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
+#define NOMINMAX
 #include <windows.h>
 #endif
 
