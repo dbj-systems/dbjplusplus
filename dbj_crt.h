@@ -298,14 +298,16 @@ namespace dbj {
 	*/
 	template <unsigned Size, char filler = ' '>
 	struct c_line {
-		mutable char Array[Size] = { filler };
+		mutable char array_[Size+1] = { filler };
 		constexpr c_line() {
 			int b = 0;
-			while (b < Size) {
-				Array[b] = filler; b++;
+			while (b != (Size+1)) {
+				array_[b] = filler; b++;
 			}
-			Array[Size - 1] = '\x0';
+			array_[Size] = '\x0';
 		}
+
+		constexpr operator const char * () const noexcept { return array_;  }
 	};
 
 } // dbj
