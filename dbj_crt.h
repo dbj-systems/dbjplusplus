@@ -43,6 +43,20 @@ namespace dbj {
 }
 #else
 // code dissapears
+namespace dbj {
+	// Inspired by MODERN v1.26 - http://moderncpp.com
+	template <typename ... Args>
+	inline void trace(wchar_t const * const message, Args ... args) noexcept
+	{
+		__noop
+	}
+
+	template <typename ... Args>
+	inline void trace(const char * const message, Args ... args) noexcept
+	{
+		__noop
+	}
+}
 #define DBJ_ASSERT __noop
 // code stays
 #define DBJ_VERIFY(expression) (expression)
@@ -106,7 +120,9 @@ namespace dbj {
 	static auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
 	static auto MAX = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };
 	template < typename T, size_t N > 
-		constexpr size_t countof(T const (&array)[N]) { return N; }
+	inline	constexpr 
+		size_t 
+		countof(T const (&array)[N]) { return N; }
 	/*
 	in here we cater for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
@@ -173,7 +189,7 @@ namespace dbj {
 			return N - 1;
 		}
 	/*
-	Pointer to character arrays support
+	Pointer (to character arrays) support
 	std lib defines strlen for char * and wchr_t *
 	note: iosfwd include file contains char_traits we need
 	*/
@@ -217,14 +233,14 @@ namespace dbj {
 		constexpr auto nicer_filename(const char * filename) {
 		return (strrchr(filename, '\\') ? strrchr(filename, '\\') + 1 : filename);
 	}
-
+#if 0
 	template <typename T>
 	inline
 		constexpr
 		auto sizeof_array(const T& iarray) {
 		return (sizeof(iarray) / sizeof(iarray[0]));
 	}
-
+#endif
 	namespace {
 		using namespace std;
 
@@ -241,13 +257,58 @@ namespace dbj {
 
 	/*
 	Transform "C array" into std::array
+	at compile time
 	*/
 	template <class T, std::size_t N>
-	constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])
+	inline constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])
 	{
 		return to_array_impl(a, make_index_sequence<N>{});
 	}
-}
+
+	/*
+	Schurr_cpp11_tools_for_class_authors.pdf
+
+	constexpr str_const my_string = "Hello, world!";
+	static_assert(my_string.size() == 13, "");
+	static_assert(my_string[4] == 'o', "");
+	constexpr str_const my_other_string = my_string;
+	static_assert(my_string == my_other_string, "");
+	constexpr str_const world(my_string, 7, 5);
+	static_assert(world == "world", "");
+	//  constexpr char x = world[5]; // Does not compile because index is out of range!
+	*/
+	class str_const final { // constexpr string
+		const char* const p_{ nullptr } ;
+		const std::size_t sz_{ 0 };
+	public:
+		template<std::size_t N>
+		constexpr str_const(const char(&a)[N]) : // ctor
+			p_(a), sz_(N - 1) {
+		}
+		constexpr char operator[](std::size_t n) const { // []
+			return n < sz_ ? this->p_[n] : throw std::out_of_range("");
+		}
+		constexpr std::size_t size() const noexcept { return this->sz_; }
+	};
+
+
+	/*
+	dbj "invention": compile time line of chars, usage
+	constexpr c_line<80, '-'> L80;
+	*/
+	template <unsigned Size, char filler = ' '>
+	struct c_line {
+		mutable char Array[Size] = { filler };
+		constexpr c_line() {
+			int b = 0;
+			while (b < Size) {
+				Array[b] = filler; b++;
+			}
+			Array[Size - 1] = '\x0';
+		}
+	};
+
+} // dbj
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*

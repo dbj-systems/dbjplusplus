@@ -32,8 +32,12 @@ namespace dbj {
 namespace dbj {
 namespace win {
 namespace con {
+
+
+	enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 };
+
 #pragma region "WideOut"
-namespace /* WideOut*/ {
+namespace {
 	/*
 	Windows "native" unicode is UTF-16
 	Be warned than proper implementation of UTF-8 related code page did not happen
@@ -48,13 +52,13 @@ namespace /* WideOut*/ {
 	Even if you get your program to write UTF16 correctly to the console,
 	Note that the Windows console isn't UTF16 friendly and may just show garbage.
 	*/
+	template<UINT CODEPAGE>
 	struct __declspec(novtable)	WideOut final
 		: implements dbj::win::con::IConsole
 	{
 		mutable		HANDLE output_handle_;
 		mutable		UINT   previous_code_page_;
-		const		UINT   code_page_1252_ = 1252;
-		const		UINT   code_page_ = 65001;
+		const		UINT	code_page_{ CODEPAGE };
 	public:
 		WideOut()
 			: output_handle_ (::GetStdHandle(STD_OUTPUT_HANDLE))
@@ -95,7 +99,7 @@ namespace /* WideOut*/ {
 #ifndef _CONSOLE
 #pragma message (__FILE__ "["  DBJ_STRINGIFY(__LINE__) "]: WARNING: This is not a console app?")  
 #endif
-		WideOut console_ ;
+		WideOut<(UINT)CODE::page_1252> console_ ;
 		/* we expose the HANDLE to the print-ing because of future requirements
 		wanting to use error handle etc ...
 		*/
@@ -290,14 +294,14 @@ namespace {
 #endif
 /*
 forget templates, variadic generic lambda saves you of declaring them 
-... one example
-https://stackoverflow.com/questions/25885893/how-to-create-a-variadic-generic-lambda
 */
 	namespace {
 		auto print = [](auto... param)
 		{
 			if constexpr (sizeof...(param) > 0) {
-				char dummy[sizeof...(param)] = { (win::con::out( std::forward<decltype(param)>(param) ), 0)... };
+				char dummy[sizeof...(param)] = { 
+					(win::con::out( std::forward<decltype(param)>(param) ), 0)... 
+				};
 			}
 			return print;
 		};
