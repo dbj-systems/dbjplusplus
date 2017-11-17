@@ -17,6 +17,41 @@
 #define Reminder __FILE__ "(" $Line ") :DBJ Reminder: "
 #endif
 
+namespace dbj {
+	/*
+	-------------------------------------------------------------------------
+	dbj++ exception
+	*/
+	struct Exception : protected std::runtime_error {
+	public:
+		typedef std::runtime_error _Mybase;
+
+		Exception(const std::string & _Message)
+			: _Mybase(_Message.c_str())
+		{	// construct from message string
+		}
+
+		Exception(const std::wstring & _WMessage)
+			: _Mybase(
+				std::string(_WMessage.begin(), _WMessage.end() ).data()
+			)
+		{	// construct from message unicode std string
+		}
+
+
+		Exception(const char *_Message)
+			: _Mybase(_Message)
+		{	// construct from message string
+		}
+
+		// virtual char const* what() const
+		operator std::wstring () const {
+			std::string s_(this->what());
+			return std::wstring(s_.begin(), s_.end());
+		}
+	};
+}
+
 #pragma region independent debug things
 #ifdef _DEBUG
 #define DBJ_ASSERT assert
@@ -83,26 +118,7 @@ namespace dbj {
 		return std::wstring(cv.begin(), cv.end());
 	}
 
-	struct Exception : protected std::runtime_error {
-	public:
-		typedef std::runtime_error _Mybase;
 
-		Exception(const std::string & _Message)
-			: _Mybase(_Message.c_str())
-		{	// construct from message string
-		}
-
-		Exception(const char *_Message)
-			: _Mybase(_Message)
-		{	// construct from message string
-		}
-
-		 // virtual char const* what() const
-		operator std::wstring () const {
-			std::string s_(this->what());
-			return std::wstring(s_.begin(), s_.end());
-		}
-	};
 
 /*
 	template<class F, class... Pack>
@@ -258,6 +274,8 @@ namespace dbj {
 	/*
 	Transform "C array" into std::array
 	at compile time
+
+	question is how is this called direct?
 	*/
 	template <class T, std::size_t N>
 	inline constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])
