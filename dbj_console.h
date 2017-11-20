@@ -32,7 +32,27 @@ namespace dbj {
 namespace dbj {
 namespace win {
 namespace con {
-
+#pragma region "fonts"
+	/*
+	Apparently "Terminal" is the magical font name that "always works" 
+	but gives raster fonts
+	Otherwise I am yet to find a font name which does not work
+	provides it is installed on the system
+	so use safe font names
+	*/
+	inline bool setfont(const wchar_t * font_name = L"Lucida Console", short height_ = 20) {
+		CONSOLE_FONT_INFOEX cfi;
+		cfi.cbSize = sizeof cfi;
+		cfi.nFont = 0;
+		cfi.dwFontSize.X = 0;
+		cfi.dwFontSize.Y = height_;
+		cfi.FontFamily = FF_DONTCARE;
+		cfi.FontWeight = FW_NORMAL;
+		// ::wprintf(L"Setting font to %s : please press <Enter> ", font_name ); (void)::getchar();
+		::wcscpy_s(cfi.FaceName, LF_FACESIZE, font_name);
+		return ::SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+	}
+#pragma endregion 
 
 	enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 };
 
@@ -52,16 +72,16 @@ namespace {
 	Even if you get your program to write UTF16 correctly to the console,
 	Note that the Windows console isn't UTF16 friendly and may just show garbage.
 	*/
-	template<UINT CODEPAGE>
 	struct __declspec(novtable)	WideOut final
 		: implements dbj::win::con::IConsole
 	{
 		mutable		HANDLE output_handle_;
 		mutable		UINT   previous_code_page_;
-		const		UINT	code_page_{ CODEPAGE };
+		mutable		UINT	code_page_{};
 	public:
-		WideOut()
-			: output_handle_ (::GetStdHandle(STD_OUTPUT_HANDLE))
+		WideOut(CODE CODEPAGE_ = CODE::page_1252 )
+			: code_page_((UINT)CODEPAGE_)
+			, output_handle_ (::GetStdHandle(STD_OUTPUT_HANDLE))
 			, previous_code_page_ (::GetConsoleOutputCP())
 		{
 			//this->output_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE);
@@ -69,6 +89,13 @@ namespace {
 			// previous_code_page_ = ::GetConsoleOutputCP();
 			assert(0 != ::SetConsoleOutputCP(code_page_));
 			/*			TODO: GetLastError()			*/
+		}
+
+		WideOut & operator = (const WideOut & other ) {
+			output_handle_		=  other.output_handle_		;
+			previous_code_page_	=  other.previous_code_page_;
+			code_page_			=  other.code_page_			;
+			return *this;
 		}
 
 		~WideOut()
@@ -99,7 +126,7 @@ namespace {
 #ifndef _CONSOLE
 #pragma message (__FILE__ "["  DBJ_STRINGIFY(__LINE__) "]: WARNING: This is not a console app?")  
 #endif
-		WideOut<(UINT)CODE::page_1252> console_ ;
+		auto console_ = WideOut( CODE::page_65001 ) ;
 		/* we expose the HANDLE to the print-ing because of future requirements
 		wanting to use error handle etc ...
 		*/
@@ -107,6 +134,13 @@ namespace {
 	}
 
 } //nspace
+
+// we are here in dbj::win::con
+inline auto switch_console (dbj::win::con::CODE code_) {
+	console_ = dbj::win::con::WideOut(code_);
+	return console_;
+};
+
 #pragma endregion "WideOut"
 
 #pragma region "print-ing implementation"

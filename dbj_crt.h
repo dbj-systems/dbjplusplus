@@ -309,14 +309,14 @@ namespace dbj {
 		constexpr std::size_t size() const noexcept { return this->sz_; }
 	};
 
-
 	/*
 	dbj "invention": compile time line of chars, usage
 	constexpr c_line<80, '-'> L80;
 	*/
 	template <unsigned Size, char filler = ' '>
-	struct c_line {
+	class c_line final {
 		mutable char array_[Size+1] = { filler };
+	public:
 		constexpr c_line() {
 			int b = 0;
 			while (b != (Size+1)) {
@@ -324,10 +324,8 @@ namespace dbj {
 			}
 			array_[Size] = '\x0';
 		}
-
 		constexpr operator const char * () const noexcept { return array_;  }
 	};
-
 } // dbj
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
