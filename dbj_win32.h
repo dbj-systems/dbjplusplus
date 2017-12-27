@@ -94,7 +94,7 @@ namespace dbj {
 		using long_string_pointer = CHAR_T *; // LPWSTR;
 #pragma endregion "dbj win32 string types"
 
-											  //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
+		//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 		__forceinline auto getLastErrorMessage(
 			const STRING & prompt = STRING{}, DWORD errorMessageID = ::GetLastError()
 		)

@@ -2,6 +2,8 @@
 // #include <windows.h> before this header
 #pragma region "Console Interfaces"
 
+#include <iterator>
+
 namespace dbj {
 	namespace win {
 		namespace con {
@@ -183,6 +185,12 @@ namespace {
 		console_.out(HANDLE_, std::wstring(s_.begin(), s_.end()));
 	}
 
+	template<size_t N>
+	inline void out(const char (& car_)[N]) {
+		console_.out(
+			HANDLE_, std::wstring( std::begin(car_), std::end(car_))
+		);
+	}
 
 	inline void out(const char * cp) {
 		std::string s(cp);
@@ -214,16 +222,6 @@ namespace {
 	------------------------------------------------------------------------
 	output the exceptions
 	*/
-	// inline void out(const dbj::Exception & x_) { out(x_.what()); }
-
-	inline void out(const std::exception & x_) {
-		out(x_.what());
-	}
-
-	template<typename T>
-	inline void out(const std::variant<T> & x_) {
-		out( std::get<0>(x_) );
-	}
 
 	/* print exception and also color the output red */
 	inline void out(const dbj::Exception & x_) {
@@ -232,6 +230,31 @@ namespace {
 		// perhaps not a good idea
 		console_.out(HANDLE_, (x_));
 		painter_commander().execute(CMD::text_color_reset);
+	}
+
+	inline void out(const std::exception & x_) {
+		out( dbj::Exception(x_.what()) );
+	}
+
+	template<typename T>
+	inline void out(const std::variant<T> & x_) {
+		out( std::get<0>(x_) );
+	}
+
+	char prefix = '{', suffix = '}', delim = ',';
+
+	template<typename T, typename A	>	
+	inline void out(const std::vector<T,A> & v_) {
+		out(prefix);
+		unsigned c_ = 0;
+		auto v_size = v_.size();
+		for (auto e : v_ )
+		{
+			out( e );
+			if ( ++c_ < v_size )
+				out(delim);
+		}
+		out(suffix);
 	}
 
 	template <class... Args>
@@ -330,14 +353,20 @@ namespace {
 forget templates, variadic generic lambda saves you of declaring them 
 */
 	namespace {
-		auto print = [](auto... param)
+		auto print = [](auto first_param, auto... params)
 		{
-			if constexpr (sizeof...(param) > 0) {
-				char dummy[sizeof...(param)] = { 
-					(win::con::out( std::forward<decltype(param)>(param) ), 0)... 
+			win::con::out(first_param);
+
+			// constexpr auto param_num = sizeof...(params);
+			if constexpr (sizeof...(params) > 0) {
+				/*
+				char dummy[sizeof...(params)]{
+						(win::con::out((params)), 0)...
 				};
+				*/
+				print(params...);
 			}
-			return print;
+				return print;
 		};
 	}
 

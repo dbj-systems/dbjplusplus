@@ -49,7 +49,9 @@ using namespace Gdiplus;
 #include <functional>
 #include <iosfwd>
 #include <iostream>
-#include <strstream>
+//strstream is deprecated use stringstream  instead
+// #include <strstream> 
+#include <sstream> 
 #include <optional>
 #include <stdlib.h>
 #include <cstring>
