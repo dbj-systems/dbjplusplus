@@ -59,6 +59,8 @@ namespace dbj {
 
 namespace dbj {
 	// Inspired by MODERN v1.26 - http://moderncpp.com
+// #ifdef UNICODE
+	// this requires all the args to be unicode so I am doubtfull it will work ... easily
 	template <typename ... Args>
 	inline void trace(wchar_t const * const message, Args ... args) noexcept
 	{
@@ -67,6 +69,7 @@ namespace dbj {
 		assert(-1 != _snwprintf_s(buffer, 512, 512, message, (args) ...));
 		::OutputDebugStringW(buffer);
 	}
+// #else
 
 	template <typename ... Args>
 	inline void trace(const char * const message, Args ... args) noexcept
@@ -75,6 +78,7 @@ namespace dbj {
 		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
 		::OutputDebugStringA(buffer);
 	}
+// #endif // UNICODE
 }
 #else
 // code dissapears

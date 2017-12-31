@@ -148,6 +148,38 @@ TODO: if symbol contains comma this is not going to work
 #define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
 
+/*
+ TODO: the whole dbj++ has to be configured somewhere?
+*/
+namespace dbj {
+	namespace console_config {
+		/*
+		TODO: usable interface for users to define this
+		*/
+		auto configure_ = []() {
+			using namespace dbj::win;
+			try {
+				con::switch_console(con::CODE::page_1252);
+				con::setfont(L"Lucida Console");
+			}
+			catch (...) {
+				// can happen before main()
+				// and user can have no terminators and abort set up
+				// so ...
+				dbj::win32::STRING message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
+				dbj::trace(L"Exception %s", message_.data());
+				throw dbj::Exception(message_);
+			}
+			return true;
+		};
+
+		namespace {
+			auto single_start = configure_();
+		}
+	}
+}
+
+
 /* standard suffix for this header only every header here */
 #pragma message( __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /* standard suffix for every other header here */
