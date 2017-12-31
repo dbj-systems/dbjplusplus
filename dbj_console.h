@@ -125,8 +125,12 @@ namespace {
 	this is single app wide instance
 	*/
 	namespace {
-#ifndef _CONSOLE
-#pragma message (__FILE__ "["  DBJ_STRINGIFY(__LINE__) "]: WARNING: This is not a console app?")  
+#if !defined(_CONSOLE)
+#pragma message ( "#############################################################" )
+#pragma message ( DBJ_CONCAT( "File: ", __FILE__) )
+#pragma message ( DBJ_CONCAT( "Line: ",  DBJ_EXPAND(__LINE__)))
+#pragma message ("This is probably not a console app?")
+#pragma message ( "#############################################################" )
 #endif
 		auto console_ = WideOut( CODE::page_65001 ) ;
 		/* we expose the HANDLE to the print-ing because of future requirements
