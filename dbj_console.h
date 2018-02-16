@@ -39,9 +39,31 @@ namespace con {
 	Apparently "Terminal" is the magical font name that "always works" 
 	but gives raster fonts
 	Otherwise I am yet to find a font name which does not work
-	provides it is installed on the system
+	provided it is installed on the system
 	so use safe font names
+
+	https://stackoverflow.com/a/33672503/5560811
+
 	*/
+
+	constexpr static const char * const SafeFontNames [] {
+		"Arial", "Calibri", "Cambria", "Cambria Math", "Comic Sans MS", "Courier New",
+		"Ebrima", "Gadugi", "Georgia",
+		/* "Javanese Text Regular Fallback font for Javanese script", "Leelawadee UI", */
+		"Lucida Console", 
+		/*
+		"Malgun Gothic", "Microsoft Himalaya", "Microsoft JhengHei",
+		"Microsoft JhengHei UI", "Microsoft New Tai Lue", "Microsoft PhagsPa",
+		"Microsoft Tai Le", "Microsoft YaHei", "Microsoft YaHei UI",
+		"Microsoft Yi Baiti", "Mongolian Baiti", "MV Boli", "Myanmar Text",
+		"Nirmala UI", 
+		*/
+		"Segoe MDL2 Assets", "Segoe Print", "Segoe UI", "Segoe UI Emoji",
+		"Segoe UI Historic", "Segoe UI Symbol", "SimSun", "Times New Roman",
+		"Trebuchet MS", "Verdana", "Webdings", "Wingdings", "Yu Gothic",
+		"Yu Gothic UI"
+	};
+
 	inline bool setfont(const wchar_t * font_name = L"Lucida Console", short height_ = 20) {
 		CONSOLE_FONT_INFOEX cfi;
 		cfi.cbSize = sizeof cfi;

@@ -69,7 +69,7 @@ namespace dbj {
 				};
 			};
 
-			// test unit function pointer is the key
+			// test unit function pointer is the key of the tests map
 			typedef  std::map<
 				testunittype,
 				std::string, FPcomparator > TUMAP;
