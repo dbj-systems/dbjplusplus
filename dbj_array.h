@@ -71,16 +71,15 @@ namespace dbj {
 				return VType{ arr_, arr_ + N };
 			}
 
-			/*		"C"	array to vector			*/
+			/*		"C"	array to std array			*/
 			template<typename Type, size_t N, typename AType = std::array<Type,N> >
-			inline constexpr AType
+			inline constexpr AType &&
 				intrinsic_array_to_array(const Type(&arr_)[N])
 			{
-				AType arr_{};
-				std::copy(arr_, arr_ + N, std::back_inserter(arr_));
-				return arr_;
+				AType retval_{};
+				std::copy(arr_, arr_ + N, retval_.begin() );
+				return std::forward<AType>(retval_);
 			}
-
 
 #ifdef DBJ_TESTING_EXISTS
 		inline void test()
@@ -95,17 +94,12 @@ namespace dbj {
 				const char(&uar)[3] = *(char(*)[3])three_chars.data();
 			}
 			// the modern C++ dbj way
-			using A16 = ARH<int, 16>;
-			A16::ARR arr;
-			std::generate(
-				arr.begin(), arr.end(), [count = 0]() mutable -> int {
-				return count++;
-			});
+			using A16 = ARH<int, 3>;
+			A16::ARR arr { 1,2,3 };
 			A16::ARP arp = A16::to_arp(arr);
 			A16::ARF arf = A16::to_arf(arr);
 
 			// prove that the type is right
-			// by compiling with intrinsic_array_to_vector
 			auto rdr0 = intrinsic_array_to_vector(arf);
 
 			/*

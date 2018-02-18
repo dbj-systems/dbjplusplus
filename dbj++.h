@@ -136,6 +136,7 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #include "dbj_defval.h"
 #include "dbj_win32.h"
 
+#ifndef DBJ_NV
 /*
 use print or printex to show the symbol and its value, for example:
 printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
@@ -143,7 +144,6 @@ printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
 WARNING: this is primitive, use with caution
 TODO: if symbol contains comma this is not going to work
 */
-#ifndef DBJ_NV
 #define DBJ_NV_DELIMITER " , "
 #define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif

@@ -72,6 +72,12 @@
     <ClInclude Include="dbj_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_traits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
