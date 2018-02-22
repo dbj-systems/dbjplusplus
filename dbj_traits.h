@@ -105,7 +105,6 @@ TODO: if symbol contains comma this is not going to work
 
 namespace dbj {
 namespace {
-	// using namespace dbj::win::con ;
 
 	template<typename T, typename dbj::require_integral<T> = 0>
 	DBJ_INLINE auto Object(T&& t) { return std::variant<T>(t); }

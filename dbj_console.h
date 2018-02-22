@@ -383,13 +383,9 @@ forget templates, variadic generic lambda saves you of declaring them
 		{
 			win::con::out(first_param);
 
-			// constexpr auto param_num = sizeof...(params);
+			// if there are  more params
 			if constexpr (sizeof...(params) > 0) {
-				/*
-				char dummy[sizeof...(params)]{
-						(win::con::out((params)), 0)...
-				};
-				*/
+				// recurse
 				print(params...);
 			}
 				return print;

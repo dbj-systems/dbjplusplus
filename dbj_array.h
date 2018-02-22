@@ -82,7 +82,9 @@ namespace dbj {
 			}
 
 #ifdef DBJ_TESTING_EXISTS
-		inline void test()
+
+			template< typename F>
+		inline void test( F & print )
 		{
 			{
 				// the "C" way

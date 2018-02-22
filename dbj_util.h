@@ -160,8 +160,8 @@ namespace dbj {
 
 	} // dbj util
 #ifdef DBJ_TESTING_EXISTS
-
-	inline void dbj_util_test() {
+	template <typename F>
+	inline void dbj_util_test( F & print ) {
 
 		{
 
