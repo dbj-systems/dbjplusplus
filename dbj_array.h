@@ -26,7 +26,7 @@ namespace dbj {
 		}
 
 		/*
-		Array Handler
+		Array Helper
 
 		(c) 2018 by dbj.org
 		*/

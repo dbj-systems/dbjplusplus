@@ -19,12 +19,14 @@
 
 namespace dbj {
 
-	/* 
-	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
-	*/
-	auto sign = [](const auto & v) constexpr -> int {
-		return (v > 0) - (v < 0); // -1, 0, or +1
-	};
+	namespace {
+		/*
+		Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
+		*/
+		inline auto sign = [](const auto & v) constexpr -> int {
+			return (v > 0) - (v < 0); // -1, 0, or +1
+		};
+	}
 
 	/*
 	-------------------------------------------------------------------------

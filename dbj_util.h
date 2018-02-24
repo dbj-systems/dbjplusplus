@@ -13,6 +13,37 @@
 
 namespace dbj {
 
+/*
+create tuple from any range type
+that can be iterated over with
+begin and end iterators
+(c) dbj.org Feb 2018
+note: POC code
+*/
+auto && range_to_tuple = [](const auto & v)
+{
+	// static_assert(IS_VECTOR_V< decltype(v) >);
+
+	// Vector Element Type 
+	using VET = typename decay<decltype(v)>::type;
+	// Tuple Type
+	using TT = tuple< typename VET::value_type >;
+
+	TT rett0 = tie(v[0]);
+
+	for (auto element_ : v) {
+		// this cast is a kludge
+		// relace with compiler agnostic solution
+		rett0 = (TT&&)(
+			tuple_cat(
+				rett0, tie(element_)
+			)
+			);
+	}
+	return rett0;
+};
+
+
 
 	namespace xprmntl {
 
@@ -60,38 +91,40 @@ namespace dbj {
 			return outype{ arr_, arr_ + N };
 		}
 
-		/*
-		find an item in anything that has begin and end iterators
-		*/
-		auto find = [](auto sequence, auto item) constexpr -> bool {
-			return std::find(std::begin(sequence), std::end(sequence), item) != std::end(sequence);
-		};
+		namespace {
+			/*
+			find an item in anything that has begin and end iterators
+			*/
+			auto find = [](auto sequence, auto item) constexpr -> bool {
+				return std::find(std::begin(sequence), std::end(sequence), item) != std::end(sequence);
+			};
 
 
-		/*
-		bellow works for all the std:: string types and string view types
-		but it also works for char pointers and wchar_t pointers
-		and it is all inside the single lambda
-		which is fast because redundant code is removed at compile time
-		*/
-		auto starts_with = [](auto val_, auto mat_) {
+			/*
+			bellow works for all the std:: string types and string view types
+			but it also works for char pointers and wchar_t pointers
+			and it is all inside the single lambda
+			which is fast because redundant code is removed at compile time
+			*/
+			auto starts_with = [](auto val_, auto mat_) {
 
-			static_assert(eqt(val_, mat_),
-				"dbj::does_start [error] arguments not of the same type"
-				);
+				static_assert(eqt(val_, mat_),
+					"dbj::does_start [error] arguments not of the same type"
+					);
 
-			if  constexpr(eqt(val_, char_star{})) {
-				// #pragma message ("val type is char *")
-				return starts_with(std::string(val_), std::string(mat_));
-			}
-			else if  constexpr(eqt(val_, wchar_star{})) {
-				// #pragma message ("val type is wchar_t *")
-				return starts_with(std::wstring(val_), std::wstring(mat_));
-			}
-			else {
-				return 0 == val_.compare(0, mat_.size(), mat_);
-			}
-		};
+				if  constexpr(eqt(val_, char_star{})) {
+					// #pragma message ("val type is char *")
+					return starts_with(std::string(val_), std::string(mat_));
+				}
+				else if  constexpr(eqt(val_, wchar_star{})) {
+					// #pragma message ("val type is wchar_t *")
+					return starts_with(std::wstring(val_), std::wstring(mat_));
+				}
+				else {
+					return 0 == val_.compare(0, mat_.size(), mat_);
+				}
+			};
+		}
 #if 0
 		/*
 		classical overloading solution
@@ -158,11 +191,11 @@ namespace dbj {
 			return string_pad(std::to_string(number_));
 		};
 
-	} // dbj util
+	} // util
+} // dbj
 #ifdef DBJ_TESTING_EXISTS
 	template <typename F>
 	inline void dbj_util_test( F & print ) {
-
 		{
 
 			int intarr[]{ 1,1,2,2,3,4,5,6,6,6,7,8,9,9,0,0 };
@@ -184,8 +217,6 @@ namespace dbj {
 			auto doesit2 = dbj::util::starts_with(L"abra ka dabra", L"abra");
 		}
 	}
-
-} // dbj
 #endif 
   /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 

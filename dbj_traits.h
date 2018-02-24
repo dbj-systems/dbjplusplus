@@ -66,20 +66,80 @@ namespace dbj {
 	template< class T >
 	using remove_cvref_t = typename remove_cvref<T>::type;
 
-	/*
-	are two types equal?
-	*/
-	auto eqt = [](auto & a, auto & b) constexpr -> bool
-	{
-		return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
+	namespace {
 		/*
-		following does not catch pointers
-		return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
+		are two types equal?
 		*/
-	};
+		auto eqt = [](auto & a, auto & b) constexpr -> bool
+		{
+			return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
+			/*
+			following does not catch pointers
+			return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
+			*/
+		};
+	}
 	/* see dbj_util tests for usage example */
 } // dbj
 #pragma endregion 
+
+#pragma region is for containers
+  /*
+  dbj vector to touple optimization of  https://stackoverflow.com/posts/28411055/
+  */
+namespace dbj {
+
+	using namespace std;
+
+	namespace {
+
+		template<typename T> struct is_std_array : public false_type {};
+
+		/* this is not catching anything but a **value** of type vector<t> */
+		template<typename T, size_t N>
+		struct is_std_array< array<T, N> > : public true_type {};
+
+		/*-----------------------------------------------------------*/
+
+		template<typename T> struct is_vector : public false_type {};
+
+		/* this is not catching anything but a **value** of type vector<t> */
+		template<typename T, typename A>
+		struct is_vector< vector<T, A> > : public true_type {};
+	}
+	/*
+	To use the above one would need to write this (for example) :
+	teamplate<typename T> void some_function ( T & v ) {
+	static_assert( is_vector< std::decay_t< decltype(v)> >::value );
+	}
+	this is not very elegant or usefull , so ...
+	*/
+
+	/* template struct */
+	template< typename T>
+	struct IS_VECTOR {
+		static const bool value = is_vector< std::decay_t< T > >::value;
+	};
+
+	/* variable template */
+	template< typename T>
+	inline constexpr bool IS_VECTOR_V = is_vector< std::decay_t< T > >::value;
+
+	/* template alias */
+	template< typename T>
+	using IS_VECTOR_T = typename is_vector< std::decay_t< T > >::type;
+
+	namespace {
+		/*
+		one uses this in runtime situations
+		*/
+		auto is_vector_v = [](const auto & v) -> boolean {
+			return is_vector< std::decay_t< decltype(v) > >::value;
+		};
+	}
+
+} // eof dbj
+#pragma endregion
 
 #ifdef DBJ_TESTING_EXISTS
 /* dbj type traits and enable if helpers */
