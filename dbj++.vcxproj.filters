@@ -88,5 +88,8 @@
     <Image Include="media\dbjlogo.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="media\dbjsystems.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
