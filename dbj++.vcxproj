@@ -101,13 +101,11 @@
   <ItemGroup>
     <ClInclude Include="dbj++.h" />
     <ClInclude Include="dbj_array.h" />
+    <ClInclude Include="dbj_console.h" />
     <ClInclude Include="dbj_io.h" />
     <ClInclude Include="dbj_com.h" />
     <ClInclude Include="dbj_commander.h" />
-    <ClInclude Include="dbj_commander_test.h" />
-    <ClInclude Include="dbj_console.h" />
     <ClInclude Include="dbj_console_painter.h" />
-    <ClInclude Include="dbj_console_testing.h" />
     <ClInclude Include="dbj_crt.h" />
     <ClInclude Include="dbj_defval.h" />
     <ClInclude Include="dbj_startend.h" />
@@ -116,12 +114,19 @@
     <ClInclude Include="dbj_traits.h" />
     <ClInclude Include="dbj_util.h" />
     <ClInclude Include="dbj_win32.h" />
+    <ClInclude Include="test\dbj_commander_test.h" />
+    <ClInclude Include="test\dbj_console_test.h" />
     <ClInclude Include="test\dbj_crt_testing.h" />
     <ClInclude Include="test\dbj_defval_testing.h" />
     <ClInclude Include="test\dbj_various_tests.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="media\dbjlogo.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

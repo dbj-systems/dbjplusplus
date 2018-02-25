@@ -24,9 +24,6 @@
     <ClInclude Include="dbj_startend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dbj_console.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dbj_com.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -51,12 +48,6 @@
     <ClInclude Include="dbj_console_painter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dbj_console_testing.h">
-      <Filter>test</Filter>
-    </ClInclude>
-    <ClInclude Include="dbj_commander_test.h">
-      <Filter>test</Filter>
-    </ClInclude>
     <ClInclude Include="test\dbj_various_tests.h">
       <Filter>test</Filter>
     </ClInclude>
@@ -78,8 +69,24 @@
     <ClInclude Include="dbj_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="test\dbj_commander_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test\dbj_console_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="media\dbjlogo.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
