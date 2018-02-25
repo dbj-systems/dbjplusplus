@@ -4,7 +4,7 @@
 Disclaimer: Various working and usable Proofs Of Concepts (POC). Unless stated otherwise.
 
 <hr/>
-Copyright 2017.2018 by dbj@dbj.org
+Copyright 2017,2018 by dbj@dbj.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,5 +19,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 <hr/>
-
-[![Dbjlogo](media/dbjlogo.png)](https://dbj.org)
+<img src="media/dbjsystems.jpg" style="height:64px;" />
+<img src="media/dbjlogo.png" style="height:64px;" />
