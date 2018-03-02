@@ -161,7 +161,7 @@ namespace dbj {
 			try {
 				con::switch_console(con::CODE::page_1252);
 				con::setfont(L"Lucida Console");
-				dbj::trace(L"Console code page set to 1252 and font to Luics Console");
+				dbj::trace(L" Console code page set to 1252 and font to Lucida Console ");
 			}
 			catch (...) {
 				// can happen before main()

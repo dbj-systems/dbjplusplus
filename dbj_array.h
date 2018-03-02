@@ -4,6 +4,16 @@
 #include <array>
 
 namespace dbj {
+
+	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
+	template <class T, size_t ROW, size_t COL>
+		using Matrix = std::array<std::array<T, COL>, ROW>;
+	// usage: Matrix<float, 3, 4> mat;
+	
+	template <class T, size_t ROW, size_t COL>
+	using NativeMatrix = T[ROW][COL];
+	// usage: NativeMatrix<float, 3, 4> mat;
+
 	namespace arr {
 		/*
 		return array reference to the C array inside std::array

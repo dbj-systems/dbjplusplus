@@ -379,7 +379,7 @@ namespace {
 forget templates, variadic generic lambda saves you of declaring them 
 */
 	namespace {
-		auto print = [](auto first_param, auto... params)
+		auto print = [](auto && first_param, auto && ... params)
 		{
 			win::con::out(first_param);
 

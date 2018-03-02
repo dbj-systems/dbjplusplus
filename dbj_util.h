@@ -12,86 +12,80 @@
 #include "dbj_traits.h"
 
 namespace dbj {
-
-/*
-create tuple from any range type
-that can be iterated over with
-begin and end iterators
-(c) dbj.org Feb 2018
-note: POC code
-*/
-auto && range_to_tuple = [](const auto & v)
-{
-	// static_assert(IS_VECTOR_V< decltype(v) >);
-
-	// Vector Element Type 
-	using VET = typename decay<decltype(v)>::type;
-	// Tuple Type
-	using TT = tuple< typename VET::value_type >;
-
-	TT rett0 = tie(v[0]);
-
-	for (auto element_ : v) {
-		// this cast is a kludge
-		// relace with compiler agnostic solution
-		rett0 = (TT&&)(
-			tuple_cat(
-				rett0, tie(element_)
-			)
-			);
-	}
-	return rett0;
-};
-
-
-
-	namespace xprmntl {
-
-		namespace detail {
-			template <class T, class Tuple, size_t... I>
-			constexpr T make_from_tuple_impl(Tuple&& t, index_sequence<I...>)
-			{
-				return T(get<I>(forward<Tuple>(t))...);
-			}
-		} // namespace detail
-
-		template <class T, class Tuple>
-		constexpr T make_from_tuple(Tuple&& t, T * = 0)
-		{
-			return detail::make_from_tuple_impl<T>(forward<Tuple>(t),
-				make_index_sequence<tuple_size_v<decay_t<Tuple>>>{});
-		}
-
-	} // namespace 
-
 	namespace util {
-
-		template<typename F, typename... Targs>
-		inline
-			void applicator(F callback, Targs... args)
-		{
-			// since initializer lists guarantee sequencing, this can be used to
-			// call a function on each element of a pack, in order:
-			char dummy[sizeof...(Targs)] = { (callback(args), 0)... };
-		}
-
-	} // util
-} // dbj
-
-
-namespace dbj {
-	namespace util {
-
-		/*
-		array to vector
-		*/
-		template<typename Type, size_t N, typename outype = std::vector<Type> >
-		inline constexpr outype array_to_vector(const Type(&arr_)[N])
-		{
-			return outype{ arr_, arr_ + N };
-		}
-
 		namespace {
+			/*
+			this is good idea, generate tuple with a Func
+			since types do not matter func retval
+			can be of any type
+			and we can do a lot of things inside a func
+			*/
+			template <typename F, size_t... Is>
+			auto gen_tuple_impl(F func, std::index_sequence<Is...>) {
+				return std::make_tuple(func(Is)...);
+			}
+
+			template <size_t N, typename F>
+			auto gen_tuple(F func) {
+				return gen_tuple_impl(func, std::make_index_sequence<N>{});
+			}
+			// dbj added -- for std sequences
+			template<typename T, size_t N>
+			auto seq_tup(const T & sequence) {
+				return gen_tuple<N>(
+					[&](size_t idx) { return sequence[idx]; }
+				);
+			};
+
+			// dbj added -- for native arrays
+			template<typename T, size_t N>
+			auto seq_tup(T(&arr)[N]) {
+				return gen_tuple<N>(
+					[&](size_t idx) { return arr[idx]; }
+				);
+			}
+
+#if templated_classical_applicator
+			/* non recursive applicator */
+			template<typename F, typename... Targs>
+			inline
+				void applicator(F callback, Targs... args)
+			{
+				// since initializer lists guarantee sequencing, this can be used to
+				// call a function on each element of a pack, in order:
+				char dummy[sizeof...(Targs)] = { (callback(args), 0)... };
+			}
+#else
+			/*applicator generic lambda*/
+			auto applicator = [](auto  callback, auto... args) -> void {
+				// todo: use std::is_callable on the callback 
+				if constexpr(sizeof...(args) > 0) {
+					// since initializer lists guarantee sequencing, this can be used to
+					// call a function on each element of a pack, in order:
+					// also with the help of a comma operator
+					// which will populate 'dummy' with 0's
+					char dummy[sizeof...(args)] = { (callback(args), 0)... };
+				}
+			};
+#endif
+
+			/*
+			compile time array to vector
+			*/
+			template<typename Type, size_t N, typename outype = std::vector<Type> >
+			inline constexpr outype array_to_vector(const Type(&arr_)[N])
+			{
+				return outype{ arr_, arr_ + N };
+			}
+
+			template<size_t N>
+			auto array_to_vector_lambda = [&](const auto(&arr_)[N]) constexpr->std::vector<decltype(auto)>
+			{
+				return std::vector<decltype(auto)>{ arr_, arr_ + N };
+			};
+
+
+
 			/*
 			find an item in anything that has begin and end iterators
 			*/
@@ -124,73 +118,71 @@ namespace dbj {
 					return 0 == val_.compare(0, mat_.size(), mat_);
 				}
 			};
-		}
-#if 0
-		/*
-		classical overloading solution
-		*/
-		template<typename T = char>
-		inline
-			bool starts_with(const std::basic_string<T> & value, const std::basic_string<T> & match)
-		{
-			return 0 == value.compare(0, match.size(), match);
-		}
+#if classical_overloading_solution
+			/*
+			classical overloading solution
+			*/
+			template<typename T = char>
+			inline
+				bool starts_with(const std::basic_string<T> & value, const std::basic_string<T> & match)
+			{
+				return 0 == value.compare(0, match.size(), match);
+			}
 
-		template<size_t N, typename C = char >
-		inline
-			bool starts_with(const C(&value_)[N], const C(&match)[N])
-		{
-			return starts_with<C>(std::basic_string<C>{value_}, std::basic_string<C>{match});
-		}
+			template<size_t N, typename C = char >
+			inline
+				bool starts_with(const C(&value_)[N], const C(&match)[N])
+			{
+				return starts_with<C>(std::basic_string<C>{value_}, std::basic_string<C>{match});
+			}
 
-		template< typename  C = char >
-		inline
-			bool starts_with(const C * value_, const C * match)
-		{
-			return starts_with<C>(std::basic_string<C>{value_}, std::basic_string<C>{match});
-		}
+			template< typename  C = char >
+			inline
+				bool starts_with(const C * value_, const C * match)
+			{
+				return starts_with<C>(std::basic_string<C>{value_}, std::basic_string<C>{match});
+			}
 #endif // 0
 
-		/*
-		------------------------------------------------------------------------------------
-		*/
-		template <typename Type>
-		inline std::vector<Type> remove_duplicates(const std::vector<Type> & vec, const bool sort = false) {
-
-			if (sort) {
-				/*
-				this is apparently also faster for very large data sets
-				*/
-				const std::set<Type> s(vec.begin(), vec.end());
-				return std::vector<Type>{ s.begin(), s.end() };
-			}
-			else {
-				std::vector<Type> unique_chunks{};
-				for (auto x : vec) {
-					if (!dbj::util::find(unique_chunks, x)) {
-						unique_chunks.push_back(x);
+			/*
+			------------------------------------------------------------------------------------
+			*/
+			template <typename Type, bool sort = false >
+			inline std::vector<Type> remove_duplicates(const std::vector<Type> & vec) 
+			{
+				if constexpr (sort) {
+					/*
+					this is apparently also faster for very large data sets
+					*/
+					const std::set<Type> s(vec.begin(), vec.end());
+					return std::vector<Type>{ s.begin(), s.end() };
+				} else {
+					std::vector<Type> unique_chunks{};
+					for (auto x : vec) {
+						if (!dbj::util::find(unique_chunks, x)) {
+							unique_chunks.push_back(x);
+						}
 					}
+					return unique_chunks;
 				}
-				return unique_chunks;
 			}
-		}
 
-		template <typename Type, size_t N >
-		inline std::vector<Type> remove_duplicates(const Type(&arr_)[N], const bool sort = false) {
-			return remove_duplicates(std::vector<Type>{arr_, arr_ + N}, sort);
-		}
+			template <typename Type, size_t N >
+			inline std::vector<Type> remove_duplicates(const Type(&arr_)[N]) {
+				return remove_duplicates(std::vector<Type>{arr_, arr_ + N});
+			}
 
-		/*
-		------------------------------------------------------------------------------------
-		*/
-		inline auto string_pad(std::string s_, char padchar = ' ', size_t maxlen = 12) {
-			return s_.insert(0, maxlen - s_.length(), padchar);
-		};
+			/*
+			------------------------------------------------------------------------------------
+			*/
+			inline auto string_pad(std::string s_, char padchar = ' ', size_t maxlen = 12) {
+				return s_.insert(0, maxlen - s_.length(), padchar);
+			};
 
-		inline auto string_pad(int number_) {
-			return string_pad(std::to_string(number_));
-		};
-
+			inline auto string_pad(int number_) {
+				return string_pad(std::to_string(number_));
+			};
+		} // ns
 	} // util
 } // dbj
 #ifdef DBJ_TESTING_EXISTS
@@ -219,7 +211,7 @@ namespace dbj {
 	}
 #endif 
   /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 
   /*
   Copyright 2017 by dbj@dbj.org

@@ -5,6 +5,7 @@ namespace dbj {
 
 		using  voidvoidfun = void(*) ();
 		/*
+		call ATSTART on stat at ATEND on end of application lifetime
 		(possibly too)  simple class to do whatever two functions provided do when called
 		*/
 		template< voidvoidfun ATSTART, voidvoidfun ATEND>
