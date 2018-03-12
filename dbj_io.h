@@ -1,5 +1,12 @@
 #pragma once
+/*
+2081-03-12	DBJ		Plan is to leave the use of iostreams behind
+*/
+#undef DBJ_IO_PRINT
 #ifdef DBJ_IO_PRINT
+
+#include <iostream>
+
 namespace dbj {
 	/*
 	"modern" printf like output in modern c++, without printf type descriptors required.

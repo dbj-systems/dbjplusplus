@@ -129,10 +129,6 @@ explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"
 #include "dbj_com.h"
-#define DBJ_IO_PRINT
-#ifdef DBJ_IO_PRINT
-#include "dbj_io.h"
-#endif
 #include "dbj_defval.h"
 #include "dbj_win32.h"
 
