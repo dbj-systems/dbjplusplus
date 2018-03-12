@@ -186,9 +186,10 @@ namespace dbj {
 	} // util
 } // dbj
 #ifdef DBJ_TESTING_EXISTS
-	template <typename F>
-	inline void dbj_util_test( F & print ) {
-		{
+
+#include "dbj_testing.h"
+
+		DBJ_TEST_UNIT(": dbj dbj_util_test ") {
 
 			int intarr[]{ 1,1,2,2,3,4,5,6,6,6,7,8,9,9,0,0 };
 			auto ret1 = dbj::util::remove_duplicates(intarr);
@@ -203,12 +204,9 @@ namespace dbj {
 			char carr[] = { 'c','a','b','c','c','c','d', 0x0 };
 			dbj::util::remove_duplicates(carr);
 			auto see_mee_here = carr;
-		}
-		{
 			auto doesit1 = dbj::util::starts_with("abra ka dabra", "abra");
 			auto doesit2 = dbj::util::starts_with(L"abra ka dabra", L"abra");
-		}
-	}
+		};
 #endif 
   /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 

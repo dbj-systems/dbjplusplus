@@ -3,6 +3,7 @@
 #pragma region "Console Interfaces"
 
 #include <iterator>
+#include "dbj_win32.h"
 
 namespace dbj {
 	namespace win {
@@ -395,6 +396,36 @@ forget templates, variadic generic lambda saves you of declaring them
 #pragma endregion "eof printer implementation"
 
 } // dbj
+
+namespace dbj {
+	namespace console::config {
+		/*
+		TODO: usable interface for users to define this
+		*/
+		namespace {
+			auto configure_ = []() {
+				using namespace dbj::win;
+				try {
+					con::switch_console(con::CODE::page_1252);
+					con::setfont(L"Lucida Console");
+					dbj::trace(L" Console code page set to 1252 and font to Lucida Console ");
+				}
+				catch (...) {
+					// can happen before main()
+					// and user can have no terminators and abort set up
+					// so ...
+					dbj::win32::STRING message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
+					dbj::trace(L"Exception %s", message_.data());
+					throw dbj::Exception(message_);
+				}
+				return true;
+			};
+
+			auto single_start = configure_();
+		}
+	}
+}
+
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*

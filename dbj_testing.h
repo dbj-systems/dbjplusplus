@@ -44,6 +44,25 @@ No exceptions are thrown outside. They are reported to console.
 
 */
 
+#include <string>
+#include <map>
+
+#ifndef DBJ_INLINE
+#define DBJ_INLINE inline
+#endif
+
+#ifndef DBJ_NV
+/*
+use dbj print or printex to show the symbol and its value, for example:
+printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
+
+WARNING: this is primitive, use with caution
+TODO: if symbol contains comma this is not going to work
+*/
+#define DBJ_NV_DELIMITER " , "
+#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
+#endif
+
 namespace dbj {
 	namespace testing {
 		// if not false on command line it will be compiled into existence
@@ -130,10 +149,35 @@ namespace dbj {
 
 #define DBJ_TEST_CASE( description ) DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
 
+		namespace internal /*to cut dependancies */{
+
+			constexpr auto COMPANY = "DBJ.Systems Ltd.";
+			constexpr auto YEAR = (__DATE__ + 7);
+			inline std::string  FILENAME(const std::string  &  file_path) {
+				auto pos = file_path.find_last_of('\\');
+				return
+					(std::string::npos != pos
+						? file_path.substr(pos, file_path.size())
+						: file_path
+						);
+			}
+
+			inline std::string FILELINE(const std::string & file_path, unsigned line_, const std::string & suffix = 0) {
+				return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+					+ (suffix.empty() ? "" : suffix);
+			}
+		}
+
+#ifdef DBJ_TEST_UNIT
+#error "DBJ_TEST_UNIT Already defined?"
+#else
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE(dbj::testing::internal::FILELINE(__FILE__, __LINE__, x))
+#endif
+
 	} // testing
 } // dbj
   /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
   Copyright 2017 by dbj@dbj.org
 

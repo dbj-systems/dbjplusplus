@@ -23,6 +23,8 @@ using namespace Gdiplus;
 #pragma comment(lib, "Gdiplus.lib")
 #endif // _GDIPLUS_H
 //
+#include "dbj_defval.h"
+//
 namespace dbj {
 	namespace win32 {
 #pragma region "GDI+ LINE"

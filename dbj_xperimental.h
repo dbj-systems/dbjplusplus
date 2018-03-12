@@ -1,51 +1,76 @@
 #pragma once
+#include <type_traits>
+#include <tuple>
 /*
+DBJ++ 2018 
+
 __interface msvc keyword
 explained here: https://docs.microsoft.com/en-us/cpp/cpp/interface
 */
 namespace dbj {
-#pragma region template to inherit lambdas
+// http://en.cppreference.com/w/cpp/experimental/feature_test
+#ifdef	__cpp_deduction_guides
+#pragma region template to collect lambdas by inheriting them
 	// dbj::x is eXperimental stuff
 	namespace x {
 		/*
 		http://cpptruths.blogspot.rs/2018/02/inheritance-vs-stdvariant-based.html
 		*/
-		   template <class... Ts>
-		   struct overloaded : Ts... {
-			   /*
-			   generate function call operator for every lambda inherited
-			   this works because lambdas are impemented as functors
-			   */
-			   using Ts::operator()...;
-			   /*
-			   again this also works because lambdas are functors
-			   and they have ctors that receive lambda instance
-			   so here we construct this struct with variable
-			   number of lambdas:
-			    
-				 auto enchilada_ = overloaded {
-				     [](bool && ){ return "bool was sent"; }, 
-					 [](float &&){ return "float was sent";}
-				 } ;
-				     enchilada_(true) ; // calls first lambda stored
-					 enchilada_("does not compile"); // no lambda inside to receive const char *
-			   */
-			   explicit overloaded(Ts... ts) : Ts(ts)... {}
-		   };
+		template <class... Ts>
+		struct overloaded : Ts... {
+			/*
+			generate function call operator for every lambda inherited
+			this works because lambdas are impemented as functors
+			*/
+			using Ts::operator()...;
+			/*
+			again this also works because lambdas are functors
+			and they have ctors that receive lambda instance
+			so here we construct this struct with variable
+			number of lambdas:
 
-		   // C++17 user defined deduction guide for the above
-		   // removes the need to give template arguments when 
-		   // constructing overloaded
-#ifndef _MSVC_LANG
-		   template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+			  auto enchilada_ = overloaded {
+				  [](bool && ){ return "bool was sent"; },
+				  [](float &&){ return "float was sent";}
+			  } ;
+				  enchilada_(true) ; // calls first lambda stored
+				  enchilada_("does not compile"); // no lambda inside to receive const char *
+			*/
+			explicit overloaded(Ts... ts) : Ts(ts)... {}
+		};
+
+		// C++17 user defined deduction guide for the above
+		// removes the need to give template arguments when 
+		// constructing overloaded
+#ifdef _MSVC_LANG
+#pragma message ("--------> Be advised MSVC C++ stil does not deliver user defined deduction guides")
 #else
-#pragma message "--------> Be advised MSVC C++ stil does not deliver user defined deduction guides"
+		template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 #endif
 	} // x
 #pragma endregion
 
-	// dbj::x is eXperimental stuff
-	namespace x {
+#ifdef DBJ_TESTING_EXISTS
+#include <dbj_testing.h>
+	namespace {
+		DBJ_TEST_CASE(dbj::FILELINE(__FILE__, __LINE__, ": dbj lambda collection"))
+		{
+			auto enchilada_ = dbj::x::overloaded{
+				[](bool &&) { return "bool was sent"; },
+				[](float &&) { return "float was sent"; }
+			};
+			enchilada_(true); // calls first lambda stored
+			enchilada_("does not compile"); // no lambda inside to receive const char *
+		}
+	}
+#endif
+#endif // __cpp_deduction_guides
+
+// dbj::x is eXperimental stuff
+namespace x {
+
+	using namespace std;
+#if 0
 		/*
 		create tuple from any range type
 		that can be iterated over with
@@ -92,7 +117,7 @@ namespace dbj {
 			}
 			return rett0;
 		};
-
+#endif
 
 		/*
 		this works on T only if T ctor has 
@@ -100,17 +125,18 @@ namespace dbj {
 		*/
 		namespace detail {
 			template <class T, class Tuple, size_t... I>
-			constexpr T make_from_tuple_impl(Tuple&& t, index_sequence<I...>)
+			inline constexpr T make_from_tuple_impl(Tuple&& t, index_sequence<I...>)
 			{
 				return T(get<I>(forward<Tuple>(t))...);
 			}
 		} // namespace detail
 
 		template <class T, class Tuple>
-		constexpr T make_from_tuple(Tuple&& t, T * = 0)
+		inline  constexpr T make_from_tuple(Tuple&& t, T * = 0)
 		{
 			return detail::make_from_tuple_impl<T>(forward<Tuple>(t),
-				make_index_sequence<tuple_size_v<decay_t<Tuple>>>{});
+				make_index_sequence<tuple_size_v<decay_t<Tuple>>>{}
+			);
 		}
 
 	} // x
@@ -119,7 +145,9 @@ namespace dbj {
 #ifdef DBJ_TESTING_EXISTS
 template <typename F>
 inline void dbj_util_test(F & print) {
-/* keep test with the code it is testing so that devs can see it not try to discover it*/
+/* keep test with the code it is testing so that devs 
+   can see it vs try to discover it
+ */
 }
 #endif 
 /* standard suffix for every dbj++ header */

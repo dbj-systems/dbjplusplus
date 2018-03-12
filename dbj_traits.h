@@ -54,18 +54,20 @@ namespace dbj {
 namespace dbj {
 	using char_star = decltype("XYZ");
 	using wchar_star = decltype(L"XYZ");
-	/*
-	part of C++20, but also implemented here
-	http://en.cppreference.com/w/cpp/types/remove_cvref
-	*/
-	template< class T >
-	struct remove_cvref {
-		typedef std::remove_cv_t<std::remove_reference_t<T>> type;
-	};
 
-	template< class T >
-	using remove_cvref_t = typename remove_cvref<T>::type;
+	namespace {
+		/*
+		part of C++20, but also implemented here
+		http://en.cppreference.com/w/cpp/types/remove_cvref
+		*/
+		template< class T >
+		struct remove_cvref {
+			typedef std::remove_cv_t<std::remove_reference_t<T>> type;
+		};
 
+		template< class T >
+		using remove_cvref_t = typename remove_cvref<T>::type;
+	}
 	namespace {
 		/*
 		are two types equal?
