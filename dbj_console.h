@@ -98,7 +98,7 @@ namespace {
 	Note that the Windows console isn't UTF16 friendly and may just show garbage.
 	*/
 	struct __declspec(novtable)	WideOut final
-		: implements dbj::win::con::IConsole
+		: public dbj::win::con::IConsole
 	{
 		mutable		HANDLE output_handle_;
 		mutable		UINT   previous_code_page_;

@@ -74,20 +74,26 @@ using namespace Gdiplus;
 #endif
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+/*
+	this is horrible
 
 #ifndef __FILENAME__
 #define __FILENAME__ ((strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
 #endif
-
+*/
 #ifndef __YEAR__
+// 
 // Example of __DATE__ string: "Jul 27 2012"
 //                              01234567890
-// constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3] };
 #define __YEAR__ (__DATE__ + 7)
+#endif
+
 namespace dbj {
-	constexpr auto COMPANY = "DBJ.Systems Ltd.";
-	constexpr auto YEAR = (__DATE__ + 7);
-	inline std::string  FILENAME(const std::string  &  file_path) {
+	constexpr const char * COMPANY = "DBJ.Systems Ltd.";
+
+	constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3], '\0' };
+#if 0
+	inline std::string  filename(const std::string  &  file_path) {
 		auto pos = file_path.find_last_of('\\');
 		return 
 			( std::string::npos != pos 
@@ -95,20 +101,22 @@ namespace dbj {
 			  : file_path
 			) ; 
 	}
-	inline std::string FILELINE ( const std::string & file_path, unsigned line_ , const std::string & suffix = 0 ) {
-		return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+	inline std::string fileline ( const std::string & file_path, unsigned line_ , const std::string & suffix = 0 ) {
+		return filename(file_path) + "(" + std::to_string(line_) + ")"
 			  + ( suffix.empty() ? "" : suffix ) ;
 	}
-}
 #endif
-#undef __YEAR__
+}
+
 /*
 dbj begins here
 
 __interface msvc keyword
 explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
-*/
+
+we can't have #define implements because of the cppWINRT base.h struct of the same name
 #define implements public
+*/
 // inline is the keyword, in C++ and C99.
 #define DBJ_INLINE inline 
 
