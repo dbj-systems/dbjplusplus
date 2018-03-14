@@ -13,7 +13,6 @@ namespace dbj {
 	template <class T, size_t ROW, size_t COL>
 	using NativeMatrix = T[ROW][COL];
 	// usage: NativeMatrix<float, 3, 4> mat;
-
 	namespace arr {
 		/*
 		return array reference to the C array inside std::array
@@ -57,7 +56,7 @@ namespace dbj {
 			of an instance of std::array<T,N>
 			*/
 			static constexpr ARP
-				to_arp(const ARR & arr)
+				to_arp( ARR arr)
 			{
 				return (ARP)const_cast<typename ARR::pointer>(arr.data());
 			}
@@ -67,7 +66,7 @@ namespace dbj {
 			of an instance of std::array<T,N>
 			*/
 			static constexpr ARF
-				to_arf(const ARR & arr)
+				to_arf( ARR arr)
 			{
 				return *(ARP) const_cast<typename ARR::pointer>(arr.data());
 			}
@@ -93,9 +92,8 @@ namespace dbj {
 
 #ifdef DBJ_TESTING_EXISTS
 
-			template< typename F>
-		inline void test( F & print )
-		{
+			DBJ_TEST_UNIT(": dbj array handler ") 
+			{
 			{
 				// the "C" way
 				char arr_of_chars[]{ 'A','B','C' };

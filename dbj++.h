@@ -74,24 +74,11 @@ using namespace Gdiplus;
 #endif
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-/*
-	this is horrible
-
-#ifndef __FILENAME__
-#define __FILENAME__ ((strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
-#endif
-*/
-#ifndef __YEAR__
-// 
-// Example of __DATE__ string: "Jul 27 2012"
-//                              01234567890
-#define __YEAR__ (__DATE__ + 7)
-#endif
 
 namespace dbj {
 	constexpr const char * COMPANY = "DBJ.Systems Ltd.";
 
-	constexpr const char YEAR[] = { __YEAR__[0],__YEAR__[1],__YEAR__[2],__YEAR__[3], '\0' };
+	constexpr const char (&YEAR)[] { __DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10], '\0' };
 #if 0
 	inline std::string  filename(const std::string  &  file_path) {
 		auto pos = file_path.find_last_of('\\');
@@ -145,15 +132,13 @@ we can't have #define implements because of the cppWINRT base.h struct of the sa
 /*
  TODO: the whole dbj++ has to be configured somewhere?
 */
-
-
-
-/* standard suffix for this header only every header here */
-#pragma message( __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
-/* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+#ifndef DBJ_BUILD_STAMP
+#define DBJ_BUILD_STAMP __FILE__ "(c) " __DATE__ " by dbj@dbj.org | Version: " __DATE__ __TIME__ 
+/* standard suffix for every dbj header */
+#pragma comment( user, DBJ_BUILD_STAMP ) 
+#endif
 /*
-Copyright 2017 by dbj@dbj.org
+Copyright 2017,2018 by dbj@dbj.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

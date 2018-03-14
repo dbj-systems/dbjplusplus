@@ -12,8 +12,15 @@
 #include "dbj_traits.h"
 
 namespace dbj {
+	
 	namespace util {
 		namespace {
+
+			inline auto dbj_count = [](auto && range) constexpr->size_t
+			{
+				return std::distance(std::begin(range), std::end(range));
+			};
+
 			/*
 			this is good idea, generate tuple with a Func
 			since types do not matter func retval
