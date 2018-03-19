@@ -408,14 +408,14 @@ namespace dbj {
 				try {
 					con::switch_console(con::CODE::page_1252);
 					con::setfont(L"Lucida Console");
-					dbj::trace(L" Console code page set to 1252 and font to Lucida Console ");
+					DBJ::TRACE(L" Console code page set to 1252 and font to Lucida Console ");
 				}
 				catch (...) {
 					// can happen before main()
 					// and user can have no terminators and abort set up
 					// so ...
 					dbj::win32::STRING message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
-					dbj::trace(L"Exception %s", message_.data());
+					DBJ::TRACE(L"Exception %s", message_.data());
 					throw dbj::Exception(message_);
 				}
 				return true;

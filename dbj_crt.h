@@ -80,7 +80,7 @@ namespace DBJ {
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
-		assert(-1 != _snwprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
+		assert(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
 		::OutputDebugStringW(buffer);
 	}
 	template <typename ... Args>
