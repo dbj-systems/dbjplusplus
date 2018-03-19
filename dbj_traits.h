@@ -70,9 +70,9 @@ namespace dbj {
 	}
 	namespace {
 		/*
-		are two types equal?
+		are two types equal, for two values provided ?
 		*/
-		auto eqt = [](auto & a, auto & b) constexpr -> bool
+		auto equal_types = [](auto & a, auto & b) constexpr -> bool
 		{
 			return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
 			/*

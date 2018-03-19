@@ -109,15 +109,15 @@ namespace dbj {
 			*/
 			auto starts_with = [](auto val_, auto mat_) {
 
-				static_assert(eqt(val_, mat_),
+				static_assert(equal_types  (val_, mat_),
 					"dbj::does_start [error] arguments not of the same type"
 					);
 
-				if  constexpr(eqt(val_, char_star{})) {
+				if  constexpr(equal_types(val_, char_star{})) {
 					// #pragma message ("val type is char *")
 					return starts_with(std::string(val_), std::string(mat_));
 				}
-				else if  constexpr(eqt(val_, wchar_star{})) {
+				else if  constexpr(equal_types(val_, wchar_star{})) {
 					// #pragma message ("val type is wchar_t *")
 					return starts_with(std::wstring(val_), std::wstring(mat_));
 				}

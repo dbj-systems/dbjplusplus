@@ -62,57 +62,44 @@ namespace dbj {
 	};
 }
 
-#pragma region independent debug things
+#pragma region DBJ debug things
 #ifdef _DEBUG
-#define DBJ_ASSERT assert
+#define DBJ_ASSERT _ASSERTE
+#define DBJ_VERIFY DBJ_ASSERT
 #define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
 
-namespace dbj {
-	// Inspired by MODERN v1.26 - http://moderncpp.com
-// #ifdef UNICODE
-	// this requires all the args to be unicode so I am doubtfull it will work ... easily
+// DBJ namespace is different from dbj namespace name
+namespace DBJ {
+
+	/* 512 happpens to be the BUFSIZ */
+	constexpr size_t BUFSIZ_ = 512 * 2;
+
+	// this requires all the string args to be unicode 
+	// so I am doubtfull it will work ... easily
 	template <typename ... Args>
-	inline void trace(wchar_t const * const message, Args ... args) noexcept
+	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
-		/* NOTE: 512 happpens to be the BUFSIZ */
-		wchar_t buffer[512] = {};
-		assert(-1 != _snwprintf_s(buffer, 512, 512, message, (args) ...));
+		wchar_t buffer[DBJ::BUFSIZ_]{};
+		assert(-1 != _snwprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
 		::OutputDebugStringW(buffer);
 	}
-// #else
-
 	template <typename ... Args>
-	inline void trace(const char * const message, Args ... args) noexcept
+	inline void TRACE(const char * const message, Args ... args) noexcept
 	{
-		char buffer[512] = {};
-		assert(-1 != _snprintf_s(buffer, 512, 512, message, (args) ...));
+		char buffer[DBJ::BUFSIZ_]{};
+		assert(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
 		::OutputDebugStringA(buffer);
 	}
-// #endif // UNICODE
 }
 #else
-// code dissapears
-namespace dbj {
-	// Inspired by MODERN v1.26 - http://moderncpp.com
-	template <typename ... Args>
-	inline void trace(wchar_t const * const message, Args ... args) noexcept
-	{
-		__noop
-	}
-
-	template <typename ... Args>
-	inline void trace(const char * const message, Args ... args) noexcept
-	{
-		__noop
-	}
-}
+// release code dissapears
+#define DBJ::TRACE 	__noop
 #define DBJ_ASSERT __noop
-// code stays
-#define DBJ_VERIFY(expression) (expression)
-// code stays
-#define DBJ_VERIFY_(result, expression) assert(result == expression)
+// release code stays + with no checks
+#define DBJ_VERIFY(expression) (void)(expression)
+#define DBJ_VERIFY_(result, expression) (void)(expression)
 #endif
-#pragma endregion eof independent debug things
+#pragma endregion 
 /*
 2017-10-18	DBJ created
 
@@ -157,7 +144,7 @@ namespace dbj {
 	in here we cater for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
 	*/
-#ifndef __cplusplus
+#if 0
 	/*
 	Inspired by: https://opensource.apple.com/source/bash/bash-80/bash/lib/sh/strnlen.c
 	*/
@@ -263,14 +250,7 @@ namespace dbj {
 		constexpr auto nicer_filename(const char * filename) {
 		return (strrchr(filename, '\\') ? strrchr(filename, '\\') + 1 : filename);
 	}
-#if 0
-	template <typename T>
-	inline
-		constexpr
-		auto sizeof_array(const T& iarray) {
-		return (sizeof(iarray) / sizeof(iarray[0]));
-	}
-#endif
+
 	namespace {
 		using namespace std;
 
@@ -288,8 +268,7 @@ namespace dbj {
 	/*
 	Transform "C array" into std::array
 	at compile time
-
-	question is how is this called direct?
+	make sure you use it on native array not a pointer
 	*/
 	template <class T, std::size_t N>
 	inline constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])
@@ -315,8 +294,7 @@ namespace dbj {
 	public:
 		template<std::size_t N>
 		constexpr str_const(const char(&a)[N]) : // ctor
-			p_(a), sz_(N - 1) {
-		}
+			p_(a), sz_(N - 1) {		}
 		constexpr char operator[](std::size_t n) const { // []
 			return n < sz_ ? this->p_[n] : throw std::out_of_range("");
 		}
