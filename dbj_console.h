@@ -14,7 +14,7 @@ namespace dbj {
 				const unsigned code_page() const;
 				/* out is based on HANDLE and std::wstring */
 				HANDLE handle() const;
-				void out(const HANDLE & output_handle_, const std::wstring & wp_) const ;
+				void out(const std::wstring & wp_) const ;
 			};
 #if 0
 			/* printer uses the console as part of its implementation */
@@ -73,13 +73,13 @@ namespace con {
 		cfi.dwFontSize.Y = height_;
 		cfi.FontFamily = FF_DONTCARE;
 		cfi.FontWeight = FW_NORMAL;
-		// ::wprintf(L"Setting font to %s : please press <Enter> ", font_name ); (void)::getchar();
+		//
 		::wcscpy_s(cfi.FaceName, LF_FACESIZE, font_name);
 		return ::SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
 	}
 #pragma endregion 
 
-	enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 };
+	typedef enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 } CODE_PAGE ;
 
 #pragma region "WideOut"
 namespace {
@@ -135,10 +135,29 @@ namespace {
 		/* out is based on HANDLE and std::wstring */
 		HANDLE handle() const { return this->output_handle_; }
 
-		/* the default one and only out-put op-erator */
-		inline void out(const HANDLE & output_handle_, const std::wstring & wp_) const {
+		/* the default one */
+		inline void out(const std::wstring & wp_) const 
+		{
+			const HANDLE & output_handle_ = this->output_handle_;
 			assert(0 != ::WriteConsoleW(output_handle_, wp_.data(),
 				static_cast<DWORD>(wp_.size()),	NULL, NULL));
+		}
+
+		inline void out(const std::string & ns_) const
+		{
+			const HANDLE & output_handle_ = this->output_handle_;
+			assert(0 != ::WriteConsoleA(output_handle_, ns_.data(),
+				static_cast<DWORD>(ns_.size()), NULL, NULL));
+		}
+
+		inline void out(const std::u16string  & u16_) const
+		{
+			this->out(std::wstring{ u16_.begin(), u16_.end() });
+		}
+
+		inline void out(const std::u32string  & u32_) const
+		{
+			this->out(std::wstring{ u32_.begin(), u32_.end() });
 		}
 
 	}; // WideOut
@@ -196,7 +215,19 @@ namespace {
 
 	/* here are the out() overloads for intrinsic types */
 	inline void out(const std::wstring & ws_) {
-		console_.out(HANDLE_, ws_);
+		console_.out(ws_);
+	}
+
+	inline void out(const std::string & s_) {
+		console_.out(s_);
+	}
+
+	inline void out(const std::u16string  & s_) {
+		console_.out(s_);
+	}
+
+	inline void out(const std::u32string  & s_) {
+		console_.out(s_);
 	}
 
 	/* by using enable_if we make sure this template instances are made
@@ -205,41 +236,58 @@ namespace {
 	template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
 	inline void out(const N & number_) {
 		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-		console_.out(HANDLE_, std::to_wstring(number_));
+		console_.out(std::to_wstring(number_));
 	}
 
-	inline void out(const std::string & s_) {
-		console_.out(HANDLE_, std::wstring(s_.begin(), s_.end()));
-	}
+
 
 	template<size_t N>
 	inline void out(const char (& car_)[N]) {
 		console_.out(
-			HANDLE_, std::wstring( std::begin(car_), std::end(car_))
+			std::string( car_, car_ + N)
 		);
-	}
-
-	inline void out(const char * cp) {
-		std::string s(cp);
-		console_.out(HANDLE_, std::wstring(s.begin(), s.end()));
-	}
-
-	inline void out(const wchar_t * cp) {
-		console_.out(HANDLE_, std::wstring(cp));
 	}
 
 	template<size_t N>
 	inline void out(const wchar_t(&wp_)[N]) {
-		console_.out(HANDLE_, std::wstring(wp_));
+		console_.out(std::wstring(wp_, wp_ + N ));
+	}
+
+	inline void out(const char * cp) {
+		console_.out(std::string(cp));
+	}
+
+	inline void out(const wchar_t * cp) {
+		console_.out(std::wstring(cp));
+	}
+
+	inline void out(const char16_t * cp) {
+		console_.out(std::u16string(cp));
+	}
+
+	inline void out(const char32_t * cp) {
+		console_.out(std::u32string(cp));
 	}
 
 	inline void out(const wchar_t wp_) {
-		console_.out(HANDLE_, std::wstring(1, wp_));
+		console_.out(std::wstring(1, wp_));
 	}
 
 	inline void out(const char c_) {
 		char str[] = { c_ };
-		console_.out(HANDLE_, std::wstring(std::begin(str), std::end(str)));
+		console_.out(std::wstring(std::begin(str), std::end(str)));
+	}
+
+	/* here are the other modern c++ fundamental chars
+		char16_t 
+		char32_t 
+	*/
+	inline void out(const char16_t wp_) {
+		console_.out(std::u16string{ 1, wp_ } );
+	}
+
+	inline void out(const char32_t wp_) {
+		console_.out(std::u32string{ 1, wp_ });
 	}
 
 	/*
@@ -255,7 +303,7 @@ namespace {
 		painter_commander().execute(CMD::bright_red);
 		// "magic" calls std::wstring casting operator
 		// perhaps not a good idea
-		console_.out(HANDLE_, (x_));
+		console_.out((x_));
 		painter_commander().execute(CMD::text_color_reset);
 	}
 
@@ -403,12 +451,15 @@ namespace dbj {
 		TODO: usable interface for users to define this
 		*/
 		namespace {
-			auto configure_ = []() {
-				using namespace dbj::win;
+			using namespace dbj::win;
+			inline auto configure_ = [](
+				) -> bool {
+				auto font_name_ = L"Segoe UI";
+				auto code_page_ = con::CODE_PAGE::page_1252;
 				try {
-					con::switch_console(con::CODE::page_1252);
-					con::setfont(L"Lucida Console");
-					DBJ::TRACE(L" Console code page set to 1252 and font to Lucida Console ");
+					con::switch_console(code_page_);
+					con::setfont(font_name_); // def arg = L"Lucida Console"
+					DBJ::TRACE(L" Console code page set to ", code_page_, " and font to: ", font_name_);
 				}
 				catch (...) {
 					// can happen before main()
@@ -421,7 +472,7 @@ namespace dbj {
 				return true;
 			};
 
-			auto single_start = configure_();
+			inline const auto single_start = configure_();
 		}
 	}
 }
