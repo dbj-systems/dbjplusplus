@@ -369,7 +369,7 @@ namespace {
 */
 	inline void out(const std::string_view & sv_) {
 		dbj::win::con::out(
-			std::wstring( sv_.begin() , sv_.end() )
+			std::string( sv_.data() )
 		);
 	}
 /*	implement for these when required 
