@@ -9,15 +9,15 @@ namespace {
 
 		const static std::wstring squiglies = L"αß©∂€αß©∂€αß©∂€αß©∂€αß©∂€";
 		/*
-		here we use them commands through the printex()
+		here we use them commands 
 		*/
 		dbj::print(
-			"\n", CMD::white,				"White\t\t",		squiglies, 
-			"\n", CMD::red,					"Red\t\t",			squiglies,
-			"\n", CMD::green,				"Green\t\t",		squiglies,
-			"\n", CMD::blue,				"Blue\t\t",			squiglies,
-			"\n", CMD::bright_red,			"Bright Red\t",		squiglies,
-			"\n", CMD::text_color_reset,	"Reset\t\t",		squiglies
+			"\n", painter_command::white,				"White\t\t",		squiglies,
+			"\n", painter_command::red,					"Red\t\t",			squiglies,
+			"\n", painter_command::green,				"Green\t\t",		squiglies,
+			"\n", painter_command::blue,				"Blue\t\t",			squiglies,
+			"\n", painter_command::bright_red,			"Bright Red\t",		squiglies,
+			"\n", painter_command::text_color_reset,	"Reset\t\t",		squiglies
 		);
 	}
 }

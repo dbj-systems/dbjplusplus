@@ -208,8 +208,20 @@ namespace {
 
 		this is the special out that does not use the console output class
 		but painter commander
+
+		Thus we achieved a decoupling of console and painter
 	*/
-	inline void out(const CMD & cmd_) {
+	template<
+		typename N, 
+		typename = std::enable_if_t<
+			std::is_same_v<N, painter_command> 
+		> 
+	>
+	inline void out( N cmd_ ) {
+		painter_commander().execute(cmd_);
+	}
+
+	inline void paint (painter_command cmd_) {
 		painter_commander().execute(cmd_);
 	}
 
@@ -238,7 +250,6 @@ namespace {
 		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
 		console_.out(std::to_wstring(number_));
 	}
-
 
 
 	template<size_t N>
@@ -278,10 +289,6 @@ namespace {
 		console_.out(std::wstring(std::begin(str), std::end(str)));
 	}
 
-	/* here are the other modern c++ fundamental chars
-		char16_t 
-		char32_t 
-	*/
 	inline void out(const char16_t wp_) {
 		console_.out(std::u16string{ 1, wp_ } );
 	}
@@ -300,15 +307,17 @@ namespace {
 
 	/* print exception and also color the output red */
 	inline void out(const dbj::Exception & x_) {
-		painter_commander().execute(CMD::bright_red);
+		paint( painter_command::bright_red );
 		// "magic" calls std::wstring casting operator
-		// perhaps not a good idea
+		// not a good idea?
 		console_.out((x_));
-		painter_commander().execute(CMD::text_color_reset);
+		paint( painter_command::text_color_reset );
 	}
 
 	inline void out(const std::exception & x_) {
+		paint(painter_command::bright_red);
 		out( dbj::Exception(x_.what()) );
+		paint(painter_command::text_color_reset);
 	}
 
 	template<typename T>

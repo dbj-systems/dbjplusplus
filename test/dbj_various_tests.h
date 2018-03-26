@@ -12,7 +12,7 @@
 namespace {
 	
 	// using namespace  dbj::win::con;
-	typedef typename dbj::win::con::CMD CMD;
+	// typedef typename dbj::win::con::painter_command CMD;
 	using namespace  dbj::win32::sysinfo;
 
 	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {

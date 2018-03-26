@@ -16,7 +16,7 @@ namespace dbj {
 		/*  execute all the tests collected  */
 		DBJ_INLINE void _stdcall execute() noexcept {
 
-			typedef typename dbj::win::con::CMD CMD;
+			typedef typename dbj::win::con::painter_command CMD;
 			using dbj::print ;
 
 			auto white_line = [&]( const char * arg = "") { 

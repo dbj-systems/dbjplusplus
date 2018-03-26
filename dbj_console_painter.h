@@ -97,29 +97,31 @@ namespace {
 	/*
 	Here we use the dbj::cmd::Commander,  define the comand id's and functions to execute them etc..
 	*/
-	enum class CMD : unsigned {
+	typedef enum : unsigned {
 		white = 0,		red,		green,
 		blue,			cyan,		yellow,
 		grey,			bright_red, bright_blue, 
 		text_color_reset,			nop = (unsigned)-1
-	};
+	} painter_command ;
+
 	using PainterCommandFunction = bool(void);
-	using PainterCommander = dbj::cmd::Commander<CMD, PainterCommandFunction >;
+	using PainterCommander = dbj::cmd::Commander<painter_command, PainterCommandFunction >;
 
 	namespace {
 		auto factory_of_commands = []() -> PainterCommander & {
-			// make the commander instance
+			// make the unique commander instance
 			static PainterCommander commander_;
+			// register command/function pairs
 	commander_.reg({
-			{ CMD::nop,					[&]() {										return true;  }},
-			{ CMD::text_color_reset,	[&]() {	painter_.text_reset(); 				return true;  }},
-			{ CMD::white,				[&]() { painter_.text(Colour::White);		return true;  }},
-			{ CMD::red,					[&]() { painter_.text(Colour::Red);			return true;  }},
-			{ CMD::green,				[&]() { painter_.text(Colour::Green);		return true;  }},
-			{ CMD::blue,				[&]() { painter_.text(Colour::Blue);		return true;  }},
-			{ CMD::bright_red,			[&]() { painter_.text(Colour::BrightRed);	return true;  }},
-			{ CMD::bright_blue,			[&]() { painter_.text(Colour::BrightBlue);	return true;  }}
-	});
+		{ painter_command::nop,					[&]() {										return true;  }},
+		{ painter_command::text_color_reset,	[&]() {	painter_.text_reset(); 				return true;  }},
+		{ painter_command::white,				[&]() { painter_.text(Colour::White);		return true;  }},
+		{ painter_command::red,					[&]() { painter_.text(Colour::Red);			return true;  }},
+		{ painter_command::green,				[&]() { painter_.text(Colour::Green);		return true;  }},
+		{ painter_command::blue,				[&]() { painter_.text(Colour::Blue);		return true;  }},
+		{ painter_command::bright_red,			[&]() { painter_.text(Colour::BrightRed);	return true;  }},
+		{ painter_command::bright_blue,			[&]() { painter_.text(Colour::BrightBlue);	return true;  }}
+	});         // done
 				return commander_;
 		};
 	} // nspace
