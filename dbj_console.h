@@ -463,11 +463,11 @@ namespace dbj {
 			using namespace dbj::win;
 			inline auto configure_ = [](
 				) -> bool {
-				auto font_name_ = L"Segoe UI";
+				auto font_name_ = L"Lucida Console";
 				auto code_page_ = con::CODE_PAGE::page_1252;
 				try {
 					con::switch_console(code_page_);
-					con::setfont(font_name_); // def arg = L"Lucida Console"
+					con::setfont(font_name_); 
 					DBJ::TRACE(L" Console code page set to ", code_page_, " and font to: ", font_name_);
 				}
 				catch (...) {
