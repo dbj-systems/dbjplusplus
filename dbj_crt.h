@@ -62,19 +62,15 @@ namespace dbj {
 	};
 }
 
-#pragma region DBJ debug things
-#ifdef _DEBUG
-#define DBJ_ASSERT _ASSERTE
-#define DBJ_VERIFY DBJ_ASSERT
-#define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
-
-// DBJ namespace is different from dbj namespace name
+// DBJ namespace is different from dbj (lower case) namespace 
 namespace DBJ {
 
 	/* 512 happpens to be the BUFSIZ */
 	constexpr size_t BUFSIZ_ = 512 * 2;
 
-	// this requires all the string args to be unicode 
+	// DBJ::TRACE exist in release builds too
+
+	// this requires all the string args to be wide  
 	// so I am doubtfull it will work ... easily
 	template <typename ... Args>
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
@@ -90,20 +86,26 @@ namespace DBJ {
 		assert(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
 		::OutputDebugStringA(buffer);
 	}
-}
+} // eof DBJ 
+
+#pragma region DBJ debug things
+#ifdef _DEBUG
+#define DBJ_ASSERT _ASSERTE
+#define DBJ_VERIFY DBJ_ASSERT
+#define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
 #else
-// release code dissapears
-#define DBJ::TRACE 	__noop
-#define DBJ_ASSERT __noop
-// release code stays + with no checks
-#define DBJ_VERIFY(expression) (void)(expression)
+// release code dissapears some things, not all
+// be carefull with DBJ::TRACE as it might assert in release builds
+// 
+#define DBJ_ASSERT 
+#define DBJ_VERIFY 
+// release code for DBJ_VERIFY_ stays but with no checks
 #define DBJ_VERIFY_(result, expression) (void)(expression)
 #endif
 #pragma endregion 
 /*
 2017-10-18	DBJ created
-
-  DBJ CRT (C++ Run Time) is inside top level dbj namespace
+DBJ CRT (C++ Run Time) is inside top level dbj namespace
 */
 namespace dbj {
 
@@ -119,7 +121,10 @@ namespace dbj {
 		return std::wstring(cv.begin(), cv.end());
 	}
 
-
+	/* if and when needed add
+	template<size_t N> 	__forceinline std::wstring narrow(const wchar_t(&charar)[N]);
+	__forceinline std::wstring narrow(const wchar_t * charP);
+	*/
 
 /*
 	template<class F, class... Pack>
@@ -134,12 +139,12 @@ namespace dbj {
 */
 	/* avoid macros as much as possible */
 
-	static auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
-	static auto MAX = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };
-	template < typename T, size_t N > 
-	inline	constexpr 
-		size_t 
+	inline auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
+	inline auto MAX = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };
+
+	template < typename T, size_t N > inline constexpr size_t 
 		countof(T const (&array)[N]) { return N; }
+
 	/*
 	in here we cater for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
@@ -266,9 +271,7 @@ namespace dbj {
 	}
 
 	/*
-	Transform "C array" into std::array
-	at compile time
-	make sure you use it on native array not a pointer
+	Transform "C array" into std::array	at compile time
 	*/
 	template <class T, std::size_t N>
 	inline constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])

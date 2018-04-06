@@ -325,8 +325,6 @@ namespace {
 		out( std::get<0>(x_) );
 	}
 
-	char prefix = '{', suffix = '}', delim = ',';
-
 	template<typename T, typename A	>	
 	inline void out(const std::vector<T,A> & v_) {
 		out(prefix);
@@ -341,11 +339,16 @@ namespace {
 		out(suffix);
 	}
 
+	template<typename T, std::size_t S	>
+	inline void out(const std::array<T, S> & arr_) {
+		print_range(arr_);
+	}
+
 	template <class... Args>
 	inline void out(const std::tuple<Args...>& tple) {
 		std::apply(
 			[](auto&&... xs) {
-			    dbj::print_sequence(xs...);
+			    dbj::print_varargs(xs...);
 		      },
 			tple);
 	}
@@ -355,7 +358,7 @@ namespace {
 	inline void out(const std::initializer_list<Args...> & il_) {
 		std::apply(
 			[](auto&&... xs) {
-			dbj::print_sequence(xs...);
+			dbj::print_varargs(xs...);
 		},
 			il_);
 	}
@@ -385,9 +388,34 @@ namespace {
 
 namespace {
 
+	/*
+	seaquences, ranges, varargs
+	*/
+
+	inline constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
+
+	/* anything that has size, begin and end */
+	auto print_range = [](const auto & range) {
+
+		const size_t argsize = range.size() ;
+		if ( argsize < 1 ) return;
+		unsigned arg_count = 0;
+
+		auto delimited_out = [&](auto && val_) {
+			win::con::out(val_);
+			if (++arg_count < (argsize - 1)) win::con::out(delim);
+		};
+
+		win::con::out(prefix); win::con::out(space);
+		for (auto item : range) {
+			delimited_out(item);
+		}
+		win::con::out(suffix);
+	};
+
 	/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
-	template<char prefix = '{', char suffix = '}', char delim = ',', typename... Args >
-	inline	void print_sequence( Args... args)
+	template<typename... Args >
+	inline	void print_varargs( Args... args)
 	{
 		if constexpr (sizeof...(Args) < 1) return;
 		constexpr size_t argsize = sizeof...(Args);
@@ -395,44 +423,17 @@ namespace {
 
 		auto delimited_out = [&](auto && val_) {
 			win::con::out(val_);
-			if (++arg_count < argsize ) win::con::out(delim);
+			if (++arg_count < (argsize - 1) ) win::con::out(delim);
 		};
 
-		win::con::out(prefix);
+		win::con::out(prefix); win::con::out(space);
 		char dummy[sizeof...(Args)] = { (delimited_out(args), 0)... };
 		win::con::out(suffix);
+		(void)dummy;
 	}
 
 	} // nspace
 
-#if 0
-
-	/*	generic print() API */
-	template<typename T, typename... Args>
-	inline	void print( const T & first, Args&&... args)
-	{
-		win::con::out(first);
-		// No recursion
-		if constexpr (sizeof...(Args) > 0) {
-			// since initializer lists guarantee sequencing, this can be used to
-			// call a function on each element of a pack, in order:
-			char dummy[sizeof...(Args)] = { (win::con::out(args), 0)... };
-		}
-	}
-
-	template<typename T, typename ...Args>
-	inline	void print(std::initializer_list<T> il_, Args&&... args)
-	{
-		win::con::out(il_);
-		if constexpr (sizeof...(Args) > 0) print(args...);
-	}
-	template<typename T, typename ...Args>
-	inline	void print( const T & val_,  std::initializer_list<Args...> il_)
-	{
-		win::con::out(val_);
-		if constexpr (sizeof...(Args) > 0) print(il_...);
-	}
-#endif
 /*
 forget templates, variadic generic lambda saves you of declaring them 
 */
