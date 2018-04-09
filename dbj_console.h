@@ -82,7 +82,7 @@ namespace con {
 	typedef enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 } CODE_PAGE ;
 
 #pragma region "WideOut"
-namespace {
+// namespace {
 	/*
 	Windows "native" unicode is UTF-16
 	Be warned than proper implementation of UTF-8 related code page did not happen
@@ -166,7 +166,7 @@ namespace {
 	here we hide the single application wide console instance
 	this is single app wide instance
 	*/
-	namespace {
+	// namespace {
 #if !defined(_CONSOLE)
 #pragma message ( "#############################################################" )
 #pragma message ( DBJ_CONCAT( "File: ", __FILE__) )
@@ -174,23 +174,23 @@ namespace {
 #pragma message ("This is probably not a console app?")
 #pragma message ( "#############################################################" )
 #endif
-		auto console_ = WideOut( CODE::page_65001 ) ;
+		inline auto console_ = WideOut( CODE::page_65001 ) ;
 		/* we expose the HANDLE to the print-ing because of future requirements
 		wanting to use error handle etc ...
 		*/
-		HANDLE  HANDLE_{ console_.handle() };
-	}
+		inline HANDLE  HANDLE_{ console_.handle() };
+	// }
 
-} //nspace
+// } //nspace
 
 // we are here in dbj::win::con
+// we need to have only a single instance 
 inline auto switch_console (dbj::win::con::CODE code_) {
 	console_ = dbj::win::con::WideOut(code_);
 	return console_;
 };
 
-#pragma endregion "WideOut"
-
+#pragma endregion 
 #pragma region "print-ing implementation"
 /*
   print-ing implementation+interface is whole inside dbj::win::con::anonymous_name_space
@@ -200,9 +200,9 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 
   besides parts which are not because they are in :
 
-  dbj::win::con::anonymous_name_space::anonymous_name_space
+  dbj::win::con
 */
-namespace {
+// namespace {
 	/*
 		console.out(...) is the only method to output to a console
 
@@ -242,13 +242,21 @@ namespace {
 		console_.out(s_);
 	}
 
-	/* by using enable_if we make sure this template instances are made
+	/* 
+	by using enable_if we make sure this template instances are made
 	only for types we want
 	*/
 	template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
 	inline void out(const N & number_) {
 		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
 		console_.out(std::to_wstring(number_));
+	}
+	/*
+	above is lovely but that will catch more than we hoped for
+	for example bool-eans too
+	*/
+	inline void out(bool val_) {
+		console_.out(val_ ? "true" : "false" );
 	}
 
 
@@ -298,9 +306,8 @@ namespace {
 	}
 
 	/*
-	now we have out() overloads for "other" types using the ones above
+	now we will deliver out() overloads for "compount" types using the ones above
 	made for intrinsic types
-	keep in mind that both print() and printex() use this overloads
 	------------------------------------------------------------------------
 	output the exceptions
 	*/
@@ -363,9 +370,9 @@ namespace {
 			il_);
 	}
 
-} // nspace
+// } // nspace
 // another (parallel) namespace removes the danger of accidental endles recursion 
-namespace {
+// namespace {
 /*
 	TYPEDEFS FOR basic_string_view
 	using string_view = basic_string_view<char>;
@@ -380,7 +387,7 @@ namespace {
 	using u32string_view = basic_string_view<char32_t>;
 	using wstring_view = basic_string_view<wchar_t>;
 */
-}
+// }
 } // con
 } // win
 
@@ -392,7 +399,7 @@ namespace {
 	seaquences, ranges, varargs
 	*/
 
-	inline constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
+	constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
 
 	/* anything that has size, begin and end */
 	auto print_range = [](const auto & range) {
@@ -423,12 +430,12 @@ namespace {
 
 		auto delimited_out = [&](auto && val_) {
 			win::con::out(val_);
-			if (++arg_count < (argsize - 1) ) win::con::out(delim);
+			if (arg_count++ < (argsize - 1) ) win::con::out(delim);
 		};
 
 		win::con::out(prefix); win::con::out(space);
 		char dummy[sizeof...(Args)] = { (delimited_out(args), 0)... };
-		win::con::out(suffix);
+		win::con::out(space); win::con::out(suffix);
 		(void)dummy;
 	}
 
@@ -437,8 +444,8 @@ namespace {
 /*
 forget templates, variadic generic lambda saves you of declaring them 
 */
-	namespace {
-		auto print = [](auto && first_param, auto && ... params)
+	// namespace {
+		inline auto print = [](auto && first_param, auto && ... params)
 		{
 			win::con::out(first_param);
 
@@ -449,7 +456,7 @@ forget templates, variadic generic lambda saves you of declaring them
 			}
 				return print;
 		};
-	}
+	// }
 
 #pragma endregion "eof printer implementation"
 
@@ -488,7 +495,7 @@ namespace dbj {
 }
 
 /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
   Copyright 2017 by dbj@dbj.org
 
