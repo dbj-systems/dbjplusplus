@@ -5,6 +5,16 @@
 #include <ctime>
 
 namespace dbj {
+
+	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
+	template <class T, size_t ROW, size_t COL>
+	using Matrix = std::array<std::array<T, COL>, ROW>;
+	// usage: Matrix<float, 3, 4> mat;
+
+	template <class T, size_t ROW, size_t COL>
+	using NativeMatrix = T[ROW][COL];
+	// usage: NativeMatrix<float, 3, 4> mat;
+
 	namespace {
 		using namespace std;
 
@@ -23,9 +33,9 @@ namespace dbj {
 	Transform native array into std::array at compile time
 	*/
 	template <class T, std::size_t N>
-	inline constexpr array<remove_cv_t<T>, N> native_to_std_array(T(&a)[N])
+	inline constexpr array<remove_cv_t<T>, N> native_to_std_array(T(& narf)[N])
 	{
-		return to_array_impl(a, make_index_sequence<N>{});
+		return to_array_impl(narf, make_index_sequence<N>{});
 	}
 }
 
@@ -141,6 +151,8 @@ namespace dbj::narf {
 
 } // dbj::narf
 
+#ifdef DBJ_TESTING_EXISTS
+
   /// <summary>
   /// for more stringent test we 
   /// test from outside of the
@@ -170,7 +182,7 @@ namespace dbj_arf_testing {
 			printf("} %s", suffix);
 		}
 
-		auto random = [](int max_val, int min_val = 1) -> int {
+		inline auto random = [](int max_val, int min_val = 1) -> int {
 			static auto initor = []() {
 				std::srand((unsigned)std::time(nullptr)); return 0;
 			}();
@@ -189,13 +201,11 @@ namespace dbj_arf_testing {
 			}
 		}
 	}
-	/// <summary>
-	/// test unit
-	/// </summary>
-	/// <param name="argc">count of command line args</param>
-	/// <param name="sargv">the command line args strings</param>
-	inline void unit(int argc, wchar_t * sargv[])
+
+
+	DBJ_TEST_UNIT(": native dbj array (narf) handler ")
 	{
+
 		using std::array;
 
 		// the arf type is here
@@ -206,20 +216,20 @@ namespace dbj_arf_testing {
 		// arf contains the copy 
 		// of the native array  
 
-		// few more creation/print examples
+		// few creation/print examples
 		{
 			default_print(
 				dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 }),
 				default_element_output_
 			);
-			// asci string literals
+
 			default_print(
-				dbj::narf::make({ "Abra","Ka","Dabra" }),
+				dbj::narf::make({ "native","array","of", "asci","string","literals" }),
 				[](size_t j, const char * element) { printf(" %zd:\"%s\"", j, element); }
 			);
-			// native char array ref
+
 			default_print(
-				dbj::narf::make("Abra Ka Dabra"),
+				dbj::narf::make("native char array"),
 				[](size_t j, const char element) { printf(" %zd:'%c'", j, element); }
 			);
 		}
@@ -251,8 +261,8 @@ namespace dbj_arf_testing {
 
 		// the for loop usage
 		// notice the auto & element declaration 
-		// so that internal array elements 
-		// can be updated
+		// so that internal array 
+		// elements are updated
 		for (auto & element : arf.get()) {
 			element = random(255);
 		};
@@ -278,20 +288,11 @@ namespace dbj_arf_testing {
 		i3ref local_{ 1,2,3 };
 		return local_;
 	};
-
 }
+#endif
 
 
 namespace dbj {
-
-	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
-	template <class T, size_t ROW, size_t COL>
-		using Matrix = std::array<std::array<T, COL>, ROW>;
-	// usage: Matrix<float, 3, 4> mat;
-	
-	template <class T, size_t ROW, size_t COL>
-	using NativeMatrix = T[ROW][COL];
-	// usage: NativeMatrix<float, 3, 4> mat;
 
 	namespace arr {
 		/*
