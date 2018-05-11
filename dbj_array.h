@@ -2,6 +2,285 @@
 
 #include <vector>
 #include <array>
+#include <ctime>
+
+namespace dbj {
+	namespace {
+		using namespace std;
+
+		// http://en.cppreference.com/w/cpp/experimental/to_array
+		namespace {
+			template <class T, size_t N, size_t... I>
+			/*constexpr*/ inline array<remove_cv_t<T>, N>
+				to_array_impl(T(&a)[N], index_sequence<I...>)
+			{
+				return { { a[I]... } };
+			}
+		}
+	}
+
+	/*
+	Transform native array into std::array at compile time
+	*/
+	template <class T, std::size_t N>
+	inline constexpr array<remove_cv_t<T>, N> native_to_std_array(T(&a)[N])
+	{
+		return to_array_impl(a, make_index_sequence<N>{});
+	}
+}
+
+/// <summary>
+/// NARF == Native ARray reFerence
+/// </summary>
+namespace dbj::narf {
+
+	//---------------------------------------------------------------
+	// the key abstraction
+	// ARF == Array ReFerrence
+	// ARF contains instance of native array T[N]
+	// ARF can be safely copied/moved arround
+	// in essence one uses ARF to carry arround native arrays
+	// unlike std::array
+	// ARF easily delivers reference to native array T[N]&
+	// example: for() can be easily applied to T[N]&
+	//  for (auto & e : arf.get() ) {}
+	//---------------------------------------------------------------
+	template <typename T, std::size_t N>
+	using wrapper = std::reference_wrapper<T[N]>;
+
+	//---------------------------------------------------------------
+	// ARF core
+	//---------------------------------------------------------------
+
+	/// <summary>
+	/// returns std::reference_wrapper copy
+	/// that contains reference to native array 
+	/// this can be also used with init list
+	/// <code>
+	///  auto ari = 
+	///  native_arr_ref({ 0,1,2,3,4,5,6,7,8,9 });
+	///  auto arc = 
+	///  native_arr_ref({ "Char array" });
+	/// </code>
+	/// </summary>
+	template<typename T, std::size_t N >
+	constexpr auto
+		make(const T(&native_arr)[N])
+		-> wrapper<T, N>
+	{
+		using nativarref = T(&)[N];
+		return std::ref(
+			const_cast<nativarref>(native_arr)
+		);
+	}
+
+	/// <summary>
+	/// returns std::reference_wrapper copy
+	/// that contains reference to native array 
+	/// in turn contained inside the std::array
+	/// argument
+	/// </summary>
+	template<typename T, std::size_t N >
+	constexpr auto
+		make(const std::array<T, N> & std_arr)
+		-> wrapper<T, N>
+	{
+		using nativarref = T(&)[N];
+
+		return std::ref(
+			(nativarref)*(std_arr.data())
+		);
+	}
+	/// <summary>
+	/// the ARF size is the
+	/// size of n-array it holds
+	/// </summary>
+	template<typename T, std::size_t N >
+	constexpr std::size_t size(wrapper<T, N> & narw_) {
+		return N; //  array_size(narw_.get());
+	}
+
+	/// <summary>
+	/// default for_each function
+	/// note: REF is about references
+	/// thus the changes will stay in 
+	/// the containing native array after
+	/// we leave this function
+	/// 
+	/// please make sure to read
+	/// https://en.cppreference.com/w/cpp/algorithm/for_each
+	/// to understand the std::for_each 
+	/// requirements and behaviour
+	/// </summary>
+	template< typename T, size_t N, typename FUN >
+	constexpr auto for_each(const wrapper<T, N> & arf, const FUN & fun_) {
+		auto B = std::begin(arf.get());
+		auto E = std::end(arf.get());
+		return std::for_each(B, E, fun_);
+	}
+
+	/// <summary>
+	/// generic apply function
+	/// callback signature:
+	/// <code>
+	/// [] ( size_t idx_ , const auto & element ) {}
+	/// </code>
+	/// </summary>
+	template< typename T, size_t N, typename CBK >
+	constexpr auto apply(
+		const wrapper<T, N> &  arf,
+		CBK output_function
+	) {
+		size_t j = 0;
+		auto outfun_wrap = [&](const auto & element_) {
+			output_function(j++, element_);
+		};
+
+		return dbj::narf::for_each(arf, outfun_wrap);
+	}
+
+} // dbj::narf
+
+  /// <summary>
+  /// for more stringent test we 
+  /// test from outside of the
+  /// namespace that we are testing
+  /// </summary>
+namespace dbj_arf_testing {
+
+	namespace {
+
+		inline auto default_element_output_ =
+			[&](size_t j, const auto & element,
+				const char * fmt_str = " %zd:%d ")
+		{ printf(fmt_str, j++, element); };
+
+		/// <summary>
+		/// default arf print function
+		/// </summary>
+		template< typename T, size_t N, typename FUN >
+		inline auto default_print(
+			const dbj::narf::wrapper<T, N> & arf,
+			FUN outfun_,
+			const char * prefix = "\nArray",
+			const char * suffix = ""
+		) {
+			printf("%s { ", prefix);
+			dbj::narf::apply(arf, outfun_);
+			printf("} %s", suffix);
+		}
+
+		auto random = [](int max_val, int min_val = 1) -> int {
+			static auto initor = []() {
+				std::srand((unsigned)std::time(nullptr)); return 0;
+			}();
+			return min_val + std::rand() / ((RAND_MAX + 1u) / max_val);
+		};
+
+		/// <summary>
+		/// some generic utility function 
+		/// with argument declared as 
+		/// native array reference
+		/// </summary>
+		template<typename T, std::size_t N >
+		inline void native_arr_argument(T(&arr_ref)[N]) {
+			for (auto & element : arr_ref) {
+				element = random(N);
+			}
+		}
+	}
+	/// <summary>
+	/// test unit
+	/// </summary>
+	/// <param name="argc">count of command line args</param>
+	/// <param name="sargv">the command line args strings</param>
+	inline void unit(int argc, wchar_t * sargv[])
+	{
+		using std::array;
+
+		// the arf type is here
+		// std::reference_wrapper<int[10]> 
+		auto arf = dbj::narf::make(array<int, 10>{});
+		// argument to make()
+		// does not exist here any more
+		// arf contains the copy 
+		// of the native array  
+
+		// few more creation/print examples
+		{
+			default_print(
+				dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 }),
+				default_element_output_
+			);
+			// asci string literals
+			default_print(
+				dbj::narf::make({ "Abra","Ka","Dabra" }),
+				[](size_t j, const char * element) { printf(" %zd:\"%s\"", j, element); }
+			);
+			// native char array ref
+			default_print(
+				dbj::narf::make("Abra Ka Dabra"),
+				[](size_t j, const char element) { printf(" %zd:'%c'", j, element); }
+			);
+		}
+
+		// this is how we get the reference
+		// to the contained native array
+		// int[10]&
+		auto & native_arr_ref = arf.get();
+		printf("\nThe typeid name of the contained arrays reference is %s", typeid(native_arr_ref).name());
+
+		// and this is the pointer
+		// due to array type decay 
+		// the type is here: int *
+		auto native_arr_ptr = arf.get();
+		printf("\nThe typeid name of the contained arrays pointer is %s", typeid(native_arr_ptr).name());
+
+		printf("\nThe size of the contained array is %u", (unsigned)dbj::narf::size(arf));
+
+		// example of calling a function 
+		// that requires
+		// native array as argument
+		native_arr_argument(arf.get());
+
+		default_print(
+			arf,
+			default_element_output_,
+			"\nAfter calling native_arr_argument"
+		);
+
+		// the for loop usage
+		// notice the auto & element declaration 
+		// so that internal array elements 
+		// can be updated
+		for (auto & element : arf.get()) {
+			element = random(255);
+		};
+
+		default_print(
+			arf,
+			default_element_output_,
+			"\nAfter updating in the for loop"
+		);
+
+	}
+
+	//-----------------------------------------------------
+	typedef const int(&i3ref)[3];
+
+	// template<typename T, size_t N>
+	inline auto arfer = [](
+		/*const auto(&nar)[]*/
+		i3ref if_
+		)
+		constexpr->i3ref
+	{
+		i3ref local_{ 1,2,3 };
+		return local_;
+	};
+
+}
+
 
 namespace dbj {
 
@@ -13,6 +292,7 @@ namespace dbj {
 	template <class T, size_t ROW, size_t COL>
 	using NativeMatrix = T[ROW][COL];
 	// usage: NativeMatrix<float, 3, 4> mat;
+
 	namespace arr {
 		/*
 		return array reference to the C array inside std::array
@@ -27,21 +307,22 @@ namespace dbj {
 			typename ART = T[N],    /* C array */
 			typename ARF = ART & ,  /* reference to it */
 			typename ARP = ART * >  /* pointer   to it */
-			constexpr inline
-			ARF
-			internal_array_reference(const std::array<T, N> & arr)
+				constexpr inline	ARF
+			reference(const std::array<T, N> & arr)
 		{
 			return *(ARP) const_cast<typename ARR::pointer>(arr.data());
 		}
 
 		/*
-		Array Helper
+		native ARray Helper
 
 		(c) 2018 by dbj.org
 		*/
 		template< typename T, size_t N >
 		struct ARH
 		{
+			// vector type
+			typedef std::vector<T> ARV;
 			// std::array type
 			typedef std::array<T, N> ARR;
 			// inbuilt ARray type
@@ -70,25 +351,24 @@ namespace dbj {
 			{
 				return *(ARP) const_cast<typename ARR::pointer>(arr.data());
 			}
-		};
 
-			/*		"C"	array to vector			*/
-			template<typename Type, size_t N, typename VType = std::vector<Type> >
-			inline constexpr VType
-				intrinsic_array_to_vector(const Type(&arr_)[N])
+			/*		native	array to vector			*/
+			static constexpr ARV
+				to_vector(const ARF arr_)
 			{
-				return VType{ arr_, arr_ + N };
+				return ARV{ arr_, arr_ + N };
 			}
 
 			/*		"C"	array to std array			*/
-			template<typename Type, size_t N, typename AType = std::array<Type,N> >
-			inline constexpr AType &&
-				intrinsic_array_to_array(const Type(&arr_)[N])
+			static constexpr ARR 
+				to_std_array(const ARF arr_)
 			{
-				AType retval_{};
+				ARR retval_{};
 				std::copy(arr_, arr_ + N, retval_.begin() );
-				return std::forward<AType>(retval_);
+				return retval_;
 			}
+		}; // ARH
+
 
 #ifdef DBJ_TESTING_EXISTS
 
@@ -110,7 +390,7 @@ namespace dbj {
 			A16::ARF arf = A16::to_arf(arr);
 
 			// prove that the type is right
-			auto rdr0 = intrinsic_array_to_vector(arf);
+			auto rdr0 = A16::to_vector(arf);
 
 			/*
 			testing the internal_array_reference
@@ -119,11 +399,11 @@ namespace dbj {
 			namely it transform int* to int(&)[]
 			that is reference to c array inside std::array
 			*/
-			decltype(auto) arf2 = internal_array_reference(arr);
-			decltype(auto) rdr1 = intrinsic_array_to_vector(arf2);
+			decltype(auto) arf2 = A16::to_arf(arr);
+			decltype(auto) rdr1 = A16::to_vector(arf2);
 
 			decltype(auto) arf3 = arf2;
-			auto rdr2 = intrinsic_array_to_vector(arf3);
+			auto rdr2 = A16::to_vector(arf3);
 		}
 #endif // DBJ_TESTING
 	} // arr
@@ -132,7 +412,7 @@ namespace dbj {
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
-Copyright 2017 by dbj@dbj.org
+Copyright 2017-2018 by dbj@dbj.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

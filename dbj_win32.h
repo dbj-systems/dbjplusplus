@@ -128,7 +128,7 @@ namespace dbj {
 		}
 
 		namespace sysinfo {
-			using std::string;
+			using std::wstring;
 			namespace {
 				DWORD	INFO_BUFFER_SIZE = 1024;
 

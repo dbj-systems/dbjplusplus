@@ -256,28 +256,6 @@ namespace dbj {
 		return (strrchr(filename, '\\') ? strrchr(filename, '\\') + 1 : filename);
 	}
 
-	namespace {
-		using namespace std;
-
-		// http://en.cppreference.com/w/cpp/experimental/to_array
-		namespace {
-			template <class T, size_t N, size_t... I>
-			/*constexpr*/ inline array<remove_cv_t<T>, N>
-				to_array_impl(T(&a)[N], index_sequence<I...>)
-			{
-				return { { a[I]... } };
-			}
-		}
-	}
-
-	/*
-	Transform "C array" into std::array	at compile time
-	*/
-	template <class T, std::size_t N>
-	inline constexpr array<remove_cv_t<T>, N> to_array(T(&a)[N])
-	{
-		return to_array_impl(a, make_index_sequence<N>{});
-	}
 
 	/*
 	Schurr_cpp11_tools_for_class_authors.pdf
