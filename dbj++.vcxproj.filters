@@ -81,6 +81,9 @@
     <ClInclude Include="dbj_xperimental.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_string_compare.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

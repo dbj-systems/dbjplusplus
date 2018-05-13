@@ -45,6 +45,9 @@ namespace dbj {
 namespace dbj::narf {
 
 	//---------------------------------------------------------------
+	// ARF core
+	//---------------------------------------------------------------
+	//---------------------------------------------------------------
 	// the key abstraction
 	// ARF == Array ReFerrence
 	// ARF contains instance of native array T[N]
@@ -58,9 +61,16 @@ namespace dbj::narf {
 	template <typename T, std::size_t N>
 	using wrapper = std::reference_wrapper<T[N]>;
 
-	//---------------------------------------------------------------
-	// ARF core
-	//---------------------------------------------------------------
+	template<typename T, size_t N>
+	constexpr auto begin ( const wrapper<T,N> & wrp_ ) {
+		return std::begin(wrp_.get());
+	}
+
+	template<typename T, size_t N>
+	constexpr auto end(const wrapper<T, N> & wrp_) {
+		return std::end(wrp_.get());
+	}
+
 
 	/// <summary>
 	/// returns std::reference_wrapper copy

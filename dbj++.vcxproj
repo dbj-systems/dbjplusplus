@@ -109,6 +109,7 @@
     <ClInclude Include="dbj_crt.h" />
     <ClInclude Include="dbj_defval.h" />
     <ClInclude Include="dbj_startend.h" />
+    <ClInclude Include="dbj_string_compare.h" />
     <ClInclude Include="dbj_testing.h" />
     <ClInclude Include="dbj_testing_interface.h" />
     <ClInclude Include="dbj_traits.h" />
