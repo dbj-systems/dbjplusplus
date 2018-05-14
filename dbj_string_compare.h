@@ -21,7 +21,7 @@ extern "C" {
 	*       0              = strings are equal
 	*       Greater than 0 = first string greater than second string
 	*/
-	static int __cdecl dbj_ordinal_compareA(
+	inline int __cdecl dbj_ordinal_compareA(
 		const char *_string1,
 		const char *_end1,
 		const char *_string2,
@@ -36,7 +36,7 @@ extern "C" {
 		return ret;
 	}
 
-	static int __cdecl dbj_ordinal_compareW(
+	inline int __cdecl dbj_ordinal_compareW(
 		const wchar_t *_string1,
 		const wchar_t *_end1,
 		const wchar_t *_string2,
@@ -51,74 +51,113 @@ extern "C" {
 		return ret;
 	}
 
-	static char * winfile_lowerize_stringA(char * the_str_) {
+	/* must free the result */
+	inline char * dbj_lowerize_stringA(const char * the_str_) {
 		_ASSERTE(the_str_);
-		errno_t err_ = _strlwr_s(the_str_, strlen(the_str_) + (1 * sizeof(*the_str_)));
-		return the_str_;
+		char * dup = _strdup(the_str_);
+		_ASSERTE(dup);
+		const size_t sze_ = strlen(dup);
+		size_t cnt_ = 0;
+		do  {
+			dup[cnt_] = tolower(dup[cnt_]);
+		} while (cnt_++ < sze_);
+		return dup;
 	}
 
-	static wchar_t * winfile_lowerize_stringW(wchar_t * the_str_) {
+	/* must free the result */
+	inline wchar_t * dbj_lowerize_stringW(const wchar_t * the_str_) {
 		_ASSERTE(the_str_);
-		errno_t err_ = _wcslwr_s(the_str_, wcslen(the_str_) + (1 * sizeof(*the_str_)));
-		return the_str_;
+		wchar_t * dup = _wcsdup(the_str_);
+		_ASSERTE(dup);
+		const size_t sze_ = wcslen(dup);
+		size_t cnt_ = 0;
+		 do {
+			dup[cnt_] = towlower(dup[cnt_]);
+		 } while (cnt_++ < sze_);
+		return dup;
 	}
 
 	/// <summary>
 	/// ordinal comparison of two ascii null terminated strings
 	/// </summary>
-	static int winfile_ordinal_string_compareA(const char * str1, const char * str2, unsigned char ignore_case) {
+	inline int dbj_ordinal_string_compareA(const char * str1, const char * str2, unsigned char ignore_case) {
 
 		if (ignore_case) {
-			winfile_lowerize_stringA((char *)str1);
-			winfile_lowerize_stringA((char *)str2);
+			char * cp1 = dbj_lowerize_stringA(str1);
+			char * cp2 = dbj_lowerize_stringA(str2);
+			int rez = dbj_ordinal_compareA(
+				cp1, cp1 + strlen(cp1), cp2, cp2 + strlen(cp2)
+			);
+			free(cp1);
+			free(cp2);
+			return rez;
 		}
-
-		return dbj_ordinal_compareA(
-			str1, str1 + strlen(str1), str2, str2 + strlen(str2)
-		);
+		else {
+			return dbj_ordinal_compareA(
+				str1, str1 + strlen(str1), str2, str2 + strlen(str2)
+			);
+		}
 	}
 
 	/// <summary>
 	/// ordinal comparions of two unicode null terminated strings
 	/// </summary>
-	static int winfile_ordinal_string_compareW(const wchar_t * str1, const wchar_t * str2, unsigned char ignore_case) {
+	inline int dbj_ordinal_string_compareW(const wchar_t * str1, const wchar_t * str2, unsigned char ignore_case) {
 
 		if (ignore_case) {
-			winfile_lowerize_stringW((wchar_t *)str1);
-			winfile_lowerize_stringW((wchar_t *)str2);
+			wchar_t * cp1 = dbj_lowerize_stringW(str1);
+			wchar_t * cp2 = dbj_lowerize_stringW(str2);
+			int rez = dbj_ordinal_compareW(
+				cp1, cp1 + wcslen(cp1), cp2, cp2 + wcslen(cp2)
+			);
+			free(cp1);
+			free(cp2);
+			return rez;
 		}
-		return dbj_ordinal_compareW(
-			str1, str1 + wcslen(str1), str2, str2 + wcslen(str2)
-		);
+		else {
+			return dbj_ordinal_compareW(
+				str1, str1 + wcslen(str1), str2, str2 + wcslen(str2)
+			);
+		}
 	}
 
 	/// <summary>
 	/// This is to be used for "UI sting comparisons" or sorting and a such
-	/// this is locale sensitive, legacy aka "pre vista" solution 
-	/// when locales had ID's not names
-	/// and when CompareStringEx was not
 	/// </summary>
-	int winfile_ui_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
+	inline int dbj_ui_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
 	{
-		/// <summary>
-		/// it is highly unlikely the user will change the
-		/// locale between the calls, so we could have this
-		/// as static 
-		/// </summary>
-		/* LCID aka DWORD */ unsigned long
-			current_locale = GetUserDefaultLCID(); // not LOCALE_INVARIANT
-
-		return CompareString(
-			/* _In_ LCID    */ current_locale,
+		int rez = CompareStringEx(
+			/* locale name  */ LOCALE_NAME_USER_DEFAULT,
 			/* _In_ DWORD   */ ignore_case == 1 ? LINGUISTIC_IGNORECASE : NORM_LINGUISTIC_CASING,
 			/* _In_ LPCTSTR */ str1,
 			/* _In_ int     */ -1,
 			/* _In_ LPCTSTR */ str2,
-			/* _In_ int     */ -1
+			/* _In_ int     */ -1,
+			NULL, NULL, 0
 		);
+		switch (rez) {
+		case CSTR_LESS_THAN: rez = -1; break;
+		case CSTR_EQUAL: rez = 0; break;
+		case CSTR_GREATER_THAN: rez = 1; break;
+		}
+		return rez;
 	}
 
 } // extern "C"
+
+#include <wctype.h>
+
+#ifdef DBJ_TESTING_EXISTS
+namespace {
+	DBJ_TEST_UNIT(" dbj string comparisons ") {
+
+		auto rez = 
+			dbj_ordinal_string_compareW(L"A", L"A", true);
+		auto zer = 
+			dbj_ui_string_compare ( L"abra babra dabra", L"ABRA babra DABRA", true);
+	}
+}
+#endif
 
   /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017-2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 

@@ -241,6 +241,21 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 	inline void out(const std::u32string  & s_) {
 		console_.out(s_);
 	}
+	inline void out(const std::string_view & sv_) {
+		dbj::win::con::out(
+			std::string(sv_.data())
+		);
+	}
+
+	inline void out(const std::wstring_view & sv_) {
+		dbj::win::con::out(
+			std::wstring(sv_.data())
+		);
+	}
+	/*	implement for these when required
+	using u16string_view = basic_string_view<char16_t>;
+	using u32string_view = basic_string_view<char32_t>;
+	using wstring_view = basic_string_view<wchar_t>; */
 
 	/* 
 	by using enable_if we make sure this template instances are made
@@ -370,24 +385,6 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 			il_);
 	}
 
-// } // nspace
-// another (parallel) namespace removes the danger of accidental endles recursion 
-// namespace {
-/*
-	TYPEDEFS FOR basic_string_view
-	using string_view = basic_string_view<char>;
-*/
-	inline void out(const std::string_view & sv_) {
-		dbj::win::con::out(
-			std::string( sv_.data() )
-		);
-	}
-/*	implement for these when required 
-	using u16string_view = basic_string_view<char16_t>;
-	using u32string_view = basic_string_view<char32_t>;
-	using wstring_view = basic_string_view<wchar_t>;
-*/
-// }
 } // con
 } // win
 
