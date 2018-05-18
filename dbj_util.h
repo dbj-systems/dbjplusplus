@@ -9,20 +9,27 @@
 #include <iterator>
 #include <functional>
 
+#include <ratio>
+
 #include "dbj_traits.h"
 
 namespace dbj {
 	 
 	namespace math {
 
-		template< float F>
-		struct float_converter final {
-			double nearest{(double)((int)(F + 0.5)) };
-			double drop_fractional_part{(double)((int)F)};
-			double next_highest{ (double)((int)(F + 0.9)) };
-			// If you want an integer then drop the double cast on 
-			// the right and assign to an int lvalue.
-			int integer{ (int)F };
+		namespace float_converter {
+			inline auto nearest = [](float value_) constexpr -> int { 
+				return (int)((int)(value_ + 0.5)); 
+			};
+			inline auto drop_fractional_part = [](float value_) constexpr -> int {
+				return (int)((int)value_); 
+			};
+			inline auto next_highest = [](float value_) constexpr -> int  {
+				return (int)((int)(value_ + 0.9)); 
+			};
+			inline auto  integer = [](float value_) constexpr -> int {
+				return (int)value_; 
+			};
 		};
 	}
 
@@ -32,7 +39,21 @@ namespace dbj {
 	namespace {
 
 		DBJ_TEST_UNIT(": dbj math float_converter test ") {
-			dbj::math::float_converter<123.009f> fc_;
+
+			using namespace dbj::math::float_converter;
+
+			auto test = []( float val_) {
+				dbj::print("\n\nInput:\t", DBJ_NV(val_));
+				dbj::print("\n", DBJ_NV(nearest(val_)));
+				dbj::print("\n", DBJ_NV(drop_fractional_part(val_)));
+				dbj::print("\n", DBJ_NV(next_highest(val_)));
+				dbj::print("\n", DBJ_NV(integer(val_)));
+			};
+
+			test( 123.00f );
+			test( 123.500f);
+			test( 123.4901f);
+			test( 123.501f);
 		}
 	}
 #endif /// DBJ_TESTING_EXISTS
