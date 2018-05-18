@@ -12,7 +12,31 @@
 #include "dbj_traits.h"
 
 namespace dbj {
-	
+	 
+	namespace math {
+
+		template< float F>
+		struct float_converter final {
+			double nearest{(double)((int)(F + 0.5)) };
+			double drop_fractional_part{(double)((int)F)};
+			double next_highest{ (double)((int)(F + 0.9)) };
+			// If you want an integer then drop the double cast on 
+			// the right and assign to an int lvalue.
+			int integer{ (int)F };
+		};
+	}
+
+#ifdef DBJ_TESTING_EXISTS
+
+#include "dbj_testing.h"
+	namespace {
+
+		DBJ_TEST_UNIT(": dbj math float_converter test ") {
+			dbj::math::float_converter<123.009f> fc_;
+		}
+	}
+#endif /// DBJ_TESTING_EXISTS
+
 	namespace util {
 		namespace {
 
