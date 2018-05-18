@@ -68,6 +68,33 @@ namespace dbj {
 		template< class T >
 		using remove_cvref_t = typename remove_cvref<T>::type;
 	}
+
+	/// <summary>
+	/// c++ 17 generic lambdas have issues
+	/// with required types of auto arguments
+	/// in c++20 this will be fixed with new
+	/// lambda arguments template declaration syntax
+	/// </summary>
+	namespace required
+	{
+		// does type of the value v matches the template 
+		// argument type RQ
+		template<typename RQ>
+		inline auto  is_type = [](const auto & v_ = 0) constexpr -> bool
+		{
+			using T = std::decay_t< decltype(v_) >;
+			return std::is_same<T, RQ>();
+		};
+
+		// here we can extend with helpers we need
+		// for example this one
+		inline auto is_uint64 = [](const auto & v_ = 0) constexpr -> bool
+		{
+			return is_type<std::uint64_t>(v_);
+		};
+
+	} // required 
+
 	namespace {
 		/*
 		are two types equal, for two values provided ?

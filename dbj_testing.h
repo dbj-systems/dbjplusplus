@@ -47,10 +47,6 @@ No exceptions are thrown outside. They are reported to console.
 #include <string>
 #include <map>
 
-#ifndef DBJ_INLINE
-#define DBJ_INLINE inline
-#endif
-
 #ifndef DBJ_NV
 /*
 use dbj print or printex to show the symbol and its value, for example:
@@ -93,7 +89,7 @@ namespace dbj {
 				testunittype,
 				std::string, FPcomparator > TUMAP;
 
-			DBJ_INLINE bool operator == (
+			inline  bool operator == (
 				TUMAP::value_type pair_,
 				TUMAP::key_type rhs_) noexcept
 			{
@@ -105,23 +101,23 @@ namespace dbj {
 				return test_units_;
 			}
 
-			DBJ_INLINE TUMAP::iterator find(testunittype tunit_) {
+			inline  TUMAP::iterator find(testunittype tunit_) {
 				return tu_map().find(tunit_);
 			}
 
-	       DBJ_INLINE bool found(testunittype tunit_) {
+	       inline  bool found(testunittype tunit_) {
 				return (
 					tu_map().end() != find(tunit_)
 					);
 	}
 
-	DBJ_INLINE void append(testunittype tunit_, const std::string & description_) {
+	inline  void append(testunittype tunit_, const std::string & description_) {
 				/* do not insert twice the same test unit */
 				if (!found(tunit_))
 					tu_map()[tunit_] = description_;
 	}
 
-	DBJ_INLINE void unit_execute(testunittype tunit_) {
+	inline  void unit_execute(testunittype tunit_) {
 		         tunit_();
 		}
 

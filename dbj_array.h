@@ -33,7 +33,7 @@ namespace dbj {
 	Transform native array into std::array at compile time
 	*/
 	template <class T, std::size_t N>
-	inline constexpr array<remove_cv_t<T>, N> native_to_std_array(T(& narf)[N])
+	constexpr array<remove_cv_t<T>, N> native_to_std_array(T(& narf)[N])
 	{
 		return to_array_impl(narf, make_index_sequence<N>{});
 	}
@@ -134,8 +134,8 @@ namespace dbj::narf {
 	/// </summary>
 	template< typename T, size_t N, typename FUN >
 	constexpr auto for_each(const wrapper<T, N> & arf, const FUN & fun_) {
-		auto B = std::begin(arf.get());
-		auto E = std::end(arf.get());
+		const auto & B = begin(arf);
+		const auto & E = end(arf);
 		return std::for_each(B, E, fun_);
 	}
 

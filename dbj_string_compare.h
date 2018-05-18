@@ -122,7 +122,7 @@ extern "C" {
 	}
 
 	/// <summary>
-	/// This is to be used for "UI sting comparisons" or sorting and a such
+	/// This is to be used for "UI string comparisons" or sorting and a such
 	/// </summary>
 	inline int dbj_ui_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
 	{
@@ -145,12 +145,10 @@ extern "C" {
 
 } // extern "C"
 
-#include <wctype.h>
 
 #ifdef DBJ_TESTING_EXISTS
 namespace {
 	DBJ_TEST_UNIT(" dbj string comparisons ") {
-
 		auto rez = 
 			dbj_ordinal_string_compareW(L"A", L"A", true);
 		auto zer = 
