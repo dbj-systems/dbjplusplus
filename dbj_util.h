@@ -17,7 +17,7 @@ namespace dbj {
 	 
 	namespace math {
 
-		namespace float_converter {
+		namespace float_to_integer {
 			inline auto nearest = [](float value_) constexpr -> int { 
 				return (int)((int)(value_ + 0.5)); 
 			};
@@ -38,9 +38,9 @@ namespace dbj {
 #include "dbj_testing.h"
 	namespace {
 
-		DBJ_TEST_UNIT(": dbj math float_converter test ") {
+		DBJ_TEST_UNIT(": dbj math float_to_integer test ") {
 
-			using namespace dbj::math::float_converter;
+			using namespace dbj::math::float_to_integer;
 
 			auto test = []( float val_) {
 				dbj::print("\n\nInput:\t", DBJ_NV(val_));

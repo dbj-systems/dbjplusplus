@@ -76,9 +76,9 @@ using namespace Gdiplus;
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 
 namespace dbj {
-	constexpr const char * COMPANY = "DBJ.Systems Ltd.";
+	constexpr const char COMPANY[] { "DBJ.Systems Ltd." };
 
-	constexpr const char (&YEAR)[] { __DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10], '\0' };
+	constexpr const char YEAR[] { __DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10], '\0' };
 #if 0
 	inline std::string  filename(const std::string  &  file_path) {
 		auto pos = file_path.find_last_of('\\');

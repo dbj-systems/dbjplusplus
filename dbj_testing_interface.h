@@ -7,14 +7,27 @@
 namespace dbj {
 	namespace testing {
 
+		constexpr const char TITLE[] = "dbj++ Testing Framework [" __DATE__ "]";
+		constexpr const char ALLDN[] = "dbj++ Testing Framework -- ALL TESTS DONE";
+
 		namespace {
-			inline const char * line(const unsigned & len_ = 80) {
-				static std::string line_(len_, '-');
-				return line_.c_str();
+
+			template< size_t N = 80, typename ARF = char(&)[N], typename ARR = char[N] >
+			constexpr auto line( char fill_char = '-') -> ARF 
+			{
+				auto set = [&]( ) -> ARF {
+					static ARR arr;
+					auto rz = std::memset(arr, fill_char, N);
+					return arr;
+				};
+
+				// allocate array on stack once
+				static ARF arr_ = set()	;
+				return arr_ ;
 			}
 		}
 		/*  execute all the tests collected  */
-		DBJ_INLINE void _stdcall execute() noexcept {
+		inline void _stdcall execute() noexcept {
 
 			typedef typename dbj::win::con::painter_command CMD;
 			using dbj::print ;
@@ -27,7 +40,7 @@ namespace dbj {
 			};
 
 			white_line("\n");
-			print("\ndbj++ Testing Framework");
+			print("\n", TITLE );
 			white_line("\n");
 			print("\n[", tu_map().size(),"] tests defined");
 			white_line("\n");
@@ -52,10 +65,37 @@ namespace dbj {
 				// blue_line("\n");
 			}
 			white_line("\n");
-			print("\nFINISHED ALL Tests");
+			print("\n", ALLDN);
 			white_line("\n");
 			print(CMD::text_color_reset);
 		}
+
+#ifndef DBJ_TEST_ATOM
+
+		///<summary>
+		/// usage example: 
+		/// <code>
+		/// auto any_ = DBJ_TEST_ATOM( dbj::any::range({ 42 }) );
+		/// </code>
+		/// argument of the macro gets printed as a string and then
+		/// get's executed as a single expression 
+		/// of the lambda bodys
+		/// whose return value is returned
+		/// </summary>
+		template< typename lambada_type >
+		inline auto test_lambada(const char * expression, lambada_type && lambada)
+		{
+			auto anything = lambada();
+			dbj::print(
+				"\n- expression -> ", expression,
+				"\n\t- rezult type-> ", typeid(anything).name(),
+				"\n\t\t- value -> ", anything);
+			return anything;
+		};
+
+#define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);} ) 
+#endif // DBJ_TEST_ATOM
+
 	} // testing
 } // dbj
   /* standard suffix */
