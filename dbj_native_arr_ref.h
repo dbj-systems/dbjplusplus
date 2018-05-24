@@ -243,21 +243,14 @@ namespace dbj_arf_testing {
 	namespace {
 		auto few_creation_examples() {
 
-			auto narf_0 = dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 });
-			default_print(
-				narf_0,
-				default_element_output_
-			);
-			static auto narf_1 = dbj::narf::make({ "native","array","of", "narrow","string","literals" });
-			default_print(
-				narf_1,
-				[](size_t j, const char * element) { printf(" %zd:\"%s\"", j, element); }
-			);
-			auto narf_2 = dbj::narf::make("native char array");
-			default_print(
-				narf_2 ,
-				[](size_t j, const char element) { printf(" %zd:'%c'", j, element); }
-			);
+			auto narf_0 = DBJ_TEST_ATOM( dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 }) );
+			// default_print(	narf_0,	default_element_output_	);
+			
+			static auto narf_1 = DBJ_TEST_ATOM( dbj::narf::make({ "native","array","of", "narrow","string","literals" }) );
+			// default_print( narf_1,[](size_t j, const char * element) { printf(" %zd:\"%s\"", j, element); }	);
+			
+			auto narf_2 = DBJ_TEST_ATOM( dbj::narf::make("native char array") );
+			// default_print( narf_2 ,	[](size_t j, const char element) { printf(" %zd:'%c'", j, element); });
 
 			auto buffer = narf_1;
 			//char word_[]{"A"};
@@ -278,12 +271,8 @@ namespace dbj_arf_testing {
 			narf_type & arf
 		) {
 			auto & native_arr_ref = arf.get();
-			printf("\nThe typeid name of the contained arrays reference is %s", 
-				typeid(native_arr_ref).name());
 			decltype(auto) not_elegant = dbj::narf::data(arf);
 			auto & standard = dbj::narf::data(arf);
-			printf("\nThe typeid name of the contained arrays reference is %s", 
-				typeid(standard).name());
 			// change the n-arr contents
 			// watch the retval in debugger to check 
 			// the survival
@@ -315,22 +304,18 @@ namespace dbj_arf_testing {
 	}
 	DBJ_TEST_UNIT(": native dbj array (narf) handler ")
 	{
-		auto arf_0 = few_creation_examples();
-		auto arf_1 = different_ways_to_obtain_reference( arf_0 );
-		auto arf_2 = calling_native_array_consumer(arf_1);
+		auto arf_0 = DBJ_TEST_ATOM( few_creation_examples());
+		auto arf_1 = DBJ_TEST_ATOM( different_ways_to_obtain_reference( arf_0 ));
+		auto arf_2 = DBJ_TEST_ATOM( calling_native_array_consumer(arf_1));
 		// at this point all the arf's 
 		// are referencing the same native array
-		auto[bg, ed] = dbj::narf::range(arf_0);
+		auto[bg, ed] = DBJ_TEST_ATOM( dbj::narf::range(arf_0) );
 
 		// default get() is the pointer
 		// due to array type decay 
 		auto narrptr =  arf_2.get();
-		printf("\nThe typeid name of the contained arrays pointer is %s", 
-			typeid(narrptr).name());
-		printf("\nThe size of the contained array is %u", 
-			  (unsigned)dbj::narf::size(arf_2));
 
-
+		DBJ_TEST_ATOM( dbj::narf::size(arf_2));
 	}
 }
 #endif
