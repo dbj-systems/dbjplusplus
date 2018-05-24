@@ -40,7 +40,8 @@ namespace dbj {
 			};
 
 			white_line("\n");
-			print("\n", TITLE );
+			print("\n", TITLE, "\n");
+			print("\n(c)", dbj::testing::internal::YEAR, " by ", dbj::testing::internal::COMPANY);
 			white_line("\n");
 			print("\n[", tu_map().size(),"] tests defined");
 			white_line("\n");
