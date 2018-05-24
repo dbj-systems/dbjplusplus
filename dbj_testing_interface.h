@@ -85,11 +85,12 @@ namespace dbj {
 		template< typename lambada_type >
 		inline auto test_lambada(const char * expression, lambada_type && lambada)
 		{
+			using namespace dbj::win::con;
 			auto anything = lambada();
 			dbj::print(
-				"\n- expression -> ", expression,
-				"\n\t- rezult type-> ", typeid(anything).name(),
-				"\n\t\t- value -> ", anything);
+				painter_command::green, "\n- expression -> ", painter_command::text_color_reset, expression,
+				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset,  typeid(anything).name(),
+				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
 			return anything;
 		};
 

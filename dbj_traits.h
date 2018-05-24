@@ -222,12 +222,12 @@ namespace {
 	/*usage*/
 	inline void dbj_traits_tests () {
 
-		assert(true == dbj::is_floating<decltype(42.0f)>());
-		assert(true == dbj::is_integral<decltype(42u)>());
-		assert(true == dbj::is_object<decltype(42u)>());
+		DBJ_TEST_ATOM(dbj::is_floating<decltype(42.0f)>());
+		DBJ_TEST_ATOM(dbj::is_integral<decltype(42u)>());
+		DBJ_TEST_ATOM(dbj::is_object<decltype(42u)>());
 
-		auto o1 = (Object(42   ));
-		auto o2 = (Object(42.0f));
+		DBJ_TEST_ATOM(Object(42   ));
+		DBJ_TEST_ATOM(Object(42.0f));
 	}
 
 	
