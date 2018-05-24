@@ -129,13 +129,14 @@ namespace dbj {
 					return true;
 				}
 
-				static  adder & instance() {
+				const static  adder & instance() {
 					static adder singleton_{};
 					return singleton_;
 				}
 			};
-		}
-		adder & add = adder::instance();
+		} // namespace
+		
+		inline const adder & add = adder::instance();
 
 #define DBJ_STR(x) #x
 #define DBJ_CONCAT_IMPL( x, y ) x##y
