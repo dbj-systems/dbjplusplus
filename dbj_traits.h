@@ -1,7 +1,42 @@
 #pragma once
+#pragma once
+#ifndef _WIN32
+#include <cxxabi.h>
+#endif
 // license is at eof
 #pragma region enable_if helpers
-namespace dbj {
+
+	namespace dbj {
+		template < typename T >
+		const std::string name() noexcept
+		{
+#ifdef _WIN32
+			return { typeid(T).name() };
+#else // __linux__
+			template < typename T>
+			std::string typename()
+			{
+				// delete malloc'd memory
+				struct free_ {
+					void operator()(void* p) const { std::free(p); }
+				};
+				// custom smart pointer for c-style strings allocated with std::malloc
+				using ptr_type = std::unique_ptr<char, free_>;
+
+				// special function to de-mangle names
+				int error{};
+				ptr_type name{ abi::__cxa_demangle(typeid(T).name(), 0, 0, &error) };
+
+				if (!error)        return { name.get() };
+				if (error == -1)   return { "memory allocation failed" };
+				if (error == -2)   return { "not a valid mangled name" };
+				// else if(error == -3)
+				return { "bad argument" };
+			}
+#endif // __linux__
+		} // name()
+	} // dbj
+
 	/*
 	Templates are zealous eaters of types
 	thus overloading and templates do not mix easily
@@ -16,7 +51,7 @@ namespace dbj {
 	NOTE: C++17 onwards is required
 	
 	*/
-	namespace {
+namespace dbj {
 		/*DT  stands for Decay Type
 		we usualy decay the types here before using them
 		see http://en.cppreference.com/w/cpp/types/decay
@@ -26,7 +61,7 @@ namespace dbj {
 									/*EIF stands for enable if*/
 		template< bool pred >
 		using EIF = typename std::enable_if_t< pred, int >;
-	}
+	
 	/* we define constexpr dbj::is_ function for every std::is_ */
 	template< typename T>
 	constexpr bool is_object() { return std::is_object_v< DT<T>>; }
@@ -52,8 +87,8 @@ namespace dbj {
 
 #pragma region type traits + generic lambdas
 namespace dbj {
-	using char_star = decltype("XYZ");
-	using wchar_star = decltype(L"XYZ");
+	using char_star = decltype("X");
+	using wchar_star = decltype(L"X");
 
 	namespace {
 		/*
@@ -99,13 +134,13 @@ namespace dbj {
 		/*
 		are two types equal, for two values provided ?
 		*/
-		auto equal_types = [](auto & a, auto & b) constexpr -> bool
+		inline auto equal_types = [](auto & a, auto & b) constexpr -> bool
 		{
 			return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
-			/*
-			following does not catch pointers
-			return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
-			*/
+/*
+if not using decay_t the following does not catch pointers hidden in auto's
+return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
+*/
 		};
 	}
 	/* see dbj_util tests for usage example */
@@ -147,22 +182,26 @@ namespace dbj {
 	/* template struct */
 	template< typename T>
 	struct IS_VECTOR {
-		static const bool value = is_vector< std::decay_t< T > >::value;
+		static const bool value = 
+			is_vector< std::decay_t< T > >::value;
 	};
 
 	/* variable template */
 	template< typename T>
-	inline constexpr bool IS_VECTOR_V = is_vector< std::decay_t< T > >::value;
+	inline constexpr bool IS_VECTOR_V 
+		= is_vector< std::decay_t< T > >::value;
 
 	/* template alias */
 	template< typename T>
-	using IS_VECTOR_T = typename is_vector< std::decay_t< T > >::type;
+	using IS_VECTOR_T 
+		= typename is_vector< std::decay_t< T > >::type;
 
 	namespace {
 		/*
 		one uses this in runtime situations
 		*/
-		auto is_vector_v = [](const auto & v) -> boolean {
+		inline auto is_vector_v 
+			= [](const auto & v) -> boolean {
 			return is_vector< std::decay_t< decltype(v) > >::value;
 		};
 	}
@@ -171,39 +210,17 @@ namespace dbj {
 #pragma endregion
 
 #ifdef DBJ_TESTING_EXISTS
-/* dbj type traits and enable if helpers */
-#ifndef DBJ_NV
 
-#ifndef DBJ_STRINGIFY
-#define DBJ_STRINGIFY(s) # s
-#endif
-
-#ifndef DBJ_EXPAND
-#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
-#endif
-/*
-use print or printex to show the symbol and its value, for example:
-printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
-
-WARNING: this is primitive, use with caution
-TODO: if symbol contains comma this is not going to work
-*/
-#define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
-#endif
-
-namespace dbj {
 namespace {
 
 	template<typename T, typename dbj::require_integral<T> = 0>
-	DBJ_INLINE auto Object(T&& t) { return std::variant<T>(t); }
+	inline auto Object(T&& t) { return std::variant<T>(t); }
 
 	template<typename T, typename dbj::require_floating<T> = 0>
-	DBJ_INLINE auto Object(T&& t) { return std::variant<T>(t); }
+	inline auto Object(T&& t) { return std::variant<T>(t); }
 
 	/*usage*/
-	template <typename F>
-	inline void dbj_traits_tests ( F & print ) {
+	inline void dbj_traits_tests () {
 
 		assert(true == dbj::is_floating<decltype(42.0f)>());
 		assert(true == dbj::is_integral<decltype(42u)>());
@@ -212,8 +229,14 @@ namespace {
 		auto o1 = (Object(42   ));
 		auto o2 = (Object(42.0f));
 	}
+
+	
+	DBJ_TEST_UNIT(": dbj traits") {
+		dbj_traits_tests();
+	}
+
 } // namespace
-} // dbj
+
 #endif // DBJ_TESTING_EXISTS
 
 /* standard suffix for every other header here */
