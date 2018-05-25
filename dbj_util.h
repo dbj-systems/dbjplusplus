@@ -8,7 +8,6 @@
 #include <set>
 #include <iterator>
 #include <functional>
-
 #include <ratio>
 
 #include "dbj_traits.h"

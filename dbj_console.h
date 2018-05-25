@@ -110,9 +110,9 @@ namespace con {
 			, previous_code_page_ (::GetConsoleOutputCP())
 		{
 			//this->output_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE);
-			assert(INVALID_HANDLE_VALUE != this->output_handle_);
+			_ASSERTE(INVALID_HANDLE_VALUE != this->output_handle_);
 			// previous_code_page_ = ::GetConsoleOutputCP();
-			assert(0 != ::SetConsoleOutputCP(code_page_));
+			_ASSERTE(0 != ::SetConsoleOutputCP(code_page_));
 			/*			TODO: GetLastError()			*/
 		}
 
@@ -125,7 +125,7 @@ namespace con {
 
 		~WideOut()
 		{
-			assert(0 != ::SetConsoleOutputCP(previous_code_page_));
+			_ASSERTE(0 != ::SetConsoleOutputCP(previous_code_page_));
 			// TODO: should we "relase" this->output_handle_ ?
 			/*			TODO: GetLastError()  		*/
 		}
@@ -139,14 +139,14 @@ namespace con {
 		inline void out(const std::wstring & wp_) const 
 		{
 			const HANDLE & output_handle_ = this->output_handle_;
-			assert(0 != ::WriteConsoleW(output_handle_, wp_.data(),
+			_ASSERTE(0 != ::WriteConsoleW(output_handle_, wp_.data(),
 				static_cast<DWORD>(wp_.size()),	NULL, NULL));
 		}
 
 		inline void out(const std::string & ns_) const
 		{
 			const HANDLE & output_handle_ = this->output_handle_;
-			assert(0 != ::WriteConsoleA(output_handle_, ns_.data(),
+			_ASSERTE(0 != ::WriteConsoleA(output_handle_, ns_.data(),
 				static_cast<DWORD>(ns_.size()), NULL, NULL));
 		}
 

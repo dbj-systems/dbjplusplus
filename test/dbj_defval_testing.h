@@ -19,8 +19,8 @@ namespace {
 		const auto w1_ = konst_.width();
 		auto w2_ = konst_.width();
 
-		assert(width_ == 1024);
-		assert(w2_ == w1_ && w2_ == width_ && w1_ == width_);
+		_ASSERTE(width_ == 1024);
+		_ASSERTE(w2_ == w1_ && w2_ == width_ && w1_ == width_);
 
 		auto lc_ = linecap();
 		auto sness = smoothnes();

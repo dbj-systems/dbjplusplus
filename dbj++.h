@@ -1,9 +1,12 @@
 #pragma once
+
+#ifndef __clang__
 #ifndef _MSC_VER
 #error This code requires Visual C++ 
 #endif // !_MSC_VER
 #if _MSC_VER < 1911
 #error This code requires Visual C++ 14.1 or better
+#endif
 #endif
 
 #ifndef UNICODE
@@ -13,6 +16,13 @@
 #ifdef _SCL_SECURE_NO_WARNINGS
 #error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
 #endif
+
+#ifdef __clang__
+#undef DBJ_WIN
+#else
+#define DBJ_WIN
+#endif
+
 
 #ifdef DBJ_WIN
 #ifndef _INC_WINDOWS
@@ -35,13 +45,14 @@ using namespace Gdiplus;
 #pragma comment(lib, "Gdiplus.lib")
 #endif // _GDIPLUS_H
 #else
-#include <algorithm>
 #endif DBJ_WIN
 
+#if 0
 #include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <tchar.h>
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <array>
@@ -60,12 +71,10 @@ using namespace Gdiplus;
 #include <any>
 #include <string_view>
 
+#ifndef _HAS_CXX17
+#error __FILE__ requires C++17
+#endif
 
-#if _MSC_VER < 1911
-/*This code requires Visual C++ 14.1 or better*/
-		#ifndef _HAS_CXX17
-			#error __FILE__ requires C++17
-		#endif
 #endif
 
 #ifndef DBJ_STRINGIFY
@@ -75,25 +84,7 @@ using namespace Gdiplus;
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 
-namespace dbj {
-	constexpr const char COMPANY[] { "DBJ.Systems Ltd." };
 
-	constexpr const char YEAR[] { __DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10], '\0' };
-#if 0
-	inline std::string  filename(const std::string  &  file_path) {
-		auto pos = file_path.find_last_of('\\');
-		return 
-			( std::string::npos != pos 
-			    ? file_path.substr( pos, file_path.size())
-			  : file_path
-			) ; 
-	}
-	inline std::string fileline ( const std::string & file_path, unsigned line_ , const std::string & suffix = 0 ) {
-		return filename(file_path) + "(" + std::to_string(line_) + ")"
-			  + ( suffix.empty() ? "" : suffix ) ;
-	}
-#endif
-}
 
 /*
 dbj begins here
@@ -112,9 +103,6 @@ we can't have #define implements because of the cppWINRT base.h struct of the sa
 #else
 #define DBJ_FINAL
 #endif
-
-
-
 
 #include "dbj_crt.h"
 #include "dbj_testing.h"

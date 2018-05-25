@@ -1,5 +1,7 @@
 #pragma once
-/* include through dbj++.h */
+#include "dbj++.h"
+#include <functional>
+
 /* Command pattern mechanism */
 #pragma region "commands"
 namespace dbj {

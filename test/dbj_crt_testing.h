@@ -44,10 +44,10 @@ namespace {
 		strlen_strnlen_test(prompt16);
 		strlen_strnlen_test(prompt32);
 
-		assert(dbj::strnlen(promptA, BUFSIZ) == 10);
-		assert(dbj::strnlen(promptW, BUFSIZ) == 10);
-		assert(dbj::strnlen(prompt16, BUFSIZ) == 10);
-		assert(dbj::strnlen(prompt32, BUFSIZ) == 10);
+		_ASSERTE(dbj::strnlen(promptA, BUFSIZ) == 10);
+		_ASSERTE(dbj::strnlen(promptW, BUFSIZ) == 10);
+		_ASSERTE(dbj::strnlen(prompt16, BUFSIZ) == 10);
+		_ASSERTE(dbj::strnlen(prompt32, BUFSIZ) == 10);
 
 	}
 }

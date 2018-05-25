@@ -1,21 +1,26 @@
 #pragma once
+
+#include <string>
+
+namespace dbj {
+	constexpr const char COMPANY[]{ "DBJ.Systems Ltd." };
+
+	constexpr const char YEAR[]{ __DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10], '\0' };
 #if 0
-// dbj: discarded as stunt
-//www.highprogrammer.com/alan/windev/visualstudio.html
-// Statements like:
-// #pragma message(Reminder "Fix this problem!")
-// Which will cause messages like:
-// C:\Source\Project\main.cpp(47): Reminder: Fix this problem!
-// to show up during compiles. Note that you can NOT use the
-// words "error" or "warning" in your reminders, since it will
-// make the IDE think it should abort execution. You can double
-// click on these messages and jump to the line in question.
-#define Stringize( L )     #L 
-#define MakeString( M, L ) M(L)
-#define Expander(x) (x)
-#define $Line MakeString( Stringize, __LINE__ )
-#define Reminder __FILE__ "(" $Line ") :DBJ Reminder: "
+	inline std::string  filename(const std::string  &  file_path) {
+		auto pos = file_path.find_last_of('\\');
+		return
+			(std::string::npos != pos
+				? file_path.substr(pos, file_path.size())
+				: file_path
+				);
+	}
+	inline std::string fileline(const std::string & file_path, unsigned line_, const std::string & suffix = 0) {
+		return filename(file_path) + "(" + std::to_string(line_) + ")"
+			+ (suffix.empty() ? "" : suffix);
+	}
 #endif
+}
 
 namespace dbj {
 
@@ -76,14 +81,14 @@ namespace DBJ {
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
-		assert(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
+		_ASSERTE(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
 		::OutputDebugStringW(buffer);
 	}
 	template <typename ... Args>
 	inline void TRACE(const char * const message, Args ... args) noexcept
 	{
 		char buffer[DBJ::BUFSIZ_]{};
-		assert(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
+		_ASSERTE(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
 		::OutputDebugStringA(buffer);
 	}
 } // eof DBJ 
@@ -95,7 +100,7 @@ namespace DBJ {
 #define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
 #else
 // release code dissapears some things, not all
-// be carefull with DBJ::TRACE as it might assert in release builds
+// be carefull with DBJ::TRACE as it might _ASSERTE in release builds
 // 
 #define DBJ_ASSERT 
 #define DBJ_VERIFY 
@@ -317,3 +322,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+#if 0
+// dbj: discarded as stunt
+//www.highprogrammer.com/alan/windev/visualstudio.html
+// Statements like:
+// #pragma message(Reminder "Fix this problem!")
+// Which will cause messages like:
+// C:\Source\Project\main.cpp(47): Reminder: Fix this problem!
+// to show up during compiles. Note that you can NOT use the
+// words "error" or "warning" in your reminders, since it will
+// make the IDE think it should abort execution. You can double
+// click on these messages and jump to the line in question.
+#define Stringize( L )     #L 
+#define MakeString( M, L ) M(L)
+#define Expander(x) (x)
+#define $Line MakeString( Stringize, __LINE__ )
+#define Reminder __FILE__ "(" $Line ") :DBJ Reminder: "
+#endif
