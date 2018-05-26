@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #ifndef _WIN32
 #include <cxxabi.h>
 #endif
@@ -209,7 +208,13 @@ namespace dbj {
 } // eof dbj
 #pragma endregion
 
+// no can do here because of interdependancies
+#if 0 
 #ifdef DBJ_TESTING_EXISTS
+
+#include <variant>
+#include "dbj_console.h"
+#include "dbj_testing_interface.h"
 
 namespace {
 
@@ -238,6 +243,7 @@ namespace {
 } // namespace
 
 #endif // DBJ_TESTING_EXISTS
+#endif
 
 /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 

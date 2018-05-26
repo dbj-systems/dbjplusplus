@@ -32,7 +32,8 @@ namespace dbj {
 		};
 	}
 
-#ifdef DBJ_TESTING_EXISTS
+#if 0
+// no can do as testing includes this header 
 
 #include "dbj_testing.h"
 	namespace {
@@ -224,7 +225,7 @@ namespace dbj {
 			}
 
 			/*
-			------------------------------------------------------------------------------------
+			Actually a left pad where maxlen is 12
 			*/
 			inline auto string_pad(std::string s_, char padchar = ' ', size_t maxlen = 12) {
 				return s_.insert(0, maxlen - s_.length(), padchar);
@@ -233,10 +234,30 @@ namespace dbj {
 			inline auto string_pad(int number_) {
 				return string_pad(std::to_string(number_));
 			};
+
+
+			// create text line of 80 chars '-' by default
+			// once called can not be changed ;)
+			template< size_t N = 80, typename ARF = char(&)[N], typename ARR = char[N] >
+			constexpr auto line(char fill_char = '-') -> ARF
+			{
+				auto set = [&]() -> ARF {
+					static ARR arr;
+					auto rz = std::memset(arr, fill_char, N);
+					return arr;
+				};
+
+				// allocate array on stack once
+				static ARF arr_ = set();
+				return arr_;
+			}
 		} // ns
 	} // util
 } // dbj
-#ifdef DBJ_TESTING_EXISTS
+
+
+#if 0
+// can not do this here as testing includes dbj_util.h #ifdef DBJ_TESTING_EXISTS
 
 #include "dbj_testing.h"
 

@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <variant>
 
+#include "dbj_commander.h"
+
 #ifndef _WINCON_
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN

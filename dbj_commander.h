@@ -1,5 +1,6 @@
 #pragma once
 #include "dbj++.h"
+#include <map>
 #include <functional>
 
 /* Command pattern mechanism */

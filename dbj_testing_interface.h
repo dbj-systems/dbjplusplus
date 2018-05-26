@@ -1,4 +1,6 @@
 #pragma once
+
+#include "dbj_testing.h"
 /*
    testing interface depends on the dbj::win::con
    therefore it is moved here so that the whole testing
@@ -7,48 +9,31 @@
 namespace dbj {
 	namespace testing {
 
-		constexpr const char TITLE[] = "dbj++ Testing Framework [" __DATE__ "]";
-		constexpr const char ALLDN[] = "dbj++ Testing Framework -- ALL TESTS DONE";
 
-		namespace {
-
-			template< size_t N = 80, typename ARF = char(&)[N], typename ARR = char[N] >
-			constexpr auto line( char fill_char = '-') -> ARF 
-			{
-				auto set = [&]( ) -> ARF {
-					static ARR arr;
-					auto rz = std::memset(arr, fill_char, N);
-					return arr;
-				};
-
-				// allocate array on stack once
-				static ARF arr_ = set()	;
-				return arr_ ;
-			}
-		}
 		/*  execute all the tests collected  */
 		inline void _stdcall execute() noexcept {
 
 			typedef typename dbj::win::con::painter_command CMD;
 			using dbj::print ;
+			using namespace dbj::testing;
 
 			auto white_line = [&]( const char * arg = "") { 
-				print(arg, CMD::white,line(), CMD::text_color_reset); 
+				print(arg, CMD::white, dbj::testing::LINE , CMD::text_color_reset);
 			};
 			auto blue_line =  [&]( const char * arg = "") { 
-				print(arg, CMD::bright_blue,line(), CMD::text_color_reset); 
+				print(arg, CMD::bright_blue, dbj::testing::LINE, CMD::text_color_reset);
 			};
 
 			white_line("\n");
-			print("\n", TITLE, "\n");
-			print("\n(c)", dbj::testing::internal::YEAR, " by ", dbj::testing::internal::COMPANY);
+			print("\n", dbj::testing::TITLE, "\n");
+			print("\n(c)", dbj::testing::YEAR, " by ", dbj::testing::COMPANY);
 			white_line("\n");
 			print("\n[", tu_map().size(),"] tests defined");
 			white_line("\n");
 			for (auto tunit : tu_map())
 			{
 				// blue_line("\n");
-				print(CMD::bright_blue, "\nBEGIN [", tunit.second, "]", CMD::text_color_reset);
+				print(CMD::bright_blue, "\nBEGIN TEST UNIT [", tunit.second, "]", CMD::text_color_reset);
 				blue_line("\n");
 				try {
 					print("\n");
@@ -56,17 +41,17 @@ namespace dbj {
 					print("\n");
 				}
 				catch (dbj::Exception & x) {
-					print(x);
+					print(CMD::bright_red, x, CMD::text_color_reset);
 				}
 				catch (...) {
-					print(dbj::Exception("\nUnknown Exception"));
+					print(CMD::bright_red,  dbj::Exception("\nUnknown Exception"), CMD::text_color_reset);
 				}
 				blue_line("\n");
-				print(CMD::bright_blue, "\nEND [", tunit.second,"]\n", CMD::text_color_reset);
+				print(CMD::bright_blue, "\nEND TEST UNIT [", tunit.second,"]\n", CMD::text_color_reset);
 				// blue_line("\n");
 			}
 			white_line("\n");
-			print("\n", ALLDN);
+			print("\n", dbj::testing::ALLDN);
 			white_line("\n");
 			print(CMD::text_color_reset);
 		}

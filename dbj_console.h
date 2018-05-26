@@ -4,6 +4,7 @@
 
 #include <iterator>
 #include "dbj_win32.h"
+#include "dbj_console_painter.h"
 
 namespace dbj {
 	namespace win {

@@ -47,6 +47,8 @@ No exceptions are thrown outside. They are reported to console.
 #include <string>
 #include <map>
 
+#include "dbj_util.h"
+
 #ifndef DBJ_NV
 /*
 use dbj print or printex to show the symbol and its value, for example:
@@ -61,6 +63,30 @@ TODO: if symbol contains comma this is not going to work
 
 namespace dbj {
 	namespace testing {
+
+		inline const char * TITLE  { "dbj++ Testing Framework [" __DATE__ "]" };
+		inline const char * ALLDN  { "dbj++ Testing Framework -- ALL TESTS DONE" };
+		inline const char * LINE   { "--------------------------------------------------------------------------------" };
+		inline const char * COMPANY{ "DBJ.Systems Ltd." };
+		inline const char * YEAR   { (__DATE__ + 7) } ;
+
+		inline std::string  FILENAME(const std::string  &  file_path) {
+				auto pos = file_path.find_last_of('\\');
+				return
+					(std::string::npos != pos
+						? file_path.substr(pos, file_path.size())
+						: file_path
+						);
+			}
+
+		inline std::string FILELINE(const std::string & file_path, 
+			unsigned line_, 
+			const std::string & suffix = 0) 
+		{
+				return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+					+ (suffix.empty() ? "" : suffix);
+		}
+
 		// if not false on command line it will be compiled into existence
 #ifdef DBJ_TESTING_EXISTS
 		constexpr bool RUNING = true;
@@ -70,11 +96,6 @@ namespace dbj {
 		using testunittype = void(*)();
 		static __forceinline void __stdcall null_unit() {}
 
-	}
-}
-
-namespace dbj {
-	namespace testing {
 		namespace {
 
 			struct FPcomparator {
@@ -112,9 +133,14 @@ namespace dbj {
 	}
 
 	inline  void append(testunittype tunit_, const std::string & description_) {
+
+		auto next_test_id = []() -> std::string {
+			static std::int32_t tid{ 0 };
+			return   "[TID:" +  dbj::util::string_pad( tid++ ) + "]" ;
+		};
 				/* do not insert twice the same test unit */
 				if (!found(tunit_))
-					tu_map()[tunit_] = description_;
+					tu_map()[tunit_] = next_test_id() + description_ ;
 	}
 
 	inline  void unit_execute(testunittype tunit_) {
@@ -138,41 +164,23 @@ namespace dbj {
 		
 		inline const adder & add = adder::instance();
 
+	} // testing
+} // dbj
+
+#ifdef DBJ_TEST_UNIT
+#error "DBJ_TEST_UNIT Already defined?"
+#else
+
 #define DBJ_STR(x) #x
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 #define DBJ_TEST_UNIT_REGISTER( description, function ) namespace { static auto DBJ_CONCAT( __dbj_dummy__, __COUNTER__ ) = dbj::testing::add( description, function ); }
 #define DBJ_TEST_CASE_IMPL(description, name ) static void name(); DBJ_TEST_UNIT_REGISTER(description, name); static void name() 
-
 #define DBJ_TEST_CASE( description ) DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE(dbj::testing::FILELINE(__FILE__, __LINE__, x))
 
-		namespace internal /*to cut dependancies */{
-
-			constexpr auto COMPANY = "DBJ.Systems Ltd.";
-			constexpr auto YEAR = (__DATE__ + 7);
-			inline std::string  FILENAME(const std::string  &  file_path) {
-				auto pos = file_path.find_last_of('\\');
-				return
-					(std::string::npos != pos
-						? file_path.substr(pos, file_path.size())
-						: file_path
-						);
-			}
-
-			inline std::string FILELINE(const std::string & file_path, unsigned line_, const std::string & suffix = 0) {
-				return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
-					+ (suffix.empty() ? "" : suffix);
-			}
-		}
-
-#ifdef DBJ_TEST_UNIT
-#error "DBJ_TEST_UNIT Already defined?"
-#else
-#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE(dbj::testing::internal::FILELINE(__FILE__, __LINE__, x))
 #endif
 
-	} // testing
-} // dbj
   /* standard suffix for every other header here */
 #pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*

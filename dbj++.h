@@ -105,7 +105,7 @@ we can't have #define implements because of the cppWINRT base.h struct of the sa
 #endif
 
 #include "dbj_crt.h"
-#include "dbj_testing.h"
+// #include "dbj_testing.h"
 #include "dbj_commander.h"
 #include "dbj_console_painter.h"
 #include "dbj_console.h"
