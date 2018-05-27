@@ -259,8 +259,6 @@ namespace dbj {
 #if 0
 // can not do this here as testing includes dbj_util.h #ifdef DBJ_TESTING_EXISTS
 
-#include "dbj_testing.h"
-
 		DBJ_TEST_UNIT(": dbj dbj_util_test ") {
 
 			int intarr[]{ 1,1,2,2,3,4,5,6,6,6,7,8,9,9,0,0 };
@@ -280,8 +278,6 @@ namespace dbj {
 			auto doesit2 = dbj::util::starts_with(L"abra ka dabra", L"abra");
 		};
 #endif 
-  /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 
   /*
   Copyright 2017 by dbj@dbj.org

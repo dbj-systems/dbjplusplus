@@ -1,29 +1,26 @@
 #pragma once
+/*
+ see the licence blurb at eof
+*/
 
-#ifndef __clang__
 #ifndef _MSC_VER
 #error This code requires Visual C++ 
 #endif // !_MSC_VER
 #if _MSC_VER < 1911
 #error This code requires Visual C++ 14.1 or better
 #endif
-#endif
 
 #ifndef UNICODE
-#error __FILE__ requires UNICODE builds
+#error dbj++ requires UNICODE builds
 #endif
 
 #ifdef _SCL_SECURE_NO_WARNINGS
 #error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
 #endif
 
-#ifdef __clang__
-#undef DBJ_WIN
-#else
-#define DBJ_WIN
-#endif
 
-
+// DBJ_WIN to be defined on CL command line
+// or not
 #ifdef DBJ_WIN
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -78,12 +75,15 @@ using namespace Gdiplus;
 #endif
 
 #ifndef DBJ_STRINGIFY
-#define DBJ_STRINGIFY(s) # s
-#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
+	#define DBJ_STRINGIFY(s) # s
+	#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
+	#define DBJ_CONCAT_IMPL( x, y ) x##y
+	#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+	
+	#define DBJ_COMPANY "DBJ.Systems Ltd."
+	#define DBJ_YEAR ( __DATE__ + 7 ) 
+	#define DBJ_BUILD_STAMP __FILE__ "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
 #endif
-#define DBJ_CONCAT_IMPL( x, y ) x##y
-#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-
 
 
 /*
@@ -114,17 +114,13 @@ we can't have #define implements because of the cppWINRT base.h struct of the sa
 #include "dbj_com.h"
 #include "dbj_defval.h"
 #include "dbj_win32.h"
+#include "dbj_native_arr_ref.h"
 
 
-
-/*
- TODO: the whole dbj++ has to be configured somewhere?
+/* 
+standard suffix for every dbj header 
 */
-#ifndef DBJ_BUILD_STAMP
-#define DBJ_BUILD_STAMP __FILE__ "(c) " __DATE__ " by dbj@dbj.org | Version: " __DATE__ __TIME__ 
-/* standard suffix for every dbj header */
 #pragma comment( user, DBJ_BUILD_STAMP ) 
-#endif
 /*
 Copyright 2017,2018 by dbj@dbj.org
 

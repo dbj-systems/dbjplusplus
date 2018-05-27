@@ -3,9 +3,8 @@
 #include <string>
 
 namespace dbj {
-	constexpr const char COMPANY[]{ "DBJ.Systems Ltd." };
 
-	constexpr const char YEAR[]{ __DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10], '\0' };
+
 #if 0
 	inline std::string  filename(const std::string  &  file_path) {
 		auto pos = file_path.find_last_of('\\');

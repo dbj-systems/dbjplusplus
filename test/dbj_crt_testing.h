@@ -32,7 +32,7 @@ namespace {
 	}
 
 	DBJ_TEST_CASE("dbj crt") {
-		dbj::print("\n(c) ", dbj::YEAR,"by dbj.org, MSVC version: ", _MSC_FULL_VER);
+		dbj::print("\n(c) ", DBJ_YEAR, "by " DBJ_COMPANY ", MSVC version: ", _MSC_FULL_VER);
 
 		char	 promptA[] = "0123456789";
 		wchar_t  promptW[] = L"0123456789";
