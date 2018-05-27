@@ -74,17 +74,18 @@ namespace DBJ {
 
 	// DBJ::TRACE exist in release builds too
 
-	// this requires all the string args to be wide  
+	// this requires all the  args 
+	// that are strings to be wide strings 
 	// so I am doubtfull it will work ... easily
 	template <typename ... Args>
-	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
+	static void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
 		_ASSERTE(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
 		::OutputDebugStringW(buffer);
 	}
 	template <typename ... Args>
-	inline void TRACE(const char * const message, Args ... args) noexcept
+	static void TRACE(const char * const message, Args ... args) noexcept
 	{
 		char buffer[DBJ::BUFSIZ_]{};
 		_ASSERTE(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
@@ -95,21 +96,20 @@ namespace DBJ {
 #pragma region DBJ debug things
 #ifdef _DEBUG
 #define DBJ_ASSERT _ASSERTE
-#define DBJ_VERIFY DBJ_ASSERT
-#define DBJ_VERIFY_(result, expression) DBJ_ASSERT(result == expression)
+#define DBJ_VERIFY(result, expression) DBJ_ASSERT(result == expression)
 #else
 // release code dissapears some things, not all
 // be carefull with DBJ::TRACE as it might _ASSERTE in release builds
 // 
 #define DBJ_ASSERT 
-#define DBJ_VERIFY 
 // release code for DBJ_VERIFY_ stays but with no checks
-#define DBJ_VERIFY_(result, expression) (void)(expression)
+#define DBJ_VERIFY(result, expression) (void)(expression)
 #endif
 #pragma endregion 
+
 /*
 2017-10-18	DBJ created
-DBJ CRT (C++ Run Time) is inside top level dbj namespace
+DBJ CRT (DBJ C++ Run Time) is inside top level dbj namespace
 */
 namespace dbj {
 
@@ -169,7 +169,7 @@ namespace dbj {
 #endif
 
 	/*
-	(c) 2017 by dbj.org
+	(c) 2017, 2018 by dbj.org
 	"zero" time modern C++ versions of str(n)len
 	this should speed up any modern C++ code ... perhaps quite noticeably
 
@@ -277,12 +277,16 @@ namespace dbj {
 		const char* const p_{ nullptr } ;
 		const std::size_t sz_{ 0 };
 	public:
+		
 		template<std::size_t N>
 		constexpr str_const(const char(&a)[N]) : // ctor
 			p_(a), sz_(N - 1) {		}
-		constexpr char operator[](std::size_t n) const { // []
+
+		constexpr char operator[](std::size_t n) const 
+		{ 
 			return n < sz_ ? this->p_[n] : throw std::out_of_range("");
 		}
+		
 		constexpr std::size_t size() const noexcept { return this->sz_; }
 	};
 
@@ -304,8 +308,9 @@ namespace dbj {
 		constexpr operator const char * () const noexcept { return array_;  }
 	};
 } // dbj
-/* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+
+ /* standard suffix for every other header here */
+
 /*
 Copyright 2017 by dbj@dbj.org
 

@@ -82,7 +82,7 @@ using namespace Gdiplus;
 	
 	#define DBJ_COMPANY "DBJ.Systems Ltd."
 	#define DBJ_YEAR ( __DATE__ + 7 ) 
-	#define DBJ_BUILD_STAMP __FILE__ "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
+	#define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
 #endif
 
 
@@ -104,8 +104,12 @@ we can't have #define implements because of the cppWINRT base.h struct of the sa
 #define DBJ_FINAL
 #endif
 
+/*
+also defines DBJ_ASSERT, DBJ_VERIFY
+and DBJ::TRACE
+*/			 
 #include "dbj_crt.h"
-// #include "dbj_testing.h"
+
 #include "dbj_commander.h"
 #include "dbj_console_painter.h"
 #include "dbj_console.h"
