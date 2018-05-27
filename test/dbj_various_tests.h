@@ -15,7 +15,7 @@ namespace {
 	// typedef typename dbj::win::con::painter_command CMD;
 	using namespace  dbj::win32::sysinfo;
 
-	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
+	DBJ_TEST_UNIT(" : dbj various tests ") {
 		try {
 			dbj::print(
 				"\n\t\t", DBJ_NV(computer_name()),
@@ -69,7 +69,7 @@ namespace {
 		liner_(sx, sy, ex, ey);
 	}
 
-	DBJ_TEST_CASE(dbj::nicer_filename("dbj win32 gdi+ line")) {
+	DBJ_TEST_UNIT(" : dbj win32 gdi+ line" ) {
 
 		// Initialize GDI+.
 		GdiplusStartupInput gdiplusStartupInput;

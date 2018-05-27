@@ -199,22 +199,25 @@ DBJ::TRACE("\ninstances_counter : %d, IID : %d", instances_counter, this->IID );
 #define DBJ_STR(x) #x
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-
+/*
 #define DBJ_TEST_UNIT_REGISTER( description, function ) \
 namespace { \
-static auto DBJ_CONCAT( __dbj_dummy__, __COUNTER__ ) \
+inline auto DBJ_CONCAT(__dbj_register__, function )\
       = dbj::testing::add( description, function, __COUNTER__ ); \
 }
+*/
+#define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
+void name(); \
+namespace { \
+  inline auto DBJ_CONCAT(__dbj_register__, name )\
+      = dbj::testing::add( description, name, counter_ ); \
+} \
+inline void name() 
 
-#define DBJ_TEST_CASE_IMPL(description, name ) \
-/* static void name(); */ \
-DBJ_TEST_UNIT_REGISTER(description, name); \
-static void name() 
+#define DBJ_TEST_CASE( description, x ) \
+DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ), x )
 
-#define DBJ_TEST_CASE( description ) \
-DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
-
-#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE(dbj::testing::FILELINE(__FILE__, __LINE__, x))
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( dbj::testing::FILELINE(__FILE__, __LINE__, x) , __COUNTER__ )
 
 #endif
 

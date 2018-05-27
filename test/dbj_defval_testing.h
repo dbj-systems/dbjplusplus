@@ -14,7 +14,7 @@ namespace {
 	dbj::holder<SmoothingMode> smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
 	dbj::holder<LineCap> linecap{ LineCap::LineCapRound };
 
-	DBJ_TEST_CASE("dbj def val option three") {
+	DBJ_TEST_UNIT(" : dbj def val option three") {
 		auto width_ = konst_.width(1024);
 		const auto w1_ = konst_.width();
 		auto w2_ = konst_.width();
@@ -32,7 +32,7 @@ namespace {
 namespace {
 	using namespace Gdiplus;
 
-	DBJ_TEST_CASE("def val option 2") {
+	DBJ_TEST_UNIT(" : dbj def val option 2") {
 		// create default values holders
 		// creation happens since these are first calls
 		// nice, but what is stopping us to do this 2 or more times?

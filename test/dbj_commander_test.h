@@ -18,7 +18,7 @@ namespace dbj {
 				nop = (unsigned)-1
 			};
 
-			DBJ_TEST_CASE("dbj cmd Commander<>") {
+			DBJ_TEST_UNIT("dbj cmd Commander<>") {
 				/*
 				observe CAREFULY!
 				declaration of a function type, NOT function pointer type

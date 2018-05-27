@@ -31,7 +31,7 @@ namespace {
 		pointer_tester(prompt);
 	}
 
-	DBJ_TEST_CASE("dbj crt") {
+	DBJ_TEST_UNIT(" : dbj crt") {
 		dbj::print("\n(c) ", DBJ_YEAR, "by " DBJ_COMPANY ", MSVC version: ", _MSC_FULL_VER);
 
 		char	 promptA[] = "0123456789";

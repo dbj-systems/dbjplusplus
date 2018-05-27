@@ -5,7 +5,7 @@
 namespace {
 	using namespace  dbj::win::con ;
 
-	DBJ_TEST_CASE(dbj::nicer_filename(__FILE__)) {
+	DBJ_TEST_UNIT(" : dbj console test") {
 
 		const static std::wstring squiglies = L"αß©∂€αß©∂€αß©∂€αß©∂€αß©∂€";
 		/*
