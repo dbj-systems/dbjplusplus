@@ -119,6 +119,7 @@ and DBJ::TRACE
 #include "dbj_defval.h"
 #include "dbj_win32.h"
 #include "dbj_native_arr_ref.h"
+#include "dbj_app_env.h"
 
 
 /* 

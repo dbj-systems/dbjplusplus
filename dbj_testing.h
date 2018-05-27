@@ -135,8 +135,8 @@ namespace dbj {
 	inline  void append(testunittype tunit_, const std::string & description_) {
 
 		auto next_test_id = []() -> std::string {
-			static std::int32_t tid{ 0 };
-			return   "[TID:" +  dbj::util::string_pad( tid++ ) + "]" ;
+			static int tid{ 0 };
+			return   "[TID:" +  dbj::util::string_pad( tid++, '0', 3 ) + "]" ;
 		};
 				/* do not insert twice the same test unit */
 				if (!found(tunit_))
@@ -146,23 +146,48 @@ namespace dbj {
 	inline  void unit_execute(testunittype tunit_) {
 		         tunit_();
 		}
-
+#ifdef _DEBUG
+	inline size_t adder_call_count() {
+		static size_t count_{ 0 };
+		return count_++;
+	}
+#endif
 			struct adder {
-				const bool operator ()(const std::string & msg_, testunittype tunit_) const {
+				const bool operator ()(const std::string & msg_, testunittype tunit_, const int counter_ ) const {
+#ifdef _DEBUG
+DBJ::TRACE("\n\ndbj testing adder [%p] operator () called %d times, counter is: %d", this, adder_call_count(), counter_);
+auto & seeit = adder::instances_registry;
+#endif
 					/* we could have called append straight from client code */
 					/* technicaly this struct is not necessary but it is here for chage resilience of this design */
 					append(tunit_, msg_);
 					return true;
 				}
 
-				const static  adder & instance() {
-					static adder singleton_{};
-					return singleton_;
+				 static size_t instances_counter ;
+				 static size_t instances_registry[256];
+
+				 size_t IID{ 0 };
+
+				adder(const int nid_) : IID(nid_) {
+					instances_registry[instances_counter++] = IID;
+#ifdef _DEBUG
+DBJ::TRACE("\ninstances_counter : %d, IID : %d", instances_counter, this->IID );
+#endif
+				}
+
+				static  adder && instance() {
+					static adder singleton_{ __COUNTER__ };
+					return std::forward<adder> ( singleton_) ;
 				}
 			};
+
+			size_t adder::instances_counter{ 0 };
+			size_t adder::instances_registry[256]{ 0 };
+
 		} // namespace
 		
-		inline const adder & add = adder::instance();
+		adder && add = adder::instance();
 
 	} // testing
 } // dbj
@@ -174,16 +199,26 @@ namespace dbj {
 #define DBJ_STR(x) #x
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-#define DBJ_TEST_UNIT_REGISTER( description, function ) namespace { static auto DBJ_CONCAT( __dbj_dummy__, __COUNTER__ ) = dbj::testing::add( description, function ); }
-#define DBJ_TEST_CASE_IMPL(description, name ) static void name(); DBJ_TEST_UNIT_REGISTER(description, name); static void name() 
-#define DBJ_TEST_CASE( description ) DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
+
+#define DBJ_TEST_UNIT_REGISTER( description, function ) \
+namespace { \
+static auto DBJ_CONCAT( __dbj_dummy__, __COUNTER__ ) \
+      = dbj::testing::add( description, function, __COUNTER__ ); \
+}
+
+#define DBJ_TEST_CASE_IMPL(description, name ) \
+/* static void name(); */ \
+DBJ_TEST_UNIT_REGISTER(description, name); \
+static void name() 
+
+#define DBJ_TEST_CASE( description ) \
+DBJ_TEST_CASE_IMPL( description , DBJ_CONCAT( __dbj_test_unit__, __COUNTER__ ))
+
 #define DBJ_TEST_UNIT(x) DBJ_TEST_CASE(dbj::testing::FILELINE(__FILE__, __LINE__, x))
 
 #endif
 
-  /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
-  /*
+/*
   Copyright 2017 by dbj@dbj.org
 
   Licensed under the Apache License, Version 2.0 (the "License");

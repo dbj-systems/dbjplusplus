@@ -87,6 +87,12 @@
     <ClInclude Include="dbj_native_arr_ref.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_app_env.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test\dbj_native_arr_ref_testing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

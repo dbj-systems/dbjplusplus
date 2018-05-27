@@ -231,8 +231,8 @@ namespace dbj {
 				return s_.insert(0, maxlen - s_.length(), padchar);
 			};
 
-			inline auto string_pad(int number_) {
-				return string_pad(std::to_string(number_));
+			inline auto string_pad(int number_, char padchar = ' ', size_t maxlen = 12) {
+				return string_pad(std::to_string(number_), padchar, maxlen );
 			};
 
 
