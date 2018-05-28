@@ -1,4 +1,5 @@
 #pragma once
+#ifdef DBJ_WIN
 //
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -186,6 +187,7 @@ namespace dbj {
 	} // win32
 } // dbj
 
+#endif // DBJ_WIN
   /*
   Copyright 2017,2018 by dbj@dbj.org
 
