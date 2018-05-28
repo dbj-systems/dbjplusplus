@@ -19,14 +19,14 @@ namespace dbj::unused {
 	}
 
 	/*
-	for win32 functions that are leaving result in the buffer
+	for e.g. win32 functions that are 
+	leaving the result in the buffer
 	and returning 0 aka NULL if they go wrong
 	*/
-	namespace {
+	namespace buf {
 		constexpr auto DBJ_BUFSIZ = 1024u;
 		using DBJ_BUFREF = const char(&)[DBJ_BUFSIZ];
 		constexpr DBJ_BUFREF DBJ_BUF{'\x0'};
-		constexpr std::string && infoBuf{ BUF };
 
 		void clear(DBJ_BUFREF buffy) {
 			memset((void*)buffy, '\x0', DBJ_BUFSIZ);
@@ -34,13 +34,15 @@ namespace dbj::unused {
 	}
 
 	template<class F, class... Pack>
-	constexpr __forceinline 
-		DBJ_BUFREF	call_with_buff
+	constexpr 
+	  inline 
+		dbj::DBJ_BUFREF	
+	    	call_with_buff
 	(F&& fun, Pack&&... args) {
-		clear(DBJ_BUF);
+		buf::clear(buf::DBJ_BUF);
 			if (0 == std::invoke(fun, (args)...))
 				throw dbj::Exception(typeid(F).name());
-		return (DBJ_BUF);
+		return (buf::DBJ_BUF);
 	}
 
 } // dbj::unused
