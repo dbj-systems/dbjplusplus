@@ -100,6 +100,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dbj++.h" />
+    <ClInclude Include="dbj++tests.h" />
     <ClInclude Include="dbj_app_env.h" />
     <ClInclude Include="dbj_array.h" />
     <ClInclude Include="dbj_console.h" />
@@ -128,7 +129,7 @@
     <ClInclude Include="test\dbj_string_tests.h" />
     <ClInclude Include="dbj_string_util.h" />
     <ClInclude Include="test\dbj_traits_testing.h" />
-    <ClInclude Include="test\dbj_various_tests.h" />
+    <ClInclude Include="test\dbj_win32_tests.h" />
     <ClInclude Include="unused\unused.h" />
   </ItemGroup>
   <ItemGroup>

@@ -2,10 +2,7 @@
 
 #include "dbj_crt.h"
 /*
-// avoid min/max macros 
-#define NOMINMAX
-#include <sysinfoapi.h>
-#include <strsafe.h>
+
 
 #include <string>
 #include <map>
@@ -16,10 +13,6 @@
 #include <iterator>
 */
 
-#include <algorithm>
-#include <cwctype>
-#include <cctype>
-#include <string_view>
 #include <sstream> // wstringstream
 
 namespace dbj::str {

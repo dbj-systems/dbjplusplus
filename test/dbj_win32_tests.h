@@ -1,12 +1,5 @@
 #pragma once
-/*
-  Various tests
-
-  NOTE: generaly it is preffered to have tests in top level anonymous namespaces
-        this does not introduce globals but also helps to spot and resolve various namespacing issues
-
-		If this file (and it will) grows long then use region pragmas
-*/
+#ifdef DBJ_WIN
 #ifdef DBJ_TESTING_EXISTS
 #pragma region "dbj win32"
 namespace {
@@ -110,3 +103,4 @@ namespace {
 #pragma endregion
 
 #endif // DBJ_TESTING_EXISTS
+#endif // DBJ_WIN
