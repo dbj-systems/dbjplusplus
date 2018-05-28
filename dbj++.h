@@ -23,6 +23,14 @@
 
 // DBJ_WIN to be defined on CL command line
 // or not
+
+// the whole dbj console 
+// is of course  WIN32 
+// code
+// so windows.h it is
+// for the time being
+#define DBJ_WIN 
+
 #ifdef DBJ_WIN
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
