@@ -1,8 +1,8 @@
 #pragma once
 
 /*
-2018-04-30	dbj@dbj.org		created
-							basically a C code and thus not in the namespace
+2018-04-30	dbj@dbj.org		
+created	basically a C code and thus not in the namespace
 */
 /*
 bellow is WIN32 API 

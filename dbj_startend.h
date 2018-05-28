@@ -1,5 +1,15 @@
 #pragma once
 
+/*
+Following creates unique type (and instance)
+as long as it is not repeated
+somewehere else in the same app
+-------------------------------------------------------------
+void f1 () { printf("Start once!"); } ;
+void f2 () { printf("End   once!"); } ;
+static inline auto gbe =  dbj::STARTEND<f1,f2>::singleton() ;
+*/
+
 namespace dbj {
 #pragma region STARTEND
 
@@ -58,14 +68,7 @@ namespace dbj {
 				}
 			}
 		};
-		/*
-		Following creates unique type as long as it is not repeated
-		somewehere else in the same app
-		-------------------------------------------------------------
-		void f1 () { printf("Start once!"); } ;
-		void f2 () { printf("End   once!"); } ;
-		auto gbe =  STARTEND<f1,f2>::singleton() ;
-		*/
+
 	}
 #pragma endregion STARTEND
 /* standard suffix for every other header here */

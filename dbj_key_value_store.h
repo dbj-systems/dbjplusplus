@@ -4,7 +4,7 @@
 
 #if _HAS_CXX17
 #else
-#error "c++17 is required, have you forgot /std:c++17 , perhaps?"
+#error "c++17 is required, did you forgot /std:c++17 , in project settings perhaps?"
 #endif
 
 /// <summary>

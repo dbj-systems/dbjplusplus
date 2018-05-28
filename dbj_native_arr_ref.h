@@ -1,7 +1,12 @@
 #pragma once
+/*
+used through dbj++.h
+thus dbj_crt.h is included before this
+
 #include <vector>
 #include <array>
 #include <ctime>
+*/
 
 /// <summary>
 /// NARF == Native ARray reFerence

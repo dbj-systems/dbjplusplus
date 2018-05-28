@@ -1,5 +1,6 @@
 #pragma once
 
+// does not require any include before
 #include <mutex>
 
 namespace dbj {
@@ -10,6 +11,16 @@ namespace dbj {
 	/// </summary>
 	namespace sync {
 
+		/// <summary>
+		/// automatic use of std::mutex 
+		/// example of making a function
+		/// thread safe
+		/// <code>
+		/// void safe_fun ( ) {
+		/// dbj::sync::lock_unlock auto_lock_ ;
+		/// }
+		/// </code>
+		/// </summary>
 		struct lock_unlock final {
 			std::mutex mux_;
 
@@ -17,6 +28,22 @@ namespace dbj {
 			~lock_unlock() { mux_.unlock(); }
 		};
 
+		/// <summary>
+		/// in presence of multiple threads
+		/// guard value of type T
+		/// example
+		/// <code>
+		/// static inline guardian<bool> signal_ ;
+		/// </code>
+		/// default bool is false
+		/// <code>
+		/// auto false_ = signal_.load() ;
+		/// </code>
+		/// switch to true
+		/// <code>
+		/// auto true_ = signal_.load(true) ;
+		/// </code>
+		/// </summary>
 		template <typename T>
 		class guardian final {
 		public:

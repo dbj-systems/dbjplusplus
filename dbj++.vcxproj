@@ -128,6 +128,7 @@
     <ClInclude Include="test\dbj_string_tests.h" />
     <ClInclude Include="dbj_string_util.h" />
     <ClInclude Include="test\dbj_traits_testing.h" />
+    <ClInclude Include="test\dbj_util_test.h" />
     <ClInclude Include="test\dbj_win32_tests.h" />
     <ClInclude Include="unused\unused.h" />
   </ItemGroup>
