@@ -8,11 +8,13 @@
 */
 namespace dbj {
 	namespace testing {
-
-
 		/*  execute all the tests collected  */
-		inline void _stdcall execute() noexcept {
-
+		inline void _stdcall execute(
+			const int argc,
+			const wchar_t *argv[],
+			const wchar_t *envp[]
+		) noexcept 
+		{
 			typedef typename dbj::win::con::painter_command CMD;
 			using dbj::print ;
 			using namespace dbj::testing;
@@ -72,9 +74,11 @@ namespace dbj {
 		inline auto test_lambada(const char * expression, lambada_type && lambada)
 		{
 			using namespace dbj::win::con;
+			static dbj::c_line<80, '-'> L80;
 			auto anything = lambada();
 			dbj::print(
-				painter_command::green, "\n- expression -> ", painter_command::text_color_reset, expression,
+				painter_command::green, "\n", L80,
+				                        "\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset,  typeid(anything).name(),
 				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
 			return anything;

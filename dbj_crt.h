@@ -341,7 +341,7 @@ namespace dbj {
 	};
 
 	/*
-	dbj "invention": compile time line of chars, usage
+	text line of chars, usage
 	constexpr c_line<80, '-'> L80;
 	*/
 	template <unsigned Size, char filler = ' '>
