@@ -72,9 +72,6 @@
     <ClInclude Include="dbj_console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dbj_xperimental.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dbj_string_compare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -97,9 +94,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test\dbj_string_tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="unused\unused.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test\dbj_traits_testing.h">

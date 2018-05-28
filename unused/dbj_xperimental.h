@@ -51,7 +51,7 @@ namespace dbj {
 #pragma endregion
 
 #ifdef DBJ_TESTING_EXISTS
-#include <dbj_testing.h>
+
 	namespace {
 		DBJ_TEST_CASE(dbj::FILELINE(__FILE__, __LINE__, ": dbj lambda collection"))
 		{
@@ -150,9 +150,6 @@ inline void dbj_util_test(F & print) {
  */
 }
 #endif 
-/* standard suffix for every dbj++ header */
-#pragma comment( user, __FILE__ "(c) 2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
-
 /*
 Copyright 2018 by dbj@dbj.org
 
