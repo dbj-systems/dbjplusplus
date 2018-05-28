@@ -1,8 +1,9 @@
 #pragma once
+/*
 #include "dbj++.h"
 #include <map>
 #include <functional>
-
+*/
 /* Command pattern mechanism */
 #pragma region "commands"
 namespace dbj {
@@ -25,14 +26,7 @@ namespace dbj {
 				return lhs < rhs;
 			}
 		};
-#if 0
-		template<
-			typename CMD_ENUM,
-			typename CMD_FUN,
-			typename CMD_COMPARATOR = void,
-			typename Enable = void
-		> class Commander {};
-#endif
+
 		/*  CMD_ENUM defined commands id's
 		CMD_FUN is function type to execute them. Whatever satisfies std::is_function<CMD_FUN>
 		CMD_COMPARATOR is function to compare the CMD_ENUM elements
@@ -130,8 +124,7 @@ namespace dbj {
 } // dbj
 #pragma endregion "commands"
 
-  /* standard suffix */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ )   /*
+/*
   Copyright 2017 by dbj@dbj.org
 
   Licensed under the Apache License, Version 2.0 (the "License");

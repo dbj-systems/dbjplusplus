@@ -1,6 +1,6 @@
 #pragma once
 #ifdef DBJ_TESTING_EXISTS
-#include "../dbj++.h"
+
 /// <summary>
 /// for more stringent test we 
 /// test from outside of the
@@ -128,5 +128,40 @@ namespace dbj_arf_testing {
 
 		DBJ_TEST_ATOM(dbj::narf::size(arf_2));
 	}
+	
+			DBJ_TEST_UNIT(": dbj array handler ARH ") 
+			{
+			{
+				// the "C" way
+				char arr_of_chars[]{ 'A','B','C' };
+				char(&ref_to_arr_of_chars)[3] = arr_of_chars;
+			}
+			{   // manual C++ old school
+				std::array<char, 3> three_chars{ 'A','B','C' };
+				const char(&uar)[3] = *(char(*)[3])three_chars.data();
+			}
+			// the modern C++ dbj way
+			using A16 = ARH<int, 3>;
+			A16::ARR arr { 1,2,3 };
+			A16::ARP arp = A16::to_arp(arr);
+			A16::ARF arf = A16::to_arf(arr);
+
+			// prove that the type is right
+			auto rdr0 = A16::to_vector(arf);
+
+			/*
+			testing the internal_array_reference
+
+			decltype(auto) bellow reveals the underlying type
+			namely it transform int* to int(&)[]
+			that is reference to c array inside std::array
+			*/
+			decltype(auto) arf2 = A16::to_arf(arr);
+			decltype(auto) rdr1 = A16::to_vector(arf2);
+
+			decltype(auto) arf3 = arf2;
+			auto rdr2 = A16::to_vector(arf3);
+		}
+
 }
 #endif

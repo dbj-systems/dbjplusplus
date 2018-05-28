@@ -1,60 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="dbj++.h" />
-    <ClInclude Include="dbj++tests.h" />
-    <ClInclude Include="dbj_app_env.h" />
-    <ClInclude Include="dbj_array.h" />
-    <ClInclude Include="dbj_console.h" />
-    <ClInclude Include="dbj_com.h" />
-    <ClInclude Include="dbj_commander.h" />
-    <ClInclude Include="dbj_console_painter.h" />
-    <ClInclude Include="dbj_crt.h" />
-    <ClInclude Include="dbj_defval.h" />
-    <ClInclude Include="dbj_native_arr_ref.h" />
-    <ClInclude Include="dbj_startend.h" />
-    <ClInclude Include="dbj_string_compare.h" />
-    <ClInclude Include="dbj_testing.h" />
-    <ClInclude Include="dbj_testing_interface.h" />
-    <ClInclude Include="dbj_traits.h" />
-    <ClInclude Include="dbj_util.h" />
-    <ClInclude Include="dbj_win32.h" />
-    <ClInclude Include="test\dbj_crt_testing.h" />
-    <ClInclude Include="dbj_key_value_store.h" />
-    <ClInclude Include="dbj_synchro.h" />
-    <ClInclude Include="dbj_string_util.h" />
-    <ClInclude Include="test\dbj_util_test.h" />
-    <ClInclude Include="test\dbj_commander_test.h">
+    <ClInclude Include="..\dbj_app_env.h" />
+    <ClInclude Include="..\dbj_array.h" />
+    <ClInclude Include="..\dbj_com.h" />
+    <ClInclude Include="..\dbj_commander.h" />
+    <ClInclude Include="..\dbj_console.h" />
+    <ClInclude Include="..\dbj_console_painter.h" />
+    <ClInclude Include="..\dbj_crt.h" />
+    <ClInclude Include="..\dbj_defval.h" />
+    <ClInclude Include="..\dbj_key_value_store.h" />
+    <ClInclude Include="..\dbj_native_arr_ref.h" />
+    <ClInclude Include="..\dbj_startend.h" />
+    <ClInclude Include="..\dbj_string_compare.h" />
+    <ClInclude Include="..\dbj_string_util.h" />
+    <ClInclude Include="..\dbj_synchro.h" />
+    <ClInclude Include="..\dbj_testing.h" />
+    <ClInclude Include="..\dbj_testing_interface.h" />
+    <ClInclude Include="..\dbj_traits.h" />
+    <ClInclude Include="..\dbj_util.h" />
+    <ClInclude Include="..\dbj_win32.h" />
+    <ClInclude Include="..\dbj++.h" />
+    <ClInclude Include="..\dbj++tests.h" />
+    <ClInclude Include="..\test\dbj_ap_env_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="test\dbj_console_test.h">
+    <ClInclude Include="..\test\dbj_commander_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="test\dbj_defval_testing.h">
+    <ClInclude Include="..\test\dbj_console_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="test\dbj_native_arr_ref_testing.h">
+    <ClInclude Include="..\test\dbj_crt_testing.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="test\dbj_string_tests.h">
+    <ClInclude Include="..\test\dbj_defval_testing.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="test\dbj_traits_testing.h">
+    <ClInclude Include="..\test\dbj_kv_store_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="test\dbj_win32_tests.h">
+    <ClInclude Include="..\test\dbj_native_arr_ref_testing.h">
       <Filter>test</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="media\dbjlogo.png" />
-    <Image Include="media\dbjsystems.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".gitattributes" />
-    <None Include=".gitignore" />
-    <None Include="cpp.hint" />
-    <None Include="README.md" />
+    <ClInclude Include="..\test\dbj_string_tests.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\dbj_traits_testing.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\dbj_util_test.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test\dbj_win32_tests.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
@@ -66,5 +66,11 @@
     <Filter Include="media">
       <UniqueIdentifier>{1e0b5f3e-edd4-4b7e-a459-1a6df305242b}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitattributes" />
+    <None Include="..\.gitignore" />
+    <None Include="..\cpp.hint" />
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>

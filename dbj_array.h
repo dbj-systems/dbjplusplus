@@ -1,10 +1,10 @@
 #pragma once
-
+/*
 #include <vector>
 #include <array>
 #include <ctime>
-
-namespace dbj {
+*/
+namespace dbj::arr {
 
 	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
 	template <class T, size_t ROW, size_t COL>
@@ -33,15 +33,11 @@ namespace dbj {
 	Transform native array into std::array at compile time
 	*/
 	template <class T, std::size_t N>
-	constexpr array<remove_cv_t<T>, N> native_to_std_array(T(& narf)[N])
+	inline array<remove_cv_t<T>, N> native_to_std_array(T(& narf)[N])
 	{
 		return to_array_impl(narf, make_index_sequence<N>{});
 	}
-}
 
-namespace dbj {
-
-	namespace arr {
 		/*
 		return array reference to the C array inside std::array
 		usage:
@@ -76,9 +72,9 @@ namespace dbj {
 			// inbuilt ARray type
 			typedef T ART[N];
 			// reference to ART
-			typedef ART& ARF;
+			typedef ARH::ART& ARF;
 			// pointer to ART
-			typedef ART* ARP;
+			typedef ARH::ART* ARP;
 
 			/*
 			return pointer to the underlying array
@@ -115,50 +111,10 @@ namespace dbj {
 				std::copy(arr_, arr_ + N, retval_.begin() );
 				return retval_;
 			}
-		}; // ARH
+		}; // struct ARH
 
+} // dbj::arr
 
-#ifdef DBJ_TESTING_EXISTS
-
-			DBJ_TEST_UNIT(": dbj array handler ") 
-			{
-			{
-				// the "C" way
-				char arr_of_chars[]{ 'A','B','C' };
-				char(&ref_to_arr_of_chars)[3] = arr_of_chars;
-			}
-			{   // manual C++ old school
-				std::array<char, 3> three_chars{ 'A','B','C' };
-				const char(&uar)[3] = *(char(*)[3])three_chars.data();
-			}
-			// the modern C++ dbj way
-			using A16 = ARH<int, 3>;
-			A16::ARR arr { 1,2,3 };
-			A16::ARP arp = A16::to_arp(arr);
-			A16::ARF arf = A16::to_arf(arr);
-
-			// prove that the type is right
-			auto rdr0 = A16::to_vector(arf);
-
-			/*
-			testing the internal_array_reference
-
-			decltype(auto) bellow reveals the underlying type
-			namely it transform int* to int(&)[]
-			that is reference to c array inside std::array
-			*/
-			decltype(auto) arf2 = A16::to_arf(arr);
-			decltype(auto) rdr1 = A16::to_vector(arf2);
-
-			decltype(auto) arf3 = arf2;
-			auto rdr2 = A16::to_vector(arf3);
-		}
-#endif // DBJ_TESTING
-	} // arr
-} // dbj
-
-/* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
 Copyright 2017-2018 by dbj@dbj.org
 

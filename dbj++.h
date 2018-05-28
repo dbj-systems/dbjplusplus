@@ -46,36 +46,6 @@ using namespace Gdiplus;
 #else
 #endif DBJ_WIN
 
-#if 0
-#include <assert.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <tchar.h>
-#include <algorithm>
-#include <memory>
-#include <string>
-#include <array>
-#include <vector>
-#include <functional>
-#include <iosfwd>
-#include <iostream>
-//strstream is deprecated use stringstream  instead
-// #include <strstream> 
-#include <sstream> 
-#include <optional>
-#include <stdlib.h>
-#include <cstring>
-#include <map>
-#include <variant>
-#include <any>
-#include <string_view>
-
-#ifndef _HAS_CXX17
-#error __FILE__ requires C++17
-#endif
-
-#endif
-
 /*
 dbj++ begins here
 
@@ -94,16 +64,15 @@ this should be merged into dbj_crt.h
 
 
 /*
-
-
 __interface msvc keyword
 explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
 
-we can't have #define implements because of the cppWINRT base.h struct of the same name
+we can't have #define implements because of the 
+cppWINRT base.h struct of the same name
+so we can not do this:
+
 #define implements public
 */
-// inline is the keyword, in C++ and C99.
-#define DBJ_INLINE inline 
 
 #ifdef __cpp_lib_is_final
 #define DBJ_FINAL final
@@ -122,12 +91,17 @@ long var [[maybe_unused]] {42L} ;
 #define DBJ_UNUSED(x) x [[maybe_unused]]
 #endif
 
-/*
-also defines DBJ_ASSERT, DBJ_VERIFY
-and DBJ::TRACE
-*/			 
-#include "dbj_crt.h"
+// #define DBJ_MT
+// Multi Threaded Build
+// used in dbj_synchro to 
+// conditionaly def/undef
+// DBJ_AUTO_LOCK
 #include "dbj_synchro.h"
+//
+//also defines DBJ_ASSERT, DBJ_VERIFY
+//and DBJ::TRACE
+//
+#include "dbj_crt.h"
 #include "dbj_string_util.h"
 #include "dbj_util.h"
 #include "dbj_string_compare.h"

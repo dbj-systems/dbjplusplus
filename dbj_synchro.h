@@ -28,6 +28,14 @@ namespace dbj {
 			~lock_unlock() { mux_.unlock(); }
 		};
 
+// Multi Threaded Build 
+#ifdef DBJ_MT
+#define DBJ_AUTO_LOCK dbj::sync::lock_unlock __dbj_auto_lock__ 
+#else
+#define DBJ_AUTO_LOCK
+#endif
+
+
 		/// <summary>
 		/// in presence of multiple threads
 		/// guard value of type T

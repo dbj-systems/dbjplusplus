@@ -26,9 +26,7 @@ namespace {
 		auto sness = smoothnes();
 	}
 }
-#endif
 
-#ifdef	DBJ_TESTING_EXISTS
 namespace {
 	using namespace Gdiplus;
 

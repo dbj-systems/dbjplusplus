@@ -1,10 +1,6 @@
 #pragma once
-// no can do here because of interdependancies
-#ifdef DBJ_TESTING_EXISTS
 
-#include <variant>
-#include "dbj_console.h"
-#include "dbj_testing_interface.h"
+#ifdef DBJ_TESTING_EXISTS
 
 namespace {
 

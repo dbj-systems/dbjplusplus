@@ -1,11 +1,10 @@
 ﻿#pragma once
 // #include <windows.h> before this header
 #pragma region "Console Interfaces"
-
+/*
 #include <iterator>
-#include "dbj_win32.h"
 #include "dbj_console_painter.h"
-
+*/
 namespace dbj {
 	namespace win {
 		namespace con {
@@ -17,17 +16,6 @@ namespace dbj {
 				HANDLE handle() const;
 				void out(const std::wstring & wp_) const ;
 			};
-#if 0
-			/* printer uses the console as part of its implementation */
-			struct IPrinter {
-				/*	'%' is a replacement token	*/
-				const char token() const;
-				const void print(const char * arg) const; // base function recursion stopper
-				template<typename T, typename... Targs>
-				void print(const char* format, T value, Targs... args); // recursive variadic function			
-			};
-#endif
-
 		}
 	}
 }
@@ -492,8 +480,6 @@ namespace dbj {
 	}
 }
 
-/* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
   Copyright 2017 by dbj@dbj.org
 
@@ -509,36 +495,3 @@ namespace dbj {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-#if 0
-  /*	recursion stopper		*/
-inline void print(const char * arg) {
-	out(arg);
-}
-
-/*	'%' is a positioning token	*/
-constexpr char pos_token = '%';
-
-template<typename T, typename... Targs>
-void print(const char* format, T value, Targs... Fargs)
-// recursive variadic function
-{
-	for (; *format != '\0'; format++) {
-		if (*format == pos_token) {
-			out(value);
-			print(format + 1, Fargs...); // recursive call
-			return;
-		}
-		else {
-			// yes ... single char one by one ... 
-			out(*format);
-		}
-	}
-}
-/*
-for above. NEXT ITERATION print(...): no recursion
-1. tokenize the format by pos_token into 'words' sequence
-2.  expand the param pack args into dummy array
-3.  before each arg take the next 'word' from the step 1.
-*/
-#endif

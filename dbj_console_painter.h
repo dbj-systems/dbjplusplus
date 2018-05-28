@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <variant>
-
+/*
 #include "dbj_commander.h"
 
 #ifndef _WINCON_
@@ -26,7 +26,7 @@ using namespace Gdiplus;
 #pragma comment(lib, "Gdiplus.lib")
 #endif // _GDIPLUS_H
 #endif
-
+*/
 namespace dbj {
 namespace win {
 namespace con {
@@ -139,8 +139,6 @@ namespace {
 } // win
 } // dbj
 
-/* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
 Copyright 2017 by dbj@dbj.org
 
