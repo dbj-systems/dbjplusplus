@@ -1,35 +1,69 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace dbj {
 
+	using wstring = std::wstring;
+	using wstring_vector = std::vector<std::wstring>;
 
-#if 0
-	inline std::string  filename(const std::string  &  file_path) {
-		auto pos = file_path.find_last_of('\\');
-		return
-			(std::string::npos != pos
-				? file_path.substr(pos, file_path.size())
-				: file_path
-				);
+	// std::equal has many overloads
+	// it is less error prone to have it here
+	// and use this one as we exactly need
+	template<class InputIt1, class InputIt2>
+	bool equal_(InputIt1 first1, InputIt1 last1, InputIt2 first2)
+	{
+		for (; first1 != last1; ++first1, ++first2) {
+			if (!(*first1 == *first2)) {
+				return false;
+			}
+		}
+		return true;
 	}
-	inline std::string fileline(const std::string & file_path, unsigned line_, const std::string & suffix = 0) {
-		return filename(file_path) + "(" + std::to_string(line_) + ")"
-			+ (suffix.empty() ? "" : suffix);
-	}
-#endif
-}
 
-namespace dbj {
+	/// <summary>
+	/// http://en.cppreference.com/w/cpp/types/alignment_of
+	/// please make sure alignment is adjusted as 
+	/// necessary
+	/// after calling these functions
+	/// </summary>
+	namespace heap {
 
-	namespace {
-		/*
-		Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
-		*/
-		inline auto sign = [](const auto & v) constexpr -> int {
-			return (v > 0) - (v < 0); // -1, 0, or +1
-		};
+		template<typename T>
+		inline T * heap_alloc(size_t size_ = 0) {
+			T * rez_ = new T;
+			_ASSERTE(rez_ != nullptr);
+			return rez_;
+		}
+
+		template<typename T>
+		inline bool heap_free(T * ptr_) {
+			_ASSERTE(ptr_);
+			delete ptr_;
+			ptr_ = nullptr;
+			return true;
+		}
+
+#ifdef DBJ_WIN
+
+		template<typename T>
+		inline T * heap_alloc(size_t size_ = 0) {
+			T * rez_ = (T*)CoTaskMemAlloc(sizeof(T));
+			_ASSERTE(rez_ != nullptr);
+			return rez_;
+		}
+
+		template<typename T>
+		inline bool heap_free(T * ptr_) {
+			_ASSERTE(ptr_);
+			CoTaskMemFree((LPVOID)ptr_);
+			ptr_ = nullptr;
+			return true;
+		}
+
+#endif // DBJ_WIN
+
 	}
 
 	/*
@@ -113,6 +147,13 @@ DBJ CRT (DBJ C++ Run Time) is inside top level dbj namespace
 */
 namespace dbj {
 
+	/*
+	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
+	*/
+	constexpr int  sign(const int & v) {
+		return (v > 0) - (v < 0); // -1, 0, or +1
+	};
+
 	template< size_t N>
 	__forceinline std::wstring wide(const char(&charar)[N])
 	{
@@ -130,17 +171,6 @@ namespace dbj {
 	__forceinline std::wstring narrow(const wchar_t * charP);
 	*/
 
-/*
-	template<class F, class... Pack>
-	constexpr __forceinline auto
-		call
-		(F&& fun, Pack&&... args) {
-		infoBuf.clear();
-		if (0 == std::invoke(fun, (args)...))
-			throw dbj::Exception(typeid(F).name());
-		return (infoBuf);
-	}
-*/
 	/* avoid macros as much as possible */
 
 	inline auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };

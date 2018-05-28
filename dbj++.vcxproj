@@ -122,8 +122,14 @@
     <ClInclude Include="test\dbj_console_test.h" />
     <ClInclude Include="test\dbj_crt_testing.h" />
     <ClInclude Include="test\dbj_defval_testing.h" />
+    <ClInclude Include="dbj_key_value_store.h" />
     <ClInclude Include="test\dbj_native_arr_ref_testing.h" />
+    <ClInclude Include="dbj_synchro.h" />
+    <ClInclude Include="test\dbj_string_tests.h" />
+    <ClInclude Include="dbj_string_util.h" />
+    <ClInclude Include="test\dbj_traits_testing.h" />
     <ClInclude Include="test\dbj_various_tests.h" />
+    <ClInclude Include="unused\unused.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

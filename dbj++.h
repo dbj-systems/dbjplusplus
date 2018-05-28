@@ -18,6 +18,8 @@
 #error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
 #endif
 
+// avoid min/max macros 
+#define NOMINMAX
 
 // DBJ_WIN to be defined on CL command line
 // or not
@@ -109,7 +111,10 @@ also defines DBJ_ASSERT, DBJ_VERIFY
 and DBJ::TRACE
 */			 
 #include "dbj_crt.h"
-
+#include "dbj_synchro.h"
+#include "dbj_string_util.h"
+#include "dbj_util.h"
+#include "dbj_string_compare.h"
 #include "dbj_commander.h"
 #include "dbj_console_painter.h"
 #include "dbj_console.h"

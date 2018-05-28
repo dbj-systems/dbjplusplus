@@ -163,19 +163,31 @@ namespace dbj {
 				return system_directory_;
 			}
 
+			// return e.g. L"C:\windows\"
 			__forceinline STRING windows_directory() {
 				static STRING windows_directory_ =
 					call(GetWindowsDirectory, infoBuf.data(), INFO_BUFFER_SIZE);
 				return windows_directory_;
 			}
-		} // sysinfo
 
+			// DBJ: what happens if there is no drive C: ?
+			// we get the system drive letter
+			// the first 3 chars that is, e.g. L"C:\\"
+			__forceinline const STRING windows_drive()
+			{
+				// it is unlikely system drive letter 
+				// will change between calls
+				static STRING result = windows_directory().substr(0, 3);
+				_ASSERTE(result.size() == 3);
+				return result;
+			}
+
+		} // sysinfo
 	} // win32
 } // dbj
 
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
-  Copyright 2017 by dbj@dbj.org
+  Copyright 2017,2018 by dbj@dbj.org
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.

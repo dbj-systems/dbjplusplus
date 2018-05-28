@@ -117,7 +117,7 @@ namespace dbj {
 				return pair_.first == rhs_;
 			}
 
-			/*static*/ __forceinline TUMAP & tu_map() {
+			static TUMAP & tu_map() {
 				static TUMAP test_units_{};
 				return test_units_;
 			}
@@ -139,7 +139,7 @@ namespace dbj {
 			return   "[TID:" +  dbj::util::string_pad( tid++, '0', 3 ) + "]" ;
 		};
 				/* do not insert twice the same test unit */
-				if (!found(tunit_))
+				// if (!found(tunit_))
 					tu_map()[tunit_] = next_test_id() + description_ ;
 	}
 
@@ -169,15 +169,15 @@ auto & seeit = adder::instances_registry;
 
 				 size_t IID{ 0 };
 
-				adder(const int nid_) : IID(nid_) {
-					instances_registry[instances_counter++] = IID;
+				adder( ) : IID(instances_counter++) {
+					instances_registry[instances_counter++] = this->IID;
 #ifdef _DEBUG
-DBJ::TRACE("\ninstances_counter : %d, IID : %d", instances_counter, this->IID );
+DBJ::TRACE("\ninstances_counter : %d, IID : %d", instances_counter, instances_registry[this->IID] );
 #endif
 				}
 
 				static  adder && instance() {
-					static adder singleton_{ __COUNTER__ };
+					static adder singleton_{ };
 					return std::forward<adder> ( singleton_) ;
 				}
 			};
@@ -187,7 +187,7 @@ DBJ::TRACE("\ninstances_counter : %d, IID : %d", instances_counter, this->IID );
 
 		} // namespace
 		
-		adder && add = adder::instance();
+		static inline adder && add = adder::instance();
 
 	} // testing
 } // dbj
@@ -207,12 +207,12 @@ inline auto DBJ_CONCAT(__dbj_register__, function )\
 }
 */
 #define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
-void name(); \
+static void name(); \
 namespace { \
-  inline auto DBJ_CONCAT(__dbj_register__, name )\
+  static auto DBJ_CONCAT(__dbj_register__, name )\
       = dbj::testing::add( description, name, counter_ ); \
 } \
-inline void name() 
+static void name() 
 
 #define DBJ_TEST_CASE( description, x ) \
 DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ), x )

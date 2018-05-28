@@ -2,9 +2,10 @@
 
 /*
 2018-04-30	dbj@dbj.org		created
+							basically a C code and thus not in the namespace
 */
 
-#include <windows.h>
+#include <stringapiset.h>
 #include <wchar.h>
 #include <crtdbg.h>
 
@@ -121,6 +122,7 @@ extern "C" {
 		}
 	}
 
+#ifdef LPCTSTR
 	/// <summary>
 	/// This is to be used for "UI string comparisons" or sorting and a such
 	/// </summary>
@@ -142,23 +144,9 @@ extern "C" {
 		}
 		return rez;
 	}
-
+#endif
 } // extern "C"
 
-
-#ifdef DBJ_TESTING_EXISTS
-namespace {
-	DBJ_TEST_UNIT(" dbj string comparisons ") {
-		auto rez = 
-			dbj_ordinal_string_compareW(L"A", L"A", true);
-		auto zer = 
-			dbj_ui_string_compare ( L"abra babra dabra", L"ABRA babra DABRA", true);
-	}
-}
-#endif
-
-  /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017-2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
   Copyright 2017,2018 by dbj@dbj.org
 
