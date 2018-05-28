@@ -1,8 +1,9 @@
 ﻿#pragma once
-// #include <windows.h> before this header
+// windows.h required here
 #pragma region "Console Interfaces"
+#include "dbj_crt.h"
+#include "dbj_win32.h"
 /*
-#include <iterator>
 #include "dbj_console_painter.h"
 */
 namespace dbj {
@@ -468,7 +469,7 @@ namespace dbj {
 					// can happen before main()
 					// and user can have no terminators and abort set up
 					// so ...
-					dbj::win32::STRING message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
+					dbj::wstring message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
 					DBJ::TRACE(L"Exception %s", message_.data());
 					throw dbj::Exception(message_);
 				}

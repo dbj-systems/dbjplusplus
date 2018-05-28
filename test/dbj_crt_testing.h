@@ -7,7 +7,7 @@ namespace {
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
 	*/
 	template< typename T, size_t N>
-	DBJ_INLINE void strlen_strnlen_test(
+	inline void strlen_strnlen_test(
 		const T(&prompt)[N])
 	{
 		dbj::print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");

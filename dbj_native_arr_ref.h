@@ -4,9 +4,10 @@ used through dbj++.h
 thus dbj_crt.h is included before this
 
 #include <vector>
-#include <array>
 #include <ctime>
 */
+
+#include <array>
 
 /// <summary>
 /// NARF == Native ARray reFerence

@@ -11,14 +11,20 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
 
 #include <string_view>
 
 namespace dbj {
 
+	// the most used 4 types
 	using wstring = std::wstring;
 	using wstring_vector = std::vector<std::wstring>;
+
+	using string = std::string;
+	using string_vector = std::vector<std::string>;
+
 
 	// std::equal has many overloads
 	// it is less error prone to have it here
@@ -60,14 +66,14 @@ namespace dbj {
 #ifdef DBJ_WIN
 
 		template<typename T>
-		inline T * heap_alloc(size_t size_ = 0) {
+		inline T * heap_alloc_win(size_t size_ = 0) {
 			T * rez_ = (T*)CoTaskMemAlloc(sizeof(T));
 			_ASSERTE(rez_ != nullptr);
 			return rez_;
 		}
 
 		template<typename T>
-		inline bool heap_free(T * ptr_) {
+		inline bool heap_free_win(T * ptr_) {
 			_ASSERTE(ptr_);
 			CoTaskMemFree((LPVOID)ptr_);
 			ptr_ = nullptr;
@@ -161,21 +167,24 @@ namespace dbj {
 
 	/*
 	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
+
+	standard c++ will "do" the bellow for "anyt" type that 
+	is applicable to required operators
 	*/
-	constexpr int  sign(const int & v) {
+	 inline auto  sign = [] (const auto & v) constexpr -> int {
 		return (v > 0) - (v < 0); // -1, 0, or +1
-	};
+	 };
 
 	template< size_t N>
-	__forceinline std::wstring wide(const char(&charar)[N])
+	__forceinline dbj::wstring wide(const char(&charar)[N])
 	{
-		return std::wstring(std::begin(charar), std::end(charar));
+		return dbj::wstring(std::begin(charar), std::end(charar));
 	}
 
-	__forceinline std::wstring wide(const char * charP)
+	__forceinline dbj::wstring wide(const char * charP)
 	{
 		std::string_view cv(charP);
-		return std::wstring(cv.begin(), cv.end());
+		return dbj::wstring(cv.begin(), cv.end());
 	}
 
 	/* if and when needed add
@@ -188,40 +197,39 @@ namespace dbj {
 	inline auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
 	inline auto MAX = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };
 
-	template < typename T, size_t N > inline constexpr size_t 
+	template < typename T, size_t N > 
+	  inline constexpr size_t 
 		countof(T const (&array)[N]) { return N; }
 
 	/*
 	in here we cater for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
 	*/
-#if 0
-	/*
-	Inspired by: https://opensource.apple.com/source/bash/bash-80/bash/lib/sh/strnlen.c
-	*/
-		DBJ_INLINE size_t strnlen(const CHAR_T *s, size_t maxlen)
-		{
-			const CHAR_T *e = {};
-			size_t n = {};
+/*
+Inspired by: https://opensource.apple.com/source/bash/bash-80/bash/lib/sh/strnlen.c
+DBJ_INLINE size_t strnlen(const CHAR_T *s, size_t maxlen)
+{
+	const CHAR_T *e = {};
+	size_t n = {};
 
-			for (e = s, n = 0; *e && n < maxlen; e++, n++)
-				;
-			return n;
-		}
-#endif
+	for (e = s, n = 0; *e && n < maxlen; e++, n++)
+		;
+	return n;
+}
+*/
 
-	/*
-	(c) 2017, 2018 by dbj.org
-	"zero" time modern C++ versions of str(n)len
-	this should speed up any modern C++ code ... perhaps quite noticeably
+/*
+(c) 2017, 2018 by dbj.org
+"zero" time modern C++ versions of str(n)len
+this should speed up any modern C++ code ... perhaps quite noticeably
 
-	standard pointer versions of strlen and strnlen are not used by these two
-	which are for arrays only
-	note: str(n)len is charr array length  -1 because it does not count the null byte at the end
-	note: strnlen is a GNU extension and also specified in POSIX (IEEE Std 1003.1-2008). 
-	If strnlen is not available for char arrays
-	use the dbj::strnlen replacement.
-	*/
+standard pointer versions of strlen and strnlen are not used by these two
+which are for arrays only
+note: str(n)len is charr array length  -1 because it does not count the null byte at the end
+note: strnlen is a GNU extension and also specified in POSIX (IEEE Std 1003.1-2008). 
+If strnlen is not available for char arrays
+use the dbj::strnlen replacement.
+*/
 	template<typename T, size_t N>
 	static inline size_t strnlen(
 		const T(&carr)[N], 

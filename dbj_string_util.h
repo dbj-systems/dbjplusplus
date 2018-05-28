@@ -7,10 +7,8 @@
 #include <map>
 #include <vector>
 #include <iterator>
-#include <locale>
 */
-
-
+#include <locale>
 #include <sstream> // wstringstream
 
 namespace dbj::str {
@@ -50,10 +48,12 @@ namespace dbj::str {
 		}
 		// the "C" locale is default 
 		std::locale loc{};
+		// the collate type 
+		using collate_type = std::collate<CT>;
 		// get collate facet:
-		auto & coll = std::use_facet<std::collate<CT> >{ loc };
+		const auto & coll = std::use_facet< collate_type >( loc );
 		//
-		return coll.compare(s1.begin(), s1.end(), s2.begin(), s2.end());
+		return coll.compare(p1, p1 + s1.size(), p2, p2 + s2.size());
 	}
 
 
@@ -89,12 +89,29 @@ namespace dbj::str {
 	}
 
 
-	dbj::wstring_vector tokenize (const wchar_t * szText, wchar_t token = L' ')
+	inline dbj::wstring_vector 
+		tokenize (const wchar_t * szText, wchar_t token = L' ')
 	{
 		dbj::wstring_vector words{};
 		std::wstringstream ss;
 		ss.str(szText);
 		std::wstring item;
+		while (getline(ss, item, token))
+		{
+			if (item.size() != 0)
+				words.push_back(item);
+		}
+
+		return words;
+	}
+	// narrow version
+	inline dbj::string_vector
+		tokenize(const char * szText, char token = ' ')
+	{
+		dbj::string_vector words{};
+		std::stringstream ss;
+		ss.str(szText);
+		std::string item;
 		while (getline(ss, item, token))
 		{
 			if (item.size() != 0)

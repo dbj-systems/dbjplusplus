@@ -1,5 +1,9 @@
 #pragma once
 
+#define VERSION_TWO
+#ifdef VERSION_TWO 
+#include <optional>
+#endif
 namespace dbj {
 
 	/*
@@ -71,8 +75,8 @@ namespace dbj {
 	};
 #pragma warning( pop ) 
 
-#if 0 /* "Version TWO" */ 
-#include <optional>
+#ifdef VERSION_TWO 
+
 	/*
 	Function template returning a lambda
 	Closer to real stunt, but works.
@@ -114,6 +118,7 @@ namespace dbj {
 
 
 #endif // "Version TWO" 
+#undef VERSION_TWO
 
 #if 0  /* "Version ONE" */
 

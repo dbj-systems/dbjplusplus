@@ -1,6 +1,9 @@
 #pragma once
 #ifdef DBJ_TESTING_EXISTS
 
+#include <ctime>
+#include "../dbj_array.h"
+
 /// <summary>
 /// for more stringent test we 
 /// test from outside of the
@@ -141,7 +144,7 @@ namespace dbj_arf_testing {
 				const char(&uar)[3] = *(char(*)[3])three_chars.data();
 			}
 			// the modern C++ dbj way
-			using A16 = ARH<int, 3>;
+			using A16 =  dbj::arr::ARH<int, 3>;
 			A16::ARR arr { 1,2,3 };
 			A16::ARP arp = A16::to_arp(arr);
 			A16::ARF arf = A16::to_arf(arr);
