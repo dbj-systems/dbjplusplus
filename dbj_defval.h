@@ -1,33 +1,5 @@
 #pragma once
 
-#include <optional>
-
-#if 0
-#ifndef _GDIPLUS_H
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-#define NOMINMAX
-#include <windows.h>
-#include <algorithm>
-namespace Gdiplus
-{
-	using std::min;
-	using std::max;
-}
-#include <objidl.h>
-#include <gdiplus.h>
-using namespace Gdiplus;
-#pragma comment(lib, "Gdiplus.lib")
-#endif // _GDIPLUS_H
-
-#ifndef assert
-#include <assert.h>
-#endif
-
-#include <functional>
-#include <utility>
-#include <optional>
-#endif
-
 namespace dbj {
 
 	/*
@@ -37,28 +9,45 @@ namespace dbj {
 		if (new_ != dflt_) dflt_ = new_;
 		return new_;
 	}
-	*/
 
-#pragma region "Version THREE"
-	/*
+	"Version THREE"
+
 	No stunts. A plain old function object.
-	Simple usable and working
+	Simple usable and working. 
+	Example:
+	 
+	 Global declaration/defintion:
+
+	  static inline dbj::holder<int> my_def_signal{42};
+
+     Read elsewhere:
+
+	   auto signal = my_def_signal() ; 
+
+    Or change for everybody else to to see:
+
+	  auto new_signal = my_def_signal(101) ; 
 	*/
 #pragma warning( push ) 
 #pragma warning( disable : 4522 )
 	template<typename T>
-	class holder {
+	class holder final {
 		// mutable members of const class instances are modifiable
 		mutable T default_value_{};
 		// ask compiler for default ctor
 		holder() _NOEXCEPT = default;
+		
 		// dbj::holder is neither copyable nor movable.
 		holder(const holder&) = delete;
 		holder& operator=(const holder&) = delete;
 		holder& operator=(const holder&) volatile = delete;
+
 	public:
+
 		holder(const T & defval_) : default_value_(defval_) {	};
-		/* first operator () overload just returns the value */
+		/* 
+		first operator () overload just returns the value 
+		*/
 		const T & operator () () const noexcept {
 			return default_value_;
 		}
@@ -82,9 +71,8 @@ namespace dbj {
 	};
 #pragma warning( pop ) 
 
-#pragma endregion "eof Version THREE"
-
-#pragma region "Version TWO"
+#if 0 /* "Version TWO" */ 
+#include <optional>
 	/*
 	Function template returning a lambda
 	Closer to real stunt, but works.
@@ -124,10 +112,10 @@ namespace dbj {
 		return defval_handler;
 	}
 
-#pragma endregion "eof Version TWO" 
 
-#pragma region "Version ONE"
-#if 0
+#endif // "Version TWO" 
+
+#if 0  /* "Version ONE" */
 
 
 	template< typename T, T defval_ = T() >
@@ -165,12 +153,10 @@ namespace dbj {
 	}
 
 
-#endif
-#pragma endregion "Version ONE"
+#endif // "Version ONE"
+
 } // namespace dbj
 
-  /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
   /*
   Copyright 2017 by dbj@dbj.org
 

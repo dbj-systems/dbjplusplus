@@ -1,15 +1,14 @@
 #pragma once
-#pragma once
+
+/*
+include dbj_crt.h before this
 
 #include <string>
 #include <algorithm>
 #include <thread>
 #include <chrono>
 #include <map>
-
-//#include <dbj_traits.h>
-// #include "dbj_actual_type.h"
-
+*/
 
 /// <summary>
 /// The Command Line encapsulation aka TCL-ENC

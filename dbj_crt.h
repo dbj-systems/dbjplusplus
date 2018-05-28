@@ -5,11 +5,14 @@
 #include <sysinfoapi.h>
 #include <strsafe.h>
 
+#include <cwctype>
+#include <cctype>
+
+
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <cwctype>
-#include <cctype>
+
 #include <string_view>
 
 namespace dbj {

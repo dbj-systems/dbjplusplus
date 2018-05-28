@@ -76,6 +76,11 @@ using namespace Gdiplus;
 
 #endif
 
+/*
+dbj++ begins here
+
+this should be merged into dbj_crt.h
+*/
 #ifndef DBJ_STRINGIFY
 	#define DBJ_STRINGIFY(s) # s
 	#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
@@ -89,7 +94,7 @@ using namespace Gdiplus;
 
 
 /*
-dbj begins here
+
 
 __interface msvc keyword
 explained here : https://docs.microsoft.com/en-us/cpp/cpp/interface
@@ -104,6 +109,17 @@ we can't have #define implements because of the cppWINRT base.h struct of the sa
 #define DBJ_FINAL final
 #else
 #define DBJ_FINAL
+#endif
+
+#ifndef DBJ_UNUSED
+/*
+this is for variables only
+example 
+long DBJ_UNUSED(var) {42L} ;
+after expansion:
+long var [[maybe_unused]] {42L} ;
+*/
+#define DBJ_UNUSED(x) x [[maybe_unused]]
 #endif
 
 /*

@@ -4,10 +4,34 @@
 2018-04-30	dbj@dbj.org		created
 							basically a C code and thus not in the namespace
 */
-
-#include <stringapiset.h>
-#include <wchar.h>
-#include <crtdbg.h>
+/*
+bellow is WIN32 API 
+for standard C++ use 
+dbj::str::ui_string_compare()
+*/
+#ifdef DBJ_WIN
+/// <summary>
+/// This is to be used for "UI string comparisons" or sorting and a such
+/// </summary>
+inline int dbj_win32_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
+{
+	int rez = CompareStringEx(
+		/* locale name  */ LOCALE_NAME_USER_DEFAULT,
+		/* _In_ DWORD   */ ignore_case == 1 ? LINGUISTIC_IGNORECASE : NORM_LINGUISTIC_CASING,
+		/* _In_ LPCTSTR */ str1,
+		/* _In_ int     */ -1,
+		/* _In_ LPCTSTR */ str2,
+		/* _In_ int     */ -1,
+		NULL, NULL, 0
+	);
+	switch (rez) {
+	case CSTR_LESS_THAN: rez = -1; break;
+	case CSTR_EQUAL: rez = 0; break;
+	case CSTR_GREATER_THAN: rez = 1; break;
+	}
+	return rez;
+}
+#endif // DBJ_WIN
 
 extern "C" {
 	/*
@@ -122,29 +146,7 @@ extern "C" {
 		}
 	}
 
-#ifdef LPCTSTR
-	/// <summary>
-	/// This is to be used for "UI string comparisons" or sorting and a such
-	/// </summary>
-	inline int dbj_ui_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
-	{
-		int rez = CompareStringEx(
-			/* locale name  */ LOCALE_NAME_USER_DEFAULT,
-			/* _In_ DWORD   */ ignore_case == 1 ? LINGUISTIC_IGNORECASE : NORM_LINGUISTIC_CASING,
-			/* _In_ LPCTSTR */ str1,
-			/* _In_ int     */ -1,
-			/* _In_ LPCTSTR */ str2,
-			/* _In_ int     */ -1,
-			NULL, NULL, 0
-		);
-		switch (rez) {
-		case CSTR_LESS_THAN: rez = -1; break;
-		case CSTR_EQUAL: rez = 0; break;
-		case CSTR_GREATER_THAN: rez = 1; break;
-		}
-		return rez;
-	}
-#endif
+
 } // extern "C"
 
   /*

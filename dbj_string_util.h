@@ -1,17 +1,15 @@
 #pragma once
 
 #include "dbj_crt.h"
+
 /*
-
-
 #include <string>
 #include <map>
 #include <vector>
-
-
-#include <locale>
 #include <iterator>
+#include <locale>
 */
+
 
 #include <sstream> // wstringstream
 

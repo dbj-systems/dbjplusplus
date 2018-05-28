@@ -1,6 +1,6 @@
 #pragma once
-// #undef DBJ_COM
-#ifdef DBJ_COM	
+// 
+#ifdef DBJ_WIN	
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #define STRICT
@@ -65,10 +65,8 @@ namespace com {
 		static auto insta = COMAUTOINIT::singleton() ;
 	} // anonspace
 } // com
-#endif // DBJ_COM
+#endif // DBJ_WIN
 
-  /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
 Copyright 2017 by dbj@dbj.org
 
