@@ -86,9 +86,9 @@ namespace dbj {
 
 		// if not false on command line it will be compiled into existence
 #ifdef DBJ_TESTING_EXISTS
-		constexpr bool RUNING = true;
+		constexpr bool DBJ_TEST_RUNING = true;
 #else
-		constexpr bool RUNING = false;
+		constexpr bool DBJ_TEST_RUNING = false;
 #endif
 		using testunittype = void(*)();
 		static __forceinline void __stdcall null_unit() {}
@@ -107,6 +107,17 @@ namespace dbj {
 				testunittype,
 				std::string, FPcomparator > TUMAP;
 
+			/*
+			static TUMAP & dbj_tests_map_ {
+			static TUMAP test_units_{};
+			return test_units_;
+			}
+			*/
+
+			// C++17 inline vars
+			inline TUMAP dbj_tests_map_{};
+
+
 			inline  bool operator == (
 				TUMAP::value_type pair_,
 				TUMAP::key_type rhs_) noexcept
@@ -114,20 +125,15 @@ namespace dbj {
 				return pair_.first == rhs_;
 			}
 
-			static TUMAP & tu_map() {
-				static TUMAP test_units_{};
-				return test_units_;
-			}
-
 			inline  TUMAP::iterator find(testunittype tunit_) {
-				return tu_map().find(tunit_);
+				return dbj_tests_map_.find(tunit_);
 			}
 
 	       inline  bool found(testunittype tunit_) {
 				return (
-					tu_map().end() != find(tunit_)
+					dbj_tests_map_.end() != find(tunit_)
 					);
-	}
+			}
 
 		   namespace inner {
 
@@ -145,57 +151,33 @@ namespace dbj {
 					   return   "[TID:" + dbj::util::string_pad(tid++, '0', 3) + "]";
 				   };
 
-				   std::string final_description_ = next_test_id() + description_;
+				   const std::string final_description_ = 
+					   next_test_id() + description_;
 
 				   /* the same test unit ? do not insert twice */
-				   auto rez [[maybe_unused]] = tu_map().try_emplace( tunit_ ,final_description_ );
-
-#ifdef _DEBUG
-DBJ::TRACE(
-	"\nTests map size : %d\nAfter adding: %s,\n", 
-	tu_map().size(), 
-	final_description_.c_str() 
-);
-#endif
+				   auto rez [[maybe_unused]] = 
+					   dbj_tests_map_.try_emplace( tunit_ ,final_description_ );
 			   }
-		   } // inner namespace 
+		    } // inner namespace 
 
-	inline  void unit_execute(testunittype tunit_) {
-		         tunit_();
-		}
-#ifdef _DEBUG
-	inline size_t adder_call_count() {
-		static size_t count_{ 0 };
-		return count_++;
-	}
-#endif
-			struct adder {
-				const bool operator ()(const std::string & msg_, testunittype tunit_, const int counter_ ) const 
+				inline  void unit_execute(testunittype tunit_) {
+								tunit_();
+				}
+
+			struct adder final {
+				inline bool operator ()(
+					const std::string & msg_, 
+					testunittype tunit_, 
+					const int counter_ ) const noexcept
 				{
 					// mt safe in any build
-					dbj::sync::lock_unlock auto_lock;
-/*
-#ifdef _DEBUG
-DBJ::TRACE("\n\ndbj testing adder [%p] operator () called %d times, counter is: %d", this, adder_call_count(), counter_);
-auto & seeit = adder::instances_registry;
-#endif
-*/
+					// dbj::sync::lock_unlock auto_lock;
 					inner::append(tunit_, msg_);
 					return true;
 				}
 
-				static inline size_t instances_counter{0};
-				static inline size_t instances_registry[256]{0};
-
-				 size_t IID{ 0 };
-
-				adder( ) noexcept : IID(instances_counter++) {
-					instances_registry[instances_counter++] = this->IID;
-#ifdef _DEBUG
-DBJ::TRACE("\ninstances_counter : %d, IID : %d\n", instances_counter, instances_registry[this->IID] );
-#endif
-				}
-
+				constexpr adder( ) {	}
+				/*
 				static  const adder & instance() {
 					// mt safe in any build
 					dbj::sync::lock_unlock auto_lock;
@@ -203,11 +185,13 @@ DBJ::TRACE("\ninstances_counter : %d, IID : %d\n", instances_counter, instances_
 					static adder singleton_{ };
 					return std::forward<adder> ( singleton_) ;
 				}
+				*/
 			};
 
-		} // inner namespace
+		} // anonymous namespace
 		
-		static inline const adder & add = adder::instance();
+		// C++17 inline vars
+		inline const adder add{};
 
 	} // testing
 } // dbj
@@ -227,12 +211,12 @@ inline auto DBJ_CONCAT(__dbj_register__, function )\
 }
 */
 #define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
-static void name(); \
+void name(); \
 namespace { \
   static auto DBJ_CONCAT(__dbj_register__, name )\
       = dbj::testing::add( description, name, counter_ ); \
 } \
-static void name() 
+inline void name() 
 
 #define DBJ_TEST_CASE( description, x ) \
 DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ), x )

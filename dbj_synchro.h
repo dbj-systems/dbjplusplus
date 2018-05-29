@@ -22,9 +22,10 @@ namespace dbj {
 		/// </code>
 		/// </summary>
 		struct lock_unlock final {
-			std::mutex mux_;
+			
+			mutable std::mutex mux_;
 
-			lock_unlock() noexcept { mux_.lock(); }
+			 lock_unlock() noexcept { mux_.lock(); }
 			~lock_unlock() { mux_.unlock(); }
 		};
 

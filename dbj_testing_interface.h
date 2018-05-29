@@ -8,6 +8,19 @@
 */
 namespace dbj {
 	namespace testing {
+		
+		inline auto white_line = [&](const char * arg = "\n") {
+			typedef typename dbj::win::con::painter_command CMD;
+			using dbj::print;
+			print(arg, CMD::white, dbj::testing::LINE, CMD::text_color_reset);
+		};
+
+		inline auto blue_line = [&](const char * arg = "\n") {
+			typedef typename dbj::win::con::painter_command CMD;
+			using dbj::print;
+			print(arg, CMD::bright_blue, dbj::testing::LINE, CMD::text_color_reset);
+		};
+
 		/*  execute all the tests collected  */
 		inline void _stdcall execute(
 			const int argc,
@@ -19,20 +32,19 @@ namespace dbj {
 			using dbj::print ;
 			using namespace dbj::testing;
 
-			auto white_line = [&]( const char * arg = "") { 
-				print(arg, CMD::white, dbj::testing::LINE , CMD::text_color_reset);
-			};
-			auto blue_line =  [&]( const char * arg = "") { 
-				print(arg, CMD::bright_blue, dbj::testing::LINE, CMD::text_color_reset);
-			};
+			if (dbj_tests_map_.size() < 1) {
+				white_line();
+				print("No tests defined");
+				white_line();
+			}
 
-			white_line("\n");
+			white_line();
 			print("\n", dbj::testing::TITLE, "\n");
 			print("\n(c)", dbj::testing::YEAR, " by ", dbj::testing::COMPANY);
-			white_line("\n");
-			print("\n[", tu_map().size(),"] tests defined");
-			white_line("\n");
-			for (auto tunit : tu_map())
+			white_line();
+			print("\n[", dbj_tests_map_.size(),"] tests defined");
+			white_line();
+			for (auto && tunit : dbj_tests_map_ )
 			{
 				// blue_line("\n");
 				print(CMD::bright_blue, "\nBEGIN TEST UNIT ", tunit.second, " ", CMD::text_color_reset);
@@ -52,9 +64,9 @@ namespace dbj {
 				print(CMD::bright_blue, "\nEND TEST UNIT ", tunit.second," \n", CMD::text_color_reset);
 				// blue_line("\n");
 			}
-			white_line("\n");
+			white_line();
 			print("\n", dbj::testing::ALLDN);
-			white_line("\n");
+			white_line();
 			print(CMD::text_color_reset);
 		}
 
