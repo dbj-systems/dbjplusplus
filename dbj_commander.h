@@ -70,7 +70,7 @@ namespace dbj {
 				template< typename F>
 				const Commander & reg (const CMD_ENUM & command_, F fun_ ) const 
 				{
-					command_map_.try_emplace(command_, fun_);
+					auto rez [[maybe_unused]] = command_map_.try_emplace(command_, fun_);
 					return (*this);
 				}
 				/*
@@ -109,7 +109,7 @@ namespace dbj {
 					return (*this);
 				}
 
-				Commander() { this->command_map_.clear(); }
+				Commander() noexcept { this->command_map_.clear(); }
 
 				friend void swap(Commander& c1, Commander& c2) {
 					  c1.command_map_.swap(c2.command_map_);

@@ -50,7 +50,7 @@ namespace {
 
 					Painter(
 						HANDLE another_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE)
-					) : stdoutHandle(another_handle_)
+					) noexcept : stdoutHandle(another_handle_)
 					{
 						CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
 						::GetConsoleScreenBufferInfo(stdoutHandle, &csbiInfo);

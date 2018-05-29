@@ -19,11 +19,11 @@ namespace dbj::str {
 	/// BIG NOTE: it is not clear if this is locale friendly ?
 	/// </summary>
 	inline void lowerize(std::wstring & key) {
-		transform(key.begin(), key.end(), key.begin(), std::towlower);
+		auto rez =transform(key.begin(), key.end(), key.begin(), std::towlower);
 	};
 
 	inline void lowerize(std::string & key) {
-		transform(key.begin(), key.end(), key.begin(),
+		auto rez = transform(key.begin(), key.end(), key.begin(),
 			// this stunt is required as tolower returns 'int' 
 			// and modern c++ has none of that, it wants char
 			[](char chrter) -> char { return std::tolower(chrter); }

@@ -348,7 +348,7 @@ namespace dbj {
 	class c_line final {
 		mutable char array_[Size+1] = { filler };
 	public:
-		constexpr c_line() {
+		constexpr c_line() noexcept {
 			int b = 0;
 			while (b != (Size+1)) {
 				array_[b] = filler; b++;

@@ -35,7 +35,7 @@ namespace com {
 			most likely the HRESULT will be :
 			hRes = 0×80010106 — Cannot change thread mode after it is set.
 			*/
-			COMAUTOINIT()
+			COMAUTOINIT() noexcept
 			{
 				const UINT & ctr = (counter())++;
 				if (0 == ctr)

@@ -34,7 +34,7 @@ namespace {
 
 		auto ad = dbj::util::remove_duplicates(as2);
 		char carr[] = { 'c','a','b','c','c','c','d', 0x0 };
-		dbj::util::remove_duplicates(carr);
+		auto rez    [[maybe_unused]] = dbj::util::remove_duplicates(carr);
 		auto see_mee_here = carr;
 		auto doesit1 = dbj::util::starts_with("abra ka dabra", "abra");
 		auto doesit2 = dbj::util::starts_with(L"abra ka dabra", L"abra");

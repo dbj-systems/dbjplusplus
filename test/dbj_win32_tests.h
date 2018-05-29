@@ -35,7 +35,8 @@ namespace {
 		// Fetch current window title.
 		GetConsoleTitleA(pszOldWindowTitle, MY_BUFSIZE);
 		// Format a "unique" NewWindowTitle.
-		wsprintfA(pszNewWindowTitle, "%d/%d", GetTickCount(), GetCurrentProcessId());
+		// as per advice on WARNING C28159 
+		wsprintfA(pszNewWindowTitle, "%d/%d", (int)GetTickCount64(), (int)GetCurrentProcessId());
 		// Change current window title.
 		SetConsoleTitleA(pszNewWindowTitle);
 		// Ensure window title has been updated.

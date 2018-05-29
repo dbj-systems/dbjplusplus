@@ -94,7 +94,7 @@ namespace con {
 		mutable		UINT   previous_code_page_;
 		mutable		UINT	code_page_{};
 	public:
-		WideOut(CODE CODEPAGE_ = CODE::page_1252 )
+		WideOut(CODE CODEPAGE_ = CODE::page_1252 ) noexcept
 			: code_page_((UINT)CODEPAGE_)
 			, output_handle_ (::GetStdHandle(STD_OUTPUT_HANDLE))
 			, previous_code_page_ (::GetConsoleOutputCP())
@@ -461,7 +461,7 @@ namespace dbj {
 				auto font_name_ = L"Lucida Console";
 				auto code_page_ = con::CODE_PAGE::page_1252;
 				try {
-					con::switch_console(code_page_);
+					auto new_console [[maybe_unused]] = con::switch_console(code_page_);
 					con::setfont(font_name_); 
 					DBJ::TRACE(L" Console code page set to ", code_page_, " and font to: ", font_name_);
 				}

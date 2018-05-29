@@ -44,11 +44,8 @@ No exceptions are thrown outside. They are reported to console.
 
 */
 
-/*
-#include <string>
-#include <map>
-#include "dbj_util.h"
-*/
+#include "dbj_synchro.h"
+
 #ifndef DBJ_NV
 /*
 use dbj print or printex to show the symbol and its value, for example:
@@ -132,16 +129,36 @@ namespace dbj {
 					);
 	}
 
-	inline  void append(testunittype tunit_, const std::string & description_) {
+		   namespace inner {
 
-		auto next_test_id = []() -> std::string {
-			static int tid{ 0 };
-			return   "[TID:" +  dbj::util::string_pad( tid++, '0', 3 ) + "]" ;
-		};
-				/* do not insert twice the same test unit */
-				// if (!found(tunit_))
-					tu_map()[tunit_] = next_test_id() + description_ ;
-	}
+			   /// <summary>
+			   /// we could have called append straight from client code 
+			   /// technicaly the adder struct bellow is not necessary 
+			   /// but it is here for chage resilience of this design 
+			   /// </summary>
+			   /// <param name="tunit_"></param>
+			   /// <param name="description_"></param>
+			   inline  void append(testunittype tunit_, const std::string & description_) {
+
+				   auto next_test_id = []() -> std::string {
+					   static int tid{ 0 };
+					   return   "[TID:" + dbj::util::string_pad(tid++, '0', 3) + "]";
+				   };
+
+				   std::string final_description_ = next_test_id() + description_;
+
+				   /* the same test unit ? do not insert twice */
+				   auto rez [[maybe_unused]] = tu_map().try_emplace( tunit_ ,final_description_ );
+
+#ifdef _DEBUG
+DBJ::TRACE(
+	"\nTests map size : %d\nAfter adding: %s,\n", 
+	tu_map().size(), 
+	final_description_.c_str() 
+);
+#endif
+			   }
+		   } // inner namespace 
 
 	inline  void unit_execute(testunittype tunit_) {
 		         tunit_();
@@ -153,41 +170,44 @@ namespace dbj {
 	}
 #endif
 			struct adder {
-				const bool operator ()(const std::string & msg_, testunittype tunit_, const int counter_ ) const {
+				const bool operator ()(const std::string & msg_, testunittype tunit_, const int counter_ ) const 
+				{
+					// mt safe in any build
+					dbj::sync::lock_unlock auto_lock;
+/*
 #ifdef _DEBUG
 DBJ::TRACE("\n\ndbj testing adder [%p] operator () called %d times, counter is: %d", this, adder_call_count(), counter_);
 auto & seeit = adder::instances_registry;
 #endif
-					/* we could have called append straight from client code */
-					/* technicaly this struct is not necessary but it is here for chage resilience of this design */
-					append(tunit_, msg_);
+*/
+					inner::append(tunit_, msg_);
 					return true;
 				}
 
-				 static size_t instances_counter ;
-				 static size_t instances_registry[256];
+				static inline size_t instances_counter{0};
+				static inline size_t instances_registry[256]{0};
 
 				 size_t IID{ 0 };
 
-				adder( ) : IID(instances_counter++) {
+				adder( ) noexcept : IID(instances_counter++) {
 					instances_registry[instances_counter++] = this->IID;
 #ifdef _DEBUG
-DBJ::TRACE("\ninstances_counter : %d, IID : %d", instances_counter, instances_registry[this->IID] );
+DBJ::TRACE("\ninstances_counter : %d, IID : %d\n", instances_counter, instances_registry[this->IID] );
 #endif
 				}
 
-				static  adder && instance() {
+				static  const adder & instance() {
+					// mt safe in any build
+					dbj::sync::lock_unlock auto_lock;
+
 					static adder singleton_{ };
 					return std::forward<adder> ( singleton_) ;
 				}
 			};
 
-			size_t adder::instances_counter{ 0 };
-			size_t adder::instances_registry[256]{ 0 };
-
-		} // namespace
+		} // inner namespace
 		
-		static inline adder && add = adder::instance();
+		static inline const adder & add = adder::instance();
 
 	} // testing
 } // dbj
