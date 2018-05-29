@@ -35,7 +35,17 @@ namespace dbj {
 #else
 #define DBJ_AUTO_LOCK
 #endif
-
+		// The memset function call could be optimized 
+		// away by the compiler 
+		// if the reset array object is no futher accessed.
+		// otherwise one cas use the more complex
+		// std way: http://en.cppreference.com/w/c/string/byte/memset
+		extern "C" void secure_zero(void *s, size_t n)
+		{
+			DBJ_AUTO_LOCK;
+			volatile char *p = (char *)s;
+			while (n--) *p++ = 0;
+		}
 
 		/// <summary>
 		/// in presence of multiple threads

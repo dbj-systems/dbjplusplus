@@ -63,7 +63,8 @@ namespace dbj {
 						ATEND();
 					}
 					catch (...) {
-						throw "Calling ATEND() failed in " __FUNCDNAME__;
+						// must not throw from destructor
+						// throw "Calling ATEND() failed in " __FUNCDNAME__;
 					}
 				}
 			}

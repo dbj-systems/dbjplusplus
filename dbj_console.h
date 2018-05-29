@@ -106,6 +106,12 @@ namespace con {
 			/*			TODO: GetLastError()			*/
 		}
 
+		WideOut(const WideOut & other) {
+			output_handle_ = other.output_handle_;
+			previous_code_page_ = other.previous_code_page_;
+			code_page_ = other.code_page_;
+		}
+
 		WideOut & operator = (const WideOut & other ) {
 			output_handle_		=  other.output_handle_		;
 			previous_code_page_	=  other.previous_code_page_;
@@ -128,15 +134,15 @@ namespace con {
 		/* the default one */
 		inline void out(const std::wstring & wp_) const 
 		{
-			const HANDLE & output_handle_ = this->output_handle_;
-			_ASSERTE(0 != ::WriteConsoleW(output_handle_, wp_.data(),
+			const HANDLE & output_h_ = this->output_handle_;
+			_ASSERTE(0 != ::WriteConsoleW(output_h_, wp_.data(),
 				static_cast<DWORD>(wp_.size()),	NULL, NULL));
 		}
 
 		inline void out(const std::string & ns_) const
 		{
-			const HANDLE & output_handle_ = this->output_handle_;
-			_ASSERTE(0 != ::WriteConsoleA(output_handle_, ns_.data(),
+			const HANDLE & output_h_ = this->output_handle_;
+			_ASSERTE(0 != ::WriteConsoleA(output_h_, ns_.data(),
 				static_cast<DWORD>(ns_.size()), NULL, NULL));
 		}
 
@@ -211,8 +217,18 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 		painter_commander().execute(cmd_);
 	}
 
-	inline void paint (painter_command cmd_) {
+	inline void paint(painter_command cmd_) {
 		painter_commander().execute(cmd_);
+	}
+
+	/*
+	by using enable_if we make sure this template instances are made
+	only for types we want
+	*/
+	template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
+	inline void out(const N & number_) {
+		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
+		console_.out(std::to_wstring(number_));
 	}
 
 	/* here are the out() overloads for intrinsic types */
@@ -247,15 +263,7 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 	using u32string_view = basic_string_view<char32_t>;
 	using wstring_view = basic_string_view<wchar_t>; */
 
-	/* 
-	by using enable_if we make sure this template instances are made
-	only for types we want
-	*/
-	template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
-	inline void out(const N & number_) {
-		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-		console_.out(std::to_wstring(number_));
-	}
+
 	/*
 	above is lovely but that will catch more than we hoped for
 	for example bool-eans too

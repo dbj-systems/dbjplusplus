@@ -51,7 +51,6 @@ namespace dbj {
 		template<typename T>
 		inline T * heap_alloc(size_t size_ = 0) {
 			T * rez_ = new T;
-			_ASSERTE(rez_ != nullptr);
 			return rez_;
 		}
 
@@ -88,7 +87,7 @@ namespace dbj {
 	-------------------------------------------------------------------------
 	dbj++ exception
 	*/
-	struct Exception : protected std::runtime_error {
+	struct Exception : public std::runtime_error {
 	public:
 		typedef std::runtime_error _Mybase;
 
@@ -148,7 +147,7 @@ namespace DBJ {
 #pragma region DBJ debug things
 #ifdef _DEBUG
 #define DBJ_ASSERT _ASSERTE
-#define DBJ_VERIFY(result, expression) DBJ_ASSERT(result == expression)
+#define DBJ_VERIFY(result, expression) DBJ_ASSERT((result) == (expression))
 #else
 // release code dissapears some things, not all
 // be carefull with DBJ::TRACE as it might _ASSERTE in release builds
@@ -305,10 +304,12 @@ namespace dbj {
 	#error dbj::nicer_filename(__FILE__) " has a problem."
 	TODO: is wide version necessary?
 	*/
+	/*
 	static __forceinline 
 		constexpr auto nicer_filename(const char * filename) {
 		return (strrchr(filename, '\\') ? strrchr(filename, '\\') + 1 : filename);
 	}
+	*/
 
 
 	/*
@@ -346,7 +347,7 @@ namespace dbj {
 	*/
 	template <unsigned Size, char filler = ' '>
 	class c_line final {
-		mutable char array_[Size+1] = { filler };
+		mutable char array_[Size+1] = { };
 	public:
 		constexpr c_line() noexcept {
 			int b = 0;

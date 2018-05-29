@@ -144,7 +144,7 @@ namespace dbj {
 			   /// </summary>
 			   /// <param name="tunit_"></param>
 			   /// <param name="description_"></param>
-			   inline  void append(testunittype tunit_, const std::string & description_) {
+			   inline  auto append(testunittype tunit_, const std::string & description_) {
 
 				   auto next_test_id = []() -> std::string {
 					   static int tid{ 0 };
@@ -157,6 +157,12 @@ namespace dbj {
 				   /* the same test unit ? do not insert twice */
 				   auto rez [[maybe_unused]] = 
 					   dbj_tests_map_.try_emplace( tunit_ ,final_description_ );
+#ifdef _DEBUG
+				   auto && in_da_dbg_1 = rez.first ;
+				   auto && in_da_dbg_2 = rez.second;
+#endif
+				   // NOTE: rez.second is false if no insertion ocured
+				   return rez.first;
 			   }
 		    } // inner namespace 
 
@@ -165,15 +171,14 @@ namespace dbj {
 				}
 
 			struct adder final {
-				inline bool operator ()(
+				inline auto operator ()(
 					const std::string & msg_, 
 					testunittype tunit_, 
 					const int counter_ ) const noexcept
 				{
 					// mt safe in any build
 					// dbj::sync::lock_unlock auto_lock;
-					inner::append(tunit_, msg_);
-					return true;
+					return inner::append(tunit_, msg_);
 				}
 
 				constexpr adder( ) {	}

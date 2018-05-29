@@ -77,12 +77,12 @@ namespace dbj::app_env {
 			/// if need to be
 			///  TODO: this is perhaps naive implementation?
 			/// </summary>
-			while (*warg == nullptr) {
+			if (*warg == nullptr) {
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
 			_ASSERTE(*warg != nullptr);
 
-			while (*wenv == nullptr) {
+			if (*wenv == nullptr) {
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
 			_ASSERTE(*wenv != nullptr);
