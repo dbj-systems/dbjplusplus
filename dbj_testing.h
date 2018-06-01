@@ -46,43 +46,11 @@ No exceptions are thrown outside. They are reported to console.
 
 #include "dbj_synchro.h"
 
-#ifndef DBJ_NV
-/*
-use dbj print or printex to show the symbol and its value, for example:
-printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
-
-WARNING: this is primitive, use with caution
-TODO: if symbol contains comma this is not going to work
-*/
-#define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
-#endif
-
 namespace dbj {
 	namespace testing {
 
 		inline const char * TITLE  { "dbj++ Testing Framework [" __DATE__ "]" };
 		inline const char * ALLDN  { "dbj++ Testing Framework -- ALL TESTS DONE" };
-		inline const char * LINE   { "--------------------------------------------------------------------------------" };
-		inline const char * COMPANY{ "DBJ.Systems Ltd." };
-		inline const char * YEAR   { (__DATE__ + 7) } ;
-
-		inline std::string  FILENAME(const std::string  &  file_path) {
-				auto pos = file_path.find_last_of('\\');
-				return
-					(std::string::npos != pos
-						? file_path.substr(pos, file_path.size())
-						: file_path
-						);
-			}
-
-		inline std::string FILELINE(const std::string & file_path, 
-			unsigned line_, 
-			const std::string & suffix = 0) 
-		{
-				return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
-					+ (suffix.empty() ? "" : suffix);
-		}
 
 		// if not false on command line it will be compiled into existence
 #ifdef DBJ_TESTING_EXISTS
@@ -215,11 +183,9 @@ namespace dbj {
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
 /*
-#define DBJ_TEST_UNIT_REGISTER( description, function ) \
-namespace { \
-inline auto DBJ_CONCAT(__dbj_register__, function )\
-      = dbj::testing::add( description, function, __COUNTER__ ); \
-}
+remember: anonymous namespace variableas are static by default
+that is they are "internal linkage"
+thus bellow we generate unique namespace name too
 */
 #define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
 void name(); \
@@ -232,8 +198,20 @@ inline void name()
 #define DBJ_TEST_CASE( description, x ) \
 DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ), x )
 
-#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( dbj::testing::FILELINE(__FILE__, __LINE__, x) , __COUNTER__ )
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( DBJ::FILELINE(__FILE__, __LINE__, x) , __COUNTER__ )
 
+#endif
+
+#ifndef DBJ_NV
+/*
+use dbj print or printex to show the symbol and its value, for example:
+printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
+
+WARNING: this is primitive, use with caution
+TODO: if symbol contains comma this is not going to work
+*/
+#define DBJ_NV_DELIMITER " , "
+#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
 
 /*

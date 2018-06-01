@@ -12,13 +12,13 @@ namespace dbj {
 		inline auto white_line = [&](const char * arg = "\n") {
 			typedef typename dbj::win::con::painter_command CMD;
 			using dbj::print;
-			print(arg, CMD::white, dbj::testing::LINE, CMD::text_color_reset);
+			print(arg, CMD::white, DBJ::LINE, CMD::text_color_reset);
 		};
 
 		inline auto blue_line = [&](const char * arg = "\n") {
 			typedef typename dbj::win::con::painter_command CMD;
 			using dbj::print;
-			print(arg, CMD::bright_blue, dbj::testing::LINE, CMD::text_color_reset);
+			print(arg, CMD::bright_blue, DBJ::LINE, CMD::text_color_reset);
 		};
 
 		/*  execute all the tests collected  */
@@ -40,7 +40,7 @@ namespace dbj {
 
 			white_line();
 			print("\n", dbj::testing::TITLE, "\n");
-			print("\n(c)", dbj::testing::YEAR, " by ", dbj::testing::COMPANY);
+			print("\n(c)", DBJ::YEAR, " by ", DBJ::COMPANY);
 			white_line();
 			print("\n[", internal::dbj_tests_map_.size(),"] tests defined");
 			white_line();

@@ -16,6 +16,76 @@
 
 #include <string_view>
 
+#pragma region DBJ debug things
+#ifdef _DEBUG
+#define DBJ_ASSERT _ASSERTE
+#define DBJ_VERIFY(result, expression) DBJ_ASSERT((result) == (expression))
+#else
+// release code dissapears some things, not all
+// be carefull with DBJ::TRACE as it might _ASSERTE in release builds
+// 
+#define DBJ_ASSERT 
+// release code for DBJ_VERIFY_ stays but with no checks
+#define DBJ_VERIFY(result, expression) (void)(expression)
+#endif
+#pragma endregion 
+
+// DBJ namespace is different from dbj (lower case) namespace 
+namespace DBJ {
+
+	inline const char * LINE{ "--------------------------------------------------------------------------------" };
+	inline const char * COMPANY{ "DBJ.Systems Ltd." };
+	inline const char * YEAR{ (__DATE__ + 7) };
+
+	/* 512 happpens to be the BUFSIZ */
+	constexpr size_t BUFSIZ_ = 512 * 2;
+
+	/*
+	transform path to filename
+	delimeter is '\\'
+	*/
+	inline std::string  FILENAME(const std::string  &  file_path, const char delimiter_ = '\\') {
+		auto pos = file_path.find_last_of(delimiter_);
+		return
+			(std::string::npos != pos
+				? file_path.substr(pos, file_path.size())
+				: file_path
+				);
+	}
+
+	/*
+	usual usage :
+	FILELINE( __FILE__, __LINE__, "some text") ;
+	*/
+	inline std::string FILELINE(const std::string & file_path,
+		unsigned line_,
+		const std::string & suffix = 0)
+	{
+		return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+			+ (suffix.empty() ? "" : suffix);
+	}
+
+	// DBJ::TRACE exist in release builds too
+
+	// this requires all the  args 
+	// that are strings to be wide strings 
+	// so I am doubtfull it will work ... easily
+	template <typename ... Args>
+	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
+	{
+		wchar_t buffer[DBJ::BUFSIZ_]{};
+		_ASSERTE(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
+		::OutputDebugStringW(buffer);
+	}
+	template <typename ... Args>
+	inline void TRACE(const char * const message, Args ... args) noexcept
+	{
+		char buffer[DBJ::BUFSIZ_]{};
+		_ASSERTE(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
+		::OutputDebugStringA(buffer);
+	}
+} // eof DBJ 
+
 namespace dbj {
 
 	// the most used 4 types
@@ -24,6 +94,8 @@ namespace dbj {
 
 	using string = std::string;
 	using string_vector = std::vector<std::string>;
+
+
 
 	// std::equal has many overloads
 	// it is less error prone to have it here
@@ -115,47 +187,6 @@ namespace dbj {
 		}
 	};
 }
-
-// DBJ namespace is different from dbj (lower case) namespace 
-namespace DBJ {
-
-	/* 512 happpens to be the BUFSIZ */
-	constexpr size_t BUFSIZ_ = 512 * 2;
-
-	// DBJ::TRACE exist in release builds too
-
-	// this requires all the  args 
-	// that are strings to be wide strings 
-	// so I am doubtfull it will work ... easily
-	template <typename ... Args>
-	static void TRACE(wchar_t const * const message, Args ... args) noexcept
-	{
-		wchar_t buffer[DBJ::BUFSIZ_]{};
-		_ASSERTE(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
-		::OutputDebugStringW(buffer);
-	}
-	template <typename ... Args>
-	static void TRACE(const char * const message, Args ... args) noexcept
-	{
-		char buffer[DBJ::BUFSIZ_]{};
-		_ASSERTE(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
-		::OutputDebugStringA(buffer);
-	}
-} // eof DBJ 
-
-#pragma region DBJ debug things
-#ifdef _DEBUG
-#define DBJ_ASSERT _ASSERTE
-#define DBJ_VERIFY(result, expression) DBJ_ASSERT((result) == (expression))
-#else
-// release code dissapears some things, not all
-// be carefull with DBJ::TRACE as it might _ASSERTE in release builds
-// 
-#define DBJ_ASSERT 
-// release code for DBJ_VERIFY_ stays but with no checks
-#define DBJ_VERIFY(result, expression) (void)(expression)
-#endif
-#pragma endregion 
 
 /*
 2017-10-18	DBJ created
