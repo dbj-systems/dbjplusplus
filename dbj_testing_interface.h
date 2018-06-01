@@ -32,7 +32,7 @@ namespace dbj {
 			using dbj::print ;
 			using namespace dbj::testing;
 
-			if (dbj_tests_map_.size() < 1) {
+			if ( internal::dbj_tests_map_.size() < 1) {
 				white_line();
 				print("No tests defined");
 				white_line();
@@ -42,16 +42,16 @@ namespace dbj {
 			print("\n", dbj::testing::TITLE, "\n");
 			print("\n(c)", dbj::testing::YEAR, " by ", dbj::testing::COMPANY);
 			white_line();
-			print("\n[", dbj_tests_map_.size(),"] tests defined");
+			print("\n[", internal::dbj_tests_map_.size(),"] tests defined");
 			white_line();
-			for (auto && tunit : dbj_tests_map_ )
+			for (auto && tunit : internal::dbj_tests_map_ )
 			{
 				// blue_line("\n");
 				print(CMD::bright_blue, "\nBEGIN TEST UNIT ", tunit.second, " ", CMD::text_color_reset);
 				blue_line("\n");
 				try {
 					print("\n");
-					unit_execute(tunit.first);
+					internal::unit_execute(tunit.first);
 					print("\n");
 				}
 				catch (dbj::Exception & x) {
@@ -101,8 +101,7 @@ namespace dbj {
 
 	} // testing
 } // dbj
-  /* standard suffix */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+
   /*
   Copyright 2017 by dbj@dbj.org
 

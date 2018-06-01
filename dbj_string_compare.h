@@ -1,9 +1,33 @@
 #pragma once
 
+namespace dbj {
+	
+	// if the argument of the DBJ_STRLITERALLEN macro is a pointer, 
+	// code won't compile 
+	template <typename T, size_t N>
+	char(&ArraySizeHelper(T(&array)[N]))[N];
+
+	#define DBJ_STRLITERALLEN(str) (sizeof(ArraySizeHelper(str)) - 1)
+
+	/// <summary>
+	/// The string literal is used only once. 
+	/// The string literal length is evaluated during the compilation phase. 
+	/// You cannot accidentally pass a pointer to the function and 
+	/// incorrectly evaluate the string length.
+	/// </summary>
+	template<typename T, size_t N>
+	int mystrncmp(const T *a, const T(&b)[N])
+	{
+		return _tcsnccmp(a, b, N - 1);
+	}
+}
 /*
 2018-04-30	dbj@dbj.org		
 created	basically a C code and thus not in the namespace
 */
+
+extern "C" {
+
 /*
 bellow is WIN32 API 
 for standard C++ use 
@@ -33,7 +57,6 @@ inline int dbj_win32_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ig
 }
 #endif // DBJ_WIN
 
-extern "C" {
 	/*
 	*Entry:
 	*       const char *_string1 = pointer to beginning of the first string

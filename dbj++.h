@@ -144,3 +144,37 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+/*
+2018 MAY 31
+Bellow is a solution for call once mechanism in MSVC
+*/
+#if 0
+/*
+- anonymous namespace implies default static linkage for variables inside
+- worth repeating: this is safe in presence of multiple threads (MT) 
+and is supported as a such by all major compilers
+- inside is a lambda which is guaranteed to be called only once
+- this pattern is also safe to use in header only situations
+*/
+namespace dbj_once {
+
+	struct singleton final {};
+
+	inline singleton & instance()
+	{
+		static singleton single_instance = []() -> singleton {
+			// this is called only once
+			// do some more complex initialization
+			// here
+#pragma message ("\compiling dbj_once 'call once' lambda ***************************************\n")
+DBJ::TRACE("\nVisiting dbj_once 'call once' lambda ***************************************\n");
+			return {};
+		}();
+		return single_instance;
+	};
+
+	inline singleton & singleton_middleton = instance();
+
+ } // dbj_once
+#endif

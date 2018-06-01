@@ -93,7 +93,7 @@ namespace dbj {
 		using testunittype = void(*)();
 		static __forceinline void __stdcall null_unit() {}
 
-		namespace {
+		namespace internal {
 
 			struct FPcomparator {
 				bool operator () (const testunittype & lhs, const testunittype & rhs) const
@@ -107,15 +107,20 @@ namespace dbj {
 				testunittype,
 				std::string, FPcomparator > TUMAP;
 
-			/*
-			static TUMAP & dbj_tests_map_ {
-			static TUMAP test_units_{};
-			return test_units_;
-			}
-			*/
-
+			inline TUMAP & tumap_instance()
+			{
+				static TUMAP single_instance
+					= [&]() -> TUMAP {
+					// this is anonymous lambda 
+					// called only once
+					// do some more complex initialization
+					// here, if need be
+					return {};
+				}(); // call immediately
+				return single_instance;
+			};
 			// C++17 inline vars
-			inline TUMAP dbj_tests_map_{};
+			inline TUMAP & dbj_tests_map_ = tumap_instance();
 
 
 			inline  bool operator == (
@@ -134,8 +139,6 @@ namespace dbj {
 					dbj_tests_map_.end() != find(tunit_)
 					);
 			}
-
-		   namespace inner {
 
 			   /// <summary>
 			   /// we could have called append straight from client code 
@@ -157,14 +160,12 @@ namespace dbj {
 				   /* the same test unit ? do not insert twice */
 				   auto rez [[maybe_unused]] = 
 					   dbj_tests_map_.try_emplace( tunit_ ,final_description_ );
-#ifdef _DEBUG
-				   auto && in_da_dbg_1 = rez.first ;
-				   auto && in_da_dbg_2 = rez.second;
-#endif
+
 				   // NOTE: rez.second is false if no insertion ocured
+				   if (rez.second != false)
+					   DBJ::TRACE("\nNot inserted because found already: %s", final_description_.c_str());
 				   return rez.first;
 			   }
-		    } // inner namespace 
 
 				inline  void unit_execute(testunittype tunit_) {
 								tunit_();
@@ -177,26 +178,31 @@ namespace dbj {
 					const int counter_ ) const noexcept
 				{
 					// mt safe in any build
-					// dbj::sync::lock_unlock auto_lock;
-					return inner::append(tunit_, msg_);
-				}
-
-				constexpr adder( ) {	}
-				/*
-				static  const adder & instance() {
-					// mt safe in any build
 					dbj::sync::lock_unlock auto_lock;
-
-					static adder singleton_{ };
-					return std::forward<adder> ( singleton_) ;
+					return internal::append(tunit_, msg_);
 				}
-				*/
+
+				 adder( ) 
+				{	
+					DBJ::TRACE("%s", __func__);
+				}
+
 			};
 
-		} // anonymous namespace
-		
+			// https://dbj.org/c-play-it-only-once-sam/
+			inline  const adder & 
+				adder_instance() 
+			{
+			// mt safe in any build
+			static adder singleton_{ };
+			  return singleton_ ;
+			}
+
+		   } // internal  
+
 		// C++17 inline vars
-		inline const adder add{};
+		inline const internal::adder & 
+			add = internal::adder_instance() ;
 
 	} // testing
 } // dbj
@@ -217,8 +223,8 @@ inline auto DBJ_CONCAT(__dbj_register__, function )\
 */
 #define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
 void name(); \
-namespace { \
-  static auto DBJ_CONCAT(__dbj_register__, name )\
+namespace DBJ_CONCAT(__dbj_register__, namespace_ ) { \
+  inline auto DBJ_CONCAT(__dbj_register__, name )\
       = dbj::testing::add( description, name, counter_ ); \
 } \
 inline void name() 

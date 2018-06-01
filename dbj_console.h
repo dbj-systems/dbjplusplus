@@ -1,5 +1,14 @@
 ﻿#pragma once
 // windows.h required here
+#if !defined(_CONSOLE)
+
+#pragma message ( "#############################################################" )
+#pragma message ( DBJ_CONCAT( "File: ", __FILE__) )
+#pragma message ( DBJ_CONCAT( "Line: ",  DBJ_EXPAND(__LINE__)))
+#pragma message ("This is probably not a console app?")
+#pragma message ( "#############################################################" )
+#endif
+
 #pragma region "Console Interfaces"
 #include "dbj_crt.h"
 #include "dbj_win32.h"
@@ -72,7 +81,6 @@ namespace con {
 	typedef enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 } CODE_PAGE ;
 
 #pragma region "WideOut"
-// namespace {
 	/*
 	Windows "native" unicode is UTF-16
 	Be warned than proper implementation of UTF-8 related code page did not happen
@@ -162,51 +170,83 @@ namespace con {
 	here we hide the single application wide console instance
 	this is single app wide instance
 	*/
-	// namespace {
-#if !defined(_CONSOLE)
-#pragma message ( "#############################################################" )
-#pragma message ( DBJ_CONCAT( "File: ", __FILE__) )
-#pragma message ( DBJ_CONCAT( "Line: ",  DBJ_EXPAND(__LINE__)))
-#pragma message ("This is probably not a console app?")
-#pragma message ( "#############################################################" )
-#endif
-		inline auto console_ = WideOut( CODE::page_65001 ) ;
-		/* we expose the HANDLE to the print-ing because of future requirements
-		wanting to use error handle etc ...
-		*/
+	inline WideOut & instance()
+	{
+		static WideOut single_instance
+			= [&]() -> WideOut {
+			// TODO:
+			// this is anonymous lambda called only once
+			// by default console used code page 65001
+			// we need to make this user configurable
+			return {  CODE::page_65001  };
+		}(); // call immediately
+		return single_instance;
+	};
+		inline WideOut & console_ = instance( ) ;
+/* we expose the HANDLE to the print-ing because of future requirements
+wanting to use error handle etc ... */
 		inline HANDLE  HANDLE_{ console_.handle() };
-	// }
 
-// } //nspace
-
-// we are here in dbj::win::con
-// we need to have only a single instance 
-inline auto switch_console (dbj::win::con::CODE code_) {
-	console_ = dbj::win::con::WideOut(code_);
-	return console_;
-};
+		// we are here in dbj::win::con
+		// we need to have only a single instance 
+		inline auto switch_console (dbj::win::con::CODE code_) {
+			console_ = dbj::win::con::WideOut(code_);
+			return console_;
+		};
 
 #pragma endregion 
 #pragma region "print-ing implementation"
+		namespace internal {
+			constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
+
+			/* anything that has size, begin and end */
+			inline auto print_range = [](const auto & range) {
+
+				const size_t argsize = range.size();
+				if (argsize < 1) return;
+				unsigned arg_count = 0;
+
+				auto delimited_out = [&](auto && val_) {
+					win::con::out(val_);
+					if (++arg_count < (argsize - 1)) win::con::out(delim);
+				};
+
+				win::con::out(prefix); win::con::out(space);
+				for (auto item : range) {
+					delimited_out(item);
+				}
+				win::con::out(suffix);
+			};
+
+			/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
+			template<typename... Args >
+			inline	void print_varargs(Args... args)
+			{
+				if constexpr (sizeof...(Args) < 1) return;
+				constexpr size_t argsize = sizeof...(Args);
+				unsigned arg_count = 0;
+
+				auto delimited_out = [&](auto && val_) {
+					win::con::out(val_);
+					if (arg_count++ < (argsize - 1)) win::con::out(delim);
+				};
+
+				win::con::out(prefix); win::con::out(space);
+				char dummy[sizeof...(Args)] = { (delimited_out(args), 0)... };
+				win::con::out(space); win::con::out(suffix);
+				(void)dummy;
+			}
+
+		} // internal nspace
 /*
-  print-ing implementation+interface is whole inside dbj::win::con::anonymous_name_space
-  that makes it acessible to clients. E.g. :
 
-  using dbj::win::con::print ;  print("Hi!");
+console.out(...) is the only method to output to a console
 
-  besides parts which are not because they are in :
+this is the special out that does not use the console output class
+but painter commander
 
-  dbj::win::con
+Thus we achieved a decoupling of console and painter
 */
-// namespace {
-	/*
-		console.out(...) is the only method to output to a console
-
-		this is the special out that does not use the console output class
-		but painter commander
-
-		Thus we achieved a decoupling of console and painter
-	*/
 	template<
 		typename N, 
 		typename = std::enable_if_t<
@@ -347,21 +387,21 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 
 	template<typename T, typename A	>	
 	inline void out(const std::vector<T,A> & v_) {
-		out(prefix);
+		out(internal::prefix);
 		unsigned c_ = 0;
 		auto v_size = v_.size();
 		for (auto e : v_ )
 		{
 			out( e );
 			if ( ++c_ < v_size )
-				out(delim);
+				out(internal::delim);
 		}
-		out(suffix);
+		out(internal::suffix);
 	}
 
 	template<typename T, std::size_t S	>
 	inline void out(const std::array<T, S> & arr_) {
-		print_range(arr_);
+		internal::print_range(arr_);
 	}
 
 	template <class... Args>
@@ -383,63 +423,15 @@ inline auto switch_console (dbj::win::con::CODE code_) {
 			il_);
 	}
 
+
+
 } // con
 } // win
 
 // back to ::dbj nspace
-
-namespace {
-
-	/*
-	seaquences, ranges, varargs
-	*/
-
-	constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
-
-	/* anything that has size, begin and end */
-	auto print_range = [](const auto & range) {
-
-		const size_t argsize = range.size() ;
-		if ( argsize < 1 ) return;
-		unsigned arg_count = 0;
-
-		auto delimited_out = [&](auto && val_) {
-			win::con::out(val_);
-			if (++arg_count < (argsize - 1)) win::con::out(delim);
-		};
-
-		win::con::out(prefix); win::con::out(space);
-		for (auto item : range) {
-			delimited_out(item);
-		}
-		win::con::out(suffix);
-	};
-
-	/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
-	template<typename... Args >
-	inline	void print_varargs( Args... args)
-	{
-		if constexpr (sizeof...(Args) < 1) return;
-		constexpr size_t argsize = sizeof...(Args);
-		unsigned arg_count = 0;
-
-		auto delimited_out = [&](auto && val_) {
-			win::con::out(val_);
-			if (arg_count++ < (argsize - 1) ) win::con::out(delim);
-		};
-
-		win::con::out(prefix); win::con::out(space);
-		char dummy[sizeof...(Args)] = { (delimited_out(args), 0)... };
-		win::con::out(space); win::con::out(suffix);
-		(void)dummy;
-	}
-
-	} // nspace
-
 /*
 forget templates, variadic generic lambda saves you of declaring them 
 */
-	// namespace {
 		inline auto print = [](auto && first_param, auto && ... params)
 		{
 			win::con::out(first_param);
@@ -462,30 +454,33 @@ namespace dbj {
 		/*
 		TODO: usable interface for users to define this
 		*/
-		namespace {
+		inline const bool & instance()
+		{
 			using namespace dbj::win;
-			inline auto configure_ = [](
-				) -> bool {
+			static auto configure_once_ = []() -> bool
+			{
 				auto font_name_ = L"Lucida Console";
 				auto code_page_ = con::CODE_PAGE::page_1252;
 				try {
-					auto new_console [[maybe_unused]] = con::switch_console(code_page_);
-					con::setfont(font_name_); 
-					DBJ::TRACE(L" Console code page set to ", code_page_, " and font to: ", font_name_);
+					auto new_console[[maybe_unused]] = con::switch_console(code_page_);
+					con::setfont(font_name_);
+					DBJ::TRACE(L"\nConsole code page set to %d and font to: %s\n"
+						, code_page_, font_name_
+					);
 				}
 				catch (...) {
 					// can happen before main()
 					// and user can have no terminators and abort set up
 					// so ...
 					dbj::wstring message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
-					DBJ::TRACE(L"Exception %s", message_.data());
+					DBJ::TRACE(L"\nException %s", message_.data());
 					throw dbj::Exception(message_);
 				}
 				return true;
-			};
-
-			inline const auto single_start = configure_();
-		}
+			}();
+			return configure_once_;
+		} // instance()
+			inline const bool & single_start = instance();
 	}
 }
 

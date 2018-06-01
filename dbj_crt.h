@@ -25,7 +25,6 @@ namespace dbj {
 	using string = std::string;
 	using string_vector = std::vector<std::string>;
 
-
 	// std::equal has many overloads
 	// it is less error prone to have it here
 	// and use this one as we exactly need
