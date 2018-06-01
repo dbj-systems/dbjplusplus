@@ -63,7 +63,10 @@ namespace dbj {
 
 		namespace internal {
 
-			struct FPcomparator {
+			// sort by key is std::map default behaviour
+			// if compiler can not find a comparator for the key type 
+			// one has to be provided
+			struct function_ptr_comparator {
 				bool operator () (const testunittype & lhs, const testunittype & rhs) const
 				{
 					return lhs < rhs;
@@ -73,7 +76,7 @@ namespace dbj {
 			// test unit function pointer is the key of the tests map
 			typedef  std::map<
 				testunittype,
-				std::string, FPcomparator > TUMAP;
+				std::string, function_ptr_comparator > TUMAP;
 
 			inline TUMAP & tumap_instance()
 			{

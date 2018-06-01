@@ -11,7 +11,7 @@
 /// </summary>
 namespace dbj_arf_testing {
 
-	namespace {
+	namespace dbj_testing_space  {
 
 		inline auto default_element_output_ =
 			[&](size_t j, const auto & element,
@@ -53,8 +53,8 @@ namespace dbj_arf_testing {
 		}
 	}
 
-	namespace {
-		auto few_creation_examples() {
+	namespace dbj_testing_space {
+		inline auto few_creation_examples() {
 
 			auto narf_0 = DBJ_TEST_ATOM(dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 }));
 			// default_print(	narf_0,	default_element_output_	);
@@ -118,6 +118,7 @@ namespace dbj_arf_testing {
 
 	DBJ_TEST_UNIT(": native dbj array (narf) handler ")
 	{
+		using namespace dbj_testing_space;
 		auto arf_0 = DBJ_TEST_ATOM(few_creation_examples());
 		auto arf_1 = DBJ_TEST_ATOM(different_ways_to_obtain_reference(arf_0));
 		auto arf_2 = DBJ_TEST_ATOM(calling_native_array_consumer(arf_1));

@@ -1,7 +1,7 @@
 #pragma once
 #pragma region "dbj stlen and strnlen"
 #ifdef DBJ_TESTING_EXISTS
-namespace {
+namespace dbj_testing_space  {
 	/*
 	dbj crt caters for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t

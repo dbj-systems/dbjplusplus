@@ -8,7 +8,7 @@
 #ifdef DBJ_TESTING_EXISTS
 namespace dbj {
 	namespace cmd {
-		namespace /* test the Commander*/ {
+		namespace /* test the Commander*/ dbj_testing_space {
 			/*
 			Define comand id's first
 			*/

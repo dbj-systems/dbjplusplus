@@ -1,6 +1,6 @@
 #pragma once
 #ifdef DBJ_TESTING_EXISTS
-namespace {
+namespace dbj_testing_space  {
 	DBJ_TEST_UNIT(" dbj string comparisons ") {
 		auto rez =
 			dbj_ordinal_string_compareW(L"A", L"A", true);

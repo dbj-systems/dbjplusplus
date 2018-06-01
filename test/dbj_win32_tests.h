@@ -2,7 +2,7 @@
 #ifdef DBJ_WIN
 #ifdef DBJ_TESTING_EXISTS
 #pragma region "dbj win32"
-namespace {
+namespace dbj_testing_space  {
 	
 	// using namespace  dbj::win::con;
 	// typedef typename dbj::win::con::painter_command CMD;

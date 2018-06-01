@@ -2,7 +2,7 @@
 
 #pragma region "console testing"
 #ifdef DBJ_TESTING_EXISTS
-namespace {
+namespace dbj_testing_space  {
 	using namespace  dbj::win::con ;
 
 	DBJ_TEST_UNIT(" : dbj console test") {

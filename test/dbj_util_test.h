@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace {
+namespace dbj_testing_space {
 
 	DBJ_TEST_UNIT(": dbj util math float_to_integer test ") {
 

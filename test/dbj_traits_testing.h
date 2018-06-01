@@ -2,7 +2,7 @@
 
 #ifdef DBJ_TESTING_EXISTS
 
-namespace {
+namespace dbj_testing_space  {
 
 	template<typename T, typename dbj::require_integral<T> = 0>
 	inline auto Object(T&& t) { return std::variant<T>(t); }
