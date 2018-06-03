@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef DBJ_TESTING_EXISTS
+#ifdef DBJ_TESTING_ONAIR
 
 namespace dbj_testing_space  {
 
@@ -28,4 +28,4 @@ namespace dbj_testing_space  {
 
 } // namespace
 
-#endif // DBJ_TESTING_EXISTS
+#endif // DBJ_TESTING_ONAIR

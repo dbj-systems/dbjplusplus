@@ -4,7 +4,7 @@
 
 An C++17 micro standalone testing framework
 
-if DBJ_TESTING_EXISTS is undefined test are not compiled and not executed.
+if DBJ_TESTING_ONAIR is undefined test are not compiled and not executed.
 dbj::testing::RUNING is also true or false constexpr, depending on it
 
 // C++17 
@@ -15,7 +15,7 @@ if constexpr(dbj::testing::RUNING) {
 
 How to add test unit, with no macros:
 
-#if DBJ_TESTING_EXISTS
+#if DBJ_TESTING_ONAIR
  namespace {
    static auto dummy = dbj::testing::add( " Critical Test" , [](){ std::cout << "Test" ;}
   ) ;
@@ -35,7 +35,7 @@ All tests are collected as declared and then executed from main() like so:
 
 int main(int argc, char* argv[])
 {
-// will do nothing if DBJ_TESTING_EXISTS is undefined
+// will do nothing if DBJ_TESTING_ONAIR is undefined
 dbj::testing::execute();
 return 0;
 }
@@ -53,7 +53,7 @@ namespace dbj {
 		inline const char * ALLDN  { "dbj++ Testing Framework -- ALL TESTS DONE" };
 
 		// if not false on command line it will be compiled into existence
-#ifdef DBJ_TESTING_EXISTS
+#ifdef DBJ_TESTING_ONAIR
 		constexpr bool DBJ_TEST_RUNING = true;
 #else
 		constexpr bool DBJ_TEST_RUNING = false;

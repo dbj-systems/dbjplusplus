@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef	DBJ_TESTING_EXISTS
+#ifdef	DBJ_TESTING_ONAIR
 namespace dbj_testing_space {
 
 using namespace Gdiplus;

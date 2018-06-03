@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #pragma region "console testing"
-#ifdef DBJ_TESTING_EXISTS
+#ifdef DBJ_TESTING_ONAIR
 namespace dbj_testing_space  {
 	using namespace  dbj::win::con ;
 
@@ -21,5 +21,5 @@ namespace dbj_testing_space  {
 		);
 	}
 }
-#endif // DBJ_TESTING_EXISTS
+#endif // DBJ_TESTING_ONAIR
 #pragma endregion "console testing"

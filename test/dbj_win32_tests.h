@@ -1,6 +1,6 @@
 #pragma once
 #ifdef DBJ_WIN
-#ifdef DBJ_TESTING_EXISTS
+#ifdef DBJ_TESTING_ONAIR
 #pragma region "dbj win32"
 namespace dbj_testing_space  {
 	
@@ -103,5 +103,5 @@ namespace dbj_testing_space  {
 }
 #pragma endregion
 
-#endif // DBJ_TESTING_EXISTS
+#endif // DBJ_TESTING_ONAIR
 #endif // DBJ_WIN

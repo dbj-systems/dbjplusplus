@@ -1,5 +1,5 @@
 #pragma once
-#ifdef DBJ_TESTING_EXISTS
+#ifdef DBJ_TESTING_ONAIR
 
 #include <ctime>
 #include "../dbj_array.h"

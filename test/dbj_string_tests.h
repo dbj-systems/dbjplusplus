@@ -1,5 +1,5 @@
 #pragma once
-#ifdef DBJ_TESTING_EXISTS
+#ifdef DBJ_TESTING_ONAIR
 namespace dbj_testing_space  {
 	DBJ_TEST_UNIT(" dbj string comparisons ") {
 		auto rez =
