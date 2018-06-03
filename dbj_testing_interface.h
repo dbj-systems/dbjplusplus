@@ -9,17 +9,97 @@
 namespace dbj {
 	namespace testing {
 		
-		inline auto white_line = [&](const char * arg = "\n") {
-			typedef typename dbj::win::con::painter_command CMD;
-			using dbj::print;
-			print(arg, CMD::white, DBJ::LINE, CMD::text_color_reset);
+		typedef typename dbj::win::con::painter_command CMD;
+		using dbj::print;
+		/*
+		inline auto print = [](auto && first_param, auto && ... params)
+		{
+			win::con::out(first_param);
+
+			// if there are  more params
+			if constexpr (sizeof...(params) > 0) {
+				// recurse
+				print(params...);
+			}
+				return print;
 		};
 
-		inline auto blue_line = [&](const char * arg = "\n") {
-			typedef typename dbj::win::con::painter_command CMD;
-			using dbj::print;
-			print(arg, CMD::bright_blue, DBJ::LINE, CMD::text_color_reset);
+		*/
+
+		inline auto text_line = [&](
+			dbj::win::con::painter_command cmd_ , 
+			auto && ... args ) 
+		{
+			print( cmd_, "\n" );
+			if constexpr (sizeof...(args) < 1 ) {
+				print(DBJ::LINE);
+			}
+			else {
+				print( args... );
+			}
+			print(CMD::text_color_reset);
 		};
+
+		inline auto white_line = [&]( auto && ... args ) {
+				text_line( CMD::white, args... );
+		};
+
+		inline auto blue_line = [&](auto && ... args) {
+			text_line(CMD::bright_blue, args...);
+		};
+
+		inline auto green_line = [&](auto && ... args) {
+			text_line(CMD::green, args... );
+		};
+
+		inline auto red_line = [&](auto && ... args) {
+			text_line(CMD::bright_red, args ... );
+		};
+
+		inline auto prefix (
+			/* 
+			   since we do only unicode builds
+			   argv[0] is wchar_t *
+			 */
+			const wchar_t * prog_full_path 
+		) {
+			white_line();
+			white_line( dbj::testing::TITLE, "\n");
+			white_line( DBJ::YEAR, " by ", DBJ::COMPANY);
+			white_line();
+			white_line("[", internal::dbj_tests_map_.size(), "] tests registered");
+			white_line("Application: ", DBJ::FILENAME(dbj::narrow(prog_full_path)));
+			white_line();
+		}
+
+		inline auto suffix() {
+			white_line();
+			white_line("\n", dbj::testing::ALLDN);
+			white_line();
+			// no needed --> print(CMD::text_color_reset);
+		}
+
+		inline auto unit_prefix(const char * name_) {
+			white_line(CMD::bright_blue, "\nBEGIN TEST UNIT ", name_ , " ", CMD::text_color_reset);
+			blue_line();
+		}
+
+		inline auto unit_suffix(const char * name_) {
+			blue_line();
+			blue_line("\nEND TEST UNIT ", name_, " \n", CMD::text_color_reset);
+		}
+
+		inline auto space_prefix(const char * name_) {
+			white_line();
+			white_line("Runtime started", name_ );
+			white_line();
+		}
+
+		inline auto space_suffix(const char * name_) {
+			white_line();
+			white_line("\nRuntime finished", name_ );
+			white_line();
+		}
 
 		/*  execute all the tests collected  */
 		inline void _stdcall execute(
@@ -28,46 +108,30 @@ namespace dbj {
 			const wchar_t *envp[]
 		) noexcept 
 		{
-			typedef typename dbj::win::con::painter_command CMD;
-			using dbj::print ;
-			using namespace dbj::testing;
-
 			if ( internal::dbj_tests_map_.size() < 1) {
 				white_line();
-				print("No tests defined");
+				white_line("No tests defined");
 				white_line();
 			}
 
-			white_line();
-			print("\n", dbj::testing::TITLE, "\n");
-			print("\n(c)", DBJ::YEAR, " by ", DBJ::COMPANY);
-			white_line();
-			print("\n[", internal::dbj_tests_map_.size(),"] tests defined");
-			white_line();
+			prefix(argv[0]);
 			for (auto && tunit : internal::dbj_tests_map_ )
 			{
-				// blue_line("\n");
-				print(CMD::bright_blue, "\nBEGIN TEST UNIT ", tunit.second, " ", CMD::text_color_reset);
-				blue_line("\n");
+				unit_prefix(tunit.second.c_str());
 				try {
-					print("\n");
+					white_line(" ");
 					internal::unit_execute(tunit.first);
-					print("\n");
+					white_line(" ");
 				}
 				catch (dbj::Exception & x) {
 					print(CMD::bright_red, x, CMD::text_color_reset);
 				}
 				catch (...) {
-					print(CMD::bright_red,  dbj::Exception("\nUnknown Exception"), CMD::text_color_reset);
+					red_line( dbj::Exception("\nUnknown Exception") );
 				}
-				blue_line("\n");
-				print(CMD::bright_blue, "\nEND TEST UNIT ", tunit.second," \n", CMD::text_color_reset);
-				// blue_line("\n");
+				unit_suffix(tunit.second.c_str());
 			}
-			white_line();
-			print("\n", dbj::testing::ALLDN);
-			white_line();
-			print(CMD::text_color_reset);
+			suffix();
 		}
 
 #ifndef DBJ_TEST_ATOM

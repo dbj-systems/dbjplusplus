@@ -56,7 +56,7 @@ namespace dbj {
 #ifdef DBJ_TESTING_ONAIR
 		constexpr bool DBJ_TEST_RUNING = true;
 #else
-		constexpr bool DBJ_TEST_RUNING = false;
+#error DBJ_TESTING_ONAIR must be defined for dbj_testing.h to compile
 #endif
 		using testunittype = void(*)();
 		static __forceinline void __stdcall null_unit() {}
@@ -194,7 +194,7 @@ constexpr const char * dbj_test_namespace_name_ = DBJ_STR(DBJ_CONCAT(dbj_test_na
 __pragma(message("\n" __FILE__  "(" DBJ_STR(__LINE__) ")\nCompiling : " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x))));
 
 #define DBJ_TEST_SPACE_CLOSE(x) \
-__pragma(message("\n" __FILE__ "(" DBJ_STR(__LINE__) ")Compiled: " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)) "\n")); \
+__pragma(message("\n" __FILE__ "(" DBJ_STR(__LINE__) ")\nCompiled: " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)) "\n")); \
 }
 
 /*

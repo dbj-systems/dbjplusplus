@@ -216,10 +216,17 @@ namespace dbj {
 		return dbj::wstring(cv.begin(), cv.end());
 	}
 
-	/* if and when needed add
-	template<size_t N> 	__forceinline std::wstring narrow(const wchar_t(&charar)[N]);
-	__forceinline std::wstring narrow(const wchar_t * charP);
-	*/
+	template< size_t N>
+	__forceinline dbj::string narrow(const wchar_t(&charar)[N])
+	{
+		return dbj::string(std::begin(charar), std::end(charar));
+	}
+
+	__forceinline dbj::string narrow(const wchar_t * charP)
+	{
+		std::wstring_view cv(charP);
+		return dbj::string(cv.begin(), cv.end());
+	}
 
 	/* avoid macros as much as possible */
 
