@@ -181,10 +181,22 @@ namespace dbj {
 #ifdef DBJ_TEST_UNIT
 #error "DBJ_TEST_UNIT Already defined?"
 #else
-
-#define DBJ_STR(x) #x
+/*
+NOTE: do not have a space after a macro name and before the '('
+*/
+#define DBJ_STR_IMPL(x) #x
+#define DBJ_STR(x) DBJ_STR_IMPL(x)
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+
+#define DBJ_TEST_SPACE_OPEN(x) namespace DBJ_CONCAT(dbj_test_namespace_, x) { \
+constexpr const char * dbj_test_namespace_name_ = DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)); \
+__pragma(message("\n" __FILE__  "(" DBJ_STR(__LINE__) ")\nCompiling : " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x))));
+
+#define DBJ_TEST_SPACE_CLOSE(x) \
+__pragma(message("\n" __FILE__ "(" DBJ_STR(__LINE__) ")Compiled: " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)) "\n")); \
+}
+
 /*
 remember: anonymous namespace variableas are static by default
 that is they are "internal linkage"
