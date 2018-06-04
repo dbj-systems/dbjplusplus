@@ -80,13 +80,13 @@ namespace dbj {
 		}
 
 		inline auto unit_prefix(const char * name_) {
-			white_line(CMD::bright_blue, "\nBEGIN TEST UNIT ", name_ , " ", CMD::text_color_reset);
+			blue_line("BEGIN TEST UNIT ", name_ , " ");
 			blue_line();
 		}
 
 		inline auto unit_suffix(const char * name_) {
 			blue_line();
-			blue_line("\nEND TEST UNIT ", name_, " \n", CMD::text_color_reset);
+			blue_line("\nEND TEST UNIT ", name_, " \n");
 		}
 
 		inline auto space_prefix(const char * name_) {
@@ -110,8 +110,9 @@ namespace dbj {
 		{
 			if ( internal::dbj_tests_map_.size() < 1) {
 				white_line();
-				white_line("No tests defined");
+				white_line("No tests registered");
 				white_line();
+				return;
 			}
 
 			prefix(argv[0]);
@@ -124,7 +125,7 @@ namespace dbj {
 					white_line(" ");
 				}
 				catch (dbj::Exception & x) {
-					print(CMD::bright_red, x, CMD::text_color_reset);
+					red_line(x);
 				}
 				catch (...) {
 					red_line( dbj::Exception("\nUnknown Exception") );

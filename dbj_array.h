@@ -38,6 +38,15 @@ namespace dbj::arr {
 		return to_array_impl(narf, make_index_sequence<N>{});
 	}
 
+	/*
+	Transform native array into std::vector at compile time
+	*/
+	template<typename Type, size_t N, typename outype = std::vector<Type> >
+	inline constexpr outype array_to_vector(const Type(&arr_)[N])
+	{
+		return { arr_, arr_ + N };
+	}
+
 		/*
 		return array reference to the C array inside std::array
 		usage:

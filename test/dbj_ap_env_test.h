@@ -2,6 +2,8 @@
 
 #ifdef DBJ_TESTING_ONAIR
 
+DBJ_TEST_SPACE_OPEN(app_env_)
+
 DBJ_TEST_UNIT(" dbj application environment test ") {
 
 	using dbj::print;
@@ -20,5 +22,7 @@ DBJ_TEST_UNIT(" dbj application environment test ") {
 		print("\n[", counter++, "] Key: ", key, "\t = \tValue: ", val);
 	}
 }
+
+DBJ_TEST_SPACE_CLOSE(app_env_)
 
 #endif

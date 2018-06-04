@@ -230,8 +230,8 @@ namespace dbj {
 
 	/* avoid macros as much as possible */
 
-	inline auto MIN = [](auto a, auto b) { return (((a) < (b)) ? (a) : (b)); };
-	inline auto MAX = [](auto a, auto b) { return (((a) > (b)) ? (a) : (b)); };
+	inline auto MIN = [](auto a, auto b) constexpr -> bool { return (((a) < (b)) ? (a) : (b)); };
+	inline auto MAX = [](auto a, auto b) constexpr -> bool { return (((a) > (b)) ? (a) : (b)); };
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 

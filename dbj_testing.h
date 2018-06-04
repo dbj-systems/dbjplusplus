@@ -1,4 +1,7 @@
 #pragma once
+#ifndef DBJ_TESTING_ONAIR
+#error dbj testing requires DBJ_TESTING_ONAIR to be hash defined
+#endif
 /*
 (c) dbj.org, see the license at file bottom
 
@@ -201,6 +204,7 @@ __pragma(message("\n" __FILE__ "(" DBJ_STR(__LINE__) ")\nCompiled: " DBJ_STR(DBJ
 remember: anonymous namespace variableas are static by default
 that is they are "internal linkage"
 thus bellow we generate unique namespace name too
+to avoid that phenomenon
 */
 #define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
 void name(); \

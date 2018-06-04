@@ -98,23 +98,6 @@ namespace dbj {
 #endif
 
 			/*
-			compile time array to vector
-			*/
-			template<typename Type, size_t N, typename outype = std::vector<Type> >
-			inline constexpr outype array_to_vector(const Type(&arr_)[N])
-			{
-				return outype{ arr_, arr_ + N };
-			}
-
-			template<size_t N>
-			auto array_to_vector_lambda = [&](const auto(&arr_)[N]) constexpr->std::vector<decltype(auto)>
-			{
-				return std::vector<decltype(auto)>{ arr_, arr_ + N };
-			};
-
-
-
-			/*
 			find an item in anything that has begin and end iterators
 			*/
 			auto find = [](auto sequence, auto item) constexpr -> bool {
