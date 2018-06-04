@@ -12,6 +12,12 @@
 #include "dbj_traits.h"
 #include <set>
 
+// basically forget about init lists passing
+// https://stackoverflow.com/questions/20059061/having-trouble-passing-multiple-initializer-lists-to-variadic-function-template/47159747#47159747
+// yes I know macro + variadic = horific
+// but in here it seems as a sort of a solution
+#define DBJ_IL(T,...) (std::initializer_list<T>{__VA_ARGS__})
+
 namespace dbj {
 	 
 	namespace math {

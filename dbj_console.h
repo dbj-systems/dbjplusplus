@@ -408,7 +408,7 @@ Thus we achieved a decoupling of console and painter
 	inline void out(const std::tuple<Args...>& tple) {
 		std::apply(
 			[](auto&&... xs) {
-			    dbj::print_varargs(xs...);
+			    internal::print_varargs(xs...);
 		      },
 			tple);
 	}
@@ -418,7 +418,7 @@ Thus we achieved a decoupling of console and painter
 	inline void out(const std::initializer_list<Args...> & il_) {
 		std::apply(
 			[](auto&&... xs) {
-			dbj::print_varargs(xs...);
+			internal::print_varargs(xs...);
 		},
 			il_);
 	}
