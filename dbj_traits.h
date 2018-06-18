@@ -12,9 +12,6 @@
 #ifdef _WIN32
 			return { typeid(T).name() };
 #else // __linux__
-			template < typename T>
-			std::string typename()
-			{
 				// delete malloc'd memory
 				struct free_ {
 					void operator()(void* p) const { std::free(p); }
@@ -31,10 +28,12 @@
 				if (error == -2)   return { "not a valid mangled name" };
 				// else if(error == -3)
 				return { "bad argument" };
-			}
+
 #endif // __linux__
 		} // name()
 	} // dbj
+
+#define DBJ_TYPENAME(T) dbj::name<decltype(T)>().c_str()  
 
 	/*
 	Templates are zealous eaters of types

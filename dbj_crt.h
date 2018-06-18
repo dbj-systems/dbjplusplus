@@ -207,25 +207,25 @@ namespace dbj {
 	template< size_t N>
 	__forceinline dbj::wstring wide(const char(&charar)[N])
 	{
-		return dbj::wstring(std::begin(charar), std::end(charar));
+		return { std::begin(charar), std::end(charar) };
 	}
 
 	__forceinline dbj::wstring wide(const char * charP)
 	{
 		std::string_view cv(charP);
-		return dbj::wstring(cv.begin(), cv.end());
+		return { cv.begin(), cv.end() };
 	}
 
 	template< size_t N>
 	__forceinline dbj::string narrow(const wchar_t(&charar)[N])
 	{
-		return dbj::string(std::begin(charar), std::end(charar));
+		return { std::begin(charar), std::end(charar) };
 	}
 
 	__forceinline dbj::string narrow(const wchar_t * charP)
 	{
 		std::wstring_view cv(charP);
-		return dbj::string(cv.begin(), cv.end());
+		return { cv.begin(), cv.end() };
 	}
 
 	/* avoid macros as much as possible */

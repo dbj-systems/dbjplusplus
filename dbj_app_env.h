@@ -66,7 +66,7 @@ namespace dbj::app_env {
 			/// </summary>
 #define _CRT_DECLARE_GLOBAL_VARIABLES_DIRECTLY
 			wchar_t **  warg = (__wargv);
-			std::size_t argc = (__argc);
+			const unsigned __int64	argc = (__argc);
 			wchar_t **  wenv = (_wenviron);
 #undef _CRT_DECLARE_GLOBAL_VARIABLES_DIRECTLY
 
@@ -124,9 +124,9 @@ namespace dbj::app_env {
 	// client code gets the instance of this
 	class structure final {
 	public:
-		const std::size_t	cli_args_count{};
+		const unsigned __int64	cli_args_count{};
 		const data_type		cli_data{};
-		const std::size_t	env_vars_count{};
+		const unsigned __int64	env_vars_count{};
 		const map_type		env_vars{};
 
 		operator std::string  () const noexcept 
@@ -140,9 +140,9 @@ namespace dbj::app_env {
 		void operator delete(void* ptr);
 
 		structure(
-			std::size_t argc,
+			unsigned __int64 argc,
 			data_type   argv,
-			std::size_t env_count,
+			unsigned __int64 env_count,
 			map_type	env_vars_
 		)
 			: cli_args_count(argc),

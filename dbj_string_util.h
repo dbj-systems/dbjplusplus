@@ -31,7 +31,7 @@ namespace dbj::str {
 	};
 
 	/// <summary>
-	/// ui compare means local friendly compare
+	/// ui compare means locale friendly compare
 	/// </summary>
 	template<typename CT>
 	inline int ui_string_compare(

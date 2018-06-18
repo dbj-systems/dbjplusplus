@@ -202,9 +202,9 @@ wanting to use error handle etc ... */
 			/* anything that has size, begin and end */
 			inline auto print_range = [](const auto & range) {
 
-				const size_t argsize = range.size();
+				const std::size_t argsize = range.size();
 				if (argsize < 1) return;
-				unsigned arg_count = 0;
+				std::size_t arg_count = 0;
 
 				auto delimited_out = [&](auto && val_) {
 					win::con::out(val_);
@@ -223,8 +223,8 @@ wanting to use error handle etc ... */
 			inline	void print_varargs(Args... args)
 			{
 				if constexpr (sizeof...(Args) < 1) return;
-				constexpr size_t argsize = sizeof...(Args);
-				unsigned arg_count = 0;
+				constexpr std::size_t argsize = sizeof...(Args);
+				std::size_t arg_count = 0;
 
 				auto delimited_out = [&](auto && val_) {
 					win::con::out(val_);
@@ -388,7 +388,7 @@ Thus we achieved a decoupling of console and painter
 	template<typename T, typename A	>	
 	inline void out(const std::vector<T,A> & v_) {
 		out(internal::prefix);
-		unsigned c_ = 0;
+		std::size_t c_ = 0;
 		auto v_size = v_.size();
 		for (auto e : v_ )
 		{

@@ -98,8 +98,8 @@ namespace dbj {
 
 
 			inline  bool operator == (
-				TUMAP::value_type pair_,
-				TUMAP::key_type rhs_) noexcept
+				const TUMAP::value_type & pair_,
+				const TUMAP::key_type & rhs_) noexcept
 			{
 				return pair_.first == rhs_;
 			}
@@ -156,7 +156,7 @@ namespace dbj {
 					return internal::append(tunit_, msg_);
 				}
 
-				 adder( ) 
+				 adder ( )  noexcept
 				{	
 					DBJ::TRACE("%s", __func__);
 				}

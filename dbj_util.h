@@ -38,10 +38,7 @@ namespace dbj {
 		};
 	}
 
-
-
 	namespace util {
-		namespace {
 
 			inline auto dbj_count = [](auto && range) constexpr->size_t
 			{
@@ -55,17 +52,17 @@ namespace dbj {
 			and we can do a lot of things inside a func
 			*/
 			template <typename F, size_t... Is>
-			auto gen_tuple_impl(F func, std::index_sequence<Is...>) {
+			inline auto gen_tuple_impl(F func, std::index_sequence<Is...>) {
 				return std::make_tuple(func(Is)...);
 			}
 
 			template <size_t N, typename F>
-			auto gen_tuple(F func) {
+			inline auto gen_tuple(F func) {
 				return gen_tuple_impl(func, std::make_index_sequence<N>{});
 			}
 			// dbj added -- for std sequences
 			template<typename T, size_t N>
-			auto seq_tup(const T & sequence) {
+			inline auto seq_tup(const T & sequence) {
 				return gen_tuple<N>(
 					[&](size_t idx) { return sequence[idx]; }
 				);
@@ -73,7 +70,7 @@ namespace dbj {
 
 			// dbj added -- for native arrays
 			template<typename T, size_t N>
-			auto seq_tup(T(&arr)[N]) {
+			inline auto seq_tup(T(&arr)[N]) {
 				return gen_tuple<N>(
 					[&](size_t idx) { return arr[idx]; }
 				);
@@ -91,7 +88,7 @@ namespace dbj {
 			}
 #else
 			/*applicator generic lambda*/
-			auto applicator = [](auto  callback, auto... args) -> void {
+			inline auto applicator = [](auto  callback, auto... args) -> void {
 				// todo: use std::is_callable on the callback 
 				if constexpr(sizeof...(args) > 0) {
 					// since initializer lists guarantee sequencing, this can be used to
@@ -106,7 +103,7 @@ namespace dbj {
 			/*
 			find an item in anything that has begin and end iterators
 			*/
-			auto find = [](auto sequence, auto item) constexpr -> bool {
+			inline auto find = [](auto sequence, auto item) constexpr -> bool {
 				return std::find(std::begin(sequence), std::end(sequence), item) != std::end(sequence);
 			};
 
@@ -117,7 +114,7 @@ namespace dbj {
 			and it is all inside the single lambda
 			which is fast because redundant code is removed at compile time
 			*/
-			auto starts_with = [](auto val_, auto mat_) {
+			inline auto starts_with = [](auto val_, auto mat_) {
 
 				static_assert(equal_types  (val_, mat_),
 					"dbj::does_start [error] arguments not of the same type"
@@ -216,7 +213,6 @@ namespace dbj {
 				static ARF arr_ = set();
 				return arr_;
 			}
-		} // ns
 	} // util
 } // dbj
 
