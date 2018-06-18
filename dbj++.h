@@ -123,6 +123,7 @@ long var [[maybe_unused]] {42L} ;
 #include "dbj_win32.h"
 #include "dbj_native_arr_ref.h"
 #include "dbj_app_env.h"
+#include "dbj_micro_log.h"
 
 
 /* 

@@ -131,6 +131,7 @@
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
+    <ClInclude Include="dbj_micro_log.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />

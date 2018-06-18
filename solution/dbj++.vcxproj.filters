@@ -55,6 +55,7 @@
     <ClInclude Include="..\test\dbj_win32_tests.h">
       <Filter>test</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_micro_log.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
