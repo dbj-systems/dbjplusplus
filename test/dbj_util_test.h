@@ -24,7 +24,7 @@ namespace dbj_testing_space {
 	DBJ_TEST_UNIT(": dbj dbj_util_test ") {
 
 		int intarr[]{ 1,1,2,2,3,4,5,6,6,6,7,8,9,9,0,0 };
-		auto ret1 = dbj::util::remove_duplicates(intarr);
+		auto ret1 [[maybe_unused]] = dbj::util::remove_duplicates(intarr);
 		std::string as2[16]{
 			"abra", "ka", "dabra", "babra",
 			"abra", "ka", "dabra", "babra",

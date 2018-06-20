@@ -100,8 +100,9 @@ namespace dbj {
 				const Commander & replace(const CMD_ENUM & command_, F fun_ ) const
 				{
 					try {   // found it, so replace
-						auto fun [[maybe_unused]] = command_map_.at(command_);
-						command_map_[command_] = (executor_type(fun_));
+						// auto function_found [[maybe_unused]] = command_map_.at(command_);
+						// command_map_[command_] = ( executor_type{ fun_ } );
+						command_map_.at(command_) = executor_type{ fun_ };
 					}
 					catch (std::out_of_range &) {
 						// not found, just ignore

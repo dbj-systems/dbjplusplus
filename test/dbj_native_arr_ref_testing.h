@@ -151,7 +151,9 @@ namespace dbj_arf_testing {
 			A16::ARF arf = A16::to_arf(arr);
 
 			// prove that the type is right
-			auto rdr0 = A16::to_vector(arf);
+			[[maybe_unused]] auto rdr0  = A16::to_vector(arf)  ;
+
+			(void *)&rdr0;
 
 			/*
 			testing the internal_array_reference
@@ -160,11 +162,11 @@ namespace dbj_arf_testing {
 			namely it transform int* to int(&)[]
 			that is reference to c array inside std::array
 			*/
-			decltype(auto) arf2 = A16::to_arf(arr);
-			decltype(auto) rdr1 = A16::to_vector(arf2);
+			decltype(auto) arf2[[maybe_unused]] = A16::to_arf(arr);
+			decltype(auto) rdr1[[maybe_unused]] = A16::to_vector(arf2);
 
-			decltype(auto) arf3 = arf2;
-			auto rdr2 = A16::to_vector(arf3);
+			decltype(auto) arf3[[maybe_unused]] = arf2;
+			decltype(auto) rdr2 [[maybe_unused]] = A16::to_vector(arf3);
 		}
 
 }

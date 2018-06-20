@@ -199,12 +199,21 @@ wanting to use error handle etc ... */
 		namespace internal {
 			constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
 
-			/* anything that has size, begin and end */
+			/* anything that has begin and end */
 			inline auto print_range = [](const auto & range) {
 
-				const std::size_t argsize = range.size();
+				// not requiring  range.size();
+				// thus can do native arrays
+				std::size_t argsize =  
+				static_cast<std::size_t>(
+					std::distance( 
+						std::begin(range), std::end( range ) 
+					)
+				);
+				
 				if (argsize < 1) return;
-				std::size_t arg_count = 0;
+				
+				std::size_t arg_count{ 0 };
 
 				auto delimited_out = [&](auto && val_) {
 					win::con::out(val_);
@@ -219,23 +228,35 @@ wanting to use error handle etc ... */
 			};
 
 			/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
-			template<typename... Args >
-			inline	void print_varargs(Args... args)
+			// template<typename... Args >
+			inline	auto print_varargs = [] (
+				auto && first ,
+				auto && ... args 
+				)
 			{
-				if constexpr (sizeof...(Args) < 1) return;
-				constexpr std::size_t argsize = sizeof...(Args);
+				constexpr std::size_t pack_size = sizeof...(args);
+
 				std::size_t arg_count = 0;
 
-				auto delimited_out = [&](auto && val_) {
+				auto delimited_out = [&](auto && val_) 
+				{
 					win::con::out(val_);
-					if (arg_count++ < (argsize - 1)) win::con::out(delim);
+					if (arg_count < pack_size ) {
+						win::con::out(delim);
+					}
+					arg_count += 1;
 				};
 
 				win::con::out(prefix); win::con::out(space);
-				char dummy[sizeof...(Args)] = { (delimited_out(args), 0)... };
+
+				delimited_out(first);
+
+				if constexpr (pack_size > 0) {
+					(delimited_out( args ), ... );
+				}
+
 				win::con::out(space); win::con::out(suffix);
-				(void)dummy;
-			}
+			};
 
 		} // internal nspace
 /*
@@ -359,7 +380,7 @@ Thus we achieved a decoupling of console and painter
 	}
 
 	/*
-	now we will deliver out() overloads for "compount" types using the ones above
+	now we will deliver out() overloads for "compound" types using the ones above
 	made for intrinsic types
 	------------------------------------------------------------------------
 	output the exceptions
@@ -387,6 +408,7 @@ Thus we achieved a decoupling of console and painter
 
 	template<typename T, typename A	>	
 	inline void out(const std::vector<T,A> & v_) {
+		/*
 		out(internal::prefix);
 		std::size_t c_ = 0;
 		auto v_size = v_.size();
@@ -397,6 +419,8 @@ Thus we achieved a decoupling of console and painter
 				out(internal::delim);
 		}
 		out(internal::suffix);
+		*/
+		internal::print_range(v_);
 	}
 
 	template<typename T, std::size_t S	>
@@ -411,6 +435,15 @@ Thus we achieved a decoupling of console and painter
 			    internal::print_varargs(xs...);
 		      },
 			tple);
+	}
+
+	template <typename T1, typename T2>
+	inline void out(const std::pair<T1, T2>& pair_) {
+		std::apply(
+			[](auto&&... xs) {
+			internal::print_varargs(xs...);
+		},
+			pair_);
 	}
 
 	/* output the { ... } aka std::initializer_list<T> */
@@ -432,17 +465,17 @@ Thus we achieved a decoupling of console and painter
 /*
 forget templates, variadic generic lambda saves you of declaring them 
 */
-		inline auto print = [](auto && first_param, auto && ... params)
-		{
-			win::con::out(first_param);
+inline auto print = [](auto && first_param, auto && ... params)
+{
+	win::con::out(first_param);
 
-			// if there are  more params
-			if constexpr (sizeof...(params) > 0) {
-				// recurse
-				print(params...);
-			}
-				return print;
-		};
+	// if there are  more params
+	if constexpr (sizeof...(params) > 0) {
+		// recurse
+		print(params...);
+	}
+		return print;
+};
 	// }
 
 #pragma endregion "eof printer implementation"

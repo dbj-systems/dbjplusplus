@@ -70,10 +70,10 @@ namespace dbj {
 
 		constexpr auto unicode = true;
 		//	inline auto && COUT = std::wcout;
-		constexpr auto && LEFT_ANGLED = L'[';
-		constexpr auto && RGHT_ANGLED = L']';
-		constexpr auto && SPACE = L' ';
-		constexpr auto && COMMA = L',';
+		constexpr wchar_t LEFT_ANGLED = L'[';
+		constexpr wchar_t RGHT_ANGLED = L']';
+		constexpr wchar_t SPACE = L' ';
+		constexpr wchar_t COMMA = L',';
 #else
 #error "Just UNICODE builds please :)"
 #endif
@@ -280,10 +280,7 @@ just print to the stream as ever
 					inner::stream_ << std::endl
 						<< dbj::god_of_time::timestamp().data() << " : ";
 				}
-
-				if constexpr (no_of_args > 0) {
 					(inner::stream_ << ... << param);
-				}
 			}
 #ifndef __clang__
 			return print;
