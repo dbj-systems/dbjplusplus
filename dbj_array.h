@@ -85,6 +85,8 @@ namespace dbj::arr {
 			// pointer to ART
 			typedef ARH::ART* ARP;
 
+			constexpr static const size_t size{ N };
+
 			/*
 			return pointer to the underlying array
 			of an instance of std::array<T,N>

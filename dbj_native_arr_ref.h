@@ -127,12 +127,20 @@ namespace dbj::narf {
 	/// auto & the_arr_ref = dbj::narf::data(narf);
 	/// </code>
 	/// </summary>
-	template<typename T, std::size_t N, typename ARF = T(&)[N] >
-	constexpr ARF data(const wrapper<T, N> & narw_) {
+	template<
+		typename T, 
+		std::size_t N, 
+		typename ARF = T(&)[N] 
+	>
+	constexpr ARF data
+	(
+		const wrapper<T, N> & narw_
+	) 
+	{
 #if _DEBUG
 		auto p1 = narw_.get() ;
 		_ASSERTE(p1);
-		// p1 might accidentlay be ok
+		// p1 might 'accidentaly' be ok
 		// ditto, lets try once more
 		auto p2 = narw_.get();
 		_ASSERTE(p2);
@@ -149,9 +157,12 @@ namespace dbj::narf {
 	//
 	template<typename T, std::size_t N>
 	constexpr auto range(const wrapper<T, N> & narw_) {
+		/*
 		return std::array<T*, 2>{
 			dbj::narf::begin(narw_), dbj::narf::end(narw_)
 		};
+		*/
+		return std::make_pair(dbj::narf::begin(narw_), dbj::narf::end(narw_));
 	}
 
 	/// <summary>
@@ -168,8 +179,9 @@ namespace dbj::narf {
 	/// </summary>
 	template< typename T, size_t N, typename FUN >
 	constexpr auto for_each(const wrapper<T, N> & arf, const FUN & fun_) {
-		const auto & B = begin(arf);
-		const auto & E = end(arf);
+		//const auto & B = begin(arf);
+		//const auto & E = end(arf);
+		auto[B, E] = range(arf);
 		return std::for_each(B, E, fun_);
 	}
 

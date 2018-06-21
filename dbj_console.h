@@ -24,7 +24,8 @@ namespace dbj {
 				const unsigned code_page() const;
 				/* out is based on HANDLE and std::wstring */
 				HANDLE handle() const;
-				void out(const std::wstring & wp_) const ;
+				// const non-ref argument
+				void out(const std::wstring_view wp_) const ;
 			};
 		}
 	}
@@ -139,8 +140,8 @@ namespace con {
 		/* out is based on HANDLE and std::wstring */
 		HANDLE handle() const { return this->output_handle_; }
 
-		/* the default one */
-		inline void out(const std::wstring & wp_) const 
+		/* the default out() as dictated by the interface implemented */
+		inline void out(const std::wstring_view wp_) const 
 		{
 			const HANDLE & output_h_ = this->output_handle_;
 			_ASSERTE(0 != ::WriteConsoleW(output_h_, wp_.data(),

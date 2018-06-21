@@ -158,7 +158,20 @@ namespace dbj {
 	-------------------------------------------------------------------------
 	dbj++ exception
 	*/
-	struct Exception : public std::runtime_error {
+	struct Exception : public std::runtime_error 
+	{
+	// private:
+		// dangerous cludge ?
+		std::wstring & last_what( ) const
+		{
+			static std::wstring last_what_{ 255, 0 };
+
+			std::string s_(this->what());
+			// dangerous cludge
+			last_what_
+				= std::wstring{ std::begin(s_), std::end(s_) };
+			return last_what_;
+		}
 	public:
 		typedef std::runtime_error _Mybase;
 
@@ -167,9 +180,9 @@ namespace dbj {
 		{	// construct from message string
 		}
 
-		Exception(const std::wstring & _WMessage)
+		Exception(const std::wstring_view _WMessage)
 			: _Mybase(
-				std::string(_WMessage.begin(), _WMessage.end() ).data()
+				std::string(_WMessage.begin(), _WMessage.end() ).c_str()
 			)
 		{	// construct from message unicode std string
 		}
@@ -180,11 +193,11 @@ namespace dbj {
 		{	// construct from message string
 		}
 
-		// virtual char const* what() const
-		operator std::wstring () const {
-			std::string s_(this->what());
-			return std::wstring(s_.begin(), s_.end());
+		operator std::wstring_view () const {
+			auto & lw_ = last_what();
+			return std::wstring_view(lw_.data(), lw_.size()) ;
 		}
+
 	};
 }
 
