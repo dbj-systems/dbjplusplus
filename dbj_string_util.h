@@ -8,10 +8,41 @@
 #include <vector>
 #include <iterator>
 */
+// #include <type_traits>
 #include <locale>
 #include <sstream> // wstringstream
+#include <memory>  // allocator
+#include <string>
+#include <optional>
 
 namespace dbj::str {
+
+/*
+Make a string optimized for small sizes
+that is up to 255
+this makes string not to do heap alloc/de-alloc
+for strings up to 255 in length
+Discussion (for example):
+http://www.modernescpp.com/index.php/component/jaggyblog/c-17-avoid-copying-with-std-string-view
+*/
+template < 
+typename CT,
+typename string_type = std::basic_string< CT > ,
+typename char_type = typename string_type::value_type,
+typename size_type = typename string_type::size_type
+>
+constexpr inline string_type optimal
+(
+	size_type SMALL_SIZE = 255,
+	char_type init_char_ 
+		= static_cast<char_type>(0)
+)
+{
+	return string_type(	
+		SMALL_SIZE,	
+		init_char_
+	);
+}
 
 	/// <summary>
 	/// argument is a reference 
