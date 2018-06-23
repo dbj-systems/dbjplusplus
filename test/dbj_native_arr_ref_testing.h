@@ -62,8 +62,14 @@ namespace dbj_arf_testing {
 				dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 })
 			);
 
+			/* this throws an segv on read 
 			static decltype(auto) narf_1 = DBJ_TEST_ATOM(
 				dbj::narf::make({ "native","array","of", "narrow","string","literals" }));
+			*/
+
+			const char * narrs[]{ "native", "array", "of", "narrow", "string", "literals" };
+			static auto narf_1 = DBJ_TEST_ATOM(dbj::narf::make(narrs));
+
 
 			auto narf_2 = DBJ_TEST_ATOM(
 					dbj::narf::make("native char array"));

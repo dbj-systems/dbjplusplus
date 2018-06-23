@@ -83,18 +83,21 @@ namespace dbj_testing_space  {
 			// Set the clipping region.
 			grfx.SetClip(Rect(100, 100, 200, 100));
 
-			Gdiplus::Rect rect;
+			Gdiplus::Rect rect{};
 			grfx.GetVisibleClipBounds(&rect);
 
-			// Declare and initialize color #8080FF
-			BYTE a = 0xFF, r = 0x80, g = 0x80, b = 0xFF;
+			if ( (rect.Width > 1) && (rect.Height > 1)) {
 
-			// Create an ARGB value from the four component values.
-			ARGB argb = Color::MakeARGB(a, r, g, b);
+				// Declare and initialize color #8080FF
+				BYTE a = 0xFF, r = 0x80, g = 0x80, b = 0xFF;
 
-			test_line(this_hdc,
-				rect.GetLeft(), rect.GetTop(), rect.GetRight(), rect.GetBottom(),
-				argb, 20);
+				// Create an ARGB value from the four component values.
+				ARGB argb = Color::MakeARGB(a, r, g, b);
+
+				test_line(this_hdc,
+					rect.GetLeft(), rect.GetTop(), rect.GetRight(), rect.GetBottom(),
+					argb, 20);
+			}
 		} catch (...) {
 			dbj::print(dbj::Exception("Exception in " __FUNCSIG__));
 		}

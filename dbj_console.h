@@ -31,6 +31,10 @@ namespace dbj::win::con {
 				HANDLE handle() const;
 				// const non-ref argument
 				void out(const std::wstring_view wp_) const;
+
+				// fast low level
+				// from --> to, must be a sequence
+				void out(const wchar_t * from, const wchar_t * to) const;
 			};
 #pragma endregion "Console Interfaces"
 
@@ -101,8 +105,12 @@ namespace dbj::win::con {
 				mutable		HANDLE output_handle_;
 				mutable		UINT   previous_code_page_;
 				mutable		UINT	code_page_{};
+			
 			public:
-				WideOut(CODE CODEPAGE_ = CODE::page_1252) noexcept
+
+				static constexpr CODE DEFAULT_CODEPAGE_ = CODE::page_1252;
+
+				WideOut( CODE CODEPAGE_ = DEFAULT_CODEPAGE_ ) noexcept
 					: code_page_((UINT)CODEPAGE_)
 					, output_handle_(::GetStdHandle(STD_OUTPUT_HANDLE))
 					, previous_code_page_(::GetConsoleOutputCP())
@@ -113,19 +121,29 @@ namespace dbj::win::con {
 					_ASSERTE(0 != ::SetConsoleOutputCP(code_page_));
 					/*			TODO: GetLastError()			*/
 				}
-
-				WideOut(const WideOut & other) {
+				// copying
+				WideOut(const WideOut & other) = delete;
+				/*
+				{
 					output_handle_ = other.output_handle_;
 					previous_code_page_ = other.previous_code_page_;
 					code_page_ = other.code_page_;
 				}
+				*/
 
-				WideOut & operator = (const WideOut & other) {
+				WideOut & operator = (const WideOut & other) = delete;
+				/*
+				{
 					output_handle_ = other.output_handle_;
 					previous_code_page_ = other.previous_code_page_;
 					code_page_ = other.code_page_;
 					return *this;
 				}
+				*/
+				// moving
+				WideOut( WideOut && other) = default ;
+				WideOut & operator = (WideOut && other) = default;
+
 
 				~WideOut()
 				{
@@ -139,39 +157,95 @@ namespace dbj::win::con {
 				/* out is based on HANDLE and std::wstring */
 				HANDLE handle() const { return this->output_handle_; }
 
-				/* the default out() as dictated by the interface implemented */
-				inline void out(const std::wstring_view wp_) const
-				{
-					const HANDLE & output_h_ = this->output_handle_;
-					auto retval = ::WriteConsoleW
-					(
-						output_h_,
-						wp_.data(),
-						static_cast<DWORD>(wp_.size()),	NULL, NULL
-					);
-					_ASSERTE(retval != 0);
-				}
+	// fast low level
+	void out(const wchar_t * from ) const
+	{
+		static const HANDLE & output_h_ = this->output_handle_;
+		_ASSERTE(from != nullptr);
+		std::wstring wide{ from };
+		auto retval = ::WriteConsoleW
+		(
+			output_h_,
+			wide.data(),
+			static_cast<DWORD>(wide.size()), NULL, NULL
+		);
+		_ASSERTE(retval != 0);
+	}
 
-				inline void out(const std::string_view ns_) const
-				{
-					//			const HANDLE & output_h_ = this->output_handle_;
-						//		_ASSERTE(0 != ::WriteConsoleA(output_h_, ns_.data(),
-						//			static_cast<DWORD>(ns_.size()), NULL, NULL));
-								this->out(std::wstring{ ns_.begin(), ns_.end() });
+	// from --> to, must be a sequence
+	// 
+	void out(const wchar_t * from, const wchar_t * to) const 
+	{
+		static const HANDLE & output_h_ = this->output_handle_;
 
-							}
+		_ASSERTE( from != nullptr);
+		_ASSERTE( to   != nullptr);
+		_ASSERTE( from != to     );
 
-							inline void out(const std::u16string_view  u16_) const
-							{
-								this->out(std::wstring{ u16_.begin(), u16_.end() });
-							}
+		std::size_t size = std::distance( from, to);
 
-							inline void out(const std::u32string_view  u32_) const
-							{
-								this->out(std::wstring{ u32_.begin(), u32_.end() });
-							}
+		auto retval = ::WriteConsoleW
+		(
+			output_h_,
+			from,
+			static_cast<DWORD>(size), NULL, NULL
+		);
+		_ASSERTE(retval != 0);
+	}
 
-			}; // WideOut
+	// wchar_t is native WIN
+	// obviously go that way for speed
+	void out(const char * from, const char * to) const
+	{
+		_ASSERTE(from != nullptr);
+		_ASSERTE(to != nullptr);
+		_ASSERTE(from != to);
+
+		std::wstring wide{ from, to };
+
+		out( wide.data(), wide.data() + wide.size() );
+	}
+
+	void out(const char * from ) const
+	{
+		_ASSERTE(from != nullptr);
+
+		std::string narrow{ from };
+		std::wstring wide{ narrow.begin(), narrow.end() };
+
+		out(wide.data(), wide.data() + wide.size());
+	}
+
+
+	/* as dictated by the interface implemented */
+	inline void out(const std::wstring_view wp_) const
+	{
+		const HANDLE & output_h_ = this->output_handle_;
+		auto retval = ::WriteConsoleW
+		(
+			output_h_,
+			wp_.data(),
+			static_cast<DWORD>(wp_.size()),	NULL, NULL
+		);
+		_ASSERTE(retval != 0);
+	}
+
+    void out(const std::string_view ns_) const
+	{
+		this->out(std::wstring{ ns_.begin(), ns_.end() });
+	}
+
+	void out(const std::u16string_view  u16_) const
+	{
+		this->out(std::wstring{ u16_.begin(), u16_.end() });
+	}
+
+	void out(const std::u32string_view  u32_) const
+	{
+		this->out(std::wstring{ u32_.begin(), u32_.end() });
+	}
+
+}; // WideOut
 
 			/*
 			here we hide the single application wide console instance
@@ -196,10 +270,12 @@ namespace dbj::win::con {
 
 			// we are here in dbj::win::con
 			// we need to have only a single instance 
+			/*
 			inline auto switch_console(dbj::win::con::CODE code_) {
 				console_ = dbj::win::con::WideOut(code_);
 				return console_;
 			};
+			*/
 
 #pragma endregion 
 #pragma region "print-ing implementation"
@@ -340,13 +416,13 @@ namespace dbj::win::con {
 				inline void out(const std::u32string  & s_) {
 					console_.out(s_);
 				}
-				inline void out(const std::string_view & sv_) {
+				inline void out(const std::string_view sv_) {
 					dbj::win::con::out(
 						std::string(sv_.data())
 					);
 				}
 
-				inline void out(const std::wstring_view & sv_) {
+				inline void out(const std::wstring_view sv_) {
 					dbj::win::con::out(
 						std::wstring(sv_.data())
 					);
@@ -378,18 +454,22 @@ namespace dbj::win::con {
 				}
 
 				inline void out(const char * cp) {
+					_ASSERTE(cp != nullptr);
 					console_.out(std::string(cp));
 				}
 
 				inline void out(const wchar_t * cp) {
+					_ASSERTE(cp != nullptr);
 					console_.out(std::wstring(cp));
 				}
 
 				inline void out(const char16_t * cp) {
+					_ASSERTE(cp != nullptr);
 					console_.out(std::u16string(cp));
 				}
 
 				inline void out(const char32_t * cp) {
+					_ASSERTE(cp != nullptr);
 					console_.out(std::u32string(cp));
 				}
 
@@ -398,7 +478,7 @@ namespace dbj::win::con {
 				}
 
 				inline void out(const char c_) {
-					char str[] = { c_ };
+					char str[] = { c_ , '\0' };
 					console_.out(std::wstring(std::begin(str), std::end(str)));
 				}
 
@@ -522,9 +602,11 @@ namespace dbj::console::config {
 			static auto configure_once_ = []() -> bool
 			{
 				auto font_name_ = L"Lucida Console";
-				auto code_page_ = con::CODE_PAGE::page_1252;
+				auto code_page_ = con::instance().code_page() ; 
 				try {
-					auto new_console[[maybe_unused]] = con::switch_console(code_page_);
+					// TODO: switch code page on a single running instance
+					// auto new_console[[maybe_unused]] = con::switch_console(code_page_);
+
 					con::setfont(font_name_);
 					DBJ::TRACE(L"\nConsole code page set to %d and font to: %s\n"
 						, code_page_, font_name_
