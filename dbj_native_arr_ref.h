@@ -35,6 +35,22 @@ namespace dbj::narf {
 	template <typename T, std::size_t N>
 	using wrapper = std::reference_wrapper<T[N]>;
 
+	template<
+		typename T,
+		std::size_t N,
+		typename ARR = std::array<T,N>
+	>
+		ARR to_std_arr
+		(
+			const wrapper<T, N> & wrap
+		)
+    {
+		ARR rezult{};
+		int j{0};
+		for_each(wrap, [&]( auto element ){  rezult[j++] = element; });
+		return rezult;
+	}
+
 	template<typename T, size_t N>
 	constexpr auto begin(const wrapper<T, N> & wrp_) {
 		return std::begin(wrp_.get());
@@ -57,8 +73,12 @@ namespace dbj::narf {
 	///  native_arr_ref({ "Char array" });
 	/// </code>
 	/// </summary>
-	template<typename T, std::size_t N >
-	constexpr auto
+	template <
+		typename T, 
+		std::size_t N, 
+		typename wrap_type = wrapper<T,N> 
+	>
+	constexpr wrap_type
 		make( const T ( & native_arr)[N])
 		// -> wrapper<T, N>
 	{
@@ -68,10 +88,12 @@ namespace dbj::narf {
 		static_assert( ! std::is_null_pointer<T>(), "dbj::narf::make(T(&)[N]) -- T can not be null pointer");
 		//		static_assert( false == std::is_pointer<T>(), "dbj::narf::make() -- T can not be a pointer" );
 
-		using nativarref =  T(&)[N];
+		// effectively remove the ref + constness
+		using nativarref =  std::decay_t<T>(&)[N];
 		
 		return std::ref(
-			native_arr
+			// effectively remove the ref + constness
+			(nativarref)native_arr
 		);
 	}
 
@@ -84,9 +106,10 @@ namespace dbj::narf {
 	template<typename T, std::size_t N >
 	constexpr auto
 		make(const std::array<T, N> & std_arr)
-		-> wrapper<const T, N>
+		-> wrapper<T, N>
 	{
-		using nativarref = const T(&)[N];
+		// effectively remove the ref + constness
+		using nativarref = std::decay_t<T>(&)[N];
 
 		// a stunt?
 		return dbj::narf::make(
@@ -206,8 +229,6 @@ namespace dbj::narf {
 	}
 
 } // dbj::narf
-
-
 
 /*
 Copyright 2017-2018 by dbj@dbj.org

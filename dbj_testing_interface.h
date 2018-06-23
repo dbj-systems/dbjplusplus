@@ -148,7 +148,7 @@ namespace dbj {
 		/// whose return value is returned
 		/// </summary>
 		template< typename lambada_type >
-		inline auto test_lambada(const char * expression, lambada_type && lambada)
+		inline auto test_lambada(const char * expression, lambada_type lambada)
 		{
 			using namespace dbj::win::con;
 			static dbj::c_line<80, '-'> L80;

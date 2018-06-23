@@ -1,5 +1,5 @@
 #pragma once
-#ifdef DBJ_TESTING_ONAIR
+#if 1
 
 #include <ctime>
 #include "../dbj_array.h"
@@ -48,45 +48,37 @@ namespace dbj_arf_testing {
 		template<typename T, std::size_t N >
 		inline void native_arr_consumer(T(&arr_ref)[N]) {
 			for (auto & element : arr_ref) {
-				// element = arr_ref[0];
+				__noop;
 			}
 		}
 	}
 
 	namespace dbj_testing_space {
-		inline auto few_creation_examples() {
 
-			auto narf_0 = DBJ_TEST_ATOM(dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 }));
-			// default_print(	narf_0,	default_element_output_	);
+		inline decltype(auto)
+			few_creation_examples() {
 
-			static auto narf_1 = DBJ_TEST_ATOM(dbj::narf::make({ "native","array","of", "narrow","string","literals" }));
-			// default_print( narf_1,[](size_t j, const char * element) { printf(" %zd:\"%s\"", j, element); }	);
+			auto narf_0 = DBJ_TEST_ATOM(
+				dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 })
+			);
 
-			auto narf_2 = DBJ_TEST_ATOM(dbj::narf::make("native char array"));
-			// default_print( narf_2 ,	[](size_t j, const char element) { printf(" %zd:'%c'", j, element); });
+			static decltype(auto) narf_1 = DBJ_TEST_ATOM(
+				dbj::narf::make({ "native","array","of", "narrow","string","literals" }));
 
-			auto buffer = narf_1;
-			//char word_[]{"A"};
-			//dbj::narf::apply(buffer, [&](auto idx, auto & element ) {
-			// no can do --> element = word_;
-			//word_[0] += 1;
-			//});
+			auto narf_2 = DBJ_TEST_ATOM(
+					dbj::narf::make("native char array"));
 
-			return buffer;
+			return narf_1;
 		}
 
 		// this is how we get the reference
 		// to the contained native array
-		template < typename narf_type >
-		auto
-			different_ways_to_obtain_reference(
-				// arg by value
-				narf_type & arf
-			) {
-			auto & native_arr_ref = arf.get();
+		template< typename T>
+			auto different_ways_to_obtain_reference(	T arf) 
+			{
 			decltype(auto) not_elegant = dbj::narf::data(arf);
 			auto & standard = dbj::narf::data(arf);
-			// change the n-arr contents
+			// change the native -arr contents
 			// watch the retval in debugger to check 
 			// the survival
 			dbj::narf::apply(arf, [](auto idx, auto element) {
@@ -97,11 +89,10 @@ namespace dbj_arf_testing {
 			return arf;
 		}
 
-		template < typename narf_type >
-		auto calling_native_array_consumer(
-			// arg by value
-			narf_type arf
-		) {
+		template< typename T>
+			auto calling_native_array_consumer
+			( T arf ) 
+			{
 			// example of calling a function 
 			// that requires
 			// native array as argument
@@ -109,65 +100,71 @@ namespace dbj_arf_testing {
 			// same as
 			native_arr_consumer(dbj::narf::data(arf));
 			// same as
-			using value_type = typename narf_type::type;
-			native_arr_consumer((value_type &)arf);
+			// using value_type = typename narf_type::type;
+			// native_arr_consumer(arf);
 
 			return arf;
 		}
 	}
 
-	DBJ_TEST_UNIT(": native dbj array (narf) handler ")
-	{
-		using namespace dbj_testing_space;
-		auto arf_0 = DBJ_TEST_ATOM(few_creation_examples());
-		auto arf_1 = DBJ_TEST_ATOM(different_ways_to_obtain_reference(arf_0));
-		auto arf_2 = DBJ_TEST_ATOM(calling_native_array_consumer(arf_1));
-		// at this point all the arf's 
-		// are referencing the same native array
-		auto[bg, ed] = DBJ_TEST_ATOM(dbj::narf::range(arf_0));
+DBJ_TEST_UNIT(": native dbj array (narf) handler ")
+{
+	using namespace dbj_testing_space;
+	auto arf_0 = DBJ_TEST_ATOM(few_creation_examples());
+	auto arf_1 = DBJ_TEST_ATOM(different_ways_to_obtain_reference(
+		arf_0
+	));
+	auto arf_2 = DBJ_TEST_ATOM(calling_native_array_consumer(arf_1));
+	// at this point all the arf's 
+	// are referencing the same native array
+	auto[bg, ed] = (dbj::narf::range(arf_0));
 
-		// default get() is the pointer
-		// due to array type decay 
-		auto narrptr = arf_2.get();
+	// default get() is the pointer
+	// due to array type decay 
+	auto narrptr = arf_2.get();
 
-		DBJ_TEST_ATOM(dbj::narf::size(arf_2));
-	}
+	auto sze = DBJ_TEST_ATOM(dbj::narf::size(arf_2));
+}
 	
-			DBJ_TEST_UNIT(": dbj array handler ARH ") 
-			{
-			{
-				// the "C" way
-				char arr_of_chars[]{ 'A','B','C' };
-				char(&ref_to_arr_of_chars)[3] = arr_of_chars;
-			}
-			{   // manual C++ old school
-				std::array<char, 3> three_chars{ 'A','B','C' };
-				const char(&uar)[3] = *(char(*)[3])three_chars.data();
-			}
-			// the modern C++ dbj way
-			using A16 =  dbj::arr::ARH<int, 3>;
-			A16::ARR arr { 1,2,3 };
-			A16::ARP arp = A16::to_arp(arr);
-			A16::ARF arf = A16::to_arf(arr);
+DBJ_TEST_UNIT(": dbj array handler ARH ") 
+{
+	{
+		// the "C" way
+		char arr_of_chars[]{ 'A','B','C' };
+		char(&ref_to_arr_of_chars)[3] = arr_of_chars;
+	}
+	{   // manual C++ old school
+		std::array<char, 3> three_chars{ 'A','B','C' };
+		const char(&uar)[3] =
+			(*(char(*)[3])three_chars.data());
+	}
+	// the modern C++ dbj way
+	using A16 =  dbj::arr::ARH<int, 3>;
+	A16::ARR arr { 1,2,3 };
+	A16::ARP arp = DBJ_TEST_ATOM( A16::to_arp(arr) );
+	A16::ARF arf = A16::to_arf(arr) ;
 
-			// prove that the type is right
-			[[maybe_unused]] auto rdr0  = A16::to_vector(arf)  ;
+	// prove that the type is right
+	auto rdr0  = 
+		DBJ_TEST_ATOM ( A16::to_vector(arf)  );
 
-			(void *)&rdr0;
+	(void *)&rdr0;
 
-			/*
-			testing the internal_array_reference
+	/*
+	testing the internal_array_reference
 
-			decltype(auto) bellow reveals the underlying type
-			namely it transform int* to int(&)[]
-			that is reference to c array inside std::array
-			*/
-			decltype(auto) arf2[[maybe_unused]] = A16::to_arf(arr);
-			decltype(auto) rdr1[[maybe_unused]] = A16::to_vector(arf2);
+	decltype(auto) bellow reveals the underlying type
+	namely it transform int* to int(&)[]
+	that is reference to c array inside std::array
+	*/
+	A16::ARF arf2 = A16::to_arf(arr) ;
+	A16::ARV rdr1[[maybe_unused]] = DBJ_TEST_ATOM( A16::to_vector( arf2) );
 
-			decltype(auto) arf3[[maybe_unused]] = arf2;
-			decltype(auto) rdr2 [[maybe_unused]] = A16::to_vector(arf3);
-		}
+	//auto arf3 = DBJ_TEST_ATOM( 
+		//arf2
+	//);
+	// A16::ARV rdr2 [[maybe_unused]] = ( A16::to_vector(arf3));
+}
 
 }
 #endif
