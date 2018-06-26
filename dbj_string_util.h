@@ -17,6 +17,32 @@
 
 namespace dbj::str {
 
+	using namespace std;
+
+	template< class T>
+	struct is_std_char : integral_constant<bool,
+		is_same<decay_t<T>, char     >::value ||
+		is_same<decay_t<T>, wchar_t  >::value ||
+		is_same<decay_t<T>, char16_t >::value ||
+		is_same<decay_t<T>, char32_t >::value> {};
+
+	template<typename T>
+	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
+
+	//NOTE: pointers are not char's
+    // char *. wchar_t * .. are thus not chars
+	template< class T>
+	struct is_std_string : integral_constant<bool,
+		is_same<decay_t<T> , string    >::value ||
+		is_same<decay_t<T> , wstring   >::value ||
+		is_same<decay_t<T> , u16string >::value ||
+		is_same<decay_t<T> , u32string >::value> {};
+
+	template<typename T>
+	inline constexpr bool  is_std_string_v = is_std_string<T>::value;
+
+	constexpr std::size_t small_string_optimal_size{ 255 };
+
 /*
 Make a string optimized for small sizes
 that is up to 255
@@ -33,33 +59,67 @@ typename size_type = typename string_type::size_type
 >
 constexpr inline string_type optimal
 (
-	size_type SMALL_SIZE = 255,
+	size_type SMALL_SIZE = small_string_optimal_size ,
 	char_type init_char_ 
 		= static_cast<char_type>(0)
 )
 {
+	static_assert( is_std_char_v<CT> );
+
 	return string_type(	
 		SMALL_SIZE,	
 		init_char_
 	);
 }
 
-	/// <summary>
-	/// argument is a reference 
-	/// and is "lowerized" in place
-	/// BIG NOTE: it is not clear if this is locale friendly ?
-	/// </summary>
-	inline void lowerize(std::wstring & key) {
-		auto rez =transform(key.begin(), key.end(), key.begin(), std::towlower);
-	};
+/*-------------------------------------------------------------*/
+template <
+		typename CT,
+		typename string_type 
+		   = std::basic_string< std::decay_t<CT> >
+	>
+		constexpr inline string_type
+		lowerize(
+			CT * from_ , CT * last_
+		)
+	{
+		static_assert(false == is_std_char_v<CT>,"CT argument is not a standard char type");
 
-	inline void lowerize(std::string & key) {
-		auto rez = transform(key.begin(), key.end(), key.begin(),
-			// this stunt is required as tolower returns 'int' 
-			// and modern c++ has none of that, it wants char
-			[](char chrter) -> char { return std::tolower(chrter); }
+		string_type retval{ from_, last_ };
+		auto rez = std::for_each(
+			retval.begin(), 
+			retval.begin() + retval.size(),
+			[](CT & element) { element = std::tolower(element); }
 		);
-	};
+		return retval;
+	}
+	/*-------------------------------------------------------------*/
+	template <
+		typename CT,
+		typename string_view_type = basic_string_view<CT>,
+		typename string_type = std::basic_string< CT >
+	>
+		constexpr inline string_type 
+		lowerize(
+			string_view_type view_ 
+		) 
+	{
+		return lowerize<CT>( view_.data(), view_.data() + view_.size());
+	}
+	/*-------------------------------------------------------------*/
+	template <
+		typename CT, std::size_t N,
+		typename string_type 
+		  = std::basic_string< std::decay_t<CT> >
+	>
+		constexpr inline string_type
+		lowerize(
+			CT (&view_)[N]
+		)
+	{
+		return lowerize( view_ , view_ + N ); 
+	}
+
 
 	/// <summary>
 	/// ui compare means locale friendly compare
@@ -74,8 +134,8 @@ constexpr inline string_type optimal
 		std::basic_string<CT> s1{ p1 }, s2{ p2 };
 
 		if (false == ignore_case) {
-			lowerize(s1);
-			lowerize(s2);
+			s1 = lowerize<CT>(s1);
+			s2 = lowerize<CT>(s2);
 		}
 		// the "C" locale is default 
 		std::locale loc{};
@@ -93,7 +153,7 @@ constexpr inline string_type optimal
 	/// L must be shorter than R
 	/// </summary>
 	inline  bool  is_prefix(
-		const std::wstring_view & lhs, const std::wstring_view & rhs
+		const std::wstring_view lhs, const std::wstring_view rhs
 	)
 	{
 		_ASSERTE(lhs.size() > 0);

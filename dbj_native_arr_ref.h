@@ -46,7 +46,7 @@ namespace dbj::narf {
 		)
     {
 		ARR rezult{};
-		int j{0};
+		std::size_t  j{0};
 		for_each(wrap, [&]( auto element ){  rezult[j++] = element; });
 		return rezult;
 	}
@@ -86,14 +86,18 @@ namespace dbj::narf {
 		static_assert( ! std::is_void<T>(), "dbj::narf::make(T(&)[N]) -- T can not be void");
 		static_assert( ! std::is_reference<T>(), "dbj::narf::make(T(&)[N]) -- T can not be reference");
 		static_assert( ! std::is_null_pointer<T>(), "dbj::narf::make(T(&)[N]) -- T can not be null pointer");
-		//		static_assert( false == std::is_pointer<T>(), "dbj::narf::make() -- T can not be a pointer" );
+		// static_assert( ! std::is_pointer<T>(), "dbj::narf::make() -- T can not be a pointer" );
 
 		// effectively remove the ref + constness
-		using nativarref =  std::decay_t<T>(&)[N];
+		using nativarref =  std::remove_cv_t<T>(&)[N];
+
+		static T cludge[N]{};
+
+		std::copy(native_arr, native_arr + N, cludge);
 		
 		return std::ref(
 			// effectively remove the ref + constness
-			(nativarref)native_arr
+			cludge
 		);
 	}
 

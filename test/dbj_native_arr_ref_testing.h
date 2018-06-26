@@ -33,12 +33,7 @@ namespace dbj_arf_testing {
 			printf("} %s", suffix);
 		}
 
-		inline auto random = [](int max_val, int min_val = 1) -> int {
-			static auto initor = []() {
-				std::srand((unsigned)std::time(nullptr)); return 0;
-			}();
-			return min_val + std::rand() / ((RAND_MAX + 1u) / max_val);
-		};
+	
 
 		/// <summary>
 		/// some generic utility function 
@@ -80,15 +75,15 @@ namespace dbj_arf_testing {
 		// this is how we get the reference
 		// to the contained native array
 		template< typename T>
-			auto different_ways_to_obtain_reference(	T arf) 
+			auto different_ways_to_obtain_reference( T arf) 
 			{
 			decltype(auto) not_elegant = dbj::narf::data(arf);
 			auto & standard = dbj::narf::data(arf);
-			// change the native -arr contents
+			// change the native-arr contents
 			// watch the retval in debugger to check 
 			// the survival
 			dbj::narf::apply(arf, [](auto idx, auto element) {
-				char word[]{ (char)random(90, 64) };
+				char word[]{ (char) dbj::util::random(90, 64) };
 				element = word;
 			});
 			// return by value

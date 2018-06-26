@@ -40,6 +40,13 @@ namespace dbj {
 
 	namespace util {
 
+			inline auto random = [](int max_val, int min_val = 1) -> int {
+				static auto initor = []() {
+					std::srand((unsigned)std::time(nullptr)); return 0;
+				}();
+				return min_val + std::rand() / ((RAND_MAX + 1u) / max_val);
+			};
+
 			inline auto dbj_count = [](auto && range) constexpr->size_t
 			{
 				return std::distance(std::begin(range), std::end(range));
