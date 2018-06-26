@@ -19,24 +19,25 @@ namespace dbj::str {
 
 	using namespace std;
 
-	template< class T>
+	//NOTE: pointers are not char's
+	// char *. wchar_t * .. are thus not chars	template< class T>
+	template<typename T>
 	struct is_std_char : integral_constant<bool,
-		is_same<decay_t<T>, char     >::value ||
-		is_same<decay_t<T>, wchar_t  >::value ||
-		is_same<decay_t<T>, char16_t >::value ||
-		is_same<decay_t<T>, char32_t >::value> {};
+		is_same<remove_cv_t<T>, char     >::value ||
+		is_same<remove_cv_t<T>, wchar_t  >::value ||
+		is_same<remove_cv_t<T>, char16_t >::value ||
+		is_same<remove_cv_t<T>, char32_t >::value> {};
 
 	template<typename T>
 	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
 
-	//NOTE: pointers are not char's
-    // char *. wchar_t * .. are thus not chars
+
 	template< class T>
 	struct is_std_string : integral_constant<bool,
-		is_same<decay_t<T> , string    >::value ||
-		is_same<decay_t<T> , wstring   >::value ||
-		is_same<decay_t<T> , u16string >::value ||
-		is_same<decay_t<T> , u32string >::value> {};
+		is_same<remove_cv_t<T> , string    >::value ||
+		is_same<remove_cv_t<T> , wstring   >::value ||
+		is_same<remove_cv_t<T> , u16string >::value ||
+		is_same<remove_cv_t<T> , u32string >::value> {};
 
 	template<typename T>
 	inline constexpr bool  is_std_string_v = is_std_string<T>::value;
@@ -64,7 +65,7 @@ constexpr inline string_type optimal
 		= static_cast<char_type>(0)
 )
 {
-	static_assert( is_std_char_v<CT> );
+	DBJ_CHECK_IF( is_std_char_v<CT> );
 
 	return string_type(	
 		SMALL_SIZE,	
@@ -83,7 +84,7 @@ template <
 			CT * from_ , CT * last_
 		)
 	{
-		static_assert(false == is_std_char_v<CT>,"CT argument is not a standard char type");
+	DBJ_CHECK_IF(is_std_char_v<CT>,"CT argument is not a standard char type");
 
 		string_type retval{ from_, last_ };
 		auto rez = std::for_each(

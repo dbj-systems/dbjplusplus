@@ -382,7 +382,7 @@ namespace dbj::win::con {
 			above is lovely but that will catch more than we hoped for
 			for example bool-eans too
 			*/
-
+/*
 			template
 				<typename B, 
 				typename = std::enable_if_t<
@@ -390,7 +390,9 @@ namespace dbj::win::con {
 							>
 				>
 				inline void out( B && val_) {
-					console_.out(val_ ? "true" : "false");
+*/
+				inline void out(bool && val_) {
+					console_.out( (true == val_ ? L"true" : L"false"));
 				}
 
 			template< typename T, size_t N >

@@ -16,6 +16,9 @@
 
 #include <string_view>
 
+// 
+#define DBJ_CHECK_IF static_assert
+
 #pragma region DBJ debug things
 #ifdef _DEBUG
 #define DBJ_ASSERT _ASSERTE

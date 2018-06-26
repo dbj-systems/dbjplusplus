@@ -147,21 +147,21 @@ namespace dbj {
 		/// of the lambda bodys
 		/// whose return value is returned
 		/// </summary>
-		template< typename lambada_type >
-		inline auto test_lambada(const char * expression, lambada_type lambada)
+		template<typename return_type>
+		inline decltype(auto)
+			test_lambada(const char * expression, return_type && anything)
 		{
 			using namespace dbj::win::con;
 			static dbj::c_line<80, '-'> L80;
-			auto anything = lambada();
 			dbj::print(
 				painter_command::green, "\n", L80,
-				                        "\n- expression -> ", painter_command::text_color_reset, expression,
-				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset,  typeid(anything).name(),
+				"\n- expression -> ", painter_command::text_color_reset, expression,
+				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
 				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
-			return anything;
+			return std::move(anything);
 		};
 
-#define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);} ) 
+#define DBJ_TEST_ATOM(x) ( dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) ) 
 #endif // DBJ_TEST_ATOM
 
 	} // testing
