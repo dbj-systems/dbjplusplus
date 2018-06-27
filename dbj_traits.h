@@ -2,6 +2,11 @@
 #ifndef _WIN32
 #include <cxxabi.h>
 #endif
+
+#include <type_traits>
+#include <typeinfo>
+#include <array>
+#include <vector>
 // license is at eof
 #pragma region enable_if helpers
 
@@ -145,7 +150,7 @@ return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<dec
 } // dbj
 #pragma endregion 
 
-#pragma region is for containers
+#pragma region for containers
   /*
   dbj vector to touple optimization of  https://stackoverflow.com/posts/28411055/
   */
@@ -153,56 +158,59 @@ namespace dbj {
 
 	using namespace std;
 
-	namespace {
+	namespace inner {
 
-		template<typename T> struct is_std_array : public false_type {};
+		template <typename T, typename = void>
+		struct is_range final : std::false_type {};
 
-		/* this is not catching anything but a **value** of type vector<t> */
+		template <typename T>
+		struct is_range<T
+			, std::void_t
+			  <
+			    decltype(std::declval<T>().begin()),
+			    decltype(std::declval<T>().end())
+			  >
+		> final : std::true_type {};
+
+		// template<typename T> constexpr inline bool is_range_v = is_range<T>::value;
+		/*-----------------------------------------------------------*/
+		/*
+		full is_stl_container solution here: https://goo.gl/8ZQ5Xj
+		*/
+		template<typename T > struct is_std_array : public false_type {};
+
+		/* this is not catching anything but a type array<t,n> */
 		template<typename T, size_t N>
 		struct is_std_array< array<T, N> > : public true_type {};
 
 		/*-----------------------------------------------------------*/
 
-		template<typename T> struct is_vector : public false_type {};
+		template<typename T> struct is_std_vector : public false_type {};
 
-		/* this is not catching anything but a **value** of type vector<t> */
+		/* this is not catching anything but a type vector<t> */
 		template<typename T, typename A>
-		struct is_vector< vector<T, A> > : public true_type {};
+		struct is_std_vector< vector<T, A> > : public true_type {};
 	}
-	/*
-	To use the above one would need to write this (for example) :
-	teamplate<typename T> void some_function ( T & v ) {
-	static_assert( is_vector< std::decay_t< decltype(v)> >::value );
-	}
-	this is not very elegant or usefull , so ...
-	*/
 
-	/* template struct */
+	// type aliases and value aliases
+	template<typename T>
+	constexpr inline bool is_range_v = inner::is_range<T>::value;
+
+	template<typename T>
+	using is_range_t = typename inner::is_range<T>::type;
+
+	template< typename T >
+	using is_std_array_t = typename inner::is_std_array< std::decay_t<T> >::type;
+
+	template< typename T >
+	constexpr inline bool is_std_array_v = inner::is_std_array< std::decay_t<T> >::value;
+
 	template< typename T>
-	struct IS_VECTOR {
-		static const bool value = 
-			is_vector< std::decay_t< T > >::value;
-	};
+	using is_std_vector_t = typename inner::is_std_vector< std::decay_t<T> >::type;
 
-	/* variable template */
 	template< typename T>
-	inline constexpr bool IS_VECTOR_V 
-		= is_vector< std::decay_t< T > >::value;
+	constexpr inline bool is_std_vector_v = inner::is_std_vector< std::decay_t<T> >::value;
 
-	/* template alias */
-	template< typename T>
-	using IS_VECTOR_T 
-		= typename is_vector< std::decay_t< T > >::type;
-
-	namespace {
-		/*
-		one uses this in runtime situations
-		*/
-		inline auto is_vector_v 
-			= [](const auto & v) constexpr -> bool {
-			return is_vector< std::decay_t< decltype(v) > >::value;
-		};
-	}
 
 } // eof dbj
 #pragma endregion

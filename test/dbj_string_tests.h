@@ -2,41 +2,47 @@
 
 DBJ_TEST_SPACE_OPEN(string_util_tests )
 
+DBJ_TEST_UNIT(" dbj str tokenizer") {
+
+	DBJ_TEST_ATOM(dbj::str::tokenize("prefix mif fix fenix"));
+	DBJ_TEST_ATOM(dbj::str::tokenize(L"prefix mif fix fenix"));
+}
+
 DBJ_TEST_UNIT(" dbj str optimal") {
 
 	// capacity and size of os1 is 255
 	// it will not do any heap alloc / de-alloc
 	// for size < 255
-	auto os1 = DBJ_TEST_ATOM(dbj::str::optimal<char>());
-	auto os2 = DBJ_TEST_ATOM(dbj::str::optimal<wchar_t>(1024));
-	auto os3 = DBJ_TEST_ATOM(dbj::str::optimal<char16_t>(512, u'='));
-	auto os4 = DBJ_TEST_ATOM(dbj::str::optimal<char32_t>(128, U'+'));
+	DBJ_TEST_ATOM(dbj::str::optimal<char>());
+	DBJ_TEST_ATOM(dbj::str::optimal<wchar_t>(1024));
+	DBJ_TEST_ATOM(dbj::str::optimal<char16_t>(512, u'='));
+	DBJ_TEST_ATOM(dbj::str::optimal<char32_t>(128, U'+'));
 }
 
 DBJ_TEST_UNIT(" testing dbj::str::is_std_string_v<>")
 {
-	auto rez_0 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::string>);
-	auto rez_1 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::wstring>);
-	auto rez_2 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::u16string>);
-	auto rez_3 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::u32string>);
-	auto rez_4 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<char *>);
-	auto rez_5 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<const char *>);
-	auto rez_6 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<char(&)[]>);
-	auto rez_7 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<char(*)[]>);
-	auto rez_8 = DBJ_TEST_ATOM(dbj::str::is_std_string_v<char[]>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::string>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::wstring>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::u16string>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::u32string>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char *>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<const char *>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char(&)[]>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char(*)[]>);
+	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char[]>);
 }
 
 DBJ_TEST_UNIT(" testing dbj::str::is_std_char_v<>")
 {
-	auto rez_0 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<char>);
-	auto rez_1 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<wchar_t>);
-	auto rez_2 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<char16_t>);
-	auto rez_3 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<char32_t>);
-	auto rez_4 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<char *>);
-	auto rez_5 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<const char *>);
-	auto rez_6 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<char & >);
-	auto rez_7 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<char &&>);
-	auto rez_8 = DBJ_TEST_ATOM(dbj::str::is_std_char_v<const wchar_t >);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<wchar_t>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char16_t>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char32_t>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char *>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<const char *>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char & >);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char &&>);
+	DBJ_TEST_ATOM(dbj::str::is_std_char_v<const wchar_t >);
 }
 
 DBJ_TEST_UNIT(" dbj string utils ") {
