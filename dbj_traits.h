@@ -172,7 +172,6 @@ namespace dbj {
 			  >
 		> final : std::true_type {};
 
-		// template<typename T> constexpr inline bool is_range_v = is_range<T>::value;
 		/*-----------------------------------------------------------*/
 		/*
 		full is_stl_container solution here: https://goo.gl/8ZQ5Xj

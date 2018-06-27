@@ -19,6 +19,28 @@
 #define DBJ_IL(T,...) (std::initializer_list<T>{__VA_ARGS__})
 
 namespace dbj {
+
+	namespace util {
+		//-----------------------------------------------------------------------------
+		// rac == Range and Container
+		// I prefer it to std::array
+		template<
+			typename T, std::size_t N
+		>
+			struct rac final
+		{
+			using type = T;
+			using data_ref = std::reference_wrapper<T[N]>;
+			T * begin() const { return value; }
+			T * end() const { return value + N; }
+			size_t size() const { return N; }
+			data_ref data() const { return data_ref{ value }; }
+			// yes data is public
+			// if you need a foot gun
+			// help yourself
+			mutable T value[N]{};
+		};
+	}
 	 
 	namespace math {
 
