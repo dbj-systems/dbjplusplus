@@ -82,7 +82,12 @@ namespace dbj::win::con {
 			}
 #pragma endregion 
 
-			typedef enum class CODE : UINT { page_1252 = 1252, page_65001 = 65001 } CODE_PAGE;
+			typedef enum class CODE : UINT { 
+				page_1252 = 1252,   // western european windows
+				page_65001 = 65001, // utf8
+				page_1200  = 1200,  // utf16?
+				page_1201  = 1201   // utf16 big endian?
+			} CODE_PAGE;
 
 #pragma region "WideOut"
 			/*
@@ -108,7 +113,7 @@ namespace dbj::win::con {
 			
 			public:
 
-				static constexpr CODE DEFAULT_CODEPAGE_ = CODE::page_1252;
+				static constexpr CODE DEFAULT_CODEPAGE_ = CODE::page_1201 ;
 
 				WideOut( CODE CODEPAGE_ = DEFAULT_CODEPAGE_ ) noexcept
 					: code_page_((UINT)CODEPAGE_)

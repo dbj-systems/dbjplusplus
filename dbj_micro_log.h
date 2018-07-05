@@ -306,3 +306,19 @@ just print to the stream as ever
   limitations under the License.
   */
 
+#ifdef DBJ_TESTING_ONAIR 
+DBJ_TEST_SPACE_OPEN( micro_log )
+
+DBJ_TEST_UNIT(" dbj micro log test") {
+
+	dbj::log::print(L"\nHello, are you ok", L"with two, or", " three arguments?");
+	dbj::log::instance().flush();
+	dbj::log::print("\nDBJ")(" micro")(" log!");
+	dbj::log::instance().flush();
+
+	std::byte dumzy[[maybe_unused]]{};
+
+}
+
+DBJ_TEST_SPACE_CLOSE(micro_log)
+#endif // DBJ_TESTING_ONAIR 

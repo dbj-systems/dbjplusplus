@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef DBJ_TESTING_ONAIR
 #include "dbj_testing.h"
 /*
    testing interface depends on the dbj::win::con
@@ -166,6 +166,8 @@ namespace dbj {
 
 	} // testing
 } // dbj
+
+#endif // #ifdef DBJ_TESTING_ONAIR
 
   /*
   Copyright 2017 by dbj@dbj.org

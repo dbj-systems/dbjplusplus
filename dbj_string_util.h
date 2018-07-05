@@ -19,17 +19,36 @@ namespace dbj::str {
 
 	using namespace std;
 
-	//NOTE: pointers are not char's
-	// char *. wchar_t * .. are thus not chars	template< class T>
-	template<typename T>
-	struct is_std_char : integral_constant<bool,
-		is_same<remove_cv_t<T>, char     >::value ||
-		is_same<remove_cv_t<T>, wchar_t  >::value ||
-		is_same<remove_cv_t<T>, char16_t >::value ||
-		is_same<remove_cv_t<T>, char32_t >::value> {};
+	// dbj.org 2018-07-03
+	// NOTE: pointers are not char's
+	// char *. wchar_t * .. are thus not chars	
+	// take care of chars and their signed and unsigned forms
+	// where 'char' means one of the four std char types
 
+	template<class _Ty>	struct is_char : std::false_type {	};
+	template<> struct is_char<char> : std::true_type {	};
+	template<> struct is_char<signed char> : std::true_type {	};
+	template<> struct is_char<unsigned char> : std::true_type {	};
+
+	template<class _Ty>	struct is_wchar : std::false_type {	};
+	template<> struct is_wchar<wchar_t> : std::true_type {	};
+
+	template<class _Ty>	struct is_char16 : std::false_type {	};
+	template<> struct is_char16<char16_t> : std::true_type {	};
+
+	template<class _Ty>	struct is_char32 : std::false_type {	};
+	template<> struct is_char32<char32_t> : std::true_type {	};
+
+	// and one for all
 	template<typename T>
-	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
+	struct is_std_char :
+		std::integral_constant
+		<
+		bool,
+		is_char<T>::value || is_wchar<T>::value ||
+		is_char16<T>::value || is_char32<T>::value
+		>
+	{};
 
 
 	template< class T>

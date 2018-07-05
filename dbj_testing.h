@@ -1,7 +1,5 @@
 #pragma once
-#ifndef DBJ_TESTING_ONAIR
-#error dbj testing requires DBJ_TESTING_ONAIR to be hash defined
-#endif
+#ifdef DBJ_TESTING_ONAIR
 /*
 (c) dbj.org, see the license at file bottom
 
@@ -232,6 +230,8 @@ TODO: if symbol contains comma this is not going to work
 #define DBJ_NV_DELIMITER " , "
 #define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
+
+#endif // #ifdef DBJ_TESTING_ONAIR
 
 /*
   Copyright 2017 by dbj@dbj.org

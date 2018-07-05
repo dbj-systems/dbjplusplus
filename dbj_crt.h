@@ -27,7 +27,7 @@
 // release code dissapears some things, not all
 // be carefull with DBJ::TRACE as it might _ASSERTE in release builds
 // 
-#define DBJ_ASSERT 
+#define DBJ_ASSERT __noop
 // release code for DBJ_VERIFY_ stays but with no checks
 #define DBJ_VERIFY(result, expression) (void)(expression)
 #endif
