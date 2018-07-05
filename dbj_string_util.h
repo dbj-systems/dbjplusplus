@@ -50,6 +50,9 @@ namespace dbj::str {
 		>
 	{};
 
+	template<typename T>
+	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
+
 
 	template< class T>
 	struct is_std_string : integral_constant<bool,
