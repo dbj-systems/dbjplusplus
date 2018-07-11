@@ -113,7 +113,7 @@ namespace dbj {
 
 		//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 		__forceinline auto getLastErrorMessage(
-			const STRING & prompt = STRING{}, DWORD errorMessageID = ::GetLastError()
+			const STRING & prompt = STRING{}, DWORD errorMessageID = last_error()
 		)
 		{
 			//Get the error message, if any.
@@ -137,7 +137,7 @@ namespace dbj {
 		}
 
 		__forceinline auto getLastErrorMessage(
-			const char * prompt, DWORD errorMessageID = ::GetLastError())
+			const char * prompt, DWORD errorMessageID = last_error())
 		{
 			return getLastErrorMessage(dbj::wide(prompt), errorMessageID);
 		}
@@ -198,6 +198,73 @@ namespace dbj {
 			}
 
 		} // sysinfo
+
+		/* geo info api using mechanism 
+
+		location two letter codes --> https://www.iso.org/obp/ui/#search/code/
+
+		https://docs.microsoft.com/en-us/windows/desktop/api/winnls/ne-winnls-sysgeotype
+		for SYSGEOTYPE
+		*/
+
+		using geo_info_map_type = std::map<const wchar_t const *, std::wstring >;
+
+		inline auto geo_info = [](PWSTR location) {
+
+			auto info_query = [](PWSTR location, SYSGEOTYPE query)
+				-> std::wstring
+			{
+				/*https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-getgeoinfoex*/
+
+				auto use_geo_info = [&](PWSTR geoData, int geoDataCount) {
+					return ::GetGeoInfoEx(
+						(PWSTR)location,
+						(GEOTYPE)query,
+						(PWSTR)geoData,
+						(int)geoDataCount
+					);
+				};
+
+				int size = use_geo_info(NULL, 0);
+				_ASSERTE(size > 0);
+
+				std::wstring geoData(size, 0);
+				int rezult = use_geo_info(geoData.data(), (int)geoData.size());
+
+				if (0 == rezult) {
+					const auto err = dbj::win32::last_error();
+					if (err == ERROR_INSUFFICIENT_BUFFER)
+						return { L"The supplied buffer size was not large enough, or it was incorrectly set to NULL." };
+					if (err == ERROR_INVALID_PARAMETER)
+						return { L"A parameter value was not valid." };
+					if (err == ERROR_INVALID_FLAGS)
+						return { L"The values supplied for flags were not valid" };
+				}
+				DBJ_ASSERT(rezult != 0);
+				return geoData;
+			};
+
+			geo_info_map_type geo_info_map{};
+
+			geo_info_map[L"GEO_LATITUDE"] = info_query(location, GEO_LATITUDE);
+			geo_info_map[L"GEO_LONGITUDE"] = (info_query(location, GEO_LONGITUDE));
+			geo_info_map[L"GEO_ISO2"] = (info_query(location, GEO_ISO2));
+			geo_info_map[L"GEO_ISO3"] = (info_query(location, GEO_ISO3));
+			geo_info_map[L"GEO_FRIENDLYNAME"] = (info_query(location, GEO_FRIENDLYNAME));
+			geo_info_map[L"GEO_OFFICIALNAME"] = (info_query(location, GEO_OFFICIALNAME));
+			geo_info_map[L"GEO_ISO_UN_NUMBER"] = (info_query(location, GEO_ISO_UN_NUMBER));
+			geo_info_map[L"GEO_PARENT"] = (info_query(location, GEO_PARENT));
+			geo_info_map[L"GEO_DIALINGCODE"] = (info_query(location, GEO_DIALINGCODE));
+			geo_info_map[L"GEO_CURRENCYCODE"] = (info_query(location, GEO_CURRENCYCODE));
+			geo_info_map[L"GEO_CURRENCYSYMBOL"] = (info_query(location, GEO_CURRENCYSYMBOL));
+			geo_info_map[L"GEO_NAME"] = (info_query(location, GEO_NAME));
+
+			return geo_info_map;
+
+		}; // geo_info
+
+
+
 	} // win32
 } // dbj
 
