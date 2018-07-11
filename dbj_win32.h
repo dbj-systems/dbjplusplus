@@ -97,6 +97,20 @@ namespace dbj {
 		using long_string_pointer = CHAR_T *; // LPWSTR;
 #pragma endregion "dbj win32 string types"
 
+		namespace inner {
+			struct last final
+			{
+				mutable int error{};
+				last() : error(::GetLastError()) {}
+				~last() { ::SetLastError(0); }
+			};
+		}
+
+		inline int last_error()
+		{
+			return inner::last{}.error;
+		};
+
 		//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 		__forceinline auto getLastErrorMessage(
 			const STRING & prompt = STRING{}, DWORD errorMessageID = ::GetLastError()
@@ -104,7 +118,7 @@ namespace dbj {
 		{
 			//Get the error message, if any.
 			if (errorMessageID == 0)
-				return STRING(); //No error message has been recorded
+				return STRING{}; //No error message has been recorded
 
 			long_string_pointer messageBuffer = nullptr;
 

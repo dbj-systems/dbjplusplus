@@ -384,14 +384,41 @@ namespace dbj {
 		
 		template<std::size_t N>
 		constexpr str_const(const char(&a)[N]) : // ctor
-			p_(a), sz_(N - 1) {		}
+			p_(a), sz_(N - 1) {		
+		}
 
-		constexpr char operator[](std::size_t n) const 
+		template<std::size_t N>
+		constexpr str_const(const char(&a)[N], std::size_t from, std::size_t to ) : // ctor
+			p_(a + from), sz_(a + from + to) 
+		{
+			static_assert(  to  <= N  );
+			static_assert( from <  to );
+		}
+
+		// dbj added
+		constexpr const char * data () const{	return this->p_;	}
+
+		constexpr char operator[](const std::size_t & n) const 
 		{ 
-			return n < sz_ ? this->p_[n] : throw std::out_of_range("");
+			return ( n <= sz_ ? this->p_[n] : throw std::out_of_range(__func__));
 		}
 		
 		constexpr std::size_t size() const noexcept { return this->sz_; }
+
+		// dbj added
+		constexpr bool friend operator == ( const str_const & left, const str_const & right ) 
+		{
+			if (left.size() != right.size()) 
+					return false;
+			std::size_t index_ = 0, max_index_ = left.size() ;
+			while (index_ < max_index_) {
+				if (left[index_] != right[index_]) {
+					return false;
+				}
+				index_ += 1;
+			}
+			return true;
+		}
 	};
 
 	/*

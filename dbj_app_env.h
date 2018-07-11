@@ -89,7 +89,7 @@ namespace dbj::app_env {
 
 			// extract the unicode  command line
 			data_type
-				warg_data{ command_line_data(argc, warg) };
+				warg_data{ command_line_data( static_cast<std::size_t>(argc), warg) };
 
 			// calculate the count of env vars 
 			auto count_to_null = [](auto ** list_) constexpr->size_t {
