@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dbj_crt.h"
+#include "dbj_traits.h"
 
 /*
 #include <string>
@@ -14,6 +15,25 @@
 #include <memory>  // allocator
 #include <string>
 #include <optional>
+
+/*
+the oher three" string types to std::ostream
+*/
+inline std::ostream & operator << (std::ostream & os, const std::wstring ws_)
+{
+	return os << std::string{ ws_.begin(), ws_.end() };
+}
+
+inline std::ostream & operator << (std::ostream & os, const std::u16string ws_)
+{
+	return os << std::string{ ws_.begin(), ws_.end() };
+}
+
+inline  std::ostream & operator << (std::ostream & os, const std::u32string ws_)
+{
+	return os << std::string{ ws_.begin(), ws_.end() };
+}
+
 
 namespace dbj::str {
 
@@ -235,7 +255,59 @@ template <
 		return words;
 	}
 
-}
+	namespace inner {
+		/// <summary>
+		/// Try to convert any range made of standard char types
+		/// return type should be one of std strings
+		/// range is anything that has begin() and end(), and 
+		/// value_type typedef as per std containers model
+		/// </summary>
+		template < typename return_type >
+		struct meta_converter final
+		{
+			template<typename T>
+			return_type operator () (T arg)
+			{
+				if constexpr (dbj::is_range_v<T>) {
+					static_assert (
+						// arg must have this typedef
+						dbj::str::is_std_char_v< T::value_type >,
+						"can not transform ranges not made out of standard char types"
+						);
+					return { arg.begin(), arg.end() };
+				}
+				else {
+					using actual_type
+						= std::remove_cv_t< std::remove_pointer_t<T> >;
+					return this->operator()(
+						std::basic_string<actual_type>{ arg }
+					);
+				}
+			}
+		}; // meta_converter
+
+		   // explicit instantiations
+		template struct meta_converter<std::string   >;
+		template struct meta_converter<std::wstring  >;
+		template struct meta_converter<std::u16string>;
+		template struct meta_converter<std::u32string>;
+
+		template < typename T >
+		std::ostream & operator << (std::ostream & os, const meta_converter<T> & ws_)
+		{
+			return os << "\nMeta Converter, return type: " << typeid(T).name() << "\n\n";
+		}
+
+	} // inner
+
+	  // all the types required / implicit instantiations
+	using char_range_to_string = inner::meta_converter<std::string   >;
+	using wchar_range_to_string = inner::meta_converter<std::wstring  >;
+	using u16char_range_to_string = inner::meta_converter<std::u16string>;
+	using u32char_range_to_string = inner::meta_converter<std::u32string>;
+
+
+} // dbj::str
 /*
 Copyright 2017,2018 by dbj@dbj.org
 
