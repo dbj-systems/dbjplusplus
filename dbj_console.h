@@ -526,21 +526,14 @@ namespace dbj::win::con {
 
 				template<typename T, typename A	>
 				inline void out(const std::vector<T, A> & v_) {
-					/*
-					out(internal::prefix);
-					std::size_t c_ = 0;
-					auto v_size = v_.size();
-					for (auto e : v_ )
-					{
-						out( e );
-						if ( ++c_ < v_size )
-							out(internal::delim);
-					}
-					out(internal::suffix);
-					*/
 					internal::print_range(v_);
 				}
 
+				template<typename K, typename V	>
+				inline void out(const std::map<K, V> & map_) {
+					internal::print_range(map_);
+				}
+				
 				template<typename T, std::size_t S	>
 				inline void out(const std::array<T, S> & arr_) {
 					internal::print_range(arr_);
