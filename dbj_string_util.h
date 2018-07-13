@@ -19,17 +19,17 @@
 /*
 the oher three" string types to std::ostream
 */
-inline std::ostream & operator << (std::ostream & os, const std::wstring ws_)
+inline std::ostream & operator << (std::ostream & os, std::wstring && ws_)
 {
 	return os << std::string{ ws_.begin(), ws_.end() };
 }
 
-inline std::ostream & operator << (std::ostream & os, const std::u16string ws_)
+inline std::ostream & operator << (std::ostream & os, std::u16string && ws_)
 {
 	return os << std::string{ ws_.begin(), ws_.end() };
 }
 
-inline  std::ostream & operator << (std::ostream & os, const std::u32string ws_)
+inline  std::ostream & operator << (std::ostream & os, std::u32string && ws_)
 {
 	return os << std::string{ ws_.begin(), ws_.end() };
 }

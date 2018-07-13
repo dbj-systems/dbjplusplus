@@ -163,17 +163,11 @@ namespace dbj {
 	*/
 	struct Exception : public std::runtime_error 
 	{
-	// private:
-		// dangerous cludge ?
-		std::wstring & last_what( ) const
+		std::wstring last_what( ) const
 		{
-			static std::wstring last_what_{ 255, 0 };
-
-			std::string s_(this->what());
+			std::string s_{ this->what() };
 			// dangerous cludge
-			last_what_
-				= std::wstring{ std::begin(s_), std::end(s_) };
-			return last_what_;
+			return { std::begin(s_), std::end(s_) };
 		}
 	public:
 		typedef std::runtime_error _Mybase;
@@ -196,11 +190,7 @@ namespace dbj {
 		{	// construct from message string
 		}
 
-		operator std::wstring_view () const {
-			auto & lw_ = last_what();
-			return std::wstring_view(lw_.data(), lw_.size()) ;
-		}
-
+		operator std::wstring () const { return last_what(); }
 	};
 }
 

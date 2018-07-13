@@ -11,6 +11,7 @@
 #pragma region enable_if helpers
 
 	namespace dbj {
+
 		template < typename T >
 		const std::string name() noexcept
 		{
@@ -210,6 +211,8 @@ namespace dbj {
 	template< typename T>
 	constexpr inline bool is_std_vector_v = inner::is_std_vector< std::decay_t<T> >::value;
 
+	template <typename T>
+	using is_bool_t = std::is_same<typename std::remove_cv_t<T>, bool>;
 
 } // eof dbj
 #pragma endregion

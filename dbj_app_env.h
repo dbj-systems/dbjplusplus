@@ -129,7 +129,7 @@ namespace dbj::app_env {
 		const unsigned __int64	env_vars_count{};
 		const map_type		env_vars{};
 
-		operator std::string  () const noexcept 
+		operator std::string_view  () const noexcept 
 		{
 			return { typeid(*this).name() };
 		}

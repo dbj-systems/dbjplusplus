@@ -207,7 +207,7 @@ namespace dbj {
 		for SYSGEOTYPE
 		*/
 
-		using geo_info_map_type = std::map<const wchar_t const *, std::wstring >;
+		using geo_info_map_type = std::map<const wchar_t *, std::wstring >;
 
 		inline auto geo_info = [](PWSTR location) {
 

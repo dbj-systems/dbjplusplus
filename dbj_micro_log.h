@@ -143,7 +143,7 @@ namespace dbj {
 						dbj::win::con::out(buffer_.data());
 					}
 #ifdef _DEBUG
-					_RPT0(_CRT_WARN, buffer_.data());
+					_RPT0(_CRT_WARN, buffer_.c_str());
 #endif
 					// clear the buffer afterwards
 					buffer_.clear();
