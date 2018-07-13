@@ -6,7 +6,7 @@
 
 DBJ_TEST_SPACE_OPEN(console_)
 
-	using namespace  dbj::win::con ;
+	using namespace  dbj::console ;
 
 	DBJ_TEST_UNIT(" : dbj console test ONE" ) {
 
@@ -18,7 +18,7 @@ DBJ_TEST_SPACE_OPEN(console_)
 			/*
 			here we use them commands
 			*/
-			dbj::print( "\n",
+			dbj::console::print( "\n",
 				"\n", painter_command::white, "White\t\t", text_,
 				"\n", painter_command::red, "Red\t\t", text_,
 				"\n", painter_command::green, "Green\t\t", text_,

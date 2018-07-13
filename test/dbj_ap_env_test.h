@@ -6,7 +6,7 @@ DBJ_TEST_SPACE_OPEN(app_env_)
 
 DBJ_TEST_UNIT(" dbj application environment test ") {
 
-	using dbj::print;
+	using dbj::console::print;
 
 	auto application_rt_environment
 		= DBJ_TEST_ATOM(dbj::app_env::structure::instance());

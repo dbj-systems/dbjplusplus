@@ -1,8 +1,16 @@
 ﻿#pragma once
 
-// windows.h required here
-#if !defined(_CONSOLE)
+#ifndef  UNICODE
+#define UNICODE
+#else
+#endif // ! UNICODE
 
+#define WIN32_LEAN_AND_MEAN
+#define STRICT
+#define NOMINMAX
+#include <windows.h>
+
+#if !defined(_CONSOLE)
 #pragma message ( "#############################################################" )
 #pragma message ( DBJ_CONCAT( "File: ", __FILE__) )
 #pragma message ( DBJ_CONCAT( "Line: ",  DBJ_EXPAND(__LINE__)))
@@ -10,13 +18,17 @@
 #pragma message ( "#############################################################" )
 #endif
 
-#pragma region "Console Interfaces"
+#ifndef DBJ_WIN
+#define DBJ_WIN
+#endif // !DBJ_WIN
+
 #include "dbj_crt.h"
 #include "dbj_win32.h"
+#include "dbj_string_util.h"
 /*
 #include "dbj_console_painter.h"
 */
-namespace dbj::win::con {
+namespace dbj::console {
 
 	/* interface to the wide char console */
 	__interface IConsole {
@@ -31,7 +43,7 @@ namespace dbj::win::con {
 		// from --> to, must be a sequence
 		void out(const wchar_t * from, const wchar_t * to) const;
 	};
-#pragma endregion "Console Interfaces"
+
 
 #pragma region "fonts"
 	/*
@@ -100,7 +112,7 @@ namespace dbj::win::con {
 	Note that the Windows console isn't UTF16 friendly and may just show garbage.
 	*/
 	struct __declspec(novtable)	WideOut final
-		: public dbj::win::con::IConsole
+		: public IConsole
 	{
 		mutable		HANDLE output_handle_;
 		mutable		UINT   previous_code_page_;
@@ -272,8 +284,8 @@ namespace dbj::win::con {
 	// we are here in dbj::win::con
 	// we need to have only a single instance 
 	/*
-	inline auto switch_console(dbj::win::con::CODE code_) {
-		console_ = dbj::win::con::WideOut(code_);
+	inline auto switch_console(dbj::CODE code_) {
+		console_ = dbj::WideOut(code_);
 		return console_;
 	};
 	*/
@@ -303,15 +315,15 @@ namespace dbj::win::con {
 			std::size_t arg_count{ 0 };
 
 			auto delimited_out = [&](auto && val_) {
-				win::con::out(val_);
-				if ((arg_count++) < (argsize - 1)) win::con::out(delim);
+				out(val_);
+				if ((arg_count++) < (argsize - 1)) out(delim);
 			};
 
-			win::con::out(prefix); win::con::out(space);
+			out(prefix); out(space);
 			for (auto item : range) {
 				delimited_out(item);
 			}
-			win::con::out(space); win::con::out(suffix);
+			out(space); out(suffix);
 		};
 
 		/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
@@ -327,14 +339,14 @@ namespace dbj::win::con {
 
 			auto delimited_out = [&](auto && val_)
 			{
-				win::con::out(val_);
+				out(val_);
 				if (arg_count < pack_size) {
-					win::con::out(delim);
+					out(delim);
 				}
 				arg_count += 1;
 			};
 
-			win::con::out(prefix); win::con::out(space);
+			out(prefix); out(space);
 
 			delimited_out(first);
 
@@ -342,7 +354,7 @@ namespace dbj::win::con {
 				(delimited_out(args), ...);
 			}
 
-			win::con::out(space); win::con::out(suffix);
+			out(space); out(suffix);
 		};
 
 	} // internal nspace
@@ -357,9 +369,9 @@ Thus we achieved a decoupling of console and painter
 */
 	template<
 		typename N,
-		typename = std::enable_if_t<
+		typename std::enable_if_t<
 		std::is_same_v<N, painter_command>
-		>
+		>* = nullptr
 	>
 		inline void out(N cmd_) {
 		painter_commander().execute(cmd_);
@@ -369,49 +381,94 @@ Thus we achieved a decoupling of console and painter
 		painter_commander().execute(cmd_);
 	}
 
-	/*
-	by using enable_if we make sure this template instances are made
-	only for types we want
-	*/
-	template<typename N, typename = std::enable_if_t<std::is_arithmetic<N>::value > >
-	inline void out(const N & number_) {
+	template< typename N >
+	inline void out
+	(
+		const N & number_,
+		typename std::enable_if_t<std::is_arithmetic_v<N> >* = nullptr
+	) {
 		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
 		console_.out(std::to_wstring(number_));
 	}
 
-	/*
-	above is lovely but that will catch more than we hoped for
-	for example bool-eans too
-	*/
-	/*
-				template
-					<typename B,
-					typename = std::enable_if_t<
-								std::is_same_v<B, bool>
-								>
-					>
-					inline void out( B && val_) {
-	*/
-	inline void out(const bool val_) {
+	template< typename B	>
+	inline void out
+	(
+		bool val_,
+		typename std::enable_if_t<
+		std::is_same_v< std::remove_cv_t<B>, bool>
+		>* = nullptr
+	) {
 		console_.out((true == val_ ? L"true" : L"false"));
 	}
 
 	template< typename T, size_t N >
 	inline void out(const std::reference_wrapper< T[N] > wrp)
 	{
-		_ASSERTE(std::addressof( wrp  ) != nullptr);
-		_ASSERTE(std::addressof(wrp[0]) != nullptr);
+		if (wrp.get() != nullptr)
+			throw std::runtime_error(__FUNCSIG__ " -- reference to dangling pointer");
 		using nativarref = T(&)[N];
 		internal::print_range((nativarref)wrp.get());
 	}
 
-#pragma region strings to string views does not happen automatically
-	/* here are the out() overloads for intrinsic types */
-	inline void out(const std::wstring & s_) {
-		if (! s_.empty())
-		console_.out(s_);
+
+
+	template<typename T, size_t N>
+	static void out(
+		const T(&carr)[N],
+		const size_t & maxlen,
+		typename
+		std::enable_if<
+		dbj::str::is_std_char_v< std::remove_cv_t<T> >
+		>::type * = nullptr
+	)
+	{
+		_ASSERTE(N > 1);
+		console_.out(carr, carr + N);
+	}
+	/*
+	 output the standard string
+	 enable only if it is made out
+	 of standard chars
+	*/
+	template<typename T>
+	inline void out
+	(
+		const std::basic_string<T> & s_,
+		typename
+		std::enable_if<
+		std::is_same<T, char>::value ||
+		std::is_same<T, wchar_t>::value ||
+		std::is_same<T, char16_t>::value ||
+		std::is_same<T, char32_t>::value
+		>::type * = nullptr
+	) {
+		if (!s_.empty())
+			console_.out(s_);
 	}
 
+	/*
+	output the standard string view
+	enable only if it is made out
+	of standard chars
+	*/
+	template<typename T>
+	inline void out
+	(
+		const std::basic_string_view<T> & s_,
+		typename
+		std::enable_if<
+		std::is_same<T, char>::value ||
+		std::is_same<T, wchar_t>::value ||
+		std::is_same<T, char16_t>::value ||
+		std::is_same<T, char32_t>::value
+		>::type * = nullptr
+	) {
+		if (!s_.empty())
+			console_.out(s_);
+	}
+
+	/*
 	inline void out(const std::string & s_) {
 		if (!s_.empty())
 			console_.out(s_);
@@ -426,8 +483,9 @@ Thus we achieved a decoupling of console and painter
 		if (!s_.empty())
 			console_.out(s_);
 	}
-#pragma endregion 
+*/
 
+/*
 	inline void out(const std::string_view sv_) {
 		if (sv_.empty()) return;
 		console_.out(sv_);
@@ -447,185 +505,181 @@ Thus we achieved a decoupling of console and painter
 		if (sv_.empty()) return;
 		console_.out(sv_);
 	}
-	/*	implement for these when required
-
-	template<typename T, size_t N>
-	inline void out(const T(*arp_)[N]) {
-		using arf_type = T(&)[N];
-		arf_type arf = (arf_type)arp_;
-		internal::print_range(arf);
-	}
-
-
-	template<size_t N>
-	inline void out(const char(&car_)[N]) {
-		console_.out(
-			std::string_view(car_, car_ + N)
-		);
-	}
-
-	template<size_t N>
-	inline void out(const wchar_t(&wp_)[N]) {
-		console_.out(std::wstring(wp_, wp_ + N));
-	}
-
-	inline void out(const char * cp) {
-		_ASSERTE(cp != nullptr);
-		console_.out(std::string(cp));
-	}
-
-	inline void out(const wchar_t * cp) {
-		_ASSERTE(cp != nullptr);
-		console_.out(std::wstring(cp));
-	}
-
-	inline void out(const char16_t * cp) {
-		_ASSERTE(cp != nullptr);
-		console_.out(std::u16string(cp));
-	}
-
-	inline void out(const char32_t * cp) {
-		_ASSERTE(cp != nullptr);
-		console_.out(std::u32string(cp));
-	}
-
-	inline void out(const wchar_t wp_) {
-		console_.out(std::wstring(1, wp_));
-	}
-
-	inline void out(const char c_) {
-		char str[] = { c_ , '\0' };
-		console_.out(std::wstring(std::begin(str), std::end(str)));
-	}
-
-	inline void out(const char16_t wp_) {
-		console_.out(std::u16string{ 1, wp_ });
-	}
-
-	inline void out(const char32_t wp_) {
-		console_.out(std::u32string{ 1, wp_ });
-	}
-
-	/*
-	now we will deliver out() overloads for "compound" types using the ones above
-	made for intrinsic types
-	------------------------------------------------------------------------
-	output the exceptions
-	*/
-
-	/* print exception and also color the output red */
-	/*
-				inline void out(const dbj::Exception & x_) {
-					paint(painter_command::bright_red);
-					// "magic" calls std::wstring casting operator
-					// not a good idea?
-					console_.out((std::wstring)(x_));
-					paint(painter_command::text_color_reset);
-				}
-   */
-				inline void out(const std::exception x_) {
-					paint(painter_command::bright_red);
-					console_.out( x_.what() );
-					paint(painter_command::text_color_reset);
-				}
-
-				template<typename T>
-				inline void out(const std::variant<T> & x_) {
-					out(std::get<0>(x_));
-				}
-
-				template<typename T, typename A	>
-				inline void out(const std::vector<T, A> & v_) {
-					if (v_.empty()) return;
-					internal::print_range(v_);
-				}
-
-				template<typename K, typename V	>
-				inline void out(const std::map<K, V> & map_) {
-					if (map_.empty()) return;
-					internal::print_range(map_);
-				}
-				
-				template<typename T, std::size_t S	>
-				inline void out(const std::array<T, S> & arr_) {
-					if (arr_.empty()) return;
-					internal::print_range(arr_);
-				}
-
-				template <class... Args>
-				inline void out(const std::tuple<Args...>& tple) {
-					
-					if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
-
-					std::apply(
-						[](auto&&... xs) {
-						internal::print_varargs(xs...);
-					},
-						tple);
-				}
-
-				template <typename T1, typename T2>
-				inline void out(const std::pair<T1, T2>& pair_) {
-					std::apply(
-						[](auto&&... xs) {
-						internal::print_varargs(xs...);
-					},
-						pair_);
-				}
-
-				/* output the { ... } aka std::initializer_list<T> */
-				template <class... Args>
-				inline void out(const std::initializer_list<Args...> & il_) 
-				{
-					if (il_.size() < 1) return;
-					std::apply(
-						[](auto&&... xs) {
-						internal::print_varargs(xs...);
-					},
-						il_);
-				}
-} // dbj::win::con
-
-// back to dbj 
-namespace dbj {
-/*
-forget templates, variadic generic lambda saves you of declaring them 
 */
-inline auto print = [](auto && first_param, auto && ... params)
-{
-	win::con::out(first_param);
+/*	implement for these when required
 
-	// if there are  more params
-	if constexpr (sizeof...(params) > 0) {
-		// recurse
-		print(params...);
+template<typename T, size_t N>
+inline void out(const T(*arp_)[N]) {
+	using arf_type = T(&)[N];
+	arf_type arf = (arf_type)arp_;
+	internal::print_range(arf);
+}
+
+
+template<size_t N>
+inline void out(const char(&car_)[N]) {
+	console_.out(
+		std::string_view(car_, car_ + N)
+	);
+}
+
+template<size_t N>
+inline void out(const wchar_t(&wp_)[N]) {
+	console_.out(std::wstring(wp_, wp_ + N));
+}
+
+inline void out(const char * cp) {
+	_ASSERTE(cp != nullptr);
+	console_.out(std::string(cp));
+}
+
+inline void out(const wchar_t * cp) {
+	_ASSERTE(cp != nullptr);
+	console_.out(std::wstring(cp));
+}
+
+inline void out(const char16_t * cp) {
+	_ASSERTE(cp != nullptr);
+	console_.out(std::u16string(cp));
+}
+
+inline void out(const char32_t * cp) {
+	_ASSERTE(cp != nullptr);
+	console_.out(std::u32string(cp));
+}
+
+inline void out(const wchar_t wp_) {
+	console_.out(std::wstring(1, wp_));
+}
+
+inline void out(const char c_) {
+	char str[] = { c_ , '\0' };
+	console_.out(std::wstring(std::begin(str), std::end(str)));
+}
+
+inline void out(const char16_t wp_) {
+	console_.out(std::u16string{ 1, wp_ });
+}
+
+inline void out(const char32_t wp_) {
+	console_.out(std::u32string{ 1, wp_ });
+}
+
+/*
+now we will deliver out() overloads for "compound" types using the ones above
+made for intrinsic types
+------------------------------------------------------------------------
+output the exceptions
+*/
+
+/* print exception and also color the output red */
+/*
+			inline void out(const dbj::Exception & x_) {
+				paint(painter_command::bright_red);
+				// "magic" calls std::wstring casting operator
+				// not a good idea?
+				console_.out((std::wstring)(x_));
+				paint(painter_command::text_color_reset);
+			}
+*/
+#if 0
+	inline void out(const std::exception & x_) {
+		paint(painter_command::bright_red);
+		console_.out(x_.what());
+		paint(painter_command::text_color_reset);
 	}
+#endif
+	template<typename T>
+	inline void out(const std::variant<T> & x_) {
+		out(std::get<0>(x_));
+	}
+
+	template<typename T, typename A	>
+	inline void out(const std::vector<T, A> & v_) {
+		if (v_.empty()) return;
+		internal::print_range(v_);
+	}
+
+	template<typename K, typename V	>
+	inline void out(const std::map<K, V> & map_) {
+		if (map_.empty()) return;
+		internal::print_range(map_);
+	}
+
+	template<typename T, std::size_t S	>
+	inline void out(const std::array<T, S> & arr_) {
+		if (arr_.empty()) return;
+		internal::print_range(arr_);
+	}
+
+	template <class... Args>
+	inline void out(const std::tuple<Args...>& tple) {
+
+		if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
+
+		std::apply(
+			[](auto&&... xs) {
+			internal::print_varargs(xs...);
+		},
+			tple);
+	}
+
+	template <typename T1, typename T2>
+	inline void out(const std::pair<T1, T2>& pair_) {
+		std::apply(
+			[](auto&&... xs) {
+			internal::print_varargs(xs...);
+		},
+			pair_);
+	}
+
+	/* output the { ... } aka std::initializer_list<T> */
+	template <class... Args>
+	inline void out(const std::initializer_list<Args...> & il_)
+	{
+		if (il_.size() < 1) return;
+		std::apply(
+			[](auto&&... xs) {
+			internal::print_varargs(xs...);
+		},
+			il_);
+	}
+
+	/*
+	forget templates, variadic generic lambda saves you of declaring them
+	*/
+	template <typename T, typename ... Args>
+	inline auto print (T && first_param, Args && ... params)
+	{
+		out(first_param);
+
+		// if there are  more params
+		if constexpr (sizeof...(params) > 0) {
+			// recurse
+			print(params...);
+		}
 		return print;
-};
+	};
 	// }
 
 #pragma endregion "eof printer implementation"
 
-} // dbj
-
-
-namespace dbj::console::config {
+	namespace /* dbj::console::*/ config {
 
 		/*
 		TODO: usable interface for users to define this
 		*/
 		inline const bool & instance()
 		{
-			using namespace dbj::win;
 			static auto configure_once_ = []() -> bool
 			{
 				auto font_name_ = L"Lucida Console";
-				auto code_page_ = con::instance().code_page() ; 
+				auto code_page_ = dbj::console::instance().code_page();
 				try {
 					// TODO: switch code page on a single running instance
 					// auto new_console[[maybe_unused]] = con::switch_console(code_page_);
 
-					con::setfont(font_name_);
+					dbj::console::setfont(font_name_);
 					DBJ::TRACE(L"\nConsole code page set to %d and font to: %s\n"
 						, code_page_, font_name_
 					);
@@ -642,13 +696,18 @@ namespace dbj::console::config {
 			}();
 			return configure_once_;
 		} // instance()
-			inline const bool & single_start = instance();
+		inline const bool & single_start = instance();
 
-} // dbj::console::config
+	} // config
 
+} // dbj::console
+
+//#ifndef dbj::console::print
+// #define dbj::console::print dbj::console::print
+// #endif
 
 /*
-  Copyright 2017 by dbj@dbj.org
+  Copyright 2017,2018 by dbj@dbj.org
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.

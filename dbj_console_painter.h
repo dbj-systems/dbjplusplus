@@ -1,16 +1,23 @@
 #pragma once
 
-#include <algorithm>
-#include <variant>
-/*
-#include "dbj_commander.h"
+#ifndef  UNICODE
+#define UNICODE
+#else
+#endif // ! UNICODE
 
-#ifndef _WINCON_
-#ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
 #define NOMINMAX
 #include <windows.h>
+
+#include <algorithm>
+#include <variant>
+#include "dbj_commander.h"
+
+/*
+
+#ifndef _WINCON_
+#ifndef _INC_WINDOWS
 #endif
 
 #ifndef _GDIPLUS_H
@@ -27,11 +34,9 @@ using namespace Gdiplus;
 #endif // _GDIPLUS_H
 #endif
 */
-namespace dbj {
-namespace win {
-namespace con {
+namespace dbj::console {
 #pragma region "colors and painter"
-namespace {
+namespace inner {
 				/* modification of catch.h console colour mechanism */
 				enum class Colour : unsigned {
 					None = 0,		White,	Red,	Green,		Blue,	Cyan,	Yellow,		Grey,
@@ -93,7 +98,7 @@ namespace {
 		WORD originalBackgroundAttributes;
 };
         // the one and only is hidden in here ----------------------------------------
-		Painter painter_{};
+		inline Painter painter_{};
 		// ---------------------------------------------------------------------------
 } // nspace
 #pragma endregion "colors and painter"
@@ -101,43 +106,48 @@ namespace {
 	/*
 	Here we use the dbj::cmd::Commander,  define the comand id's and functions to execute them etc..
 	*/
-	typedef enum : unsigned {
+	enum class painter_command : unsigned {
 		white = 0,		red,		green,
 		blue,			cyan,		yellow,
 		grey,			bright_red, bright_blue, 
 		text_color_reset,			nop = (unsigned)-1
-	} painter_command ;
+	}  ;
 
 	using PainterCommandFunction = bool(void);
 	using PainterCommander = dbj::cmd::Commander<painter_command, PainterCommandFunction >;
 
-	namespace {
-		auto factory_of_commands = []() -> PainterCommander & {
-			// make the unique commander instance
-			static PainterCommander commander_;
+	// make the unique commander instance
+	inline auto factory_of_commands = []() 
+		-> PainterCommander & 
+	{
+		using namespace inner;
+		static PainterCommander & commander_ = [&]() 
+			-> PainterCommander &
+		{
+			static PainterCommander cmdr_{};
 			// register command/function pairs
-	commander_.reg({
-		{ painter_command::nop,					[&]() {										return true;  }},
-		{ painter_command::text_color_reset,	[&]() {	painter_.text_reset(); 				return true;  }},
-		{ painter_command::white,				[&]() { painter_.text(Colour::White);		return true;  }},
-		{ painter_command::red,					[&]() { painter_.text(Colour::Red);			return true;  }},
-		{ painter_command::green,				[&]() { painter_.text(Colour::Green);		return true;  }},
-		{ painter_command::blue,				[&]() { painter_.text(Colour::Blue);		return true;  }},
-		{ painter_command::bright_red,			[&]() { painter_.text(Colour::BrightRed);	return true;  }},
-		{ painter_command::bright_blue,			[&]() { painter_.text(Colour::BrightBlue);	return true;  }}
-	});         // done
-				return commander_;
-		};
-	} // nspace
+			cmdr_.reg({
+	{ painter_command::nop,				[&]() {										return true;  }},
+	{ painter_command::text_color_reset,[&]() {	painter_.text_reset(); 				return true;  }},
+	{ painter_command::white,			[&]() { painter_.text(Colour::White);		return true;  }},
+	{ painter_command::red,				[&]() { painter_.text(Colour::Red);			return true;  }},
+	{ painter_command::green,			[&]() { painter_.text(Colour::Green);		return true;  }},
+	{ painter_command::blue,			[&]() { painter_.text(Colour::Blue);		return true;  }},
+	{ painter_command::bright_red,		[&]() { painter_.text(Colour::BrightRed);	return true;  }},
+	{ painter_command::bright_blue,		[&]() { painter_.text(Colour::BrightBlue);	return true;  }}
+				});
+					return cmdr_;
+			}(); // execute the once-init lambda in place	
+		return commander_;
+	}; // factory_of_commands
+
 
 	inline const PainterCommander  & painter_commander() {
 		static 	const PainterCommander & just_call_once = factory_of_commands();
 		return  just_call_once ;
 	}
 #pragma endregion
-} // con
-} // win
-} // dbj
+} // dbj::console
 
 /*
 Copyright 2017 by dbj@dbj.org

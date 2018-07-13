@@ -1,9 +1,10 @@
 #pragma once
 /*
 #include "dbj++.h"
+*/
 #include <map>
 #include <functional>
-*/
+#include <initializer_list>
 /* Command pattern mechanism */
 #pragma region "commands"
 namespace dbj {
@@ -35,7 +36,8 @@ namespace dbj {
 			typename CMD_ENUM, 
 			typename CMD_FUN, 
 			typename CMD_COMPARATOR = typename dbj::cmd::less<CMD_ENUM>::type,
-			typename Enable = std::enable_if<std::is_function_v<CMD_FUN>>::type >
+			typename std::enable_if_t<std::is_function_v<CMD_FUN>>* = nullptr 
+		>
 		  /* specialization for functions */
 			class Commander
 			{
@@ -62,7 +64,7 @@ namespace dbj {
 						return dbj::call(command_map_.at(command));
 					}
 					catch (std::out_of_range &) {
-						throw  dbj::Exception(" Unknown command?");
+						throw  dbj::Exception( __FUNCSIG__  " Unknown command?");
 					}
 				}
 
@@ -89,7 +91,7 @@ namespace dbj {
 					std::initializer_list<map_value_type> initlist
 				) const
 				{
-					for (map_value_type kvp : initlist) {
+					for (map_value_type && kvp : initlist) {
 						/*	kvp is a pair { k,v } of the  map */
 						this->reg(kvp.first, kvp.second);
 					}

@@ -140,7 +140,7 @@ namespace dbj {
 						// auto rez[[maybe_unused]]
 						// = ::_putws(string_trans.data());
 						// _ASSERTE(EOF != rez);
-						dbj::win::con::out(buffer_.data());
+						dbj::console::out(buffer_);
 					}
 #ifdef _DEBUG
 					_RPT0(_CRT_WARN, buffer_.c_str());

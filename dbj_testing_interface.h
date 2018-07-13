@@ -1,6 +1,8 @@
 #pragma once
-#ifdef DBJ_TESTING_ONAIR
+
 #include "dbj_testing.h"
+#include "dbj_console.h"
+#include "dbj_console_painter.h"
 /*
    testing interface depends on the dbj::win::con
    therefore it is moved here so that the whole testing
@@ -9,8 +11,8 @@
 namespace dbj {
 	namespace testing {
 		
-		typedef typename dbj::win::con::painter_command CMD;
-		using dbj::print;
+		typedef typename dbj::console::painter_command CMD;
+		using dbj::console::print;
 		/*
 		inline auto print = [](auto && first_param, auto && ... params)
 		{
@@ -26,9 +28,11 @@ namespace dbj {
 
 		*/
 
-		inline auto text_line = [&](
-			dbj::win::con::painter_command cmd_ , 
-			auto && ... args ) 
+		inline auto text_line = [&]
+		(
+			/* dbj::console::painter_command */ CMD cmd_ , 
+			auto && ... args 
+			) 
 		{
 			print( cmd_, "\n" );
 			if constexpr (sizeof...(args) < 1 ) {
@@ -151,9 +155,9 @@ namespace dbj {
 		inline decltype(auto)
 			test_lambada(const char * expression, return_type && anything)
 		{
-			using namespace dbj::win::con;
+			using namespace dbj::console;
 			static dbj::c_line<80, '-'> L80;
-			dbj::print(
+			dbj::console::print(
 				painter_command::green, "\n", L80,
 				"\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
@@ -166,8 +170,6 @@ namespace dbj {
 
 	} // testing
 } // dbj
-
-#endif // #ifdef DBJ_TESTING_ONAIR
 
   /*
   Copyright 2017 by dbj@dbj.org

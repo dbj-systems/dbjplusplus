@@ -10,29 +10,29 @@ namespace dbj_testing_space  {
 	inline void strlen_strnlen_test(
 		const T(&prompt)[N])
 	{
-		dbj::print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");
-		dbj::print("\n\t", DBJ_NV(dbj::countof(prompt)));
+		dbj::console::print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");
+		dbj::console::print("\n\t", DBJ_NV(dbj::countof(prompt)));
 		// char type arrays are using dbj.org "zero time" versions     
-		dbj::print("\n\t", DBJ_NV(dbj::strlen(prompt)));
-		dbj::print("\n\t", DBJ_NV(dbj::strnlen(prompt, BUFSIZ)));
+		dbj::console::print("\n\t", DBJ_NV(dbj::strlen(prompt)));
+		dbj::console::print("\n\t", DBJ_NV(dbj::strnlen(prompt, BUFSIZ)));
 
 		// testing for the T * support 
 		auto pointer_tester = [](auto cptr) {
 			// cptr becomes pointer due to the standard decay of C++ array to pointer
 			using pointer_to_array = decltype(cptr);
 
-			dbj::print("\n\nTesting the support for the ", typeid(pointer_to_array).name(), " pointer to the same array\n");
+			dbj::console::print("\n\nTesting the support for the ", typeid(pointer_to_array).name(), " pointer to the same array\n");
 			// using UCRT strlen
-			dbj::print("\n\t", DBJ_NV(dbj::strlen(cptr)));
+			dbj::console::print("\n\t", DBJ_NV(dbj::strlen(cptr)));
 			// using UCRT strnlen note: std has no strnlen ...
-			dbj::print("\n\t", DBJ_NV(dbj::strnlen(cptr, BUFSIZ)));
+			dbj::console::print("\n\t", DBJ_NV(dbj::strnlen(cptr, BUFSIZ)));
 		};
 
 		pointer_tester(prompt);
 	}
 
 	DBJ_TEST_UNIT(" : dbj crt") {
-		dbj::print("\n(c) ", DBJ_YEAR, "by " DBJ_COMPANY ", MSVC version: ", _MSC_FULL_VER);
+		dbj::console::print("\n(c) ", DBJ_YEAR, "by " DBJ_COMPANY ", MSVC version: ", _MSC_FULL_VER);
 
 		char	 promptA[] = "0123456789";
 		wchar_t  promptW[] = L"0123456789";

@@ -1,5 +1,4 @@
 #pragma once
-#ifdef DBJ_TESTING_ONAIR
 /*
 (c) dbj.org, see the license at file bottom
 
@@ -54,11 +53,9 @@ namespace dbj {
 		inline const char * ALLDN  { "dbj++ Testing Framework -- ALL TESTS DONE" };
 
 		// if not false on command line it will be compiled into existence
-#ifdef DBJ_TESTING_ONAIR
-		constexpr bool DBJ_TEST_RUNING = true;
-#else
-#error DBJ_TESTING_ONAIR must be defined for dbj_testing.h to compile
-#endif
+
+		//		constexpr bool DBJ_TEST_RUNING = true;
+
 		using testunittype = void(*)();
 		static __forceinline void __stdcall null_unit() {}
 
@@ -230,8 +227,6 @@ TODO: if symbol contains comma this is not going to work
 #define DBJ_NV_DELIMITER " , "
 #define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
-
-#endif // #ifdef DBJ_TESTING_ONAIR
 
 /*
   Copyright 2017 by dbj@dbj.org
