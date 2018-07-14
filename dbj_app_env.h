@@ -38,7 +38,7 @@ namespace dbj::app_env {
 	using map_type =
 		std::map<std::wstring, std::wstring>;
 
-	namespace {
+	namespace inner {
 
 		inline auto app_env_initor () {
 
@@ -129,11 +129,6 @@ namespace dbj::app_env {
 		const unsigned __int64	env_vars_count{};
 		const map_type		env_vars{};
 
-		operator std::string_view  () const noexcept 
-		{
-			return { typeid(*this).name() };
-		}
-
 	private:
 
 		void* operator new(std::size_t sz);
@@ -154,7 +149,7 @@ namespace dbj::app_env {
 	public:
 		static structure instance() {
 			auto once = []() {
-				auto[argc, warg, envc, env_map] = app_env_initor();
+				auto[argc, warg, envc, env_map] = inner::app_env_initor();
 				return structure{ argc, warg, envc, env_map };
 			};
 			static structure app_env_single_instance_ = once();
@@ -162,7 +157,13 @@ namespace dbj::app_env {
 		}
 	};
 
-} // dbj::cli
+} // dbj::app_env
+
+namespace dbj::console {
+	void out(const dbj::app_env::structure & cli_struct) {
+		console_.out("\ndbj::cli::structure\n");
+	}
+}
 
   /* standard suffix for every dbj.org header */
   /*

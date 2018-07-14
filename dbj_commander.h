@@ -89,9 +89,9 @@ namespace dbj {
 
 				const Commander & reg (
 					std::initializer_list<map_value_type> initlist
-				) const
+				) // const
 				{
-					for (map_value_type && kvp : initlist) {
+					for ( map_value_type kvp : initlist) {
 						/*	kvp is a pair { k,v } of the  map */
 						this->reg(kvp.first, kvp.second);
 					}

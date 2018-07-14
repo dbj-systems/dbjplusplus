@@ -20,6 +20,26 @@
 
 namespace dbj {
 
+	/*
+	text line of chars, usage
+	constexpr c_line<80, '-'> L80;
+	*/
+	template <unsigned Size, char filler = ' '>
+	class c_line final {
+		mutable char array_[Size] = {};
+	public:
+		using value_type = char(&)[Size];
+		constexpr c_line() noexcept {
+			int b = 0;
+			while (b != (Size)) {
+				array_[b] = filler; b++;
+			}
+			array_[Size] = '\x0';
+		}
+		
+		const value_type data () const noexcept { return array_;	}
+	};
+
 	namespace util {
 		//-----------------------------------------------------------------------------
 		// rac == Range and Container

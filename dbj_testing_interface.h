@@ -28,20 +28,20 @@ namespace dbj {
 
 		*/
 
-		inline auto text_line = [&]
-		(
-			/* dbj::console::painter_command */ CMD cmd_ , 
-			auto && ... args 
-			) 
-		{
-			print( cmd_, "\n" );
+		template< typename ... Args >
+		inline void text_line (
+			CMD && cmd_ , 
+			Args && ... args 
+		) {
+			paint(cmd_); 
+			print( "\n" );
 			if constexpr (sizeof...(args) < 1 ) {
 				print(DBJ::LINE);
 			}
 			else {
 				print( args... );
 			}
-			print(CMD::text_color_reset);
+			paint(CMD::text_color_reset);
 		};
 
 		inline auto white_line = [&]( auto && ... args ) {

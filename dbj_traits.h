@@ -211,8 +211,11 @@ namespace dbj {
 	template< typename T>
 	constexpr inline bool is_std_vector_v = inner::is_std_vector< std::decay_t<T> >::value;
 
+	//template <typename T>
+	//using is_bool_t = std::is_same<typename std::decay_t<T>, bool>::type ;
+
 	template <typename T>
-	using is_bool_t = std::is_same<typename std::remove_cv_t<T>, bool>;
+	constexpr inline bool is_bool_v = std::is_same_v<typename std::decay_t<T>, bool>;
 
 } // eof dbj
 #pragma endregion

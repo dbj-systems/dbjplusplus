@@ -65,8 +65,8 @@ namespace dbj::str {
 		std::integral_constant
 		<
 		bool,
-		is_char<T>::value || is_wchar<T>::value ||
-		is_char16<T>::value || is_char32<T>::value
+		is_char< std::remove_cv_t<T> >::value || is_wchar<std::remove_cv_t<T>>::value ||
+		is_char16<std::remove_cv_t<T>>::value || is_char32<std::remove_cv_t<T>>::value
 		>
 	{};
 

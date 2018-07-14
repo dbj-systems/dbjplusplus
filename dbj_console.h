@@ -260,10 +260,10 @@ namespace dbj::console {
 
 	}; // WideOut
 
-				/*
-				here we hide the single application wide console instance
-				this is single app wide instance
-				*/
+	/*
+	here we hide the single application wide console instance
+	this is single app wide instance
+	*/
 	inline WideOut & instance()
 	{
 		static WideOut single_instance
@@ -366,14 +366,16 @@ this is the special out that does not use the console output class
 but painter commander
 
 Thus we achieved a decoupling of console and painter
-*/
+*/ /*
 	template<
-		typename N,
+		typename N ,
 		typename std::enable_if_t<
-		std::is_same_v<N, painter_command>
-		>* = nullptr
+		std::is_same_v< std::decay_t<N>, painter_command>
+		, int> = 0 
 	>
-		inline void out(N cmd_) {
+		*/
+	inline void out	(const painter_command cmd_ )
+	{
 		painter_commander().execute(cmd_);
 	}
 
@@ -381,68 +383,34 @@ Thus we achieved a decoupling of console and painter
 		painter_commander().execute(cmd_);
 	}
 
-	template< typename N >
-	inline void out
-	(
-		const N & number_,
-		typename std::enable_if_t<std::is_arithmetic_v<N> >* = nullptr
-	) {
+	template< 
+		typename N , 
+		typename std::enable_if_t<std::is_arithmetic_v<std::decay_t<N>>, int > = 0
+	>
+	inline void out	(N number_	)
+	{
 		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
 		console_.out(std::to_wstring(number_));
 	}
 
-	template< typename B	>
+	template< typename B,
+		typename std::enable_if_t< dbj::is_bool_v<B>, int > = 0 >
 	inline void out
-	(
-		bool val_,
-		typename std::enable_if_t<
-		std::is_same_v< std::remove_cv_t<B>, bool>
-		>* = nullptr
-	) {
+	( std::decay_t<B> val_ ) 
+	{
 		console_.out((true == val_ ? L"true" : L"false"));
 	}
 
-	template< typename T, size_t N >
-	inline void out(const std::reference_wrapper< T[N] > wrp)
-	{
-		if (wrp.get() != nullptr)
-			throw std::runtime_error(__FUNCSIG__ " -- reference to dangling pointer");
-		using nativarref = T(&)[N];
-		internal::print_range((nativarref)wrp.get());
-	}
-
-
-
-	template<typename T, size_t N>
-	static void out(
-		const T(&carr)[N],
-		const size_t & maxlen,
-		typename
-		std::enable_if<
-		dbj::str::is_std_char_v< std::remove_cv_t<T> >
-		>::type * = nullptr
-	)
-	{
-		_ASSERTE(N > 1);
-		console_.out(carr, carr + N);
-	}
 	/*
 	 output the standard string
 	 enable only if it is made out
 	 of standard chars
 	*/
-	template<typename T>
-	inline void out
-	(
-		const std::basic_string<T> & s_,
-		typename
-		std::enable_if<
-		std::is_same<T, char>::value ||
-		std::is_same<T, wchar_t>::value ||
-		std::is_same<T, char16_t>::value ||
-		std::is_same<T, char32_t>::value
-		>::type * = nullptr
-	) {
+	template< typename T >
+	inline void out ( std::basic_string<T> s_ ) {
+
+		static_assert(dbj::str::is_std_char_v<T>);
+
 		if (!s_.empty())
 			console_.out(s_);
 	}
@@ -452,18 +420,11 @@ Thus we achieved a decoupling of console and painter
 	enable only if it is made out
 	of standard chars
 	*/
-	template<typename T>
-	inline void out
-	(
-		const std::basic_string_view<T> & s_,
-		typename
-		std::enable_if<
-		std::is_same<T, char>::value ||
-		std::is_same<T, wchar_t>::value ||
-		std::is_same<T, char16_t>::value ||
-		std::is_same<T, char32_t>::value
-		>::type * = nullptr
-	) {
+	template<typename T	>
+	inline void out ( std::basic_string_view<T>  s_ ) 
+	{
+		static_assert( dbj::str::is_std_char_v<T> );
+
 		if (!s_.empty())
 			console_.out(s_);
 	}
@@ -573,16 +534,14 @@ output the exceptions
 */
 
 /* print exception and also color the output red */
-/*
-			inline void out(const dbj::Exception & x_) {
-				paint(painter_command::bright_red);
-				// "magic" calls std::wstring casting operator
-				// not a good idea?
-				console_.out((std::wstring)(x_));
-				paint(painter_command::text_color_reset);
-			}
-*/
-#if 0
+#if 1
+	inline void out(const dbj::Exception & x_) {
+		paint(painter_command::bright_red);
+		console_.out((std::wstring)(x_));
+		paint(painter_command::text_color_reset);
+	}
+#endif
+#if 1
 	inline void out(const std::exception & x_) {
 		paint(painter_command::bright_red);
 		console_.out(x_.what());
@@ -645,13 +604,68 @@ output the exceptions
 			il_);
 	}
 
-	/*
-	forget templates, variadic generic lambda saves you of declaring them
-	*/
-	template <typename T, typename ... Args>
-	inline auto print (T && first_param, Args && ... params)
+	template< typename T, size_t N >
+	inline void out( const std::reference_wrapper< T[N] > & wrp)
 	{
+		static_assert(N > 1);
+		if (wrp.get() == nullptr)
+			throw std::runtime_error(__FUNCSIG__ " -- reference to dangling pointer");
+		using nativarref = T(&)[N];
+		internal::print_range((nativarref)wrp.get());
+	}
+
+	template <unsigned Size, char filler = ' '>
+	void out(const dbj::c_line<Size, filler> & cline_) {
+		console_.out(cline_.data());
+	}
+
+
+	/*
+	output array of T
+	*/
+	template <typename T, size_t N,
+		std::enable_if_t<
+		std::is_array_v< std::remove_cv_t<T>[N] >
+		, int > = 0
+	>
+		inline void out( T (&carr) [N] )
+	{
+		static_assert(N > 1);
+		internal::print_range((T(&)[N])carr);
+	}
+
+	/*
+	output pointer to T
+	*/
+	template < typename T ,
+		std::enable_if_t< std::is_pointer_v< std::remove_cv_t<T>> , int > = 0
+	>
+	inline void out( T ptr) {
+		if (ptr == nullptr) {
+			std::string prompt{ typeid(T).name() };
+			console_.out( prompt.append(" -- nullptr "));
+			return;
+		}
+
+		if constexpr (dbj::str::is_std_char_v<T>) {
+			console_.out(ptr);
+		}
+		else {
+			console_.out(L"\npointer to -- ");
+			console_.out(typeid(T).name());
+		}
+	}
+
+//	template <typename T, typename ... Args>
+//	inline auto print (T && first_param, Args && ... params)
+	inline auto print = [] ( const auto & first_param, const auto & ... params)
+	{
+#if 0 // _MSVC_LANG
+		using T =  std::remove_cv_t< decltype(first_param) > ;
+		out((T)first_param);
+#else
 		out(first_param);
+#endif
 
 		// if there are  more params
 		if constexpr (sizeof...(params) > 0) {
@@ -660,10 +674,7 @@ output the exceptions
 		}
 		return print;
 	};
-	// }
-
-#pragma endregion "eof printer implementation"
-
+	
 	namespace /* dbj::console::*/ config {
 
 		/*

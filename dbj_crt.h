@@ -411,25 +411,7 @@ namespace dbj {
 		}
 	};
 
-	/*
-	text line of chars, usage
-	constexpr c_line<80, '-'> L80;
-	*/
-	template <unsigned Size, char filler = ' '>
-	class c_line final {
-		mutable char array_[Size+1] = { };
-	public:
-		constexpr c_line() noexcept {
-			int b = 0;
-			while (b != (Size+1)) {
-				array_[b] = filler; b++;
-			}
-			array_[Size] = '\x0';
-		}
-		constexpr operator const char * () const noexcept { return array_;  }
-	};
 } // dbj
-
 
 /*
 Copyright 2017 by dbj@dbj.org
