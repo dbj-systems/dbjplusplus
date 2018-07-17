@@ -8,7 +8,7 @@ namespace dbj_testing_space  {
 
 	DBJ_TEST_UNIT(" : dbj various tests ") {
 		try {
-			dbj::console::print(
+			dbj::log::print(
 				"\n\t\t", DBJ_NV(computer_name()),
 				"\n\t\t", DBJ_NV(user_name()),
 				"\n\t\t", DBJ_NV(system_directory()),
@@ -16,7 +16,7 @@ namespace dbj_testing_space  {
 			);
 		}
 		catch (...) {
-			dbj::console::print( dbj::Exception("Uknown Exception?") );
+			dbj::log::print( dbj::Exception("Uknown Exception?") );
 		}
 	};
 	/*
@@ -97,7 +97,7 @@ namespace dbj_testing_space  {
 					argb, 20);
 			}
 		} catch (...) {
-			dbj::console::print(dbj::Exception("Exception in " __FUNCSIG__));
+			dbj::log::print(dbj::Exception("Exception in " __FUNCSIG__));
 		}
 		::GdiplusShutdown(gdiplusToken);
 	}

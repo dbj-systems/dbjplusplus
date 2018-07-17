@@ -22,7 +22,7 @@ DBJ_TEST_UNIT(": dbj util unit range container test ")
 		using namespace dbj::math::float_to_integer;
 
 		auto test = [](float val_) {
-			dbj::console::print("\n\nInput:\t");
+			dbj::log::print("\n\nInput:\t");
 			DBJ_TEST_ATOM(val_);
 			DBJ_TEST_ATOM(nearest(val_));
 			DBJ_TEST_ATOM(drop_fractional_part(val_));

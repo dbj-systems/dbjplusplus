@@ -3,11 +3,13 @@
  see the licence blurb at eof
 */
 
+#ifndef __clang__
 #ifndef _MSC_VER
 #error This code requires Visual C++ 
 #endif // !_MSC_VER
 #if _MSC_VER < 1911
 #error This code requires Visual C++ 14.1 or better
+#endif
 #endif
 
 #ifndef UNICODE

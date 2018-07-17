@@ -14,7 +14,7 @@ DBJ_TEST_SPACE_OPEN(console_)
 			/*
 			here we use them commands
 			*/
-			dbj::console::print( "\n",
+			dbj::log::print( "\n",
 				"\n", painter_command::white, "White\t\t", text_,
 				"\n", painter_command::red, "Red\t\t", text_,
 				"\n", painter_command::green, "Green\t\t", text_,

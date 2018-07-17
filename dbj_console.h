@@ -366,15 +366,14 @@ this is the special out that does not use the console output class
 but painter commander
 
 Thus we achieved a decoupling of console and painter
-*/ /*
+*/ 
 	template<
-		typename N ,
+		typename PC ,
 		typename std::enable_if_t<
-		std::is_same_v< std::decay_t<N>, painter_command>
+		std::is_same_v< std::decay_t<PC>, painter_command>
 		, int> = 0 
 	>
-		*/
-	inline void out	(const painter_command cmd_ )
+	inline void out	( PC cmd_ )
 	{
 		painter_commander().execute(cmd_);
 	}
@@ -534,24 +533,18 @@ output the exceptions
 */
 
 /* print exception and also color the output red */
-#if 1
+#if 0
 	inline void out(const dbj::Exception & x_) {
 		paint(painter_command::bright_red);
 		console_.out((std::wstring)(x_));
 		paint(painter_command::text_color_reset);
 	}
-#endif
-#if 1
 	inline void out(const std::exception & x_) {
 		paint(painter_command::bright_red);
 		console_.out(x_.what());
 		paint(painter_command::text_color_reset);
 	}
 #endif
-	template<typename T>
-	inline void out(const std::variant<T> & x_) {
-		out(std::get<0>(x_));
-	}
 
 	template<typename T, typename A	>
 	inline void out(const std::vector<T, A> & v_) {
@@ -571,8 +564,13 @@ output the exceptions
 		internal::print_range(arr_);
 	}
 
+	template<typename T>
+	inline void out( std::variant<T> x_) {
+		out(std::get<0>(x_));
+	}
+
 	template <class... Args>
-	inline void out(const std::tuple<Args...>& tple) {
+	inline void out( std::tuple<Args...> tple) {
 
 		if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
 
@@ -665,48 +663,35 @@ output the exceptions
 	/*
 	output pointer to std char type
 	*/
-	template < typename T ,
-		std::enable_if_t< dbj::str::is_std_char_v<T>
+	template < typename T,
+		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >,
+		std::enable_if_t< 
+		dbj::str::is_std_char_v<actual_type> 
 		, int > = 0
 	>
-	inline void out( T * ptr) 
+	inline void out(const T * ptr) 
 	{
 		_ASSERTE(ptr != nullptr);
 		using actual_type = std::remove_cv_t< std::remove_pointer_t<T> >;
 			out<actual_type>(std::basic_string<T>{ptr});
 	}
 
-	//
-	class IPrintable {
-		virtual std::wstring to_wstring () = 0 ;
-	};
-#define DBJ_IPRINTABLE
-
+#if 0
 //	template <typename T, typename ... Args>
 //	inline auto print (T && first_param, Args && ... params)
-	inline auto print = [] ( auto && first_param, auto && ... params)
+	inline auto print = [] ( auto first_param, auto && ... params)
 	{
-#ifdef DBJ_IPRINTABLE // _MSVC_LANG
-		using T =  std::remove_cv_t< decltype(first_param) > ;
-
-		if constexpr(std::is_base_of_v<IPrintable, T>) {
-			out(first_param.to_wstring());
-		}
-		else {
-			 // out<T>(first_param);
-		}
-#else
-		out(first_param);
-#endif
+		 dbj::log::print(first_param);
 
 		// if there are  more params
 		if constexpr (sizeof...(params) > 0) {
 			// recurse
-			print(params...);
+			dbj::log::print(params...);
 		}
 		return print;
 	};
-	
+#endif
+
 	namespace /* dbj::console::*/ config {
 
 		/*
@@ -745,8 +730,8 @@ output the exceptions
 
 } // dbj::console
 
-//#ifndef dbj::console::print
-// #define dbj::console::print dbj::console::print
+//#ifndef dbj::log::print
+// #define dbj::log::print dbj::log::print
 // #endif
 
 /*

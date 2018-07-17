@@ -202,7 +202,7 @@ namespace dbj {
 		{	// construct from message string
 		}
 
-		operator std::wstring () const { return last_what(); }
+		// operator std::wstring () const { return last_what(); }
 	};
 }
 

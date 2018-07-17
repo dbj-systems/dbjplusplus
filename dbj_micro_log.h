@@ -18,6 +18,8 @@ which is a future extensions
 // this will do      std::ios::sync_with_stdio(false);
 // #define DBJLOG_EXCLUSIVE
 
+#include "dbj_micro_log_fwd.h"
+#include "dbj_micro_log_ops.h"
 
 namespace dbj {
 	namespace god_of_time {
@@ -63,25 +65,7 @@ namespace dbj {
 	} // god_of_time
 
 	namespace log {
-#ifdef _UNICODE
 
-		using outstream_type = std::wostringstream; //  std::wostream;
-		using stringbuf_type = std::wstringbuf;
-
-		constexpr auto unicode = true;
-		//	inline auto && COUT = std::wcout;
-		constexpr wchar_t LEFT_ANGLED = L'[';
-		constexpr wchar_t RGHT_ANGLED = L']';
-		constexpr wchar_t SPACE = L' ';
-		constexpr wchar_t COMMA = L',';
-#else
-#error "Just UNICODE builds please :)"
-#endif
-
-		constexpr auto bufsiz = BUFSIZ * 2;
-
-		using vector_wstrings_type = std::vector<std::wstring>;
-		using vector_strings_type = std::vector<std::string >;
 
 #if 0
 		template<typename IT, typename UF>
@@ -91,40 +75,7 @@ namespace dbj {
 			}
 		}
 #endif	
-		template<typename T>
-		inline dbj::log::outstream_type & operator<<
-			(
-				dbj::log::outstream_type & os, 
-				const std::vector<T>& vec
-			) 
-		{
-			os << dbj::LEFT_ANGLED << dbj::SPACE;
-			for (auto& el : vec) { os << el << dbj::SPACE; }
-			os << dbj::RGHT_ANGLED;
-			return os;
-		}
 
-		inline
-			std::ostream & operator<<
-			(
-				std::ostream & os, 
-				const std::wstring & s_
-			) 
-		{
-			os << std::string(std::begin(s_), std::end(s_));
-			return os;
-		}
-
-		inline
-			std::wostream & operator<<
-			(
-				std::wostream & os, 
-				const std::string & s_
-			) 
-		{
-			os << std::wstring(std::begin(s_), std::end(s_));
-			return os;
-		}
 
 		class DBJLog final {
 
@@ -267,6 +218,7 @@ void flush() {
 		}
 
 		
+
 /*
 just print to the stream as ever
 */
@@ -305,8 +257,7 @@ just print to the stream as ever
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-#ifdef DBJ_TESTING_ONAIR 
+/*
 DBJ_TEST_SPACE_OPEN( micro_log )
 
 DBJ_TEST_UNIT(" dbj micro log test") {
@@ -320,5 +271,6 @@ DBJ_TEST_UNIT(" dbj micro log test") {
 
 }
 
-DBJ_TEST_SPACE_CLOSE(micro_log)
-#endif // DBJ_TESTING_ONAIR 
+DBJ_TEST_SPACE_CLOSE
+*/
+

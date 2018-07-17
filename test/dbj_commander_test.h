@@ -27,7 +27,7 @@ namespace dbj {
 				BIG NOTE! [&] scoping operator '&' MUST exist
 				*/
 				auto paint_it_red = [&]() {
-					dbj::console::print("\n", __FUNCSIG__, " called!");
+					dbj::log::print("\n", __FUNCSIG__, " called!");
 					return true;
 				};
 				Commander<CMD, cmd_fun_t > commander_;
@@ -36,7 +36,7 @@ namespace dbj {
 					bool r = commander_.execute(CMD::red);
 				}
 				catch (dbj::Exception & x) {
-					dbj::console::print(x);
+					dbj::log::print(x);
 				}
 			}
 		}

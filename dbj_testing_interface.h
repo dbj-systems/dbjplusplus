@@ -3,6 +3,7 @@
 #include "dbj_testing.h"
 #include "dbj_console.h"
 #include "dbj_console_painter.h"
+#include "dbj_micro_log.h"
 /*
    testing interface depends on the dbj::win::con
    therefore it is moved here so that the whole testing
@@ -12,7 +13,7 @@ namespace dbj {
 	namespace testing {
 		
 		typedef typename dbj::console::painter_command CMD;
-		using dbj::console::print;
+		using dbj::log::print;
 		/*
 		inline auto print = [](auto && first_param, auto && ... params)
 		{
@@ -157,7 +158,7 @@ namespace dbj {
 		{
 			using namespace dbj::console;
 			static dbj::c_line<80, '-'> L80;
-			dbj::console::print(
+			dbj::log::print(
 				painter_command::green, "\n", L80,
 				"\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),

@@ -37,7 +37,7 @@ namespace dbj {
 			array_[Size] = '\x0';
 		}
 		
-		const value_type data () const noexcept { return array_;	}
+		operator const std::string() const noexcept { return { array_ }; }
 	};
 
 	namespace util {

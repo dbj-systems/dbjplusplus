@@ -45,6 +45,7 @@ No exceptions are thrown outside. They are reported to console.
 */
 
 #include "dbj_synchro.h"
+#include "dbj_micro_log.h"
 
 namespace dbj {
 	namespace testing {
@@ -137,7 +138,16 @@ namespace dbj {
 			   }
 
 				inline  void unit_execute(testunittype tunit_) {
-								tunit_();
+					try {
+						tunit_();
+					}
+					catch (std::exception x) {
+						using dbj::log::print;
+						using dbj::console::painter_command;
+						print( painter_command::bright_red
+							, x.what()
+							, painter_command::text_color_reset);
+					}
 				}
 
 			struct adder final {

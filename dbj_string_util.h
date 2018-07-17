@@ -16,6 +16,7 @@
 #include <string>
 #include <optional>
 
+#if 0
 /*
 the oher three" string types to std::ostream
 */
@@ -33,7 +34,7 @@ inline  std::ostream & operator << (std::ostream & os, std::u32string && ws_)
 {
 	return os << std::string{ ws_.begin(), ws_.end() };
 }
-
+#endif
 
 namespace dbj::str {
 
