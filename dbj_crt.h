@@ -15,7 +15,19 @@
 #include <algorithm>
 
 #include <string_view>
+// NOTE: do not have a space after a macro name and before the '(' !!
+#ifndef DBJ_STRINGIFY	
+#define DBJ_STRINGIFY(s) # s
+#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
+#define DBJ_CONCAT_IMPL( x, y ) x##y
+#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+#endif
 
+#ifndef DBJ_COMPANY	
+#define DBJ_COMPANY "DBJ.Systems Ltd."
+#define DBJ_YEAR ( __DATE__ + 7 ) 
+#define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
+#endif
 // 
 #define DBJ_CHECK_IF static_assert
 

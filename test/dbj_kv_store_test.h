@@ -1,6 +1,7 @@
 #pragma once
 
-#ifdef DBJ_TESTING_ONAIR
+DBJ_TEST_SPACE_OPEN(kv_storage_test)
+
 
 DBJ_TEST_UNIT(" dbj k/v storage test ") {
 
@@ -11,4 +12,4 @@ DBJ_TEST_UNIT(" dbj k/v storage test ") {
 	auto rez2 = dbj::str::is_prefix(L"abra ka dabra", L"abra");
 }
 
-#endif
+DBJ_TEST_SPACE_CLOSE

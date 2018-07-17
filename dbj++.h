@@ -57,18 +57,19 @@ using namespace Gdiplus;
 /*
 dbj++ begins here
 
-this should be merged into dbj_crt.h
-*/
-#ifndef DBJ_STRINGIFY
+moved to dbj_crt.h
+
 	#define DBJ_STRINGIFY(s) # s
 	#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
 	#define DBJ_CONCAT_IMPL( x, y ) x##y
 	#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-	
+#ifndef DBJ_COMPANY	
 	#define DBJ_COMPANY "DBJ.Systems Ltd."
 	#define DBJ_YEAR ( __DATE__ + 7 ) 
 	#define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
 #endif
+
+*/
 
 
 /*
@@ -110,6 +111,7 @@ long var [[maybe_unused]] {42L} ;
 //and DBJ::TRACE
 //
 #include "dbj_crt.h"
+#include "dbj_array.h"
 #include "dbj_string_util.h"
 #include "dbj_util.h"
 #include "dbj_string_compare.h"

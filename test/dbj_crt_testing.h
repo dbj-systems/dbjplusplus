@@ -1,6 +1,5 @@
 #pragma once
 #pragma region "dbj stlen and strnlen"
-#ifdef DBJ_TESTING_ONAIR
 namespace dbj_testing_space  {
 	/*
 	dbj crt caters for char, wchar_t, char16_t, char32_t
@@ -51,5 +50,5 @@ namespace dbj_testing_space  {
 
 	}
 }
-#endif
+
 #pragma endregion "eof dbj stlen and strnlen"

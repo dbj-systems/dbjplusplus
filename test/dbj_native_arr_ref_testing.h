@@ -1,5 +1,4 @@
 #pragma once
-#if 1
 
 #include <ctime>
 #include "../dbj_array.h"
@@ -168,4 +167,3 @@ DBJ_TEST_UNIT(": dbj array handler ARH ")
 }
 
 }
-#endif

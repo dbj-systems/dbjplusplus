@@ -60,6 +60,6 @@ DBJ_TEST_SPACE_OPEN(dbj_traits_testing)
 	}
 
 
-DBJ_TEST_SPACE_CLOSE(dbj_traits_testing)
+DBJ_TEST_SPACE_CLOSE
 
 #endif

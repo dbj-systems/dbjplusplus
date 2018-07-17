@@ -158,4 +158,4 @@ DBJ_TEST_UNIT(" meta convertor test" ) {
 	test_conversion(dbj::str::u32char_range_to_string{});
 }
 
-DBJ_TEST_SPACE_CLOSE(string_util_tests)
+DBJ_TEST_SPACE_CLOSE

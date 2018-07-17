@@ -5,7 +5,6 @@
 
   NOTE: we do not include testing headers into the dbj++.h
 */
-#ifdef DBJ_TESTING_ONAIR
 namespace dbj {
 	namespace cmd {
 		namespace /* test the Commander*/ dbj_testing_space {
@@ -43,4 +42,3 @@ namespace dbj {
 		}
 	} // cmd
 } // dbj
-#endif

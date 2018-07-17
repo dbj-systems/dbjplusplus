@@ -1,9 +1,5 @@
 ﻿#pragma once
 
-#ifndef DBJ_TESTING_ONAIR
-#error DBJ_TESTING_ONAIR required
-#endif // DBJ_TESTING_ONAIR
-
 DBJ_TEST_SPACE_OPEN(console_)
 
 	using namespace  dbj::console ;
@@ -52,4 +48,4 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 	}
 #endif
 
-DBJ_TEST_SPACE_CLOSE(console_)
+DBJ_TEST_SPACE_CLOSE

@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef DBJ_TESTING_ONAIR
-
 DBJ_TEST_SPACE_OPEN(app_env_)
 
 DBJ_TEST_UNIT(" dbj application environment test ") {
@@ -23,6 +21,5 @@ DBJ_TEST_UNIT(" dbj application environment test ") {
 	}
 }
 
-DBJ_TEST_SPACE_CLOSE(app_env_)
+DBJ_TEST_SPACE_CLOSE
 
-#endif

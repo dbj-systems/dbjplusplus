@@ -57,4 +57,5 @@ DBJ_TEST_UNIT(": dbj util unit range container test ")
 		DBJ_TEST_ATOM( dbj::util::starts_with(L"abra ka dabra", L"abra") );
 	};
 
-DBJ_TEST_SPACE_CLOSE (dbj_util)
+
+	DBJ_TEST_SPACE_CLOSE

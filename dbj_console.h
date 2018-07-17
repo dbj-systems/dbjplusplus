@@ -635,34 +635,66 @@ output the exceptions
 	}
 
 	/*
-	output pointer to T
+	output array of T *
+	*/
+	template <typename T, size_t N,
+		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >,
+		std::enable_if_t<
+		std::is_array_v< std::remove_cv_t<T>[N] >
+		, int > = 0
+	>
+		inline void out(T(*carr)[N])
+	{
+		static_assert(N > 1);
+		internal::print_range((T(&)[N])carr);
+	}
+
+	/*
+	output std char type
+	*/
+	template < typename T,
+		std::enable_if_t< dbj::str::is_std_char_v<T>
+		, int > = 0
+	>
+		inline void out(T chr)
+	{
+		using actual_type = std::remove_cv_t< T >;
+			console_.out(std::basic_string<actual_type>{chr});
+	}
+
+	/*
+	output pointer to std char type
 	*/
 	template < typename T ,
-		std::enable_if_t< std::is_pointer_v< std::remove_cv_t<T>> , int > = 0
+		std::enable_if_t< dbj::str::is_std_char_v<T>
+		, int > = 0
 	>
-	inline void out( T ptr) {
-		if (ptr == nullptr) {
-			std::string prompt{ typeid(T).name() };
-			console_.out( prompt.append(" -- nullptr "));
-			return;
-		}
-
-		if constexpr (dbj::str::is_std_char_v<T>) {
-			console_.out(ptr);
-		}
-		else {
-			console_.out(L"\npointer to -- ");
-			console_.out(typeid(T).name());
-		}
+	inline void out( T * ptr) 
+	{
+		_ASSERTE(ptr != nullptr);
+		using actual_type = std::remove_cv_t< std::remove_pointer_t<T> >;
+			out<actual_type>(std::basic_string<T>{ptr});
 	}
+
+	//
+	class IPrintable {
+		virtual std::wstring to_wstring () = 0 ;
+	};
+#define DBJ_IPRINTABLE
 
 //	template <typename T, typename ... Args>
 //	inline auto print (T && first_param, Args && ... params)
-	inline auto print = [] ( const auto & first_param, const auto & ... params)
+	inline auto print = [] ( auto && first_param, auto && ... params)
 	{
-#if 0 // _MSVC_LANG
+#ifdef DBJ_IPRINTABLE // _MSVC_LANG
 		using T =  std::remove_cv_t< decltype(first_param) > ;
-		out((T)first_param);
+
+		if constexpr(std::is_base_of_v<IPrintable, T>) {
+			out(first_param.to_wstring());
+		}
+		else {
+			 // out<T>(first_param);
+		}
 #else
 		out(first_param);
 #endif

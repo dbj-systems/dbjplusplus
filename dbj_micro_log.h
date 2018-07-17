@@ -1,10 +1,10 @@
 #pragma once
 /*
 2018 06 18	DBJ		Added
-					A micto log indeed. Although completely separated from dbj win con 
-					and this has to be rectified with a common engine for console/logging
-					which is a future extensions
-					(c) 2018 by dbj.org license at eof
+A micro log indeed. Although completely separated from dbj win con 
+and this has to be rectified with a common engine for console/logging
+which is a future extensions
+(c) 2018 by dbj.org license at eof
 */
 #pragma once
 
@@ -140,7 +140,7 @@ namespace dbj {
 						// auto rez[[maybe_unused]]
 						// = ::_putws(string_trans.data());
 						// _ASSERTE(EOF != rez);
-						dbj::console::out(buffer_);
+						dbj::console::console_.out(buffer_);
 					}
 #ifdef _DEBUG
 					_RPT0(_CRT_WARN, buffer_.c_str());
@@ -241,7 +241,7 @@ void flush() {
 		}
 		catch (...) {
 #if _DEBUG
-			DBJ::TRACE(" Unknown exception in %s", __func__);
+			DBJ::TRACE("\n\nUnknown exception in %s", __func__);
 #endif
 		}
 	}

@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef	DBJ_TESTING_ONAIR
 namespace dbj_testing_space {
 
 using namespace Gdiplus;
@@ -72,4 +71,3 @@ inline void test_dbj_defval_option_two() {
 		static bool retval = [] { test_dbj_defval_option_two(); return true; }();
 	}
 }
-#endif
