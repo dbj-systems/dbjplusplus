@@ -83,18 +83,14 @@ namespace dbj::log {
 	inline outstream_type & operator<<
 		(outstream_type & os, const char * x_)
 	{
-		static dbj::str::wchar_range_to_string conv_{};
-
-		os << conv_(x_);
+		os << dbj::range_to_wstring(x_);
 		return os;
 	}
 
 	inline outstream_type & operator<<
 		(outstream_type & os, std::string x_)
 	{
-		static dbj::str::wchar_range_to_string conv_{};
-
-		os << conv_(x_);
+		os << dbj::range_to_wstring(x_);
 		return os;
 	}
 
@@ -149,11 +145,9 @@ namespace dbj::log {
 	inline outstream_type & operator<<
 		(outstream_type & os, const dbj::Exception & x_)
 	{
-		static dbj::str::wchar_range_to_string conv_{};
-
 		using dbj::console::painter_command;
 		os << painter_command::bright_red
-			<< conv_( x_.what() )
+			<< dbj::range_to_wstring( x_.what() )
 			<< painter_command::text_color_reset ;
 		return os;
 	}

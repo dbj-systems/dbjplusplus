@@ -651,7 +651,7 @@ output the exceptions
 	output std char type
 	*/
 	template < typename T,
-		std::enable_if_t< dbj::str::is_std_char_v<T>
+		std::enable_if_t< dbj::is_std_char_v<T>
 		, int > = 0
 	>
 		inline void out(T chr)
@@ -666,7 +666,7 @@ output the exceptions
 	template < typename T,
 		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >,
 		std::enable_if_t< 
-		dbj::str::is_std_char_v<actual_type> 
+		dbj::is_std_char_v<actual_type> 
 		, int > = 0
 	>
 	inline void out(const T * ptr) 

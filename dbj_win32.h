@@ -112,7 +112,7 @@ namespace dbj {
 		};
 
 		//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
-		__forceinline auto getLastErrorMessage(
+		inline auto getLastErrorMessage(
 			const STRING & prompt = STRING{}, DWORD errorMessageID = last_error()
 		)
 		{
@@ -136,10 +136,11 @@ namespace dbj {
 			return message;
 		}
 
-		__forceinline auto getLastErrorMessage(
+		inline auto getLastErrorMessage(
 			const char * prompt, DWORD errorMessageID = last_error())
 		{
-			return getLastErrorMessage(dbj::wide(prompt), errorMessageID);
+			STRING wprompt = dbj::range_to_wstring(prompt);
+			return getLastErrorMessage(wprompt, errorMessageID);
 		}
 
 		namespace sysinfo {
@@ -150,7 +151,7 @@ namespace dbj {
 				static wstring  infoBuf(INFO_BUFFER_SIZE, (char)0);
 				//
 				template<class F, class... Pack>
-				constexpr __forceinline auto
+				constexpr inline auto
 					call
 					(F&& fun, Pack&&... args) {
 					infoBuf.clear();
@@ -160,26 +161,26 @@ namespace dbj {
 				}
 			}
 			// 
-			__forceinline STRING computer_name() {
+			inline STRING computer_name() {
 				static STRING computer_name_ =
 					call(GetComputerName, infoBuf.data(), &INFO_BUFFER_SIZE);
 				return computer_name_;
 			}
 
-			__forceinline STRING user_name() {
+			inline STRING user_name() {
 				static STRING user_name_ =
 					call(GetUserName, infoBuf.data(), &INFO_BUFFER_SIZE);
 				return user_name_;
 			}
 
-			__forceinline STRING system_directory() {
+			inline STRING system_directory() {
 				static STRING system_directory_ =
 					call(GetSystemDirectory, infoBuf.data(), INFO_BUFFER_SIZE);
 				return system_directory_;
 			}
 
 			// return e.g. L"C:\windows\"
-			__forceinline STRING windows_directory() {
+			inline STRING windows_directory() {
 				static STRING windows_directory_ =
 					call(GetWindowsDirectory, infoBuf.data(), INFO_BUFFER_SIZE);
 				return windows_directory_;
@@ -188,7 +189,7 @@ namespace dbj {
 			// DBJ: what happens if there is no drive C: ?
 			// we get the system drive letter
 			// the first 3 chars that is, e.g. L"C:\\"
-			__forceinline const STRING windows_drive()
+			inline const STRING windows_drive()
 			{
 				// it is unlikely system drive letter 
 				// will change between calls

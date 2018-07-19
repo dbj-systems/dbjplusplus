@@ -195,52 +195,7 @@ namespace dbj {
 
 namespace dbj::str {
 
-	using namespace std;
 
-	// dbj.org 2018-07-03
-	// NOTE: pointers are not char's
-	// char *. wchar_t * .. are thus not chars	
-	// take care of chars and their signed and unsigned forms
-	// where 'char' means one of the four std char types
-
-	template<class _Ty>	struct is_char : std::false_type {	};
-	template<> struct is_char<char> : std::true_type {	};
-	template<> struct is_char<signed char> : std::true_type {	};
-	template<> struct is_char<unsigned char> : std::true_type {	};
-
-	template<class _Ty>	struct is_wchar : std::false_type {	};
-	template<> struct is_wchar<wchar_t> : std::true_type {	};
-
-	template<class _Ty>	struct is_char16 : std::false_type {	};
-	template<> struct is_char16<char16_t> : std::true_type {	};
-
-	template<class _Ty>	struct is_char32 : std::false_type {	};
-	template<> struct is_char32<char32_t> : std::true_type {	};
-
-	// and one for all
-	template<typename T>
-	struct is_std_char :
-		std::integral_constant
-		<
-		bool,
-		is_char< std::remove_cv_t<T> >::value || is_wchar<std::remove_cv_t<T>>::value ||
-		is_char16<std::remove_cv_t<T>>::value || is_char32<std::remove_cv_t<T>>::value
-		>
-	{};
-
-	template<typename T>
-	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
-
-
-	template< class T>
-	struct is_std_string : integral_constant<bool,
-		is_same<remove_cv_t<T> , string    >::value ||
-		is_same<remove_cv_t<T> , wstring   >::value ||
-		is_same<remove_cv_t<T> , u16string >::value ||
-		is_same<remove_cv_t<T> , u32string >::value> {};
-
-	template<typename T>
-	inline constexpr bool  is_std_string_v = is_std_string<T>::value;
 
 	constexpr std::size_t small_string_optimal_size{ 255 };
 
@@ -265,7 +220,7 @@ constexpr inline string_type optimal
 		= static_cast<char_type>(0)
 )
 {
-	DBJ_CHECK_IF( is_std_char_v<CT> );
+	DBJ_CHECK_IF( dbj::is_std_char_v<CT> );
 
 	return string_type(	
 		SMALL_SIZE,	
@@ -284,7 +239,7 @@ template <
 			CT * from_ , CT * last_
 		)
 	{
-	DBJ_CHECK_IF(is_std_char_v<CT>,"CT argument is not a standard char type");
+	DBJ_CHECK_IF(dbj::is_std_char_v<CT>,"CT argument is not a standard char type");
 
 		string_type retval{ from_, last_ };
 		auto rez = std::for_each(
@@ -429,7 +384,7 @@ template <
 				if constexpr (dbj::is_range_v<T>) {
 					static_assert (
 						// arg must have this typedef
-						dbj::str::is_std_char_v< T::value_type >,
+						dbj::is_std_char_v< T::value_type >,
 						"can not transform ranges not made out of standard char types"
 						);
 					return { arg.begin(), arg.end() };
@@ -458,14 +413,16 @@ template <
 
 	} // inner
 
-	  // all the types required / implicit instantiations
-	using range_to_string = inner::meta_converter<std::string   >;
-	using range_to_wstring = inner::meta_converter<std::wstring  >;
-	using range_to_u16string = inner::meta_converter<std::u16string>;
-	using range_to_u32string = inner::meta_converter<std::u32string>;
-
-
 } // dbj::str
+
+namespace dbj {
+	// all the meta converter INTANCES required / implicit instantiations
+	inline dbj::str::inner::meta_converter<std::string   > range_to_string{};
+	inline dbj::str::inner::meta_converter<std::wstring  > range_to_wstring{};
+	inline dbj::str::inner::meta_converter<std::u16string> range_to_u16string{};
+	inline dbj::str::inner::meta_converter<std::u32string> range_to_u32string{};
+}
+
 
 #pragma region deprected stuff due to meta converter introduction
 #if 0
