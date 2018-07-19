@@ -132,21 +132,6 @@ namespace dbj::log {
 		os << std::get<0>(x_); return os;
 	}
 
-/*
-	inline	outstream_type & operator<<
-		(	outstream_type & os, std::wstring s_)
-	{
-		os << s_.c_str() ;
-		return os;
-	}
-
-	inline outstream_type & operator<<
-		(	outstream_type & os, const std::string & s_	)
-	{
-		os << s_.c_str();
-		return os;
-	}
-*/
 	inline outstream_type & operator<<
 		(	outstream_type & os, const dbj::console::painter_command & cmd_	)
 	{

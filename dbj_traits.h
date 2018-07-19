@@ -1,45 +1,108 @@
 #pragma once
-#ifndef _WIN32
+// license is at eof
+/*
+LINUX type name demangling has to ne done like this
+
 #include <cxxabi.h>
-#endif
+
+template < typemame T> 
+std::string demangle () {
+// delete malloc'd memory
+struct free_ {
+void operator()(void* p) const { std::free(p); }
+};
+// custom smart pointer for c-style strings allocated with std::malloc
+using ptr_type = std::unique_ptr<char, free_>;
+
+// special function to de-mangle names
+int error{};
+ptr_type name{ abi::__cxa_demangle(typeid(T).name(), 0, 0, &error) };
+
+if (!error)        return { name.get() };
+if (error == -1)   return { "memory allocation failed" };
+if (error == -2)   return { "not a valid mangled name" };
+// else if(error == -3) or otherwise
+return { "bad argument" };
+}
+
+*/
 
 #include <type_traits>
 #include <typeinfo>
 #include <array>
 #include <vector>
-// license is at eof
+
+namespace dbj {
+
+	// be usre to hold the result
+	template < typename T >
+	const std::string name( ) noexcept
+	{
+		return buffer = typeid(T).name() ;
+
+	} // name()
+} // dbj
+
+#ifndef DBJ_TYPENAME
+#define DBJ_TYPENAME(T) dbj::name<decltype(T)>().c_str() 
+#else
+#error  DBJ_TYPENAME already defined?
+#endif // !DBJ_TYPENAME
+
+#pragma region char and string related traits
+namespace dbj {
+
+	using namespace std;
+
+	// dbj.org 2018-07-03
+	// NOTE: pointers are not char's
+	// char *. wchar_t * .. are thus not chars	
+	// take care of chars and their signed and unsigned forms
+	// where 'char' means one of the four std char types
+
+	template<class _Ty>	struct is_char : std::false_type {	};
+	template<> struct is_char<char> : std::true_type {	};
+	template<> struct is_char<signed char> : std::true_type {	};
+	template<> struct is_char<unsigned char> : std::true_type {	};
+
+	template<class _Ty>	struct is_wchar : std::false_type {	};
+	template<> struct is_wchar<wchar_t> : std::true_type {	};
+
+	template<class _Ty>	struct is_char16 : std::false_type {	};
+	template<> struct is_char16<char16_t> : std::true_type {	};
+
+	template<class _Ty>	struct is_char32 : std::false_type {	};
+	template<> struct is_char32<char32_t> : std::true_type {	};
+
+	// and one for all
+	template<typename T>
+	struct is_std_char :
+		std::integral_constant
+		<
+		bool,
+		is_char< std::remove_cv_t<T> >::value || is_wchar<std::remove_cv_t<T>>::value ||
+		is_char16<std::remove_cv_t<T>>::value || is_char32<std::remove_cv_t<T>>::value
+		>
+	{};
+
+	template<typename T>
+	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
+
+	// is T, a standard string
+	template< class T>
+	struct is_std_string : integral_constant<bool,
+		is_same<remove_cv_t<T>, string    >::value ||
+		is_same<remove_cv_t<T>, wstring   >::value ||
+		is_same<remove_cv_t<T>, u16string >::value ||
+		is_same<remove_cv_t<T>, u32string >::value> {};
+
+	template<typename T>
+	inline constexpr bool  is_std_string_v = is_std_string<T>::value;
+
+} // dbj
+#pragma endregion
+
 #pragma region enable_if helpers
-
-	namespace dbj {
-
-		template < typename T >
-		const std::string name() noexcept
-		{
-#ifdef _WIN32
-			return { typeid(T).name() };
-#else // __linux__
-				// delete malloc'd memory
-				struct free_ {
-					void operator()(void* p) const { std::free(p); }
-				};
-				// custom smart pointer for c-style strings allocated with std::malloc
-				using ptr_type = std::unique_ptr<char, free_>;
-
-				// special function to de-mangle names
-				int error{};
-				ptr_type name{ abi::__cxa_demangle(typeid(T).name(), 0, 0, &error) };
-
-				if (!error)        return { name.get() };
-				if (error == -1)   return { "memory allocation failed" };
-				if (error == -2)   return { "not a valid mangled name" };
-				// else if(error == -3)
-				return { "bad argument" };
-
-#endif // __linux__
-		} // name()
-	} // dbj
-
-#define DBJ_TYPENAME(T) dbj::name<decltype(T)>().c_str()  
 
 	/*
 	Templates are zealous eaters of types
@@ -87,7 +150,8 @@ namespace dbj {
 	using require_object = EIF< std::is_object_v< DT<T> > >;
 
 }
-#pragma endregion enable_if helpers
+#pragma endregion 
+// enable_if helpers
 
 #pragma region type traits + generic lambdas
 namespace dbj {
@@ -220,7 +284,7 @@ namespace dbj {
 } // eof dbj
 #pragma endregion
 /*
-Copyright 2017 by dbj@dbj.org
+Copyright 2017, 2018 by dbj@dbj.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

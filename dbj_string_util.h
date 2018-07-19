@@ -36,6 +36,163 @@ inline  std::ostream & operator << (std::ostream & os, std::u32string && ws_)
 }
 #endif
 
+namespace dbj {
+
+
+	/*
+	(c) 2017, 2018 by dbj.org
+	"zero" time modern C++ versions of str(n)len
+	this should speed up any modern C++ code ... perhaps quite noticeably
+
+	standard pointer versions of strlen and strnlen are not used by these two
+	which are for arrays only
+	note: str(n)len is charr array length  -1 because it does not count the null byte at the end
+	note: strnlen is a GNU extension and also specified in POSIX (IEEE Std 1003.1-2008).
+	If strnlen is not available for char arrays
+	use the dbj::strnlen replacement.
+
+	Inspired by: https://opensource.apple.com/source/bash/bash-80/bash/lib/sh/strnlen.c
+	DBJ_INLINE size_t strnlen(const CHAR_T *s, size_t maxlen)
+	{
+	const CHAR_T *e = {};
+	size_t n = {};
+
+	for (e = s, n = 0; *e && n < maxlen; e++, n++)
+	;
+	return n;
+	}
+
+	in here we cater for char, wchar_t, char16_t, char32_t
+	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
+
+	*/
+	template<typename T, size_t N>
+	static inline size_t strnlen(
+		const T(&carr)[N],
+		const size_t & maxlen,
+		typename
+		std::enable_if_t<
+		std::is_same_v<T, char> ||
+		std::is_same_v<T, wchar_t> ||
+		std::is_same_v<T, char16_t> ||
+		std::is_same_v<T, char32_t>,
+		int > = 0)
+	{
+		return dbj::MIN(N, maxlen) - 1;
+	}
+	/*
+	strlen for C++ native char array reference
+	*/
+	template<typename T, size_t N>
+	static inline size_t strlen(
+		const T(&carr)[N],
+		typename
+		std::enable_if_t<
+		std::is_same_v<T, char> ||
+		std::is_same_v<T, wchar_t> ||
+		std::is_same_v<T, char16_t> ||
+		std::is_same_v<T, char32_t>,
+		int > = 0)
+	{
+		return N - 1;
+	}
+
+	/*
+	Pointer (to character arrays) support
+	note: iosfwd include file contains char_traits we need
+
+	2018 JUL 19  We would not repeat here what UCRT already has done
+	namely char and wchar_t versions
+	std lib defines strlen for char * and wchr_t *
+	*/
+	// static inline size_t strlen(const char *    cp) { return std::strlen(cp); }
+	// static inline size_t strlen(const wchar_t * cp) { return std::wcslen(cp);  }
+	static inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
+	static inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
+	/*
+	static inline size_t strnlen(const char * cp, const size_t & maxlen) {
+	size_t cpl = std::char_traits<char>::length(cp);
+	return (cpl > maxlen ? maxlen : cpl);
+	}
+	static inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
+	size_t cpl = std::char_traits<wchar_t>::length(cp);
+	return (cpl > maxlen ? maxlen : cpl);
+	}
+	*/
+	static inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
+		size_t cpl = std::char_traits<char16_t>::length(cp);
+		return (cpl > maxlen ? maxlen : cpl);
+	}
+	static inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
+		size_t cpl = std::char_traits<char32_t>::length(cp);
+		return (cpl > maxlen ? maxlen : cpl);
+	}
+
+} // dbj
+
+/*
+TODO: this is very old stuff of questionalbe value, has to be checked as a such
+
+Schurr_cpp11_tools_for_class_authors.pdf
+
+constexpr str_const my_string = "Hello, world!";
+static_assert(my_string.size() == 13, "");
+static_assert(my_string[4] == 'o', "");
+constexpr str_const my_other_string = my_string;
+static_assert(my_string == my_other_string, "");
+constexpr str_const world(my_string, 7, 5);
+static_assert(world == "world", "");
+constexpr char x = world[5]; // Does not compile because index is out of range!
+*/
+
+namespace dbj {
+
+	class str_const final { // constexpr string
+		const char* const p_{ nullptr };
+		const std::size_t sz_{ 0 };
+	public:
+
+		template<std::size_t N>
+		constexpr str_const(const char(&a)[N]) : // ctor
+			p_(a), sz_(N - 1) {
+		}
+
+		template<std::size_t N>
+		constexpr str_const(const char(&a)[N], std::size_t from, std::size_t to) : // ctor
+			p_(a + from), sz_(a + from + to)
+		{
+			static_assert(to <= N);
+			static_assert(from <  to);
+		}
+
+		// dbj added
+		constexpr const char * data() const { return this->p_; }
+
+		constexpr char operator[](const std::size_t & n) const
+		{
+			return (n <= sz_ ? this->p_[n] : throw std::out_of_range(__func__));
+		}
+
+		constexpr std::size_t size() const noexcept { return this->sz_; }
+
+		// dbj added
+		constexpr bool friend operator == (const str_const & left, const str_const & right)
+		{
+			if (left.size() != right.size())
+				return false;
+			std::size_t index_ = 0, max_index_ = left.size();
+			while (index_ < max_index_) {
+				if (left[index_] != right[index_]) {
+					return false;
+				}
+				index_ += 1;
+			}
+			return true;
+		}
+	};
+
+} // dbj
+
 namespace dbj::str {
 
 	using namespace std;
@@ -302,13 +459,44 @@ template <
 	} // inner
 
 	  // all the types required / implicit instantiations
-	using char_range_to_string = inner::meta_converter<std::string   >;
-	using wchar_range_to_string = inner::meta_converter<std::wstring  >;
-	using u16char_range_to_string = inner::meta_converter<std::u16string>;
-	using u32char_range_to_string = inner::meta_converter<std::u32string>;
+	using range_to_string = inner::meta_converter<std::string   >;
+	using range_to_wstring = inner::meta_converter<std::wstring  >;
+	using range_to_u16string = inner::meta_converter<std::u16string>;
+	using range_to_u32string = inner::meta_converter<std::u32string>;
 
 
 } // dbj::str
+
+#pragma region deprected stuff due to meta converter introduction
+#if 0
+namespace dbj {
+
+	template< size_t N>
+	__forceinline dbj::wstring wide(const char(&charar)[N])
+	{
+		return { std::begin(charar), std::end(charar) };
+	}
+
+	__forceinline dbj::wstring wide(const char * charP)
+	{
+		std::string_view cv(charP);
+		return { cv.begin(), cv.end() };
+	}
+
+	template< size_t N>
+	__forceinline dbj::string narrow(const wchar_t(&charar)[N])
+	{
+		return { std::begin(charar), std::end(charar) };
+	}
+
+	__forceinline dbj::string narrow(const wchar_t * charP)
+	{
+		std::wstring_view cv(charP);
+		return { cv.begin(), cv.end() };
+	}
+}
+#endif
+#pragma endregion
 /*
 Copyright 2017,2018 by dbj@dbj.org
 

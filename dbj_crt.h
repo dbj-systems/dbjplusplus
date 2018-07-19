@@ -215,36 +215,12 @@ namespace dbj {
 	/*
 	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
 
-	standard c++ will "do" the bellow for "anyt" type that 
+	standard c++ will "do" the bellow for any T, that 
 	is applicable to required operators
 	*/
 	 inline auto  sign = [] (const auto & v) constexpr -> int {
 		return (v > 0) - (v < 0); // -1, 0, or +1
 	 };
-
-	template< size_t N>
-	__forceinline dbj::wstring wide(const char(&charar)[N])
-	{
-		return { std::begin(charar), std::end(charar) };
-	}
-
-	__forceinline dbj::wstring wide(const char * charP)
-	{
-		std::string_view cv(charP);
-		return { cv.begin(), cv.end() };
-	}
-
-	template< size_t N>
-	__forceinline dbj::string narrow(const wchar_t(&charar)[N])
-	{
-		return { std::begin(charar), std::end(charar) };
-	}
-
-	__forceinline dbj::string narrow(const wchar_t * charP)
-	{
-		std::wstring_view cv(charP);
-		return { cv.begin(), cv.end() };
-	}
 
 	/* avoid macros as much as possible */
 
@@ -254,179 +230,10 @@ namespace dbj {
 	template < typename T, size_t N > 
 	  inline constexpr size_t 
 		countof(T const (&array)[N]) { return N; }
-
-	/*
-	in here we cater for char, wchar_t, char16_t, char32_t
-	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
-	*/
-/*
-Inspired by: https://opensource.apple.com/source/bash/bash-80/bash/lib/sh/strnlen.c
-DBJ_INLINE size_t strnlen(const CHAR_T *s, size_t maxlen)
-{
-	const CHAR_T *e = {};
-	size_t n = {};
-
-	for (e = s, n = 0; *e && n < maxlen; e++, n++)
-		;
-	return n;
-}
-*/
-
-/*
-(c) 2017, 2018 by dbj.org
-"zero" time modern C++ versions of str(n)len
-this should speed up any modern C++ code ... perhaps quite noticeably
-
-standard pointer versions of strlen and strnlen are not used by these two
-which are for arrays only
-note: str(n)len is charr array length  -1 because it does not count the null byte at the end
-note: strnlen is a GNU extension and also specified in POSIX (IEEE Std 1003.1-2008). 
-If strnlen is not available for char arrays
-use the dbj::strnlen replacement.
-*/
-	template<typename T, size_t N>
-	static inline size_t strnlen(
-		const T(&carr)[N], 
-		const size_t & maxlen,
-		typename 
-		std::enable_if<
-		std::is_same<T, char>::value || 
-		std::is_same<T, wchar_t>::value ||
-		std::is_same<T, char16_t>::value ||
-		std::is_same<T, char32_t>::value 
-		>::type * = 0) 
-	{
-		return MIN(N, maxlen) - 1;
-	}
-	/*
-	strnlen is a GNU extension and also specified in POSIX(IEEE Std 1003.1 - 2008).
-	If std::strnlen is not available, which can happen when such extension is not supported,
-	use the following replacement for charcter arrays.
-
-	note: iosfwd include file contains char_traits we need
-	*/
-	template<typename T, size_t N>
-	static inline size_t strlen(
-		const T(&carr)[N],
-		typename
-			std::enable_if<
-			std::is_same<T, char>::value ||
-			std::is_same<T, wchar_t>::value ||
-			std::is_same<T, char16_t>::value ||
-			std::is_same<T, char32_t>::value
-			>::type * = 0) 
-		{
-			return N - 1;
-		}
-	/*
-	Pointer (to character arrays) support
-	std lib defines strlen for char * and wchr_t *
-	note: iosfwd include file contains char_traits we need
-	*/
-	static inline size_t strlen(const char *    cp) { return std::strlen(cp); }
-	static inline size_t strlen(const wchar_t * cp) { return std::wcslen(cp);  }
-	static inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp);}
-	static inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
-
-	static inline size_t strnlen(const char * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<char>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
-	}
-	static inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<wchar_t>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
-	}
-	static inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<char16_t>::length(cp);
-		  return ( cpl > maxlen ? maxlen : cpl );
-	}
-	static inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<char32_t>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
-	}
-} // dbj
-
-/* 
-DBJ C++RT utilities
-*/
-namespace dbj {
-
-
-	/*
-	Tame the full path filenames  in __FILE__
-	Inspired with:	https://stackoverflow.com/questions/8487986/file-macro-shows-full-path/8488201#8488201
-	Usage:
-	#error dbj::nicer_filename(__FILE__) " has a problem."
-	TODO: is wide version necessary?
-	*/
-	/*
-	static __forceinline 
-		constexpr auto nicer_filename(const char * filename) {
-		return (strrchr(filename, '\\') ? strrchr(filename, '\\') + 1 : filename);
-	}
-	*/
-
-
-	/*
-	Schurr_cpp11_tools_for_class_authors.pdf
-
-	constexpr str_const my_string = "Hello, world!";
-	static_assert(my_string.size() == 13, "");
-	static_assert(my_string[4] == 'o', "");
-	constexpr str_const my_other_string = my_string;
-	static_assert(my_string == my_other_string, "");
-	constexpr str_const world(my_string, 7, 5);
-	static_assert(world == "world", "");
-	//  constexpr char x = world[5]; // Does not compile because index is out of range!
-	*/
-	class str_const final { // constexpr string
-		const char* const p_{ nullptr } ;
-		const std::size_t sz_{ 0 };
-	public:
-		
-		template<std::size_t N>
-		constexpr str_const(const char(&a)[N]) : // ctor
-			p_(a), sz_(N - 1) {		
-		}
-
-		template<std::size_t N>
-		constexpr str_const(const char(&a)[N], std::size_t from, std::size_t to ) : // ctor
-			p_(a + from), sz_(a + from + to) 
-		{
-			static_assert(  to  <= N  );
-			static_assert( from <  to );
-		}
-
-		// dbj added
-		constexpr const char * data () const{	return this->p_;	}
-
-		constexpr char operator[](const std::size_t & n) const 
-		{ 
-			return ( n <= sz_ ? this->p_[n] : throw std::out_of_range(__func__));
-		}
-		
-		constexpr std::size_t size() const noexcept { return this->sz_; }
-
-		// dbj added
-		constexpr bool friend operator == ( const str_const & left, const str_const & right ) 
-		{
-			if (left.size() != right.size()) 
-					return false;
-			std::size_t index_ = 0, max_index_ = left.size() ;
-			while (index_ < max_index_) {
-				if (left[index_] != right[index_]) {
-					return false;
-				}
-				index_ += 1;
-			}
-			return true;
-		}
-	};
-
 } // dbj
 
 /*
-Copyright 2017 by dbj@dbj.org
+Copyright 2017, 2018 by dbj@dbj.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
