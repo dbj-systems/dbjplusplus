@@ -70,9 +70,14 @@ namespace dbj {
 	inline size_t strnlen(
 		const T(&carr)[N],
 		const size_t & maxlen,
-		typename
-		std::enable_if_t< dbj::is_std_char_v<T>, int > = 0)
+		typename std::enable_if_t< dbj::is_std_char_v<T>, int > = 0)
 	{
+#ifdef _DEBUG
+		auto arr_size = N;
+		auto max_size = maxlen;
+		auto smaller = dbj::MIN(N, maxlen);
+		return smaller - 1;
+#endif
 		return dbj::MIN(N, maxlen) - 1;
 	}
 	/*

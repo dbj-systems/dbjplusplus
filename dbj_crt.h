@@ -48,9 +48,9 @@
 // DBJ namespace is different from dbj (lower case) namespace 
 namespace DBJ {
 
-	inline const char * LINE{ "--------------------------------------------------------------------------------" };
-	inline const char * COMPANY{ "DBJ.Systems Ltd." };
-	inline const char * YEAR{ (__DATE__ + 7) };
+	constexpr inline const char * LINE{ "--------------------------------------------------------------------------------" };
+	constexpr inline const char * COMPANY{ "DBJ.Systems Ltd." };
+	constexpr inline const char * YEAR{ (__DATE__ + 7) };
 
 	/* 512 happpens to be the BUFSIZ */
 	constexpr size_t BUFSIZ_ = 512 * 2;
@@ -114,6 +114,7 @@ namespace dbj {
 
 	// std::equal has many overloads
 	// it is less error prone to have it here
+	// in a single form
 	// and use this one as we exactly need
 	template<class InputIt1, class InputIt2>
 	bool equal_(InputIt1 first1, InputIt1 last1, InputIt2 first2)
@@ -135,13 +136,13 @@ namespace dbj {
 	namespace heap {
 
 		template<typename T>
-		inline T * heap_alloc(size_t size_ = 0) {
+		inline T * alloc(size_t size_ = 0) {
 			T * rez_ = new T;
 			return rez_;
 		}
 
 		template<typename T>
-		inline bool heap_free(T * ptr_) {
+		inline bool free(T * ptr_) {
 			_ASSERTE(ptr_);
 			delete ptr_;
 			ptr_ = nullptr;
@@ -151,14 +152,14 @@ namespace dbj {
 #ifdef DBJ_WIN
 
 		template<typename T>
-		inline T * heap_alloc_win(size_t size_ = 0) {
+		inline T * alloc_win(size_t size_ = 0) {
 			T * rez_ = (T*)CoTaskMemAlloc(sizeof(T));
 			_ASSERTE(rez_ != nullptr);
 			return rez_;
 		}
 
 		template<typename T>
-		inline bool heap_free_win(T * ptr_) {
+		inline bool free_win(T * ptr_) {
 			_ASSERTE(ptr_);
 			CoTaskMemFree((LPVOID)ptr_);
 			ptr_ = nullptr;
@@ -175,12 +176,7 @@ namespace dbj {
 	*/
 	struct Exception : public std::runtime_error 
 	{
-		std::wstring last_what( ) const
-		{
-			std::string s_{ this->what() };
-			// dangerous cludge
-			return { std::begin(s_), std::end(s_) };
-		}
+
 	public:
 		typedef std::runtime_error _Mybase;
 
@@ -202,7 +198,13 @@ namespace dbj {
 		{	// construct from message string
 		}
 
-		// operator std::wstring () const { return last_what(); }
+		// wide what
+		// note: be sure to copy the result
+		std::wstring wwhat() const
+		{
+			std::string s_{ this->what() };
+			return { std::begin(s_), std::end(s_) };
+		}
 	};
 }
 
@@ -224,8 +226,8 @@ namespace dbj {
 
 	/* avoid macros as much as possible */
 
-	inline auto MIN = [](auto a, auto b) constexpr -> bool { return (((a) < (b)) ? (a) : (b)); };
-	inline auto MAX = [](auto a, auto b) constexpr -> bool { return (((a) > (b)) ? (a) : (b)); };
+	inline const auto & MIN = [](const auto & a, const auto & b) { return (a < b ? a : b); };
+	inline const auto & MAX = [](const auto & a, const auto & b) { return (a > b ? a : b); };
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 
