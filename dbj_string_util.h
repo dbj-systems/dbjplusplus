@@ -16,26 +16,6 @@
 #include <string>
 #include <optional>
 
-#if 0
-/*
-the oher three" string types to std::ostream
-*/
-inline std::ostream & operator << (std::ostream & os, std::wstring && ws_)
-{
-	return os << std::string{ ws_.begin(), ws_.end() };
-}
-
-inline std::ostream & operator << (std::ostream & os, std::u16string && ws_)
-{
-	return os << std::string{ ws_.begin(), ws_.end() };
-}
-
-inline  std::ostream & operator << (std::ostream & os, std::u32string && ws_)
-{
-	return os << std::string{ ws_.begin(), ws_.end() };
-}
-#endif
-
 namespace dbj {
 
 
@@ -72,12 +52,6 @@ namespace dbj {
 		const size_t & maxlen,
 		typename std::enable_if_t< dbj::is_std_char_v<T>, int > = 0)
 	{
-#ifdef _DEBUG
-		auto arr_size = N;
-		auto max_size = maxlen;
-		auto smaller = dbj::MIN(N, maxlen);
-		return smaller - 1;
-#endif
 		return dbj::MIN(N, maxlen) - 1;
 	}
 	/*
@@ -101,20 +75,9 @@ namespace dbj {
 	namely char and wchar_t versions
 	std lib defines strlen for char * and wchr_t *
 	*/
-	//  inline size_t strlen(const char *    cp) { return std::strlen(cp); }
-	//  inline size_t strlen(const wchar_t * cp) { return std::wcslen(cp);  }
 	inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
 	inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
-	/*
-	 inline size_t strnlen(const char * cp, const size_t & maxlen) {
-	size_t cpl = std::char_traits<char>::length(cp);
-	return (cpl > maxlen ? maxlen : cpl);
-	}
-	 inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
-	size_t cpl = std::char_traits<wchar_t>::length(cp);
-	return (cpl > maxlen ? maxlen : cpl);
-	}
-	*/
+
 	inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
 		size_t cpl = std::char_traits<char16_t>::length(cp);
 		return (cpl > maxlen ? maxlen : cpl);
