@@ -67,16 +67,11 @@ namespace dbj {
 
 	*/
 	template<typename T, size_t N>
-	static inline size_t strnlen(
+	inline size_t strnlen(
 		const T(&carr)[N],
 		const size_t & maxlen,
 		typename
-		std::enable_if_t<
-		std::is_same_v<T, char> ||
-		std::is_same_v<T, wchar_t> ||
-		std::is_same_v<T, char16_t> ||
-		std::is_same_v<T, char32_t>,
-		int > = 0)
+		std::enable_if_t< dbj::is_std_char_v<T>, int > = 0)
 	{
 		return dbj::MIN(N, maxlen) - 1;
 	}
@@ -84,15 +79,11 @@ namespace dbj {
 	strlen for C++ native char array reference
 	*/
 	template<typename T, size_t N>
-	static inline size_t strlen(
+	inline size_t strlen(
 		const T(&carr)[N],
 		typename
-		std::enable_if_t<
-		std::is_same_v<T, char> ||
-		std::is_same_v<T, wchar_t> ||
-		std::is_same_v<T, char16_t> ||
-		std::is_same_v<T, char32_t>,
-		int > = 0)
+		std::enable_if_t< dbj::is_std_char_v<T>, int > = 0
+		)
 	{
 		return N - 1;
 	}
@@ -105,25 +96,25 @@ namespace dbj {
 	namely char and wchar_t versions
 	std lib defines strlen for char * and wchr_t *
 	*/
-	// static inline size_t strlen(const char *    cp) { return std::strlen(cp); }
-	// static inline size_t strlen(const wchar_t * cp) { return std::wcslen(cp);  }
-	static inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
-	static inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
+	//  inline size_t strlen(const char *    cp) { return std::strlen(cp); }
+	//  inline size_t strlen(const wchar_t * cp) { return std::wcslen(cp);  }
+	inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
+	inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
 	/*
-	static inline size_t strnlen(const char * cp, const size_t & maxlen) {
+	 inline size_t strnlen(const char * cp, const size_t & maxlen) {
 	size_t cpl = std::char_traits<char>::length(cp);
 	return (cpl > maxlen ? maxlen : cpl);
 	}
-	static inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
+	 inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
 	size_t cpl = std::char_traits<wchar_t>::length(cp);
 	return (cpl > maxlen ? maxlen : cpl);
 	}
 	*/
-	static inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
+	inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
 		size_t cpl = std::char_traits<char16_t>::length(cp);
 		return (cpl > maxlen ? maxlen : cpl);
 	}
-	static inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
+	inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
 		size_t cpl = std::char_traits<char32_t>::length(cp);
 		return (cpl > maxlen ? maxlen : cpl);
 	}
