@@ -38,7 +38,7 @@ namespace dbj {
 	template < typename T >
 	const std::string name( ) noexcept
 	{
-		return buffer = typeid(T).name() ;
+		return typeid(T).name() ;
 
 	} // name()
 } // dbj
