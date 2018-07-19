@@ -217,7 +217,10 @@ void flush() {
 				= (dbj::log::instance()).stream();
 		}
 
-		
+		// for customers
+		inline void flush() {
+			(dbj::log::instance()).flush();
+		}
 
 /*
 just print to the stream as ever
