@@ -138,16 +138,9 @@ namespace dbj {
 			   }
 
 				inline  void unit_execute(testunittype tunit_) {
-					try {
-						tunit_();
-					}
-					catch (std::exception x) {
-						using dbj::log::print;
-						using dbj::console::painter_command;
-						print( painter_command::bright_red
-							, x.what()
-							, painter_command::text_color_reset);
-					}
+
+					tunit_();
+
 				}
 
 			struct adder final {

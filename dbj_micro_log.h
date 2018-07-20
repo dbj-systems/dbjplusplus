@@ -15,8 +15,8 @@ which is a future extensions
 #include <sstream>
 // #include <iostream>
 
-// this will do      std::ios::sync_with_stdio(false);
-// #define DBJLOG_EXCLUSIVE
+// this will do      std::ios::sync_with_stdio(true);
+#define DBJLOG_SYNC_WITH_STDIO
 
 #include "dbj_micro_log_fwd.h"
 #include "dbj_micro_log_ops.h"
@@ -66,33 +66,22 @@ namespace dbj {
 
 	namespace log {
 
-
-#if 0
-		template<typename IT, typename UF>
-		inline void range_out(dbj::outstream_type & os, IT && first_, IT && last_, UF && unary_fun_) {
-			for (; first_ != last_; ++first_) {
-				unary_fun_(os, (*first));
-			}
-		}
-#endif	
-
-
 		class DBJLog final {
 
-			static constexpr bool PIPE_OUT{ true };
+			static constexpr bool PIPE_OUT{ false };
 			static constexpr bool TIMESTAMP{ false };
 
 			static void output_and_reset(std::wstring & buffer_) {
 
 				if (buffer_.empty()) return;
 
-					if (DBJLog::PIPE_OUT) {
+					// if (DBJLog::PIPE_OUT) {
 						// if one wants to pipe/redirect the console output
 						// auto rez[[maybe_unused]]
 						// = ::_putws(string_trans.data());
 						// _ASSERTE(EOF != rez);
 						dbj::console::console_.out(buffer_);
-					}
+					// }
 #ifdef _DEBUG
 					_RPT0(_CRT_WARN, buffer_.c_str());
 #endif
@@ -143,13 +132,14 @@ stream << 1 << true << L"X" << std::flush ;
 			DBJLog() {
 
 				this->buffer_.resize( dbj::log::bufsiz );
-#ifdef DBJLOG_EXCLUSIVE
-				std::ios::sync_with_stdio(false);
-#else
+#ifdef DBJLOG_SYNC_WITH_STDIO
 				std::ios::sync_with_stdio(true);
+#else
+				std::ios::sync_with_stdio(false);
 #endif
 				// this->flush();
 			}
+
 
 			mutable bool flushed{};
 			// false is default bool value
@@ -189,6 +179,9 @@ void flush() {
 				flushed = true;
 			}
 			this->buffer_.clear();
+#ifdef DBJLOG_SYNC_WITH_STDIO
+			std::ios::sync_with_stdio(false);
+#endif
 		}
 		catch (...) {
 #if _DEBUG

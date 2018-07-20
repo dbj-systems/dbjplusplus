@@ -89,14 +89,16 @@ namespace DBJ {
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
-		_ASSERTE(-1 != _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...));
+		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+		_ASSERTE(-1 != R );
 		::OutputDebugStringW(buffer);
 	}
 	template <typename ... Args>
 	inline void TRACE(const char * const message, Args ... args) noexcept
 	{
 		char buffer[DBJ::BUFSIZ_]{};
-		_ASSERTE(-1 != _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...));
+		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
+		_ASSERTE(-1 != R);
 		::OutputDebugStringA(buffer);
 	}
 } // eof DBJ 

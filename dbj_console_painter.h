@@ -52,10 +52,9 @@ namespace inner {
 
 				class __declspec(novtable) Painter final {
 				public:
-
-					Painter(
-						HANDLE another_handle_ = ::GetStdHandle(STD_OUTPUT_HANDLE)
-					) noexcept : stdoutHandle(another_handle_)
+					// default ctor
+					explicit Painter( ) noexcept 
+						: stdoutHandle(::GetStdHandle(STD_OUTPUT_HANDLE))
 					{
 						CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
 						::GetConsoleScreenBufferInfo(stdoutHandle, &csbiInfo);
@@ -90,17 +89,23 @@ namespace inner {
 	const bool text_reset() const { return this->text(Colour::None); }
 
 	private:
-		bool setTextAttribute( WORD _textAttribute) const {
-			return ::SetConsoleTextAttribute(stdoutHandle, _textAttribute | originalBackgroundAttributes);
+		bool setTextAttribute( WORD _textAttribute) const 
+		{
+			bool rezult = ::SetConsoleTextAttribute(
+				stdoutHandle, 
+				_textAttribute | originalBackgroundAttributes
+			);
+			_ASSERTE(rezult);
+			return rezult;
 		}
-		HANDLE stdoutHandle;
-		WORD originalForegroundAttributes;
-		WORD originalBackgroundAttributes;
+		mutable HANDLE stdoutHandle;
+		mutable WORD originalForegroundAttributes;
+		mutable WORD originalBackgroundAttributes;
 };
         // the one and only is hidden in here ----------------------------------------
 		inline Painter painter_{};
 		// ---------------------------------------------------------------------------
-} // nspace
+} // nspace inner
 #pragma endregion "colors and painter"
 #pragma region "commander setup"
 	/*

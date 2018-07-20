@@ -14,20 +14,6 @@ namespace dbj {
 		
 		typedef typename dbj::console::painter_command CMD;
 		using dbj::log::print;
-		/*
-		inline auto print = [](auto && first_param, auto && ... params)
-		{
-			win::con::out(first_param);
-
-			// if there are  more params
-			if constexpr (sizeof...(params) > 0) {
-				// recurse
-				print(params...);
-			}
-				return print;
-		};
-
-		*/
 
 		template< typename ... Args >
 		inline void text_line (
@@ -43,6 +29,9 @@ namespace dbj {
 				print( args... );
 			}
 			paint(CMD::text_color_reset);
+			// this is probably needed so we see the changes in real time
+			// console colorus and a such?
+			dbj::log::flush();
 		};
 
 		inline auto white_line = [&]( auto && ... args ) {

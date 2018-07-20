@@ -1,102 +1,11 @@
 ﻿#pragma once
-
-#ifndef  UNICODE
-#define UNICODE
-#else
-#endif // ! UNICODE
-
-#define WIN32_LEAN_AND_MEAN
-#define STRICT
-#define NOMINMAX
-#include <windows.h>
-
-#if !defined(_CONSOLE)
-#pragma message ( "#############################################################" )
-#pragma message ( DBJ_CONCAT( "File: ", __FILE__) )
-#pragma message ( DBJ_CONCAT( "Line: ",  DBJ_EXPAND(__LINE__)))
-#pragma message ("This is probably not a console app?")
-#pragma message ( "#############################################################" )
-#endif
-
-#ifndef DBJ_WIN
-#define DBJ_WIN
-#endif // !DBJ_WIN
-
-#include "dbj_crt.h"
-#include "dbj_win32.h"
-#include "dbj_string_util.h"
+#include "dbj_console_fwd.h"
 /*
 #include "dbj_console_painter.h"
 */
 namespace dbj::console {
 
-	/* interface to the wide char console */
-	__interface IConsole {
-		/* what code page is used */
-		const unsigned code_page() const;
-		/* out is based on HANDLE and std::wstring */
-		HANDLE handle() const;
-		// const non-ref argument
-		void out(const std::wstring_view wp_) const;
-
-		// fast low level
-		// from --> to, must be a sequence
-		void out(const wchar_t * from, const wchar_t * to) const;
-	};
-
-
-#pragma region "fonts"
-	/*
-	Apparently "Terminal" is the magical font name that "always works"
-	but gives raster fonts
-	Otherwise I am yet to find a font name which does not work
-	provided it is installed on the system
-	so use safe font names
-
-	https://stackoverflow.com/a/33672503/5560811
-
-	*/
-
-	constexpr static const char * const SafeFontNames[]{
-		"Arial", "Calibri", "Cambria", "Cambria Math", "Comic Sans MS", "Courier New",
-		"Ebrima", "Gadugi", "Georgia",
-		/* "Javanese Text Regular Fallback font for Javanese script", "Leelawadee UI", */
-		"Lucida Console",
-		/*
-		"Malgun Gothic", "Microsoft Himalaya", "Microsoft JhengHei",
-		"Microsoft JhengHei UI", "Microsoft New Tai Lue", "Microsoft PhagsPa",
-		"Microsoft Tai Le", "Microsoft YaHei", "Microsoft YaHei UI",
-		"Microsoft Yi Baiti", "Mongolian Baiti", "MV Boli", "Myanmar Text",
-		"Nirmala UI",
-		*/
-		"Segoe MDL2 Assets", "Segoe Print", "Segoe UI", "Segoe UI Emoji",
-		"Segoe UI Historic", "Segoe UI Symbol", "SimSun", "Times New Roman",
-		"Trebuchet MS", "Verdana", "Webdings", "Wingdings", "Yu Gothic",
-		"Yu Gothic UI"
-	};
-
-	inline bool setfont(const wchar_t * font_name = L"Lucida Console", short height_ = 20) {
-		CONSOLE_FONT_INFOEX cfi;
-		cfi.cbSize = sizeof cfi;
-		cfi.nFont = 0;
-		cfi.dwFontSize.X = 0;
-		cfi.dwFontSize.Y = height_;
-		cfi.FontFamily = FF_DONTCARE;
-		cfi.FontWeight = FW_NORMAL;
-		//
-		::wcscpy_s(cfi.FaceName, LF_FACESIZE, font_name);
-		return ::SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
-	}
-#pragma endregion 
-
-	typedef enum class CODE : UINT {
-		page_1252 = 1252,   // western european windows
-		page_65001 = 65001, // utf8
-		page_1200 = 1200,  // utf16?
-		page_1201 = 1201   // utf16 big endian?
-	} CODE_PAGE;
-
-#pragma region "WideOut"
+#pragma region WideOut
 	/*
 	Windows "native" unicode is UTF-16
 	Be warned than proper implementation of UTF-8 related code page did not happen
@@ -111,8 +20,7 @@ namespace dbj::console {
 	Even if you get your program to write UTF16 correctly to the console,
 	Note that the Windows console isn't UTF16 friendly and may just show garbage.
 	*/
-	struct __declspec(novtable)	WideOut final
-		: public IConsole
+	struct WideOut final : public IConsole
 	{
 		mutable		HANDLE output_handle_;
 		mutable		UINT   previous_code_page_;
@@ -133,60 +41,26 @@ namespace dbj::console {
 			_ASSERTE(0 != ::SetConsoleOutputCP(code_page_));
 			/*			TODO: GetLastError()			*/
 		}
-		// copying
+		// no copying
 		WideOut(const WideOut & other) = delete;
-		/*
-		{
-			output_handle_ = other.output_handle_;
-			previous_code_page_ = other.previous_code_page_;
-			code_page_ = other.code_page_;
-		}
-		*/
-
 		WideOut & operator = (const WideOut & other) = delete;
-		/*
-		{
-			output_handle_ = other.output_handle_;
-			previous_code_page_ = other.previous_code_page_;
-			code_page_ = other.code_page_;
-			return *this;
-		}
-		*/
-		// moving
+		// no moving
 		WideOut(WideOut && other) = default;
 		WideOut & operator = (WideOut && other) = default;
 
-
 		~WideOut()
 		{
-			_ASSERTE(0 != ::SetConsoleOutputCP(previous_code_page_));
-			// TODO: should we "relase" this->output_handle_ ?
-			/*			TODO: GetLastError()  		*/
+			auto rezult = ::SetConsoleOutputCP(previous_code_page_);
+			_ASSERTE(0 != rezult);
 		}
 
 		/* what code page is used */
 		const unsigned code_page() const { return this->code_page_; }
-		/* out is based on HANDLE and std::wstring */
-		HANDLE handle() const { return this->output_handle_; }
-
-		// this is the fast method
-		void out(const wchar_t * from) const
-		{
-			static const HANDLE & output_h_ = this->output_handle_;
-			_ASSERTE(from != nullptr);
-			std::wstring wide{ from };
-			auto retval = ::WriteConsoleW
-			(
-				output_h_,
-				wide.data(),
-				static_cast<DWORD>(wide.size()), NULL, NULL
-			);
-			_ASSERTE(retval != 0);
-		}
-
-		// from --> to, must be a sequence
+		/* out__ is based on HANDLE and std::wstring */
+		HANDLE handle() const override  { return this->output_handle_; }
+    	// from --> to, must be a sequence
 		// this is the *fastest* method
-		void out(const wchar_t * from, const wchar_t * to) const
+		void out( const wchar_t * from,  const wchar_t * to) const override
 		{
 			static const HANDLE & output_h_ = this->output_handle_;
 
@@ -195,6 +69,7 @@ namespace dbj::console {
 			_ASSERTE(from != to);
 
 			std::size_t size = std::distance(from, to);
+			_ASSERTE( size > 0 );
 
 			auto retval = ::WriteConsoleW
 			(
@@ -205,33 +80,8 @@ namespace dbj::console {
 			_ASSERTE(retval != 0);
 		}
 
-		// wchar_t is native WIN
-		// obviously go that way for speed
-		// or do the char's
-		void out(const char * from, const char * to) const
-		{
-			_ASSERTE(from != nullptr);
-			_ASSERTE(to != nullptr);
-			_ASSERTE(from != to);
-
-			std::wstring wide{ from, to };
-
-			out(wide.data(), wide.data() + wide.size());
-		}
-
-		void out(const char * from) const
-		{
-			_ASSERTE(from != nullptr);
-
-			std::string narrow{ from };
-			std::wstring wide{ narrow.begin(), narrow.end() };
-
-			out(wide.data(), wide.data() + wide.size());
-		}
-
-
 		/* as dictated by the interface implemented */
-		inline void out(const std::wstring_view wp_) const
+		inline void out(const std::wstring_view wp_) const override
 		{
 			const HANDLE & output_h_ = this->output_handle_;
 			auto retval = ::WriteConsoleW
@@ -241,21 +91,6 @@ namespace dbj::console {
 				static_cast<DWORD>(wp_.size()),	NULL, NULL
 			);
 			_ASSERTE(retval != 0);
-		}
-
-		void out(const std::string_view ns_) const
-		{
-			this->out(std::wstring{ ns_.begin(), ns_.end() });
-		}
-
-		void out(const std::u16string_view  u16_) const
-		{
-			this->out(std::wstring{ u16_.begin(), u16_.end() });
-		}
-
-		void out(const std::u32string_view  u32_) const
-		{
-			this->out(std::wstring{ u32_.begin(), u32_.end() });
 		}
 
 	}; // WideOut
@@ -272,7 +107,7 @@ namespace dbj::console {
 			// this is anonymous lambda called only once
 			// by default console used code page 65001
 			// we need to make this user configurable
-			return { CODE::page_65001 };
+			return { default_code_page };
 		}(); // call immediately
 		return single_instance;
 	};
@@ -280,15 +115,6 @@ namespace dbj::console {
 	/* we expose the HANDLE to the print-ing because of future requirements
 	wanting to use error handle etc ... */
 	inline HANDLE  HANDLE_{ console_.handle() };
-
-	// we are here in dbj::win::con
-	// we need to have only a single instance 
-	/*
-	inline auto switch_console(dbj::CODE code_) {
-		console_ = dbj::WideOut(code_);
-		return console_;
-	};
-	*/
 
 #pragma endregion 
 #pragma region "print-ing implementation"
@@ -315,18 +141,18 @@ namespace dbj::console {
 			std::size_t arg_count{ 0 };
 
 			auto delimited_out = [&](auto && val_) {
-				out(val_);
-				if ((arg_count++) < (argsize - 1)) out(delim);
+				out__(val_);
+				if ((arg_count++) < (argsize - 1)) out__(delim);
 			};
 
-			out(prefix); out(space);
+			out__(prefix); out__(space);
 			for (auto item : range) {
 				delimited_out(item);
 			}
-			out(space); out(suffix);
+			out__(space); out__(suffix);
 		};
 
-		/* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
+		/* also called from void out__(...) functions for compound types. e.g. void out__(tuple&) */
 		// template<typename... Args >
 		inline	auto print_varargs = [](
 			auto && first,
@@ -339,14 +165,14 @@ namespace dbj::console {
 
 			auto delimited_out = [&](auto && val_)
 			{
-				out(val_);
+				out__(val_);
 				if (arg_count < pack_size) {
-					out(delim);
+					out__(delim);
 				}
 				arg_count += 1;
 			};
 
-			out(prefix); out(space);
+			out__(prefix); out__(space);
 
 			delimited_out(first);
 
@@ -354,15 +180,15 @@ namespace dbj::console {
 				(delimited_out(args), ...);
 			}
 
-			out(space); out(suffix);
+			out__(space); out__(suffix);
 		};
 
 	} // internal nspace
 /*
 
-console.out(...) is the only method to output to a console
+console.out__(...) is the only method to output to a console
 
-this is the special out that does not use the console output class
+this is the special out__ that does not use the console output class
 but painter commander
 
 Thus we achieved a decoupling of console and painter
@@ -373,12 +199,12 @@ Thus we achieved a decoupling of console and painter
 		std::is_same_v< std::decay_t<PC>, painter_command>
 		, int> = 0 
 	>
-	inline void out	( PC cmd_ )
+	inline void out__	( const PC & cmd_ )
 	{
 		painter_commander().execute(cmd_);
 	}
 
-	inline void paint(painter_command cmd_) {
+	inline void paint(const painter_command & cmd_) {
 		painter_commander().execute(cmd_);
 	}
 
@@ -386,90 +212,90 @@ Thus we achieved a decoupling of console and painter
 		typename N , 
 		typename std::enable_if_t<std::is_arithmetic_v<std::decay_t<N>>, int > = 0
 	>
-	inline void out	(N number_	)
+	inline void out__	( const N & number_	)
 	{
 		// static_assert( std::is_arithmetic<N>::value, "type N is not a number");
-		console_.out(std::to_wstring(number_));
+		console_.out__(std::to_wstring(number_));
 	}
 
 	template< typename B,
 		typename std::enable_if_t< dbj::is_bool_v<B>, int > = 0 >
-	inline void out
-	( std::decay_t<B> val_ ) 
+	inline void out__
+	( const B & val_ ) 
 	{
-		console_.out((true == val_ ? L"true" : L"false"));
+		console_.out__((true == val_ ? L"true" : L"false"));
 	}
 
 	/*
 	 output the standard string
-	 enable only if it is made out
+	 enable only if it is made out__
 	 of standard chars
 	*/
 	template< typename T >
-	inline void out ( std::basic_string<T> s_ ) {
+	inline void out__ ( const std::basic_string<T> & s_ ) {
 
 		static_assert(dbj::str::is_std_char_v<T>);
 
 		if (!s_.empty())
-			console_.out(s_);
+			console_.out__(s_);
 	}
 
 	/*
 	output the standard string view
-	enable only if it is made out
+	enable only if it is made out__
 	of standard chars
 	*/
 	template<typename T	>
-	inline void out ( std::basic_string_view<T>  s_ ) 
+	inline void out__ ( std::basic_string_view<T>  s_ ) 
 	{
 		static_assert( dbj::str::is_std_char_v<T> );
 
 		if (!s_.empty())
-			console_.out(s_);
+			console_.out__(s_);
 	}
 
 	/*
-	inline void out(const std::string & s_) {
+	inline void out__(const std::string & s_) {
 		if (!s_.empty())
-			console_.out(s_);
+			console_.out__(s_);
 	}
 
-	inline void out(const std::u16string  & s_) {
+	inline void out__(const std::u16string  & s_) {
 		if (!s_.empty())
-			console_.out(s_);
+			console_.out__(s_);
 	}
 
-	inline void out(const std::u32string  & s_) {
+	inline void out__(const std::u32string  & s_) {
 		if (!s_.empty())
-			console_.out(s_);
+			console_.out__(s_);
 	}
 */
 
 /*
-	inline void out(const std::string_view sv_) {
+	inline void out__(const std::string_view sv_) {
 		if (sv_.empty()) return;
-		console_.out(sv_);
+		console_.out__(sv_);
 	}
 
-	inline void out(const std::wstring_view sv_) {
+	inline void out__(const std::wstring_view sv_) {
 		if (sv_.empty()) return;
-		console_.out(sv_);
+		console_.out__(sv_);
 	}
 
-	inline void out(const std::u16string_view sv_) {
+	inline void out__(const std::u16string_view sv_) {
 		if (sv_.empty()) return;
-		console_.out(sv_);
+		console_.out__(sv_);
 	}
 
-	inline void out(const std::u32string_view sv_) {
+	inline void out__(const std::u32string_view sv_) {
 		if (sv_.empty()) return;
-		console_.out(sv_);
+		console_.out__(sv_);
 	}
 */
 /*	implement for these when required
 
 template<typename T, size_t N>
-inline void out(const T(*arp_)[N]) {
+inline void out__(const T(*arp_)[N]) {
 	using arf_type = T(&)[N];
 	arf_type arf = (arf_type)arp_;
 	internal::print_range(arf);
@@ -477,56 +303,56 @@ inline void out(const T(*arp_)[N]) {
 
 
 template<size_t N>
-inline void out(const char(&car_)[N]) {
-	console_.out(
+inline void out__(const char(&car_)[N]) {
+	console_.out__(
 		std::string_view(car_, car_ + N)
 	);
 }
 
 template<size_t N>
-inline void out(const wchar_t(&wp_)[N]) {
-	console_.out(std::wstring(wp_, wp_ + N));
+inline void out__(const wchar_t(&wp_)[N]) {
+	console_.out__(std::wstring(wp_, wp_ + N));
 }
 
-inline void out(const char * cp) {
+inline void out__(const char * cp) {
 	_ASSERTE(cp != nullptr);
-	console_.out(std::string(cp));
+	console_.out__(std::string(cp));
 }
 
-inline void out(const wchar_t * cp) {
+inline void out__(const wchar_t * cp) {
 	_ASSERTE(cp != nullptr);
-	console_.out(std::wstring(cp));
+	console_.out__(std::wstring(cp));
 }
 
-inline void out(const char16_t * cp) {
+inline void out__(const char16_t * cp) {
 	_ASSERTE(cp != nullptr);
-	console_.out(std::u16string(cp));
+	console_.out__(std::u16string(cp));
 }
 
-inline void out(const char32_t * cp) {
+inline void out__(const char32_t * cp) {
 	_ASSERTE(cp != nullptr);
-	console_.out(std::u32string(cp));
+	console_.out__(std::u32string(cp));
 }
 
-inline void out(const wchar_t wp_) {
-	console_.out(std::wstring(1, wp_));
+inline void out__(const wchar_t wp_) {
+	console_.out__(std::wstring(1, wp_));
 }
 
-inline void out(const char c_) {
+inline void out__(const char c_) {
 	char str[] = { c_ , '\0' };
-	console_.out(std::wstring(std::begin(str), std::end(str)));
+	console_.out__(std::wstring(std::begin(str), std::end(str)));
 }
 
-inline void out(const char16_t wp_) {
-	console_.out(std::u16string{ 1, wp_ });
+inline void out__(const char16_t wp_) {
+	console_.out__(std::u16string{ 1, wp_ });
 }
 
-inline void out(const char32_t wp_) {
-	console_.out(std::u32string{ 1, wp_ });
+inline void out__(const char32_t wp_) {
+	console_.out__(std::u32string{ 1, wp_ });
 }
 
 /*
-now we will deliver out() overloads for "compound" types using the ones above
+now we will deliver out__() overloads for "compound" types using the ones above
 made for intrinsic types
 ------------------------------------------------------------------------
 output the exceptions
@@ -534,43 +360,43 @@ output the exceptions
 
 /* print exception and also color the output red */
 #if 0
-	inline void out(const dbj::Exception & x_) {
+	inline void out__(const dbj::Exception & x_) {
 		paint(painter_command::bright_red);
-		console_.out((std::wstring)(x_));
+		console_.out__((std::wstring)(x_));
 		paint(painter_command::text_color_reset);
 	}
-	inline void out(const std::exception & x_) {
+	inline void out__(const std::exception & x_) {
 		paint(painter_command::bright_red);
-		console_.out(x_.what());
+		console_.out__(x_.what());
 		paint(painter_command::text_color_reset);
 	}
 #endif
 
 	template<typename T, typename A	>
-	inline void out(const std::vector<T, A> & v_) {
+	inline void out__(const std::vector<T, A> & v_) {
 		if (v_.empty()) return;
 		internal::print_range(v_);
 	}
 
 	template<typename K, typename V	>
-	inline void out(const std::map<K, V> & map_) {
+	inline void out__(const std::map<K, V> & map_) {
 		if (map_.empty()) return;
 		internal::print_range(map_);
 	}
 
 	template<typename T, std::size_t S	>
-	inline void out(const std::array<T, S> & arr_) {
+	inline void out__(const std::array<T, S> & arr_) {
 		if (arr_.empty()) return;
 		internal::print_range(arr_);
 	}
 
 	template<typename T>
-	inline void out( std::variant<T> x_) {
-		out(std::get<0>(x_));
+	inline void out__( const std::variant<T> & x_) {
+		out__(std::get<0>(x_));
 	}
 
 	template <class... Args>
-	inline void out( std::tuple<Args...> tple) {
+	inline void out__( const std::tuple<Args...> & tple) {
 
 		if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
 
@@ -582,7 +408,7 @@ output the exceptions
 	}
 
 	template <typename T1, typename T2>
-	inline void out(const std::pair<T1, T2>& pair_) {
+	inline void out__(const std::pair<T1, T2>& pair_) {
 		std::apply(
 			[](auto&&... xs) {
 			internal::print_varargs(xs...);
@@ -592,7 +418,7 @@ output the exceptions
 
 	/* output the { ... } aka std::initializer_list<T> */
 	template <class... Args>
-	inline void out(const std::initializer_list<Args...> & il_)
+	inline void out__(const std::initializer_list<Args...> & il_)
 	{
 		if (il_.size() < 1) return;
 		std::apply(
@@ -603,7 +429,7 @@ output the exceptions
 	}
 
 	template< typename T, size_t N >
-	inline void out( const std::reference_wrapper< T[N] > & wrp)
+	inline void out__( const std::reference_wrapper< T[N] > & wrp)
 	{
 		static_assert(N > 1);
 		if (wrp.get() == nullptr)
@@ -613,20 +439,18 @@ output the exceptions
 	}
 
 	template <unsigned Size, char filler = ' '>
-	void out(const dbj::c_line<Size, filler> & cline_) {
-		console_.out(cline_.data());
+	void out__(const dbj::c_line<Size, filler> & cline_) {
+		console_.out__(cline_.data());
 	}
 
 
 	/*
 	output array of T
 	*/
-	template <typename T, size_t N,
-		std::enable_if_t<
-		std::is_array_v< std::remove_cv_t<T>[N] >
-		, int > = 0
-	>
-		inline void out( T (&carr) [N] )
+	template <typename T, size_t N >
+		inline void out__( const T (&carr) [N], typename std::enable_if_t<
+			std::is_array_v< std::remove_cv_t<T>[N] >
+			, int > = 0 )
 	{
 		static_assert(N > 1);
 		internal::print_range((T(&)[N])carr);
@@ -636,12 +460,11 @@ output the exceptions
 	output array of T *
 	*/
 	template <typename T, size_t N,
-		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >,
-		std::enable_if_t<
-		std::is_array_v< std::remove_cv_t<T>[N] >
-		, int > = 0
+		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >
 	>
-		inline void out(T(*carr)[N])
+		inline void out__(const T(*carr)[N], typename std::enable_if_t<
+			std::is_array_v< std::remove_cv_t<T>[N] >
+			, int > = 0 )
 	{
 		static_assert(N > 1);
 		internal::print_range((T(&)[N])carr);
@@ -650,14 +473,14 @@ output the exceptions
 	/*
 	output std char type
 	*/
-	template < typename T,
-		std::enable_if_t< dbj::is_std_char_v<T>
-		, int > = 0
-	>
-		inline void out(T chr)
+	template < typename T >
+		inline void out__(const T & chr, 
+			typename std::enable_if_t< dbj::is_std_char_v<T>
+			, int > = 0)
 	{
 		using actual_type = std::remove_cv_t< T >;
-			console_.out(std::basic_string<actual_type>{chr});
+		actual_type car[]{chr};
+			console_.out__(chr);
 	}
 
 	/*
@@ -665,23 +488,50 @@ output the exceptions
 	*/
 	template < typename T,
 		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >,
-		std::enable_if_t< 
+		typename std::enable_if_t< 
 		dbj::is_std_char_v<actual_type> 
 		, int > = 0
 	>
-	inline void out(const T * ptr) 
+	inline void out__(const T * ptr) 
 	{
 		_ASSERTE(ptr != nullptr);
 		using actual_type = std::remove_cv_t< std::remove_pointer_t<T> >;
-			out<actual_type>(std::basic_string<T>{ptr});
+			console_.out__(std::basic_string<T>{ptr});
+	}
+	/*
+	the one and only
+	onlt the lonely ...etc ...
+	*/
+	template <typename T>
+	void out(const T & specimen)
+	{
+		static char space[]{ " " };
+		static char line[]{"------------------------------------------------------------"};
+		char_to_console( & console_, typeid(specimen).name() ) ;
+		using	actual_type = std::remove_cv_t< std::remove_pointer_t<T> >;
+
+		std::string name{ DBJ_TYPENAME(T) };
+		constexpr auto is_array = std::is_array<T>::value;
+		constexpr auto is_pointer = std::is_pointer<T>::value;
+
+		printf_to_console(&console_, "\n%s\n%s", line, __FUNCSIG__);
+		printf_to_console(&console_, "\n%-20s is %s", name.c_str(), (is_array ? "Array" : "Not an Array"));
+
+		if constexpr (is_array == true) {
+
+			typedef typename std::remove_all_extents<T>::type underlying_type;
+			auto number_of_dimension = std::rank_v<T>;
+			auto first_extent = std::extent_v<T>;
+
+			printf_to_console(&console_, "\n%-20s number of dimension is %zu", space, number_of_dimension);
+			printf_to_console(&console_, "\n%-20s size along the first dimension is %zu", space, first_extent);
+			printf_to_console(&console_, "\n%-20s underlying type is %s", space, DBJ_TYPENAME(underlying_type));
+		}
 	}
 
-#if 0
-//	template <typename T, typename ... Args>
-//	inline auto print (T && first_param, Args && ... params)
-	inline auto print = [] ( auto first_param, auto && ... params)
+	inline auto print = [] ( const auto & first_param, auto && ... params)
 	{
-		 dbj::log::print(first_param);
+		 out(first_param);
 
 		// if there are  more params
 		if constexpr (sizeof...(params) > 0) {
@@ -690,9 +540,9 @@ output the exceptions
 		}
 		return print;
 	};
-#endif
 
-	namespace /* dbj::console::*/ config {
+
+	namespace config {
 
 		/*
 		TODO: usable interface for users to define this
@@ -729,10 +579,6 @@ output the exceptions
 	} // config
 
 } // dbj::console
-
-//#ifndef dbj::log::print
-// #define dbj::log::print dbj::log::print
-// #endif
 
 /*
   Copyright 2017,2018 by dbj@dbj.org

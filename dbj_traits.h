@@ -44,7 +44,8 @@ namespace dbj {
 } // dbj
 
 #ifndef DBJ_TYPENAME
-#define DBJ_TYPENAME(T) dbj::name<decltype(T)>().c_str() 
+#define DBJ_TYPENAME(T) dbj::name<T>().c_str() 
+#define DBJ_VALTYPENAME(V) dbj::name<decltype(V)>().c_str() 
 #else
 #error  DBJ_TYPENAME already defined?
 #endif // !DBJ_TYPENAME

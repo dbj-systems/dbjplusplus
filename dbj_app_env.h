@@ -159,10 +159,10 @@ namespace dbj::app_env {
 
 } // dbj::app_env
 
-// not caught? why?
+// caught! why?
 namespace dbj::console {
 	inline void out(const dbj::app_env::structure & cli_struct) {
-		console_.out("\ndbj::cli::structure\n");
+		dbj::console::out("\ndbj::cli::structure\n");
 	}
 }
 
