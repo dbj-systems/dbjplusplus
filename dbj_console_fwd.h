@@ -48,13 +48,21 @@ namespace dbj::console {
 		console_->out(wstr_.data(), wstr_.data() + wstr_.size() );
 	}
 
+	inline void wchar_to_console(IConsole * console_, const wchar_t * char_ptr) {
+		_ASSERTE(char_ptr);
+		_ASSERTE(console_);
+		const std::wstring wstr_{ char_ptr };
+		console_->out(wstr_.data(), wstr_.data() + wstr_.size());
+	}
+
+
 	template <typename ... Args>
 	inline void printf_to_console(IConsole * console_, wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
 		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
-		console_->out(buffer, buffer + DBJ::BUFSIZ_ );
+		wchar_to_console(console_, buffer);
 	}
 	template <typename ... Args>
 	inline void printf_to_console(IConsole * console_, const char * const message, Args ... args) noexcept

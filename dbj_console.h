@@ -498,36 +498,7 @@ output the exceptions
 		using actual_type = std::remove_cv_t< std::remove_pointer_t<T> >;
 			console_.out__(std::basic_string<T>{ptr});
 	}
-	/*
-	the one and only
-	onlt the lonely ...etc ...
-	*/
-	template <typename T>
-	void out(const T & specimen)
-	{
-		static char space[]{ " " };
-		static char line[]{"------------------------------------------------------------"};
-		char_to_console( & console_, typeid(specimen).name() ) ;
-		using	actual_type = std::remove_cv_t< std::remove_pointer_t<T> >;
 
-		std::string name{ DBJ_TYPENAME(T) };
-		constexpr auto is_array = std::is_array<T>::value;
-		constexpr auto is_pointer = std::is_pointer<T>::value;
-
-		printf_to_console(&console_, "\n%s\n%s", line, __FUNCSIG__);
-		printf_to_console(&console_, "\n%-20s is %s", name.c_str(), (is_array ? "Array" : "Not an Array"));
-
-		if constexpr (is_array == true) {
-
-			typedef typename std::remove_all_extents<T>::type underlying_type;
-			auto number_of_dimension = std::rank_v<T>;
-			auto first_extent = std::extent_v<T>;
-
-			printf_to_console(&console_, "\n%-20s number of dimension is %zu", space, number_of_dimension);
-			printf_to_console(&console_, "\n%-20s size along the first dimension is %zu", space, first_extent);
-			printf_to_console(&console_, "\n%-20s underlying type is %s", space, DBJ_TYPENAME(underlying_type));
-		}
-	}
 
 	inline auto print = [] ( const auto & first_param, auto && ... params)
 	{
@@ -536,7 +507,7 @@ output the exceptions
 		// if there are  more params
 		if constexpr (sizeof...(params) > 0) {
 			// recurse
-			dbj::log::print(params...);
+			print(params...);
 		}
 		return print;
 	};

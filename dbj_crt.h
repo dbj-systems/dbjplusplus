@@ -80,6 +80,23 @@ namespace DBJ {
 			+ (suffix.empty() ? "" : suffix);
 	}
 
+	template <typename ... Args>
+	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
+	{
+		wchar_t buffer[DBJ::BUFSIZ_]{};
+		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+		_ASSERTE(-1 != R);
+		return {buffer};
+	}
+	template <typename ... Args>
+	inline std::string printf_to_buffer(const char * const message, Args ... args) noexcept
+	{
+		char buffer[DBJ::BUFSIZ_]{};
+		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
+		_ASSERTE(-1 != R);
+		return { buffer };
+	}
+
 	// DBJ::TRACE exist in release builds too
 
 	// this requires all the  args 

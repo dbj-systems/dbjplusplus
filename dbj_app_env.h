@@ -160,12 +160,13 @@ namespace dbj::app_env {
 } // dbj::app_env
 
 // caught! why?
+#if 0
 namespace dbj::console {
 	inline void out(const dbj::app_env::structure & cli_struct) {
 		dbj::console::out("\ndbj::cli::structure\n");
 	}
 }
-
+#endif
   /* standard suffix for every dbj.org header */
   /*
   Copyright 2017,2018 by dbj@dbj.org
