@@ -81,14 +81,14 @@ namespace dbj::log {
 	// fundamental std types
 
 	inline outstream_type & operator<<
-		(outstream_type & os, const char * x_)
+		( outstream_type & os, const char * x_)
 	{
 		os << dbj::range_to_wstring(x_);
 		return os;
 	}
 
 	inline outstream_type & operator<<
-		(outstream_type & os, std::string x_)
+		( outstream_type & os, std::string x_)
 	{
 		os << dbj::range_to_wstring(x_);
 		return os;
@@ -98,7 +98,7 @@ namespace dbj::log {
 	 // ranges
 	template<typename T>
 	inline outstream_type & operator<<
-		(	outstream_type & os,const std::vector<T>& vec	)
+		(	outstream_type && os,const std::vector<T>& vec	)
 	{
 		internal::print_range(os, vec);
 		return os;
@@ -106,7 +106,7 @@ namespace dbj::log {
 
 	template<typename K, typename V	>
 	inline outstream_type & operator<<
-		(outstream_type & os, const std::map<K, V> & map_) {
+		( outstream_type & os, const std::map<K, V> & map_) {
 		if (map_.empty()) return os;
 		internal::print_range(os,map_);
 		return os;
@@ -114,7 +114,7 @@ namespace dbj::log {
 
 	template<typename T, std::size_t S	>
 	inline outstream_type & operator<<
-		(outstream_type & os, const std::array<T, S> & arr_) {
+		( outstream_type & os, const std::array<T, S> & arr_) {
 		if (arr_.empty()) return os;
 		internal::print_range(os, arr_);
 		return os;
@@ -122,28 +122,28 @@ namespace dbj::log {
 
 	// std stuff not a range 
 	template<typename T>
-	inline outstream_type & operator<<
+	inline  outstream_type & operator<<
 		(outstream_type & os, const std::variant<T>& x_)
 	{
 		os << std::get<0>(x_); return os;
 	}
 
 	inline outstream_type & operator<<
-		(	outstream_type & os, const dbj::console::painter_command & cmd_	)
+		( outstream_type & os, const dbj::console::painter_command & cmd_	)
 	{
 		dbj::console::paint(cmd_);
 		return os;
 	}
 
-	inline outstream_type & operator<<
-		(outstream_type & os, const dbj::app_env::structure & aes_)
+	inline  outstream_type & operator<<
+		( outstream_type & os, const dbj::app_env::structure & aes_)
 	{
 		os << " dbj::app_env::structure output operator has to be implemented";
 		return os;
 	}
 
-	inline outstream_type & operator<<
-		(outstream_type & os, const dbj::Exception & x_)
+	inline  outstream_type & operator<<
+		(  outstream_type & os, const dbj::Exception & x_)
 	{
 		using dbj::console::painter_command;
 		os << painter_command::bright_red
@@ -153,7 +153,8 @@ namespace dbj::log {
 	}
 
 	template <class... Args>
-	inline outstream_type & operator<< (outstream_type & os, std::tuple<Args...> tple) {
+	inline  outstream_type & operator<< 
+		(  outstream_type & os, std::tuple<Args...> tple) {
 
 		if (std::tuple_size< std::tuple<Args...> >::value < 1) return os;
 
@@ -166,7 +167,8 @@ namespace dbj::log {
 	}
 
 	template <typename T1, typename T2>
-	inline outstream_type & operator<< (outstream_type & os, const std::pair<T1, T2>& pair_) {
+	inline  outstream_type & operator<< 
+		(  outstream_type & os, const std::pair<T1, T2>& pair_) {
 		std::apply(
 			[&](auto&&... xs) {
 			internal::print_varargs(os, xs...);
@@ -177,7 +179,8 @@ namespace dbj::log {
 
 	/* output the { ... } aka std::initializer_list<T> */
 	template <class... Args>
-	inline outstream_type & operator<<(outstream_type & os, const std::initializer_list<Args...> & il_)
+	inline  outstream_type & operator<<
+		( outstream_type & os, const std::initializer_list<Args...> & il_)
 	{
 		if (il_.size() < 1) return;
 		std::apply(

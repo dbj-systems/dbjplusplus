@@ -41,37 +41,56 @@ namespace dbj::console {
 		virtual void out( const wchar_t * from,  const wchar_t * to) const = 0;
 	};
 
-	inline void char_to_console( IConsole * console_ , const char * char_ptr ) {
-		_ASSERTE( char_ptr );
-		_ASSERTE(console_);
-		const std::wstring wstr_{ dbj::range_to_wstring(char_ptr) };
-		console_->out(wstr_.data(), wstr_.data() + wstr_.size() );
-	}
+	class Printer final {
 
-	inline void wchar_to_console(IConsole * console_, const wchar_t * char_ptr) {
+		mutable IConsole * console_{};
+
+		IConsole * cons() {
+			_ASSERTE(this->console_ != nullptr);
+			return this->console_;
+		}
+
+	public:
+
+		explicit Printer(IConsole * another_console_ ) 
+			: console_(another_console_)
+		{
+			_ASSERTE(another_console_);
+		}
+
+		~Printer() { this->console_ = nullptr; }
+
+		inline void char_to_console(const char * char_ptr) {
+			_ASSERTE(char_ptr);
+			const std::wstring wstr_{ dbj::range_to_wstring(char_ptr) };
+			cons()->out(wstr_.data(), wstr_.data() + wstr_.size());
+		}
+
+
+	inline void wchar_to_console(const wchar_t * char_ptr) {
 		_ASSERTE(char_ptr);
-		_ASSERTE(console_);
 		const std::wstring wstr_{ char_ptr };
-		console_->out(wstr_.data(), wstr_.data() + wstr_.size());
+		cons()->out(wstr_.data(), wstr_.data() + wstr_.size());
 	}
-
 
 	template <typename ... Args>
-	inline void printf_to_console(IConsole * console_, wchar_t const * const message, Args ... args) noexcept
+	inline void printf(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
 		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
-		wchar_to_console(console_, buffer);
+		wchar_to_console(buffer);
 	}
 	template <typename ... Args>
-	inline void printf_to_console(IConsole * console_, const char * const message, Args ... args) noexcept
+	inline void printf(const char * const message, Args ... args) noexcept
 	{
 		char buffer[DBJ::BUFSIZ_]{};
 		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R );
-		char_to_console(console_, buffer );
+		char_to_console(buffer );
 	}
+
+	}; // Printer
 
 
 #pragma region "fonts"

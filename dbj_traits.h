@@ -27,25 +27,94 @@ return { "bad argument" };
 
 */
 
+#include "dbj_crt.h"
+
 #include <type_traits>
 #include <typeinfo>
 #include <array>
 #include <vector>
+#include <string>
 
 namespace dbj {
+	namespace tt {
 
-	// be usre to hold the result
+	constexpr inline const  char space[]{ " " };
+	constexpr inline const  char line[]{ "------------------------------------------------------------" };
+
+		// we hold the result
 	template < typename T >
-	const std::string name( ) noexcept
+	constexpr inline const char * name_() noexcept
 	{
-		return typeid(T).name() ;
-
+		static const char * type_name_[]{ typeid(T).name() };
+		return type_name_[0];
 	} // name()
-} // dbj
+	
+
+	template<typename T>
+	struct actual final {
+		using unqualified_type = std::remove_cv_t< T >;
+		using not_ptr_type = std::remove_pointer_t< unqualified_type > ;
+	};
+
+
+		template< typename T>
+		struct instrument final
+		{
+			template< typename TT>
+			struct descriptor final
+			{
+				using type = TT;
+				constexpr   static inline const bool	is_pointer 
+					= std::is_pointer_v<TT>;
+				constexpr 	static inline const bool	is_array 
+					= std::is_array_v<TT>;
+				constexpr 	static inline const size_t  number_of_dimension 
+					= std::rank_v<TT>;
+				constexpr 	static inline const size_t  first_extent 
+					= std::extent_v<TT>;
+			};
+
+			using def_type 
+				= descriptor<T>;
+			using actual_type 
+				= descriptor<std::remove_cv_t< std::remove_pointer_t<T> >>;
+			using under_type 
+				= descriptor<typename std::remove_all_extents<T>::type>;
+
+			template<typename T>
+			static std::string to_string(void) noexcept
+			{
+				return
+					std::string{ "\ndefault type" } +
+					std::string{ T::descriptor_to_string<T::def_type>() } +
+					std::string{ "\nactual type" } +
+					std::string{ T::descriptor_to_string<T::actual_type>() } +
+					std::string{ "\nunderlying type" } +
+					std::string{ T::descriptor_to_string<T::under_type>() };
+			}
+
+			template< typename T >
+			static std::string descriptor_to_string() noexcept
+			{
+				return DBJ::printf_to_buffer(
+					"\n%-20s"
+					"\n%-20s : %s / %s"
+					"\n%-20s : %s -- %zu"
+					"\n%-20s : %s -- %zu",
+					name_<T::type>(),
+					space, (T::is_pointer ? "Pointer" : "NOT Pointer"), (T::is_array ? "Array" : "NOT Array"),
+					space, "dimensions, if array", T::number_of_dimension,
+					space, "dimension[0] size, if array", T::first_extent
+				);
+			}
+		};
+
+	} // tt
+} // dbj 
 
 #ifndef DBJ_TYPENAME
-#define DBJ_TYPENAME(T) dbj::name<T>().c_str() 
-#define DBJ_VALTYPENAME(V) dbj::name<decltype(V)>().c_str() 
+#define DBJ_TYPENAME(T) (dbj::tt::name_<T>()) 
+#define DBJ_VALTYPENAME(V) (dbj::tt:name_<decltype(V)>()) 
 #else
 #error  DBJ_TYPENAME already defined?
 #endif // !DBJ_TYPENAME

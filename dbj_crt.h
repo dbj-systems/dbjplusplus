@@ -5,16 +5,16 @@
 #include <sysinfoapi.h>
 #include <strsafe.h>
 
+#include <algorithm>
+#include <cstddef>
 #include <cwctype>
 #include <cctype>
-
-
 #include <string>
 #include <vector>
 #include <map>
 #include <algorithm>
-
 #include <string_view>
+
 // NOTE: do not have a space after a macro name and before the '(' !!
 #ifndef DBJ_STRINGIFY	
 #define DBJ_STRINGIFY(s) # s
@@ -80,18 +80,19 @@ namespace DBJ {
 			+ (suffix.empty() ? "" : suffix);
 	}
 
-	template <typename ... Args>
+	template <size_t BUFSIZ_ = DBJ::BUFSIZ_, typename ... Args>
 	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
 	{
-		wchar_t buffer[DBJ::BUFSIZ_]{};
+		wchar_t buffer[BUFSIZ_]{};
 		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
 		return {buffer};
 	}
-	template <typename ... Args>
+
+	template <size_t BUFSIZ_ = DBJ::BUFSIZ_, typename ... Args>
 	inline std::string printf_to_buffer(const char * const message, Args ... args) noexcept
 	{
-		char buffer[DBJ::BUFSIZ_]{};
+		char buffer[BUFSIZ_]{};
 		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
 		return { buffer };

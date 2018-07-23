@@ -107,11 +107,9 @@ long var [[maybe_unused]] {42L} ;
 // used in dbj_synchro to 
 // conditionaly def/undef
 // DBJ_AUTO_LOCK
+// TODO: not implmented yet
 #include "dbj_synchro.h"
-//
-//also defines DBJ_ASSERT, DBJ_VERIFY
-//and DBJ::TRACE
-//
+
 #include "dbj_crt.h"
 #include "dbj_array.h"
 #include "dbj_string_util.h"
