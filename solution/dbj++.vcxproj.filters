@@ -59,6 +59,7 @@
     <ClInclude Include="..\dbj_micro_log_fwd.h" />
     <ClInclude Include="..\dbj_micro_log_ops.h" />
     <ClInclude Include="..\dbj_console_fwd.h" />
+    <ClInclude Include="..\dbj_console_ops.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

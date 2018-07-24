@@ -36,6 +36,13 @@ return { "bad argument" };
 #include <string>
 
 namespace dbj {
+
+	// usefull and important aliases
+	// that make type traits much more palatable
+
+	template<typename T1, typename T2>
+	constexpr inline bool SameTypes = std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
+
 	namespace tt {
 
 	constexpr inline const  char space[]{ " " };
@@ -114,7 +121,7 @@ namespace dbj {
 
 #ifndef DBJ_TYPENAME
 #define DBJ_TYPENAME(T) (dbj::tt::name_<T>()) 
-#define DBJ_VALTYPENAME(V) (dbj::tt:name_<decltype(V)>()) 
+#define DBJ_VALTYPENAME(V) (dbj::tt::name_<decltype(V)>()) 
 #else
 #error  DBJ_TYPENAME already defined?
 #endif // !DBJ_TYPENAME

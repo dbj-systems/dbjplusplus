@@ -74,6 +74,7 @@ namespace dbj::arr {
 		template< typename T, size_t N >
 		struct ARH
 		{
+			typedef T value_type;
 			// vector type
 			typedef std::vector<T> ARV;
 			// std::array type
