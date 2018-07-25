@@ -149,7 +149,7 @@ namespace dbj {
 
 			struct adder final {
 				inline auto operator ()(
-					const std::string & msg_, 
+					std::string msg_, 
 					testunittype tunit_ 
 					) const noexcept
 				{
@@ -213,9 +213,9 @@ to avoid that phenomenon
 */
 #define DBJ_TEST_CASE_IMPL(description, name ) \
 void name(); \
-namespace DBJ_CONCAT(__dbj_register__, namespace_ ) { \
-  inline auto DBJ_CONCAT(__dbj_register__, name )\
-      = dbj::testing::add( description, name ); \
+namespace __dbj_register__namespace_  { \
+  inline auto DBJ_CONCAT( dbj_dumsy_ , __COUNTER__ ) \
+           = dbj::testing::add( description, name ); \
 } \
 inline void name() 
 

@@ -52,14 +52,14 @@ namespace DBJ {
 	constexpr inline const char * COMPANY{ "DBJ.Systems Ltd." };
 	constexpr inline const char * YEAR{ (__DATE__ + 7) };
 
-	/* 512 happpens to be the BUFSIZ */
-	constexpr size_t BUFSIZ_ = 512 * 2;
+	/* 512 happpens to be the POSIX BUFSIZ? */
+	constexpr inline const size_t BUFSIZ_ = 512 * 2;
 
 	/*
 	transform path to filename
 	delimeter is '\\'
 	*/
-	inline std::string  FILENAME(const std::string  &  file_path, const char delimiter_ = '\\') {
+	inline std::string  FILENAME( std::string  file_path, const char delimiter_ = '\\') {
 		auto pos = file_path.find_last_of(delimiter_);
 		return
 			(std::string::npos != pos
@@ -72,12 +72,14 @@ namespace DBJ {
 	usual usage :
 	FILELINE( __FILE__, __LINE__, "some text") ;
 	*/
-	inline std::string FILELINE(const std::string & file_path,
+	inline std::string FILELINE( std::string file_path,
 		unsigned line_,
-		const std::string & suffix = 0)
+		std::string suffix = "" )
 	{
-		return FILENAME(file_path) + "(" + std::to_string(line_) + ")"
-			+ (suffix.empty() ? "" : suffix);
+		return {
+			FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+			+ (suffix.empty() ? "" : suffix)
+		};
 	}
 
 	template <size_t BUFSIZ_ = DBJ::BUFSIZ_, typename ... Args>
