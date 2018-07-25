@@ -220,15 +220,34 @@ namespace dbj::console {
 	template<> inline void out<const wchar_t  *>(const wchar_t  * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console(str); }
 	template<> inline void out<const char16_t *>(const char16_t * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console( dbj::range_to_wstring(str).c_str() ); }
 	template<> inline void out<const char32_t *>(const char32_t * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console( dbj::range_to_wstring(str).c_str() ); }
-
-	template<> inline void out<std::string>(std::string str) 
+	// std strings
+	template<> inline void out< std::string >( std::string  str) 
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (! str.empty()) PRN.char_to_console(str.c_str()); }
-	template<> inline void out<std::wstring>(std::wstring str) 
+	template<> inline void out< std::wstring >( std::wstring  str)
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons()->out(str.data(), str.data() + str.size()); }
-	template<> inline void out<std::u16string>(std::u16string str) 
+	template<> inline void out< std::u16string >( std::u16string  str)
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.wchar_to_console(dbj::range_to_wstring(str).c_str()); }
-	template<> inline void out<std::u32string>(std::u32string str) 
+	template<> inline void out< std::u32string >( std::u32string  str)
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.wchar_to_console(dbj::range_to_wstring(str).c_str()); }
+
+	// std string views
+	template<> inline void out< std::string_view >(std::string_view  str)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.char_to_console(str.data());
+	}
+	template<> inline void out< std::wstring_view >(std::wstring_view  str)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons()->out(str.data(), str.data() + str.size());
+	}
+	template<> inline void out< std::u16string_view >(std::u16string_view  str)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.wchar_to_console(dbj::range_to_wstring(str).c_str());
+	}
+	template<> inline void out< std::u32string_view >(std::u32string_view  str)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.wchar_to_console(dbj::range_to_wstring(str).c_str());
+	}
+
 
 	// fundamental types ********************************************************************************
 	template<> inline void out<nullptr_t>(nullptr_t) { DBJ_TYPE_REPORT_FUNCSIG; PRN.printf("null"); }

@@ -221,7 +221,7 @@ Thus we achieved a decoupling of console and painter
 	inline void paint(const painter_command & cmd_) {
 		painter_commander().execute(cmd_);
 	}
-
+/*
 	template< 
 		typename N , 
 		typename std::enable_if_t<std::is_arithmetic_v<std::decay_t<N>>, int > = 0
@@ -239,12 +239,11 @@ Thus we achieved a decoupling of console and painter
 	{
 		console_.out__((true == val_ ? L"true" : L"false"));
 	}
-
+	*/
 	/*
 	 output the standard string
 	 enable only if it is made out__
 	 of standard chars
-	*/
 	template< typename T >
 	inline void out__ ( const std::basic_string<T> & s_ ) {
 
@@ -253,6 +252,7 @@ Thus we achieved a decoupling of console and painter
 		if (!s_.empty())
 			console_.out__(s_);
 	}
+	*/
 
 	/*
 	output the standard string view
@@ -446,10 +446,13 @@ output the exceptions
 	inline void out__( const std::reference_wrapper< T[N] > & wrp)
 	{
 		static_assert(N > 1);
-		if (wrp.get() == nullptr)
+		if (wrp.get() == nullptr) {
 			throw std::runtime_error(__FUNCSIG__ " -- reference to dangling pointer");
-		using nativarref = T(&)[N];
-		internal::print_range((nativarref)wrp.get());
+		}
+		else {
+			using nativarref = T(&)[N];
+			internal::print_range((nativarref)wrp.get());
+		}
 	}
 
 	template <unsigned Size, char filler = ' '>

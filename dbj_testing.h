@@ -68,7 +68,7 @@ namespace dbj {
 			struct function_ptr_comparator {
 				bool operator () (const testunittype & lhs, const testunittype & rhs) const
 				{
-					return lhs < rhs;
+					return std::addressof(lhs) < std::addressof(rhs);
 				};
 			};
 
@@ -132,8 +132,12 @@ namespace dbj {
 					   dbj_tests_map_.try_emplace( tunit_ ,final_description_ );
 
 				   // NOTE: rez.second is false if no insertion ocured
-				   if (rez.second != false)
-					   DBJ::TRACE("\nNot inserted because found already: %s", final_description_.c_str());
+				   if (rez.second == false) {
+					   DBJ::TRACE("\nNot inserted %s, because found already", final_description_.c_str());
+				   }
+				   else {
+					   DBJ::TRACE("\nInserted test unit: %s", final_description_.c_str());
+				   }
 				   return rez.first;
 			   }
 
@@ -146,8 +150,8 @@ namespace dbj {
 			struct adder final {
 				inline auto operator ()(
 					const std::string & msg_, 
-					testunittype tunit_, 
-					const int counter_ ) const noexcept
+					testunittype tunit_ 
+					) const noexcept
 				{
 					// mt safe in any build
 					dbj::sync::lock_unlock auto_lock;
@@ -207,18 +211,18 @@ that is they are "internal linkage"
 thus bellow we generate unique namespace name too
 to avoid that phenomenon
 */
-#define DBJ_TEST_CASE_IMPL(description, name, counter_ ) \
+#define DBJ_TEST_CASE_IMPL(description, name ) \
 void name(); \
 namespace DBJ_CONCAT(__dbj_register__, namespace_ ) { \
   inline auto DBJ_CONCAT(__dbj_register__, name )\
-      = dbj::testing::add( description, name, counter_ ); \
+      = dbj::testing::add( description, name ); \
 } \
 inline void name() 
 
 #define DBJ_TEST_CASE( description, x ) \
-DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ), x )
+DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ) )
 
-#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( DBJ::FILELINE(__FILE__, __LINE__, x) , __COUNTER__ )
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( DBJ::FILELINE(__FILE__, __LINE__) , x )
 
 #endif
 
