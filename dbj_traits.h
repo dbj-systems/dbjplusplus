@@ -60,7 +60,8 @@ namespace dbj {
 	template<typename T>
 	struct actual final {
 		using unqualified_type = std::remove_cv_t< T >;
-		using not_ptr_type = std::remove_pointer_t< unqualified_type > ;
+		using not_ptr_type = std::remove_pointer_t< T > ;
+		using decay_type = std::decay_t< T >;
 	};
 
 
@@ -142,14 +143,22 @@ namespace dbj {
 	template<> struct is_char<signed char> : std::true_type {	};
 	template<> struct is_char<unsigned char> : std::true_type {	};
 
+	template<typename T> inline constexpr bool  is_char_v = is_char<T>::value;
+
 	template<class _Ty>	struct is_wchar : std::false_type {	};
 	template<> struct is_wchar<wchar_t> : std::true_type {	};
+
+	template<typename T> inline constexpr bool  is_wchar_v = is_wchar<T>::value;
 
 	template<class _Ty>	struct is_char16 : std::false_type {	};
 	template<> struct is_char16<char16_t> : std::true_type {	};
 
+	template<typename T> inline constexpr bool  is_char16_v = is_char16<T>::value;
+
 	template<class _Ty>	struct is_char32 : std::false_type {	};
 	template<> struct is_char32<char32_t> : std::true_type {	};
+
+	template<typename T> inline constexpr bool  is_char32_v = is_char32<T>::value;
 
 	// and one for all
 	template<typename T>

@@ -28,6 +28,13 @@
 
 namespace dbj::console {
 
+	constexpr inline char    space = ' ', prefix = '{', suffix = '}', delim = ',';
+	constexpr inline wchar_t wspace = L' ', wprefix = L'{', wsuffix = L'}', wdelim = L',';
+
+	constexpr inline const char    * space_str{ " " }, * prefix_str{ "{" }, * suffix_str{ "}" }, * delim_str{ "," };
+	constexpr inline const wchar_t * wspace_str{ L" " }, * wprefix_str{ L"{" }, * wsuffix_str{ L"}" }, * wdelim_str{ L"," };
+
+
 	/* interface to the wide char console */
 	struct IConsole {
 		/* what code page is used */
@@ -41,48 +48,58 @@ namespace dbj::console {
 		virtual void out( const wchar_t * from,  const wchar_t * to) const = 0;
 	};
 
+	/*
+	base printer console single user
+	*/
 	class Printer final {
 
 		mutable IConsole * console_{};
 
-		IConsole * cons() {
-			_ASSERTE(this->console_ != nullptr);
-			return this->console_;
-		}
-
-	public:
-
-		explicit Printer(IConsole * another_console_ ) 
+		Printer(IConsole * another_console_)
 			: console_(another_console_)
 		{
 			_ASSERTE(another_console_);
 		}
 
+	public:
+		// to be implemented where CON implementation is visible
+		friend inline const Printer & printer_instance();
+
+		IConsole const * cons() const noexcept {	_ASSERTE(this->console_ != nullptr); return this->console_;	}
+
+		Printer() = default;
+		Printer(const Printer &) = delete;
+		Printer & operator = (const Printer &) = delete;
+		Printer( Printer &&) = default;
+		Printer & operator = (Printer &&) = default;
 		~Printer() { this->console_ = nullptr; }
 
-		inline void char_to_console(const char * char_ptr) {
+
+
+		void char_to_console(const char * char_ptr) const noexcept {
 			_ASSERTE(char_ptr);
 			const std::wstring wstr_{ dbj::range_to_wstring(char_ptr) };
 			cons()->out(wstr_.data(), wstr_.data() + wstr_.size());
 		}
 
 
-	inline void wchar_to_console(const wchar_t * char_ptr) {
+	void wchar_to_console(const wchar_t  * char_ptr) const noexcept {
 		_ASSERTE(char_ptr);
 		const std::wstring wstr_{ char_ptr };
 		cons()->out(wstr_.data(), wstr_.data() + wstr_.size());
 	}
 
 	template <typename ... Args>
-	inline void printf(wchar_t const * const message, Args ... args) noexcept
+	void printf(wchar_t const * const message, Args ... args) const noexcept
 	{
 		wchar_t buffer[DBJ::BUFSIZ_]{};
 		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
 		wchar_to_console(buffer);
 	}
+
 	template <typename ... Args>
-	inline void printf(const char * const message, Args ... args) noexcept
+	void printf(const char * const message, Args ... args) const noexcept
 	{
 		char buffer[DBJ::BUFSIZ_]{};
 		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);

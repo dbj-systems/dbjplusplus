@@ -44,7 +44,7 @@ namespace dbj::console {
 		// no copying
 		WideOut(const WideOut & other) = delete;
 		WideOut & operator = (const WideOut & other) = delete;
-		// no moving
+		// we need this one so we can pass the singleton instance out
 		WideOut(WideOut && other) = default;
 		WideOut & operator = (WideOut && other) = default;
 
@@ -93,31 +93,44 @@ namespace dbj::console {
 			_ASSERTE(retval != 0);
 		}
 
+		/*
+		here we hide the single application wide 
+		IConsole implementation instance
+		*/
+		static WideOut & instance( CODE_PAGE const & code_page = default_code_page)
+		{
+			static WideOut single_instance
+				= [&]() -> WideOut {
+				// this is anonymous lambda called only once
+				return { code_page };
+			}(); // call immediately
+			return single_instance;
+		};
+
 	}; // WideOut
 
-	/*
-	here we hide the single application wide console instance
-	this is single app wide instance
+
+	inline WideOut & console_ = WideOut::instance();
+	
+	/* 
+	do we need this?
+	inline HANDLE  HANDLE_{ console_.handle() };
 	*/
-	inline WideOut & instance()
+
+	/* this is Printer's friend*/
+	inline const Printer & printer_instance() 
 	{
-		static WideOut single_instance
-			= [&]() -> WideOut {
-			// TODO:
+		static Printer single_instance
+			= [&]() -> Printer {
 			// this is anonymous lambda called only once
-			// by default console used code page 65001
-			// we need to make this user configurable
-			return { default_code_page };
+			return { & console_ };
 		}(); // call immediately
 		return single_instance;
-	};
-	inline WideOut & console_ = instance();
-	/* we expose the HANDLE to the print-ing because of future requirements
-	wanting to use error handle etc ... */
-	inline HANDLE  HANDLE_{ console_.handle() };
+	}
 
 #pragma endregion 
 #pragma region "print-ing implementation"
+#if 0
 	namespace internal {
 		constexpr char space = ' ', prefix = '{', suffix = '}', delim = ',';
 
@@ -184,7 +197,8 @@ namespace dbj::console {
 		};
 
 	} // internal nspace
-/*
+#endif
+	  /*
 
 console.out__(...) is the only method to output to a console
 
@@ -523,7 +537,7 @@ output the exceptions
 			static auto configure_once_ = []() -> bool
 			{
 				auto font_name_ = L"Lucida Console";
-				auto code_page_ = dbj::console::instance().code_page();
+				auto code_page_ = dbj::console::WideOut::instance().code_page();
 				try {
 					// TODO: switch code page on a single running instance
 					// auto new_console[[maybe_unused]] = con::switch_console(code_page_);
