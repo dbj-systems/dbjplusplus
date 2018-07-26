@@ -28,11 +28,13 @@
 
 namespace dbj::console {
 
-	constexpr inline char    space = ' ', prefix = '{', suffix = '}', delim = ',';
-	constexpr inline wchar_t wspace = L' ', wprefix = L'{', wsuffix = L'}', wdelim = L',';
+	constexpr inline char    space = ' ', prefix = '{', suffix = '}', delim = ',' , nl = '\n' ;
+	constexpr inline wchar_t wspace = L' ', wprefix = L'{', wsuffix = L'}', wdelim = L',', wnl = L'\n';
 
-	constexpr inline const char    * space_str{ " " }, * prefix_str{ "{" }, * suffix_str{ "}" }, * delim_str{ "," };
-	constexpr inline const wchar_t * wspace_str{ L" " }, * wprefix_str{ L"{" }, * wsuffix_str{ L"}" }, * wdelim_str{ L"," };
+	constexpr inline const char    
+		* space_str{ " " }, *prefix_str{ "{" }, *suffix_str{ "}" }, *delim_str{ "," }, * nl_str{ "\n" };
+	constexpr inline const wchar_t 
+		* wspace_str{ L" " }, *wprefix_str{ L"{" }, *wsuffix_str{ L"}" }, *wdelim_str{ L"," }, * wnl_str{ L"\n" };
 
 
 	/* interface to the wide char console */

@@ -216,6 +216,11 @@ namespace dbj::console {
 	}
 
 	// stings and string literals are different by design ***********************************************
+	template<> inline void out< char     *>( char     * str) { DBJ_TYPE_REPORT_FUNCSIG;  _ASSERTE(str != nullptr); PRN.char_to_console(str); }
+	template<> inline void out< wchar_t  *>( wchar_t  * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console(str); }
+	template<> inline void out< char16_t *>( char16_t * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console(dbj::range_to_wstring(str).c_str()); }
+	template<> inline void out< char32_t *>( char32_t * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console(dbj::range_to_wstring(str).c_str()); }
+
 	template<> inline void out<const char     *>(const char     * str) { DBJ_TYPE_REPORT_FUNCSIG;  _ASSERTE(str != nullptr); PRN.char_to_console(str); }
 	template<> inline void out<const wchar_t  *>(const wchar_t  * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console(str); }
 	template<> inline void out<const char16_t *>(const char16_t * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console( dbj::range_to_wstring(str).c_str() ); }
@@ -283,10 +288,101 @@ namespace dbj::console {
 
 	// std classes
 
-	template<typename T, size_t N> 
-	inline void out(const std::array<T, N> & arr)
-	{ DBJ_TYPE_REPORT_FUNCSIG; 
-			inner::print_range(arr);
+	/* print exception and also color the output red */
+#if 0
+	inline void out__(const dbj::Exception & x_) {
+		paint(painter_command::bright_red);
+		console_.out__((std::wstring)(x_));
+		paint(painter_command::text_color_reset);
+	}
+	inline void out__(const std::exception & x_) {
+		paint(painter_command::bright_red);
+		console_.out__(x_.what());
+		paint(painter_command::text_color_reset);
+	}
+#endif
+
+	template<typename T, typename A	>
+	inline void out__(const std::vector<T, A> & v_) {
+		if (v_.empty()) return;
+		inner::print_range(v_);
 	}
 
-}
+	template<typename K, typename V	>
+	inline void out (const std::map<K, V> & map_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		if (map_.empty()) return;
+		inner::print_range(map_);
+	}
+
+	template<typename T, size_t N>
+	inline void out(const std::array<T, N> & arr)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG;
+		if (arr.empty()) return;
+		inner::print_range(arr);
+	}
+
+	template<typename T>
+	inline void out(const std::variant<T> & x_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		out(std::get<0>(x_));
+	}
+
+	template <class... Args>
+	inline void out(const std::tuple<Args...> & tple) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
+
+		std::apply(	[](auto&&... xs) {	inner::print_varargs(xs...);}, tple);
+	}
+
+	template <typename T1, typename T2>
+	inline void out (const std::pair<T1, T2>& pair_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		std::apply(	[](auto&&... xs) { inner::print_varargs(xs...);	},	pair_);
+	}
+
+	/* output the { ... } aka std::initializer_list<T> */
+	template <class... Args>
+	inline void out(const std::initializer_list<Args...> & il_)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG;
+		if (il_.size() < 1) return;
+		std::apply( [](auto&&... xs) { inner::print_varargs(xs...);	}, il_);
+	}
+
+	template< typename T, size_t N >
+	inline void out (const std::reference_wrapper< T[N] > & wrp)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG;
+		static_assert(N > 1);
+		if (wrp.get() == nullptr) {
+			throw std::runtime_error(__FUNCSIG__ " -- reference to dangling pointer");
+		}
+		else {
+			using nativarref = T(&)[N];
+			inner::print_range((nativarref)wrp.get());
+		}
+	}
+
+	/*
+	template <unsigned Size, char filler = ' '>
+	void out__(const dbj::c_line<Size, filler> & cline_) {
+		console_.out__(cline_.data());
+	}
+	*/
+
+	inline auto print = [](const auto & first_param, auto && ... params)
+	{
+		out(first_param);
+
+		// if there are  more params
+		if constexpr (sizeof...(params) > 0) {
+			// recurse
+			print(params...);
+		}
+		return print;
+	};
+
+} // dbj::console

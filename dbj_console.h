@@ -258,7 +258,7 @@ Thus we achieved a decoupling of console and painter
 	output the standard string view
 	enable only if it is made out__
 	of standard chars
-	*/
+
 	template<typename T	>
 	inline void out__ ( std::basic_string_view<T>  s_ ) 
 	{
@@ -267,8 +267,7 @@ Thus we achieved a decoupling of console and painter
 		if (!s_.empty())
 			console_.out__(s_);
 	}
-
-	/*
+	
 	inline void out__(const std::string & s_) {
 		if (!s_.empty())
 			console_.out__(s_);
@@ -305,8 +304,8 @@ Thus we achieved a decoupling of console and painter
 		if (sv_.empty()) return;
 		console_.out__(sv_);
 	}
-*/
-/*	implement for these when required
+
+	implement for these when required
 
 template<typename T, size_t N>
 inline void out__(const T(*arp_)[N]) {
@@ -364,106 +363,14 @@ inline void out__(const char16_t wp_) {
 inline void out__(const char32_t wp_) {
 	console_.out__(std::u32string{ 1, wp_ });
 }
-
+*/
 /*
 now we will deliver out__() overloads for "compound" types using the ones above
 made for intrinsic types
 ------------------------------------------------------------------------
 output the exceptions
-*/
 
-/* print exception and also color the output red */
-#if 0
-	inline void out__(const dbj::Exception & x_) {
-		paint(painter_command::bright_red);
-		console_.out__((std::wstring)(x_));
-		paint(painter_command::text_color_reset);
-	}
-	inline void out__(const std::exception & x_) {
-		paint(painter_command::bright_red);
-		console_.out__(x_.what());
-		paint(painter_command::text_color_reset);
-	}
-#endif
-
-	template<typename T, typename A	>
-	inline void out__(const std::vector<T, A> & v_) {
-		if (v_.empty()) return;
-		internal::print_range(v_);
-	}
-
-	template<typename K, typename V	>
-	inline void out__(const std::map<K, V> & map_) {
-		if (map_.empty()) return;
-		internal::print_range(map_);
-	}
-
-	template<typename T, std::size_t S	>
-	inline void out__(const std::array<T, S> & arr_) {
-		if (arr_.empty()) return;
-		internal::print_range(arr_);
-	}
-
-	template<typename T>
-	inline void out__( const std::variant<T> & x_) {
-		out__(std::get<0>(x_));
-	}
-
-	template <class... Args>
-	inline void out__( const std::tuple<Args...> & tple) {
-
-		if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
-
-		std::apply(
-			[](auto&&... xs) {
-			internal::print_varargs(xs...);
-		},
-			tple);
-	}
-
-	template <typename T1, typename T2>
-	inline void out__(const std::pair<T1, T2>& pair_) {
-		std::apply(
-			[](auto&&... xs) {
-			internal::print_varargs(xs...);
-		},
-			pair_);
-	}
-
-	/* output the { ... } aka std::initializer_list<T> */
-	template <class... Args>
-	inline void out__(const std::initializer_list<Args...> & il_)
-	{
-		if (il_.size() < 1) return;
-		std::apply(
-			[](auto&&... xs) {
-			internal::print_varargs(xs...);
-		},
-			il_);
-	}
-
-	template< typename T, size_t N >
-	inline void out__( const std::reference_wrapper< T[N] > & wrp)
-	{
-		static_assert(N > 1);
-		if (wrp.get() == nullptr) {
-			throw std::runtime_error(__FUNCSIG__ " -- reference to dangling pointer");
-		}
-		else {
-			using nativarref = T(&)[N];
-			internal::print_range((nativarref)wrp.get());
-		}
-	}
-
-	template <unsigned Size, char filler = ' '>
-	void out__(const dbj::c_line<Size, filler> & cline_) {
-		console_.out__(cline_.data());
-	}
-
-
-	/*
 	output array of T
-	*/
 	template <typename T, size_t N >
 		inline void out__( const T (&carr) [N], typename std::enable_if_t<
 			std::is_array_v< std::remove_cv_t<T>[N] >
@@ -473,9 +380,7 @@ output the exceptions
 		internal::print_range((T(&)[N])carr);
 	}
 
-	/*
 	output array of T *
-	*/
 	template <typename T, size_t N,
 		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >
 	>
@@ -487,9 +392,7 @@ output the exceptions
 		internal::print_range((T(&)[N])carr);
 	}
 
-	/*
 	output std char type
-	*/
 	template < typename T >
 		inline void out__(const T & chr, 
 			typename std::enable_if_t< dbj::is_std_char_v<T>
@@ -499,10 +402,7 @@ output the exceptions
 		actual_type car[]{chr};
 			console_.out__(chr);
 	}
-
-	/*
 	output pointer to std char type
-	*/
 	template < typename T,
 		typename actual_type = std::remove_cv_t< std::remove_pointer_t<T> >,
 		typename std::enable_if_t< 
@@ -516,7 +416,8 @@ output the exceptions
 			console_.out__(std::basic_string<T>{ptr});
 	}
 
-
+	*/
+/*
 	inline auto print = [] ( const auto & first_param, auto && ... params)
 	{
 		 out(first_param);
@@ -528,7 +429,7 @@ output the exceptions
 		}
 		return print;
 	};
-
+*/
 
 	namespace config {
 
