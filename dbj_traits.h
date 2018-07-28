@@ -49,6 +49,8 @@ namespace dbj {
 	constexpr inline const  char line[]{ "------------------------------------------------------------" };
 
 		// we hold the result
+	    // for each T in instance of dbj::tt::name_<T>
+	    // this might be wastefull ...
 	template < typename T >
 	constexpr inline const char * name_() noexcept
 	{
@@ -56,12 +58,25 @@ namespace dbj {
 		return type_name_[0];
 	} // name()
 	
+	// this might be much better idea than std::is_array
+	// https://godbolt.org/g/8skXRF
+	template< typename T, size_t N>
+	inline constexpr bool is_array_(const T(&specimen)[N])
+	{
+		return true;
+	}
+
+	template< typename T, size_t N>
+	inline constexpr bool is_array_(const T(*specimen)[N])
+	{
+		return true;
+	}
 
 	template<typename T>
 	struct actual final {
 		using unqualified_type = std::remove_cv_t< T >;
 		using not_ptr_type = std::remove_pointer_t< T > ;
-		using decay_type = std::decay_t< T >;
+		using decayed_type = std::decay_t< T >;
 	};
 
 

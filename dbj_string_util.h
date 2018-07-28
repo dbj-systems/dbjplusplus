@@ -154,8 +154,6 @@ namespace dbj {
 
 namespace dbj::str {
 
-
-
 	constexpr std::size_t small_string_optimal_size{ 255 };
 
 /*
@@ -382,37 +380,48 @@ namespace dbj {
 	inline dbj::str::inner::meta_converter<std::u32string> range_to_u32string{};
 }
 
+namespace dbj::str {
+	template <class T>
+	using expr_type = typename std::remove_cv_t<std::remove_reference_t<T>>;
 
-#pragma region deprected stuff due to meta converter introduction
-#if 0
-namespace dbj {
-
-	template< size_t N>
-	__forceinline dbj::wstring wide(const char(&charar)[N])
-	{
-		return { std::begin(charar), std::end(charar) };
+	inline void remove_all_subs(std::string& s, const std::string& pattern) {
+		using namespace std;
+		string::size_type n = pattern.length();
+		for (string::size_type i = s.find(pattern);
+			i != string::npos;
+			i = s.find(pattern)
+			) {
+			s.erase(i, n);
+		}
 	}
 
-	__forceinline dbj::wstring wide(const char * charP)
-	{
-		std::string_view cv(charP);
-		return { cv.begin(), cv.end() };
+	inline void remove_first_sub(std::string& s, const std::string& pattern) {
+		using namespace std;
+		string::size_type n = pattern.length();
+		string::size_type i = s.find(pattern);
+		if (i == string::npos) return;
+		s.erase(i, n);
 	}
 
-	template< size_t N>
-	__forceinline dbj::string narrow(const wchar_t(&charar)[N])
+
+	// https://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c
+	inline std::string replace_inplace
+	(
+		const std::string& subject,
+		const std::string& search,
+		const std::string& replace
+	)
 	{
-		return { std::begin(charar), std::end(charar) };
+		std::string input{ (char *)subject.c_str() };
+		size_t pos = 0;
+		while ((pos = input.find(search, pos)) != std::string::npos) {
+			input.replace(pos, search.length(), replace);
+			pos += replace.length();
+		}
+		return input;
 	}
 
-	__forceinline dbj::string narrow(const wchar_t * charP)
-	{
-		std::wstring_view cv(charP);
-		return { cv.begin(), cv.end() };
-	}
-}
-#endif
-#pragma endregion
+} // dbj::str
 /*
 Copyright 2017,2018 by dbj@dbj.org
 
