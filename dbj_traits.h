@@ -37,12 +37,6 @@ return { "bad argument" };
 
 namespace dbj {
 
-	// usefull and important aliases
-	// that make type traits much more palatable
-
-	template<typename T1, typename T2>
-	constexpr inline bool SameTypes = std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
-
 	namespace tt {
 
 	constexpr inline const  char space[]{ " " };
@@ -52,14 +46,55 @@ namespace dbj {
 	    // for each T in instance of dbj::tt::name_<T>
 	    // this might be wastefull ...
 	template < typename T >
-	constexpr inline const char * name_() noexcept
+	inline const char * name_() noexcept
 	{
 		static const char * type_name_[]{ typeid(T).name() };
-		return type_name_[0];
-	} // name()
+		return type_name_[0] ;
+	} // name_()
+
+	  // usefull and important aliases
+	  // that make type traits much more palatable
+
+#pragma region is pointer
+	/*
+	constexpr inline  const char * holla_ = "Hola!";
+	inline const char buff[]{ "ABCD" };
+	// OK
+	static_assert(probe(buff));
+	static_assert(probe(holla_));
+	static_assert(probe("ola ola!") );
+	// OK
+	inline const std::array<int, 3> iarr{ 1,2,3 };
+	static_assert(probe(iarr.data()));
+	*/
+	template <typename T> inline constexpr const bool pointer(T const &) noexcept { return false; }
+	template <typename T> inline constexpr const bool pointer(T const *)  noexcept { return true; }
+	// template <typename T> inline constexpr const bool probe(T  &&)  noexcept  = delete;
+	// template <typename T> inline constexpr const bool probe(T) noexcept  = delete;
+
+	// #define CRAZY_ALGORITHMS
+#ifdef CRAZY_ALGORITHMS
+	template<typename T>
+	inline const bool is_ptr_(const T &) {
+
+		const char * name_ = dbj::tt::name_<T>();
+		char * first = (char*)name_;
+		while (0x0 != first++) {
+			if (*first == '*') return true;
+		}
+		return false;
+	}
+#endif
+#pragma endregion 
+
+
+	// remove const-ness and/or volatility before comparing
+	// do not remove anything else
+	template<typename T1, typename T2>
+	constexpr inline bool same_types = std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
 	
 	// this might be much better idea than std::is_array
-	// https://godbolt.org/g/8skXRF
+	// proof: https://godbolt.org/g/8skXRF
 	template< typename T, size_t N>
 	inline constexpr bool is_array_(const T(&specimen)[N])
 	{
@@ -73,10 +108,10 @@ namespace dbj {
 	}
 
 	template<typename T>
-	struct actual final {
-		using unqualified_type = std::remove_cv_t< T >;
-		using not_ptr_type = std::remove_pointer_t< T > ;
-		using decayed_type = std::decay_t< T >;
+	struct actual_type final {
+		using unqualified = std::remove_cv_t< T >;
+		using not_ptr = std::remove_pointer_t< T > ;
+		using decayed = std::decay_t< T >;
 	};
 
 

@@ -112,7 +112,7 @@ namespace dbj::console {
 	template <typename T>
 	void out(T specimen)
 	{
-		using actual = dbj::tt::actual<T>;
+		using actual = dbj::tt::actual_type<T>;
 
 #ifdef DBJ_TYPE_INSTRUMENTS
 		using argument_instrument = dbj::tt::instrument<T> ;
@@ -121,13 +121,13 @@ namespace dbj::console {
 #endif
 		// dbj_type_report<argument_type>( &console_ );
 
-		if constexpr(std::is_fundamental_v< actual::unqualified_type >) {
+		if constexpr(std::is_fundamental_v< dbj::tt::actual_type<T>::unqualified >) {
 
 			if constexpr(std::is_arithmetic_v< actual::unqualified_type >) {
-				if constexpr(std::is_floating_point_v< actual::unqualified_type >) {
+				if constexpr(std::is_floating_point_v< actual::unqualified >) {
 					DBJ_UNHANDLED_("floating point");
 				}
-				else if constexpr(std::is_integral_v< actual::unqualified_type >) {
+				else if constexpr(std::is_integral_v< actual::unqualified >) {
 					DBJ_UNHANDLED_("integral");
 				}
 			}
@@ -135,11 +135,11 @@ namespace dbj::console {
 				DBJ_UNHANDLED_("fundamental");
 			}
 		}
-		else if constexpr (std::is_compound_v< actual::unqualified_type >) {
+		else if constexpr (std::is_compound_v< actual::unqualified >) {
 
-			if constexpr (std::is_pointer_v< actual::unqualified_type >) {
+			if constexpr (std::is_pointer_v< actual::unqualified >) {
 
-				if constexpr (dbj::is_std_char_v<actual::not_ptr_type>) 
+				if constexpr (dbj::is_std_char_v<actual::not_ptr> ) 
 				{
 					DBJ_UNHANDLED_("string literal");
 				}
@@ -148,24 +148,24 @@ namespace dbj::console {
 					PRN.printf("%p", specimen);
 				}
 			}
-			else if constexpr (std::is_member_pointer_v< actual::unqualified_type >) {
+			else if constexpr (std::is_member_pointer_v< actual::unqualified >) {
 				// std::is_member_object_pointer
 				// std::is_member_function_pointer
 				PRN.printf("%p", specimen);
 			}
-			else if constexpr (std::is_array_v< actual::unqualified_type >) {
+			else if constexpr (std::is_array_v< actual::unqualified >) {
 				DBJ_UNHANDLED_("array");
 			}
-			else if constexpr (std::is_function_v< actual::unqualified_type >) {
+			else if constexpr (std::is_function_v< actual::unqualified >) {
 				DBJ_UNHANDLED_("function");
 			}
-			else if constexpr (std::is_enum_v< actual::unqualified_type >) {
+			else if constexpr (std::is_enum_v< actual::unqualified >) {
 				DBJ_UNHANDLED_("enum");
 			}
-			else if constexpr (std::is_class_v< actual::unqualified_type >) {
+			else if constexpr (std::is_class_v< actual::unqualified >) {
 				DBJ_UNHANDLED_("class");
 			}
-			else if constexpr (std::is_union_v< actual::unqualified_type >) {
+			else if constexpr (std::is_union_v< actual::unqualified >) {
 				DBJ_UNHANDLED_("union");
 			}
 			else {
@@ -184,14 +184,14 @@ namespace dbj::console {
 		DBJ_TYPE_REPORT_FUNCSIG;
 
 		if constexpr (
-			dbj::SameTypes<T,char>
+			dbj::tt::same_types<T,char>
 			/* std::is_same_v<std::remove_cv_t<T>, char > */
 			) {
 			PRN.char_to_console(native_array);
 		}
 		else
 			if constexpr (
-				dbj::SameTypes<T, wchar_t>
+				dbj::tt::same_types<T, wchar_t>
 			) 
 			{
 				PRN.wchar_to_console(native_array);
