@@ -151,6 +151,9 @@ namespace inner {
 		static 	const PainterCommander & just_call_once = factory_of_commands();
 		return  just_call_once ;
 	}
+
+	inline const PainterCommander  & painter_commander_instance = painter_commander();
+
 #pragma endregion
 } // dbj::console
 

@@ -34,11 +34,14 @@ namespace dbj {
 			while (b != (Size)) {
 				array_[b] = filler; b++;
 			}
-			array_[Size] = '\x0';
+			array_[Size - 1] = '\x0';
 		}
 		
 		operator const std::string() const noexcept { return { array_ }; }
+
+		constexpr char const * data() const noexcept { return array_ ; }
 	};
+
 
 	namespace util {
 		//-----------------------------------------------------------------------------
@@ -265,7 +268,13 @@ namespace dbj {
 	} // util
 } // dbj
 
-
+// console out overloads
+namespace dbj::console {
+	template <unsigned Size, char filler = ' '>
+	inline void out(const c_line<Size, filler> & const_line_) {
+		PRN.char_to_console(const_line_.data());
+	}
+}
 
   /*
   Copyright 2017 by dbj@dbj.org

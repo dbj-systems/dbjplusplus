@@ -98,8 +98,8 @@ namespace dbj::console {
 	 PRN.printf(\
 		 "\nunhandled " P " argument: %s\nunqualified_type: %s\nnot a pointer type: %s",\
 		 DBJ_TYPENAME(T),\
-		 DBJ_TYPENAME(actual::unqualified_type),\
-		 DBJ_TYPENAME(actual::not_ptr_type)\
+		 DBJ_TYPENAME(actual::unqualified),\
+		 DBJ_TYPENAME(actual::not_ptr)\
 	 )
 
 	/// <summary>
@@ -286,24 +286,45 @@ namespace dbj::console {
 	template<> inline void out<unsigned long int>(unsigned long int val) { DBJ_TYPE_REPORT_FUNCSIG; PRN.printf("%X", val); }
 	template<> inline void out<unsigned long long int>(unsigned long long int val) { DBJ_TYPE_REPORT_FUNCSIG; PRN.printf("%X", val); }
 
-	// std classes
+	/*
+	this is the special out that does not use the console output class
+	but painter commander
+	Thus we achieved a decoupling of console and painter
+	*/
+	template<>	inline void out<dbj::console::painter_command> ( dbj::console::painter_command cmd_)
+	{
+		dbj::console::painter_commander_instance.execute(cmd_);
+	}
 
-	/* print exception and also color the output red */
-#if 0
-	inline void out__(const dbj::Exception & x_) {
-		paint(painter_command::bright_red);
-		console_.out__((std::wstring)(x_));
+	/* print exceptions and also color the output red */
+	template<> inline void out<dbj::Exception>(dbj::Exception x_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		out(painter_command::bright_red);
+		PRN.wchar_to_console(x_.wwhat().c_str());
+		out(painter_command::text_color_reset);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// std classes
+	///////////////////////////////////////////////////////////////////////////
+	
+	template<> inline void out< std::exception >(std::exception x_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		out(painter_command::bright_red);
+		PRN.char_to_console(x_.what());
 		paint(painter_command::text_color_reset);
 	}
-	inline void out__(const std::exception & x_) {
-		paint(painter_command::bright_red);
-		console_.out__(x_.what());
+	
+		template<> inline void out< std::runtime_error >(std::runtime_error x_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
+		out(painter_command::bright_red);
+		PRN.char_to_console(x_.what());
 		paint(painter_command::text_color_reset);
 	}
-#endif
 
 	template<typename T, typename A	>
-	inline void out__(const std::vector<T, A> & v_) {
+	inline void out(const std::vector<T, A> & v_) {
+		DBJ_TYPE_REPORT_FUNCSIG;
 		if (v_.empty()) return;
 		inner::print_range(v_);
 	}

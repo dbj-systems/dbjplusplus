@@ -198,7 +198,7 @@ namespace dbj::console {
 
 	} // internal nspace
 #endif
-	  /*
+/*
 
 console.out__(...) is the only method to output to a console
 
@@ -206,7 +206,6 @@ this is the special out__ that does not use the console output class
 but painter commander
 
 Thus we achieved a decoupling of console and painter
-*/ 
 	template<
 		typename PC ,
 		typename std::enable_if_t<
@@ -217,6 +216,7 @@ Thus we achieved a decoupling of console and painter
 	{
 		painter_commander().execute(cmd_);
 	}
+	*/
 
 	inline void paint(const painter_command & cmd_) {
 		painter_commander().execute(cmd_);
