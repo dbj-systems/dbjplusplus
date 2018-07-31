@@ -55,32 +55,39 @@ namespace DBJ {
 	/* 512 happpens to be the POSIX BUFSIZ? */
 	constexpr inline const size_t BUFSIZ_ = 512 * 2;
 
+#pragma warning( push )
+#pragma warning( disable: 4190 )
 	/*
 	transform path to filename
 	delimeter is '\\'
 	*/
-	inline std::string  FILENAME( std::string  file_path, const char delimiter_ = '\\') {
-		auto pos = file_path.find_last_of(delimiter_);
-		return
-			(std::string::npos != pos
-				? file_path.substr(pos, file_path.size())
-				: file_path
-				);
-	}
+	extern "C" {
 
-	/*
-	usual usage :
-	FILELINE( __FILE__, __LINE__, "some text") ;
-	*/
-	inline std::string FILELINE( std::string file_path,
-		unsigned line_,
-		std::string suffix = "" )
-	{
-		return {
-			FILENAME(file_path) + "(" + std::to_string(line_) + ")"
-			+ (suffix.empty() ? "" : suffix)
-		};
-	}
+		inline std::string  FILENAME(std::string  file_path, const char delimiter_ = '\\') {
+			auto pos = file_path.find_last_of(delimiter_);
+			return
+				(std::string::npos != pos
+					? file_path.substr(pos, file_path.size())
+					: file_path
+					);
+		}
+
+		/*
+		usual usage :
+		FILELINE( __FILE__, __LINE__, "some text") ;
+		*/
+		inline std::string FILELINE(std::string file_path,
+			unsigned line_,
+			std::string suffix = "")
+		{
+			return {
+				FILENAME(file_path) + "(" + std::to_string(line_) + ")"
+				+ (suffix.empty() ? "" : suffix)
+			};
+		}
+
+	} // extern "C"
+#pragma warning( pop )
 
 	template <size_t BUFSIZ_ = DBJ::BUFSIZ_, typename ... Args>
 	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
@@ -108,18 +115,18 @@ namespace DBJ {
 	template <typename ... Args>
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
-		wchar_t buffer[DBJ::BUFSIZ_]{};
-		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
-		_ASSERTE(-1 != R );
-		::OutputDebugStringW(buffer);
+		::OutputDebugStringW(
+			(DBJ::printf_to_buffer
+			( message, 
+				(args)... )).c_str()
+		);
 	}
 	template <typename ... Args>
 	inline void TRACE(const char * const message, Args ... args) noexcept
 	{
-		char buffer[DBJ::BUFSIZ_]{};
-		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
-		_ASSERTE(-1 != R);
-		::OutputDebugStringA(buffer);
+		::OutputDebugStringA((DBJ::printf_to_buffer
+		(message,
+			(args)...)).c_str());
 	}
 } // eof DBJ 
 

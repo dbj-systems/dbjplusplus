@@ -95,18 +95,24 @@ TODO: this is very old stuff of questionalbe value, has to be checked as a such
 Schurr_cpp11_tools_for_class_authors.pdf
 
 constexpr str_const my_string = "Hello, world!";
-static_assert(my_string.size() == 13, "");
-static_assert(my_string[4] == 'o', "");
+static_assert(my_string.size() == 13);
+static_assert(my_string[4] == 'o');
 constexpr str_const my_other_string = my_string;
-static_assert(my_string == my_other_string, "");
+static_assert(my_string == my_other_string);
 constexpr str_const world(my_string, 7, 5);
-static_assert(world == "world", "");
+static_assert(world == "world");
 constexpr char x = world[5]; // Does not compile because index is out of range!
+
+also presented here:
+https://en.cppreference.com/w/cpp/language/constexpr
 */
 
 namespace dbj {
 
-	class str_const final { // constexpr string
+	// constexpr string
+	// dbj: big note! this class does not won anything, just points to
+	class str_const final 
+	{ 
 		const char* const p_{ nullptr };
 		const std::size_t sz_{ 0 };
 	public:
@@ -118,7 +124,7 @@ namespace dbj {
 
 		template<std::size_t N>
 		constexpr str_const(const char(&a)[N], std::size_t from, std::size_t to) : // ctor
-			p_(a + from), sz_(a + from + to)
+			p_(a + from), sz_(from + to)
 		{
 			static_assert(to <= N);
 			static_assert(from <  to);
@@ -148,7 +154,18 @@ namespace dbj {
 			}
 			return true;
 		}
-	};
+	}; // str_const
+
+	// https://en.cppreference.com/w/cpp/language/constexpr
+	// C++11 constexpr functions had to put everything in a single return statement
+	// (C++14 doesn't have that requirement)
+	constexpr std::size_t countlower(str_const s, std::size_t n = 0,
+		std::size_t c = 0)
+	{
+		return n == s.size() ? c :
+			'a' <= s[n] && s[n] <= 'z' ? countlower(s, n + 1, c + 1) :
+			countlower(s, n + 1, c);
+	}
 
 } // dbj
 
@@ -159,7 +176,7 @@ namespace dbj::str {
 /*
 Make a string optimized for small sizes
 that is up to 255
-this makes string not to do heap alloc/de-alloc
+this makes std::basic_string not to do heap alloc/de-alloc
 for strings up to 255 in length
 Discussion (for example):
 http://www.modernescpp.com/index.php/component/jaggyblog/c-17-avoid-copying-with-std-string-view
@@ -174,7 +191,7 @@ constexpr inline string_type optimal
 (
 	size_type SMALL_SIZE = small_string_optimal_size ,
 	char_type init_char_ 
-		= static_cast<char_type>(0)
+		= static_cast<char_type>('?')
 )
 {
 	DBJ_CHECK_IF( dbj::is_std_char_v<CT> );

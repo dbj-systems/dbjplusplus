@@ -37,21 +37,29 @@ namespace dbj::console {
 		* wspace_str{ L" " }, *wprefix_str{ L"{" }, *wsuffix_str{ L"}" }, *wdelim_str{ L"," }, * wnl_str{ L"\n" };
 
 
-	/* interface to the wide char console */
+	/* 
+	interface to the console 
+	for the specific purpose of out-put
+	where out() is based on HANDLE and wide chars 
+	native to windows and std::wstring 
+	*/
 	struct IConsole {
-		/* what code page is used */
+		/* what code page is in use */
 		const unsigned code_page() const;
-		/* out__ is based on HANDLE and std::wstring */
+
 		virtual HANDLE handle() const = 0 ;
 		// const non-ref argument
 		virtual void out( std::wstring_view wp_) const  = 0;
 		// fast low level
 		// from --> to, must be a sequence
 		virtual void out( const wchar_t * from,  const wchar_t * to) const = 0;
+
+		// http://www.gotw.ca/publications/mill18.htm#Notes
+		virtual ~IConsole() {}
 	};
 
 	/*
-	base printer console single user
+	base printer is console single user
 	*/
 	class Printer final {
 
@@ -64,7 +72,7 @@ namespace dbj::console {
 		}
 
 	public:
-		// to be implemented where CON implementation is visible
+		// to be implemented where IConsole implementation is visible
 		friend inline const Printer & printer_instance();
 
 		IConsole const * cons() const noexcept {	_ASSERTE(this->console_ != nullptr); return this->console_;	}
@@ -75,8 +83,6 @@ namespace dbj::console {
 		Printer( Printer &&) = default;
 		Printer & operator = (Printer &&) = default;
 		~Printer() { this->console_ = nullptr; }
-
-
 
 		void char_to_console(const char * char_ptr) const noexcept {
 			_ASSERTE(char_ptr);
