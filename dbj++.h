@@ -41,6 +41,7 @@
 #include <windows.h>
 #endif
 
+#if 0
 #ifndef _GDIPLUS_H
 #include <algorithm>
 namespace Gdiplus
@@ -53,6 +54,7 @@ namespace Gdiplus
 using namespace Gdiplus;
 #pragma comment(lib, "Gdiplus.lib")
 #endif // _GDIPLUS_H
+#endif
 #else
 #endif DBJ_WIN
 
@@ -118,6 +120,7 @@ long var [[maybe_unused]] {42L} ;
 #include "dbj_commander.h"
 #include "dbj_console_painter.h"
 #include "dbj_console.h"
+#include "dbj_console_ops.h"
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"
 #include "dbj_com.h"

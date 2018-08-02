@@ -365,12 +365,12 @@ namespace dbj::console {
 	}
 
 	/* output the { ... } aka std::initializer_list<T> */
-	template <class... Args>
-	inline void out(const std::initializer_list<Args...> & il_)
+	template <typename T>
+	inline void out( std::initializer_list<T> il_)
 	{
 		DBJ_TYPE_REPORT_FUNCSIG;
 		if (il_.size() < 1) return;
-		std::apply( [](auto&&... xs) { inner::print_varargs(xs...);	}, il_);
+		inner::print_range(il_);
 	}
 
 	template< typename T, size_t N >

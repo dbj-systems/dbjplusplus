@@ -44,12 +44,12 @@ namespace dbj {
 
 		// we hold the result
 	    // for each T in instance of dbj::tt::name_<T>
-	    // this might be wastefull ...
 	template < typename T >
 	inline const char * name_() noexcept
 	{
-		static const char * type_name_[]{ typeid(T).name() };
-		return type_name_[0] ;
+		// this might be wastefull ...?
+		static const std::string type_name_{ typeid(T).name() };
+		return type_name_.c_str() ;
 	} // name_()
 
 	  // usefull and important aliases

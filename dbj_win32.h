@@ -8,6 +8,7 @@
 #include <windows.h>
 #endif
 
+#if 0
 #ifndef _GDIPLUS_H
 // because GDI+ 
 // can not cope with
@@ -23,13 +24,14 @@ namespace Gdiplus
 using namespace Gdiplus;
 #pragma comment(lib, "Gdiplus.lib")
 #endif // _GDIPLUS_H
+#endif
 //
 #include "dbj_defval.h"
 //
 namespace dbj {
 	namespace win32 {
-#pragma region "GDI+ LINE"
-		namespace {
+#ifdef DBJ_GDI_LINE
+		namespace gdi {
 			static struct dflt {
 				dbj::holder<REAL>			widh{ 10 };
 				dbj::holder<SmoothingMode>	smoothnes{ SmoothingMode::SmoothingModeAntiAlias };
@@ -89,7 +91,7 @@ namespace dbj {
 			}
 		};
 
-#pragma endregion "GDI+ LINE"
+#endif // DBJ_GDI_LINE
 
 #pragma region "dbj win32 string types"
 		using CHAR_T = wchar_t;

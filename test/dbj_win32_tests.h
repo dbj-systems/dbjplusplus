@@ -1,5 +1,5 @@
 #pragma once
-#pragma region "dbj win32"
+
 namespace dbj_testing_space  {
 	
 	// using namespace  dbj::win::con;
@@ -47,6 +47,7 @@ namespace dbj_testing_space  {
 		return(hwndFound);
 	}
 
+#ifdef	DBJ_GDI_LINE
 	inline void test_line(HDC hDC, int sx, int sy, int ex, int ey, Gdiplus::ARGB colr, Gdiplus::REAL wdth)
 	{
 		/*
@@ -61,7 +62,7 @@ namespace dbj_testing_space  {
 		liner_(sx, sy, ex, ey);
 	}
 
-	DBJ_TEST_UNIT(" : dbj win32 gdi+ line" ) {
+	DBJ_TEST_UNIT(dbj_win32_gdi_line ) {
 
 		// Initialize GDI+.
 		GdiplusStartupInput gdiplusStartupInput;
@@ -101,6 +102,7 @@ namespace dbj_testing_space  {
 		}
 		::GdiplusShutdown(gdiplusToken);
 	}
+#endif
 }
-#pragma endregion
+
 
