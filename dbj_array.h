@@ -15,11 +15,9 @@ namespace dbj::arr {
 	using NativeMatrix = T[ROW][COL];
 	// usage: NativeMatrix<float, 3, 4> mat;
 
-	namespace {
-		using namespace std;
-
 		// http://en.cppreference.com/w/cpp/experimental/to_array
-		namespace {
+		namespace inner {
+			using namespace std;
 			template <class T, size_t N, size_t... I>
 			/*constexpr*/ inline array<remove_cv_t<T>, N>
 				to_array_impl(T(&a)[N], index_sequence<I...>)
@@ -27,15 +25,15 @@ namespace dbj::arr {
 				return { { a[I]... } };
 			}
 		}
-	}
 
 	/*
 	Transform native array into std::array at compile time
 	*/
 	template <class T, std::size_t N>
-	inline array<remove_cv_t<T>, N> native_to_std_array(T(& narf)[N])
+	inline std::array<std::remove_cv_t<T>, N> 
+		native_to_std_array(T(& narf)[N])
 	{
-		return to_array_impl(narf, make_index_sequence<N>{});
+		return inner::to_array_impl(narf, std::make_index_sequence<N>{});
 	}
 
 	/*
@@ -83,32 +81,31 @@ namespace dbj::arr {
 		template< typename T, size_t N >
 		struct ARH
 		{
+			constexpr static const size_t size{ N };
 			typedef T value_type;
 			// vector type
 			typedef std::vector<T> ARV;
 			// std::array type
 			typedef std::array<T, N> ARR;
-			// inbuilt ARray type
+			// native ARray type
 			typedef T ART[N];
 			// reference to ART
 			typedef ARH::ART& ARF;
 			// pointer to ART
 			typedef ARH::ART* ARP;
 
-			constexpr static const size_t size{ N };
 
 			/*
 			return pointer to the underlying array
 			of an instance of std::array<T,N>
 			*/
-			static constexpr ARP
-				to_arp( const ARR & arr)
+			static constexpr ARP to_arp( const ARR & arr)
 			{
 				return (ARP)const_cast<typename ARR::pointer>(arr.data());
 			}
 
 			/* disallow args as references to temporaries */
-			// static constexpr ARP to_arp(ARR && arr) = delete;
+			static constexpr void to_arp(ARR && arr) = delete;
 
 			/*
 			return reference to the underlying array
@@ -120,29 +117,33 @@ namespace dbj::arr {
 			}
 
 			/* disallow args as references to temporaries */
-			// static constexpr ARF to_arf(ARR && arr) = delete;
+			static constexpr void to_arf(ARR && arr) = delete;
 
 
 			/*		native	array to vector			*/
-			static constexpr ARV
-				to_vector(const ARF & arr_)
+			static constexpr ARV to_vector(const ARF arr_)
 			{
 				return ARV{ arr_, arr_ + N };
 			}
 
 			/* disallow args as references to temporaries */
-			// static constexpr ARV to_vector( ARF && arr_) = delete;
+			static constexpr void to_vector( T (&&arr_)[N]) = delete;
 
 			/*		"C"	array to std array			*/
-			static constexpr ARR 
-				to_std_array(const ARF & arr_)
+			static constexpr ARR to_std_array(const ARF arr_)
 			{
 				ARR retval_{};
 				std::copy(arr_, arr_ + N, retval_.begin() );
 				return retval_;
 			}
 			/* disallow args as references to temporaries */
-			// static ARR to_std_array(ARF && arr_) = delete;
+			static constexpr void to_std_array(T(&&arr_)[N]) = delete;
+
+			/*		make and return empty std::array<T,N> */
+			static constexpr ARR to_std_array()
+			{
+				return {};
+			}
 
 		}; // struct ARH
 
