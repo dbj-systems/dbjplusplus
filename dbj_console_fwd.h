@@ -86,6 +86,9 @@ namespace dbj::console {
 
 		void char_to_console(const char * char_ptr) const noexcept {
 			_ASSERTE(char_ptr);
+			if (char_ptr[0] == (char)0) { // probably an error
+				return;
+			}
 			const std::wstring wstr_{ dbj::range_to_wstring(char_ptr) };
 			cons()->out(wstr_.data(), wstr_.data() + wstr_.size());
 		}
@@ -93,6 +96,9 @@ namespace dbj::console {
 
 	void wchar_to_console(const wchar_t  * char_ptr) const noexcept {
 		_ASSERTE(char_ptr);
+		if (char_ptr[0] == (wchar_t)0) { // probably an error
+			return;
+		}
 		const std::wstring wstr_{ char_ptr };
 		cons()->out(wstr_.data(), wstr_.data() + wstr_.size());
 	}

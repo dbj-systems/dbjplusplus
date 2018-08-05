@@ -218,7 +218,7 @@ void flush() {
 /*
 just print to the stream as ever
 */
-		inline auto print = [](auto && ... param)
+		inline auto log = [](auto && ... param)
 		{
 			constexpr auto no_of_args = sizeof...(param);
 

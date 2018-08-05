@@ -3,17 +3,17 @@
 #include "dbj_testing.h"
 #include "dbj_console.h"
 #include "dbj_console_painter.h"
-#include "dbj_micro_log.h"
+
 /*
-   testing interface depends on the dbj::win::con
+   testing interface depends on the dbj::console
    therefore it is moved here so that the whole testing
-   does not depend on the dbj::win::con
+   does not depend on dbj::console
 */
 namespace dbj {
 	namespace testing {
 		
 		typedef typename dbj::console::painter_command CMD;
-		using dbj::log::print;
+		using dbj::console::print;
 
 		template< typename ... Args >
 		inline void text_line (
@@ -29,9 +29,7 @@ namespace dbj {
 				print( args... );
 			}
 			paint(CMD::text_color_reset);
-			// this is probably needed so we see the changes in real time
-			// console colorus and a such?
-			dbj::log::flush();
+
 		};
 
 		inline auto white_line = [&]( auto && ... args ) {
@@ -143,11 +141,11 @@ namespace dbj {
 		/// </summary>
 		template<typename return_type>
 		inline decltype(auto)
-			test_lambada(const char * expression, return_type && anything)
+			test_lambada(const char * expression, const return_type & anything)
 		{
 			using namespace dbj::console;
 			static dbj::c_line<80, '-'> L80;
-			dbj::log::print(
+			dbj::console::print(
 				painter_command::green, "\n", L80,
 				"\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),

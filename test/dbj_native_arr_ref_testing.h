@@ -52,8 +52,10 @@ namespace dbj_arf_testing {
 		inline decltype(auto)
 			few_creation_examples() {
 
+			int iarr[]{ 0,1,2,3,4,5,6,7,8,9 };
+
 			auto narf_0 = DBJ_TEST_ATOM(
-				dbj::narf::make({ 0,1,2,3,4,5,6,7,8,9 })
+				dbj::narf::make(iarr)
 			);
 
 			/* this throws an segv on read 
@@ -65,8 +67,10 @@ namespace dbj_arf_testing {
 			static auto narf_1 = DBJ_TEST_ATOM(dbj::narf::make(narrs));
 
 
+			char const_char_array[]{ "native char array" };
+
 			auto narf_2 = DBJ_TEST_ATOM(
-					dbj::narf::make("native char array"));
+					dbj::narf::make(const_char_array));
 
 			return narf_1;
 		}
@@ -107,7 +111,7 @@ namespace dbj_arf_testing {
 		}
 	}
 
-DBJ_TEST_UNIT(": native dbj array (narf) handler ")
+DBJ_TEST_UNIT( native_dbj_array_handler )
 {
 	using namespace dbj_testing_space;
 	auto arf_0 = DBJ_TEST_ATOM(few_creation_examples());
@@ -126,7 +130,7 @@ DBJ_TEST_UNIT(": native dbj array (narf) handler ")
 	auto sze = DBJ_TEST_ATOM(dbj::narf::size(arf_2));
 }
 	
-DBJ_TEST_UNIT(": dbj array handler ARH ") 
+DBJ_TEST_UNIT( dbj_array_handler_ARH ) 
 {
 	{
 		// the "C" way
@@ -145,10 +149,8 @@ DBJ_TEST_UNIT(": dbj array handler ARH ")
 	A16::ARF arf = A16::to_arf(arr) ;
 
 	// prove that the type is right
-	auto rdr0  = 
+	auto DBJ_UNUSED( rdr0 ) = 
 		DBJ_TEST_ATOM ( A16::to_vector(arf)  );
-
-	(void *)&rdr0;
 
 	/*
 	testing the internal_array_reference

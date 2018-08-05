@@ -66,6 +66,15 @@ namespace dbj::arr {
 			return *(ARP) const_cast<typename ARR::pointer>(arr.data());
 		}
 
+		// we allow references, but not references to temporaries
+		template<typename T, size_t N,
+			typename ARR = std::array<T, N>, /* std::array */
+			typename ART = T[N],    /* C array */
+			typename ARF = ART & ,  /* reference to it */
+			typename ARP = ART * >  /* pointer   to it */
+			constexpr inline	ARF
+			reference( std::array<T, N> && arr) = delete;
+
 		/*
 		native ARray Helper
 
@@ -93,36 +102,48 @@ namespace dbj::arr {
 			of an instance of std::array<T,N>
 			*/
 			static constexpr ARP
-				to_arp( ARR arr)
+				to_arp( const ARR & arr)
 			{
 				return (ARP)const_cast<typename ARR::pointer>(arr.data());
 			}
+
+			/* disallow args as references to temporaries */
+			// static constexpr ARP to_arp(ARR && arr) = delete;
 
 			/*
 			return reference to the underlying array
 			of an instance of std::array<T,N>
 			*/
-			static constexpr ARF
-				to_arf( ARR arr)
+			static constexpr ARF to_arf( const ARR & arr)
 			{
 				return *(ARP) const_cast<typename ARR::pointer>(arr.data());
 			}
 
+			/* disallow args as references to temporaries */
+			// static constexpr ARF to_arf(ARR && arr) = delete;
+
+
 			/*		native	array to vector			*/
 			static constexpr ARV
-				to_vector(const ARF arr_)
+				to_vector(const ARF & arr_)
 			{
 				return ARV{ arr_, arr_ + N };
 			}
 
+			/* disallow args as references to temporaries */
+			// static constexpr ARV to_vector( ARF && arr_) = delete;
+
 			/*		"C"	array to std array			*/
 			static constexpr ARR 
-				to_std_array(const ARF arr_)
+				to_std_array(const ARF & arr_)
 			{
 				ARR retval_{};
 				std::copy(arr_, arr_ + N, retval_.begin() );
 				return retval_;
 			}
+			/* disallow args as references to temporaries */
+			// static ARR to_std_array(ARF && arr_) = delete;
+
 		}; // struct ARH
 
 } // dbj::arr

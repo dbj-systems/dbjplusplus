@@ -51,15 +51,22 @@ namespace dbj::narf {
 		return rezult;
 	}
 
+	template< typename T,	std::size_t N, typename ARR = std::array<T, N>	>
+		ARR to_std_arr	(	wrapper<T, N> && wrap	) = delete;
+
 	template<typename T, size_t N>
 	constexpr auto begin(const wrapper<T, N> & wrp_) {
 		return std::begin(wrp_.get());
 	}
+	
+	template<typename T, size_t N> constexpr auto begin(wrapper<T, N> && wrp_) = delete;
 
 	template<typename T, size_t N>
 	constexpr auto end(const wrapper<T, N> & wrp_) {
 		return std::end(wrp_.get());
 	}
+
+	template<typename T, size_t N> constexpr auto end( wrapper<T, N> && wrp_) = delete;
 
 
 	/// <summary>
@@ -82,12 +89,6 @@ namespace dbj::narf {
 		make( const T ( & native_arr)[N])
 		// -> wrapper<T, N>
 	{
-		static_assert( ! std::is_const<T>(), "dbj::narf::make(T(&)[N]) -- T can not be const");
-		static_assert( ! std::is_void<T>(), "dbj::narf::make(T(&)[N]) -- T can not be void");
-		static_assert( ! std::is_reference<T>(), "dbj::narf::make(T(&)[N]) -- T can not be reference");
-		static_assert( ! std::is_null_pointer<T>(), "dbj::narf::make(T(&)[N]) -- T can not be null pointer");
-		// static_assert( ! std::is_pointer<T>(), "dbj::narf::make() -- T can not be a pointer" );
-
 		// effectively remove the ref + constness
 		using nativarref =  std::remove_cv_t<T>(&)[N];
 
@@ -101,6 +102,12 @@ namespace dbj::narf {
 		);
 	}
 
+	template <
+		typename T,
+		std::size_t N,
+		typename wrap_type = wrapper<T, N>
+	>
+		constexpr wrap_type make( T(&& native_arr)[N]) = delete;
 	/// <summary>
 	/// returns std::reference_wrapper copy
 	/// that contains reference to native array 
@@ -121,6 +128,10 @@ namespace dbj::narf {
 		);
 	}
 
+	template<typename T, std::size_t N >
+	constexpr auto
+		make( std::array<T, N> && std_arr) = delete;
+
 	/// <summary>
 	/// the ARF size is the
 	/// size of n-array it holds
@@ -129,6 +140,9 @@ namespace dbj::narf {
 	constexpr std::size_t size( const wrapper<T, N> & narw_) {
 		return N; //  array_size(narw_.get());
 	}
+
+	template<typename T, std::size_t N >
+	constexpr std::size_t size( wrapper<T, N> && narw_) = delete;
 
 	/// <summary>
 	/// the NARF data
@@ -179,6 +193,9 @@ namespace dbj::narf {
 		// return (ARF)narw_;
 	}
 
+	template< typename T,	std::size_t N,	typename ARF = T(&)[N]	>
+		constexpr ARF data	(	wrapper<T, N> && narw_	) = delete;
+
 	// homage to the range concept
 	// auto [B,E] = dbj::narf::range( <some narf> )
 	//
@@ -191,6 +208,8 @@ namespace dbj::narf {
 		*/
 		return std::make_pair(dbj::narf::begin(narw_), dbj::narf::end(narw_));
 	}
+
+	template<typename T, std::size_t N>	constexpr auto range( wrapper<T, N> && narw_) = delete;
 
 	/// <summary>
 	/// default for_each function
@@ -212,6 +231,9 @@ namespace dbj::narf {
 		return std::for_each(B, E, fun_);
 	}
 
+	template< typename T, size_t N, typename FUN >
+	constexpr auto for_each( wrapper<T, N> && arf, FUN && fun_) = delete;
+
 	/// <summary>
 	/// generic apply function
 	/// callback signature:
@@ -231,6 +253,12 @@ namespace dbj::narf {
 
 		return dbj::narf::for_each(arf, outfun_wrap);
 	}
+
+	template< typename T, size_t N, typename CBK >
+	constexpr auto apply(
+		wrapper<T, N> &&  arf,
+		CBK output_function
+	) = delete;
 
 } // dbj::narf
 

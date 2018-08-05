@@ -55,11 +55,11 @@
     <ClInclude Include="..\test\dbj_win32_tests.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="dbj_micro_log.h" />
     <ClInclude Include="..\dbj_micro_log_fwd.h" />
     <ClInclude Include="..\dbj_micro_log_ops.h" />
     <ClInclude Include="..\dbj_console_fwd.h" />
     <ClInclude Include="..\dbj_console_ops.h" />
+    <ClInclude Include="..\dbj_micro_log.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

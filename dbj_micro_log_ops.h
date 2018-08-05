@@ -95,14 +95,18 @@ namespace dbj::log {
 	}
 
 
-	 // ranges
-	template<typename T>
+	 // std ranges aka containers
+	template<typename T, typename A = std::allocator<T> >
 	inline outstream_type & operator<<
-		(	outstream_type && os,const std::vector<T>& vec	)
+		(	outstream_type && os,const std::vector<T,A>& vec	)
 	{
 		internal::print_range(os, vec);
 		return os;
 	}
+	// we disallow references to temporaries
+	template<typename T, typename A = std::allocator<T> >
+	inline outstream_type & operator<<
+		(outstream_type && os, std::vector<T, A> && vec) = delete;
 
 	template<typename K, typename V	>
 	inline outstream_type & operator<<
