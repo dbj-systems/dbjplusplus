@@ -103,7 +103,7 @@ namespace dbj {
 			struct last final
 			{
 				mutable int error{};
-				last() : error(::GetLastError()) {}
+				last() noexcept : error(::GetLastError()) {}
 				~last() { ::SetLastError(0); }
 			};
 		}

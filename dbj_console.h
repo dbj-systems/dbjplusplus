@@ -55,7 +55,7 @@ namespace dbj::console {
 		}
 
 		/* what code page is used */
-		const unsigned code_page() const { return this->code_page_; }
+		const unsigned code_page() const noexcept override { return this->code_page_; }
 		/* out__ is based on HANDLE and std::wstring */
 		HANDLE handle() const override  { return this->output_handle_; }
     	// from --> to, must be a sequence

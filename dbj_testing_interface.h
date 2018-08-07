@@ -72,6 +72,7 @@ namespace dbj {
 		}
 
 		inline auto unit_prefix(const char * name_) {
+			blue_line();
 			blue_line("BEGIN TEST UNIT ", name_ , " ");
 			blue_line();
 		}
@@ -150,17 +151,17 @@ namespace dbj {
 				"\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
 				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
-			return std::move(anything);
+			return std::move(anything) ;
 		};
 
-#define DBJ_TEST_ATOM(x) ( dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) ) 
+#define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
 #endif // DBJ_TEST_ATOM
 
 	} // testing
 } // dbj
 
   /*
-  Copyright 2017 by dbj@dbj.org
+  Copyright 2017,2018 by dbj@dbj.org
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.

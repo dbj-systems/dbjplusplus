@@ -45,7 +45,7 @@ namespace dbj::console {
 	*/
 	struct IConsole {
 		/* what code page is in use */
-		const unsigned code_page() const;
+		virtual const unsigned code_page() const = 0;
 
 		virtual HANDLE handle() const = 0 ;
 		// const non-ref argument

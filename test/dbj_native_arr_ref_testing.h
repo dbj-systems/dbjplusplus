@@ -168,4 +168,30 @@ DBJ_TEST_UNIT( dbj_array_handler_ARH )
 	// A16::ARV rdr2 [[maybe_unused]] = ( A16::to_vector(arf3));
 }
 
+DBJ_TEST_UNIT(a_bit_more_arh_narf_dancing) {
+
+
+	// narf to temporary no can do 
+	// --> auto narf_ = dbj::narf::make({ "A B C NARF" });
+	// so
+	char charr[]{ "A B C NARF" };
+	auto narf_ =  DBJ_TEST_ATOM( dbj::narf::make(charr) );
+	decltype(auto) narf_arf_ = DBJ_TEST_ATOM( dbj::narf::data(narf_) );
+
+	using CARH = dbj::arr::ARH<char, 255>;
+
+	//CARH::ARR narf_to_arh
+	//	= CARH::to_std_array( narf_arf_ );
+
+	CARH::ARR std_arr{ "CHAR ARR" };
+
+	CARH::ARF native_arr_reference
+		= CARH::to_arf(std_arr);
+
+	CARH::ARR std_aray
+		= DBJ_TEST_ATOM(CARH::to_std_array(native_arr_reference));
+
+	CARH::ARF literal_to_native_arr_reference
+		= CARH::to_arf(std_arr);
+}
 }

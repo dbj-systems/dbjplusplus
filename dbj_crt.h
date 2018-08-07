@@ -53,7 +53,11 @@ namespace DBJ {
 	constexpr inline const char * YEAR{ (__DATE__ + 7) };
 
 	/* 512 happpens to be the POSIX BUFSIZ? */
-	constexpr inline const size_t BUFSIZ_ = 512 * 2;
+#ifdef BUFSIZ
+	constexpr inline const size_t BUFSIZ_ = BUFSIZ * 2 * 4; // 4096
+#else
+	constexpr inline const size_t BUFSIZ_ = 512 * 2 * 4 ; // 4096
+#endif
 
 #pragma warning( push )
 #pragma warning( disable: 4190 )
@@ -63,7 +67,7 @@ namespace DBJ {
 	*/
 	extern "C" {
 
-		inline std::string  FILENAME(std::string  file_path, const char delimiter_ = '\\') {
+		inline std::string  FILENAME(const std::string & file_path, const char delimiter_ = '\\') {
 			auto pos = file_path.find_last_of(delimiter_);
 			return
 				(std::string::npos != pos
@@ -76,9 +80,9 @@ namespace DBJ {
 		usual usage :
 		FILELINE( __FILE__, __LINE__, "some text") ;
 		*/
-		inline std::string FILELINE(std::string file_path,
+		inline std::string FILELINE(const std::string & file_path,
 			unsigned line_,
-			std::string suffix = "")
+			const std::string & suffix = "")
 		{
 			return {
 				FILENAME(file_path) + "(" + std::to_string(line_) + ")"
@@ -227,7 +231,7 @@ namespace dbj {
 		{	// construct from message string
 		}
 
-		// wide what
+		// wide what()
 		// note: be sure to copy the result
 		std::wstring wwhat() const
 		{
@@ -235,13 +239,6 @@ namespace dbj {
 			return { std::begin(s_), std::end(s_) };
 		}
 	};
-}
-
-/*
-2017-10-18	DBJ created
-DBJ CRT (DBJ C++ Run Time) is inside top level dbj namespace
-*/
-namespace dbj {
 
 	/*
 	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
@@ -255,8 +252,8 @@ namespace dbj {
 
 	/* avoid macros as much as possible */
 
-	inline const auto & MIN = [](const auto & a, const auto & b) { return (a < b ? a : b); };
-	inline const auto & MAX = [](const auto & a, const auto & b) { return (a > b ? a : b); };
+	inline const auto & MIN = [](const auto & a, const auto & b) constexpr -> bool { return (a < b ? a : b); };
+	inline const auto & MAX = [](const auto & a, const auto & b) constexpr -> bool { return (a > b ? a : b); };
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 

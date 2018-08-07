@@ -129,7 +129,7 @@ stream << 1 << true << L"X" << std::flush ;
 */
 			std::wstring buffer_{ };
 
-			DBJLog() {
+			DBJLog() noexcept {
 
 				this->buffer_.resize( dbj::log::bufsiz );
 #ifdef DBJLOG_SYNC_WITH_STDIO
