@@ -55,6 +55,9 @@ namespace dbj {
 	  // usefull and important aliases
 	  // that make type traits much more palatable
 
+	template <class T1, class T2>
+	inline bool same_typeid = typeid(T1).hash_code() == typeid(T2).hash_code();
+
 #pragma region is pointer
 	/*
 	constexpr inline  const char * holla_ = "Hola!";
