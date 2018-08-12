@@ -187,15 +187,16 @@ typename string_type = std::basic_string< CT > ,
 typename char_type = typename string_type::value_type,
 typename size_type = typename string_type::size_type
 >
-constexpr inline string_type optimal
+constexpr inline 
+// alow only std char types to be used
+std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
+optimal
 (
 	size_type SMALL_SIZE = small_string_optimal_size ,
 	char_type init_char_ 
 		= static_cast<char_type>('?')
 )
 {
-	DBJ_CHECK_IF( dbj::is_std_char_v<CT> );
-
 	return string_type(	
 		SMALL_SIZE,	
 		init_char_
@@ -208,13 +209,13 @@ template <
 		typename string_type 
 		   = std::basic_string< std::decay_t<CT> >
 	>
-		constexpr inline string_type
-		lowerize(
+		constexpr inline 
+	// alow only std char types to be used
+	std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
+	lowerize(
 			CT * from_ , CT * last_
 		)
 	{
-	DBJ_CHECK_IF(dbj::is_std_char_v<CT>,"CT argument is not a standard char type");
-
 		string_type retval{ from_, last_ };
 		auto rez = std::for_each(
 			retval.begin(), 
@@ -229,7 +230,9 @@ template <
 		typename string_view_type = basic_string_view<CT>,
 		typename string_type = std::basic_string< CT >
 	>
-		constexpr inline string_type 
+		constexpr inline 
+		// alow only std char types to be used
+		std::enable_if_t< dbj::is_std_char_v<CT>, string_view_type  >
 		lowerize(
 			string_view_type view_ 
 		) 
@@ -242,7 +245,9 @@ template <
 		typename string_type 
 		  = std::basic_string< std::decay_t<CT> >
 	>
-		constexpr inline string_type
+		constexpr inline 
+		// alow only std char types to be used
+		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
 		lowerize(
 			CT (&view_)[N]
 		)
@@ -256,7 +261,9 @@ template <
 	/// </summary>
 	template<typename CT>
 	inline int ui_string_compare(
-		const CT * p1, const CT * p2, bool ignore_case
+		const std::enable_if_t< dbj::is_std_char_v<CT>, CT  > * p1, 
+		const std::enable_if_t< dbj::is_std_char_v<CT>, CT  > * p2, 
+		bool ignore_case
 	)
 	{
 		_ASSERTE(p1 != nullptr);
@@ -401,23 +408,52 @@ namespace dbj::str {
 	template <class T>
 	using expr_type = typename std::remove_cv_t<std::remove_reference_t<T>>;
 
-	inline void remove_all_subs(std::string& s, const std::string& pattern) {
-		using namespace std;
-		string::size_type n = pattern.length();
-		for (string::size_type i = s.find(pattern);
-			i != string::npos;
-			i = s.find(pattern)
-			) {
-			s.erase(i, n);
+	/*
+	remove all instances of a substring found in a string
+	call with string view literals for the easiest usage experience
+	work for all std char/string/stin_view types
+	*/
+	template <
+		typename CT,
+		typename string_type = std::basic_string<CT>,
+		typename size_type = typename string_type::size_type
+	>
+	inline 
+		std::enable_if_t< dbj::is_std_char_v<CT>, string_type >
+		remove_all_subs(
+			std::basic_string_view<CT> input_,
+			std::basic_string_view<CT> pattern
+		) 
+	{
+		string_type rezult{ input_.data() };
+		size_type n = pattern.length();
+		for (size_type j = rezult.find(pattern);
+			j != string::npos;
+			j = rezult.find(pattern)
+			) 
+		{
+			rezult.erase(j, n);
 		}
+		return rezult;
 	}
 
-	inline void remove_first_sub(std::string& s, const std::string& pattern) {
-		using namespace std;
-		string::size_type n = pattern.length();
-		string::size_type i = s.find(pattern);
-		if (i == string::npos) return;
-		s.erase(i, n);
+	template <
+		typename CT, 
+		typename string_type = std::basic_string<CT> ,
+		typename size_type = typename string_type::size_type
+	>
+	inline 
+		std::enable_if_t< dbj::is_std_char_v<CT>, string_type >
+	remove_first_sub(
+		std::basic_string_view<CT> s, std::basic_string_view<CT> pattern
+	) {
+		string_type rezult{ s.data() };
+		size_type j = rezult.find(pattern.data());
+		if (j != string_type::npos) {
+			size_type n = pattern.length();
+			rezult.erase(j, n);
+		}
+		return rezult;
 	}
 
 
