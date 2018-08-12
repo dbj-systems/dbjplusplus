@@ -422,14 +422,18 @@ namespace dbj::str {
 
 
 	// https://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c
-	inline std::string replace_inplace
+
+	template<typename C>
+	inline
+		std::enable_if_t< dbj::is_std_char_v<C>, std::basic_string<C> >
+		replace_inplace
 	(
-		const std::string& subject,
-		const std::string& search,
-		const std::string& replace
+		std::basic_string_view<C>  subject,
+		std::basic_string_view<C>  search,
+		std::basic_string_view<C>  replace
 	)
 	{
-		std::string input{ (char *)subject.c_str() };
+		std::basic_string<C> input{ (C *)subject.data() };
 		size_t pos = 0;
 		while ((pos = input.find(search, pos)) != std::string::npos) {
 			input.replace(pos, search.length(), replace);
@@ -438,6 +442,22 @@ namespace dbj::str {
 		return input;
 	}
 
+	template<typename C>
+	inline
+		std::enable_if_t< dbj::is_std_char_v<C>, std::basic_string<C> >
+		replace_inplace
+		(
+			C const * subject,
+			C const * search,
+			C const * replace
+		) {
+		return std::basic_string<C>{
+			replace_inplace(
+				std::basic_string_view<C>{ subject},
+				std::basic_string_view<C>{ search },
+				std::basic_string_view<C>{ replace })
+		};
+	    }
 } // dbj::str
 /*
 Copyright 2017,2018 by dbj@dbj.org

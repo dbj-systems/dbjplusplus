@@ -27,7 +27,7 @@ DBJ_TEST_UNIT(dbj_timers_) {
 		);
 
 	dbj::console::print(
-		"\nWIN32  timer has measured ", elaps_1.count(), " milliseconds",
+		"\n\nWIN32  timer has measured ", elaps_1.count(), " milliseconds",
 		"\nModern timer has measured ", elaps_2.count(), " milliseconds",
 		"\nThe difference is ", (is_inside_tolerance ? "" : "not"), " inside tolerance of ", tolerance, " milliseconds"
 	);
