@@ -1,9 +1,11 @@
 #pragma once
 
+#include "../dbj_key_value_store.h"
+
 DBJ_TEST_SPACE_OPEN(kv_storage_test)
 
 
-DBJ_TEST_UNIT(" dbj k/v storage test ") {
+DBJ_TEST_UNIT( dbj_kv_storage_test ) {
 
 	dbj::sync::lock_unlock padlock_;
 

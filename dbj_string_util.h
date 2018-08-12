@@ -175,7 +175,7 @@ namespace dbj::str {
 
 /*
 Make a string optimized for small sizes
-that is up to 255
+that is up to arbitrary value of 255
 this makes std::basic_string not to do heap alloc/de-alloc
 for strings up to 255 in length
 Discussion (for example):
