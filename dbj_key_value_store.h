@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dbj_synchro.h"
+#include "dbj_string_util.h"
 
 #if _HAS_CXX17
 #else
@@ -8,19 +9,24 @@
 #endif
 
 /// <summary>
-/// k/v storage using std multimap
+/// k/v storage using std unordered_map
+/// key type is wstring (this is for speed)
+/// one key can "hold" multiple values
 /// </summary>
 namespace dbj::storage {
 
 	using namespace std;
 
-	template <typename T>
-	class keyvalue_storage final
+	template <typename value_type, typename key_type = std::wstring >
+	class __declspec(novtable)  keyvalue_storage final
 	{
-		using lock_unlock = internal::lock_unlock;
+		using lock_unlock = dbj::sync::lock_unlock;
 	public:
-		typedef T					value_type;
-		typedef std::wstring		key_type;
+
+		static_assert(
+			dbj::is_std_string_v<key_type> , "dbj::storage requires key to be of a std string type"
+			);
+
 		using	storage_type = std::multimap< key_type, value_type >;
 		using   iterator = typename storage_type::iterator;
 		using	value_vector = std::vector< value_type >;
@@ -39,7 +45,7 @@ namespace dbj::storage {
 		/// <summary>
 		/// clear the storage held
 		/// </summary>
-		void Clear() const {
+		void clear() const {
 			lock_unlock padlock{};
 			key_value_storage_.clear();
 		}
@@ -52,7 +58,7 @@ namespace dbj::storage {
 		/// NOTE: no exception caught in here
 		/// </summary>
 		template< typename F>
-		const auto ForEach(F callback_) const noexcept {
+		const auto for_each(F callback_) const noexcept {
 			lock_unlock padlock{};
 			return
 				std::for_each(
@@ -65,7 +71,7 @@ namespace dbj::storage {
 		/// <summary>
 		/// is the storage held empty?
 		/// </summary>
-		const bool Empty() const noexcept {
+		const bool empty() const noexcept {
 			lock_unlock padlock{};
 			return this->key_value_storage_.size() < 1;
 		}
@@ -74,34 +80,25 @@ namespace dbj::storage {
 		/// add new K/V pair
 		/// return the iterator to them just inserted
 		/// </summary>
-		iterator Add(const key_type & key, const value_type & value) const
+		auto add( key_type && key, value_type && value) const
 		{
 			lock_unlock padlock{};
-
 			_ASSERTE(false == key.empty());
-
-			internal::lowerize((key_type &)key);
-			auto retval = key_value_storage_.emplace(
-				key,
-				value
-			);
-
-			return retval;
+			dbj::str::lowerize(key.data(), key.data() + key.size());
+			return key_value_storage_.insert( std::make_pair(key,value) );
 		}
 
 		/// <summary>
-		/// std::multimap is already sorted
+		/// multi map is already sorted
 		/// </summary>
-		void Sort() const noexcept {
-			// no op
-		}
+		void sort() const noexcept = delete;
 
 		/// <summary>
 		/// if find_by_prefix is false the exact key match should  be performed
 		/// if true all the keys matching are going into the result
 		/// </summary>
 		value_vector
-			Retrieve(
+			retrieve(
 				key_type		query,
 				bool			find_by_prefix = true,
 				/* currently we ignore maxResults */
@@ -113,7 +110,7 @@ namespace dbj::storage {
 			if (key_value_storage_.size() < 1)
 				return retval_;
 
-			internal::lowerize(query);
+			query = dbj::str::lowerize(query.data(), query.data() + query.size());
 
 			if (true == find_by_prefix) {
 				retval_ = prefix_match_query(query);
@@ -166,12 +163,16 @@ namespace dbj::storage {
 			/// vector of keys is lighter
 			/// </summary>
 			value_vector retvec{};
-			auto walker_ = key_value_storage_.upper_bound(prefix_);
+			storage_type::iterator & walker_ = this->key_value_storage_.upper_bound(prefix_);
 
 			while (walker_ != key_value_storage_.end())
 			{
 				// if prefix of the current key add its value to the result
-				if (internal::is_prefix(prefix_, walker_->first)) {
+				const key_type & walker_key = walker_->first;
+				if (
+					dbj::str::is_prefix( prefix_.c_str(), walker_key.c_str())
+					) 
+				{
 					retvec.push_back(walker_->second);
 					// advance the iterator 
 					walker_++;

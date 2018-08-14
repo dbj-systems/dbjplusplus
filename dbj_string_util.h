@@ -107,7 +107,7 @@ also presented here:
 https://en.cppreference.com/w/cpp/language/constexpr
 */
 
-namespace dbj {
+namespace dbj::str {
 
 	// constexpr string
 	// dbj: big note! this class does not won anything, just points to
@@ -167,9 +167,6 @@ namespace dbj {
 			countlower(s, n + 1, c);
 	}
 
-} // dbj
-
-namespace dbj::str {
 
 	constexpr std::size_t small_string_optimal_size{ 255 };
 
@@ -206,23 +203,29 @@ optimal
 /*-------------------------------------------------------------*/
 template <
 		typename CT,
-		typename string_type 
+		typename string_view_type = basic_string_view<CT>,
+		typename string_type
 		   = std::basic_string< std::decay_t<CT> >
 	>
-		constexpr inline 
+		inline 
 	// alow only std char types to be used
 	std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
 	lowerize(
-			CT * from_ , CT * last_
+			CT * from_ , const CT * last_
 		)
 	{
-		string_type retval{ from_, last_ };
-		auto rez = std::for_each(
-			retval.begin(), 
-			retval.begin() + retval.size(),
-			[](CT & element) { element = std::tolower(element); }
-		);
-		return retval;
+		_ASSERTE(from_ != nullptr);
+		_ASSERTE(last_ != nullptr);
+		_ASSERTE(last_ != from_);
+
+		auto loc = std::locale("");
+		// facet of user's preferred locale
+		auto & facet_ = std::use_facet<std::ctype<CT>>(loc);
+		CT * start_ = (CT*)from_ ;
+		// this can fail for some locales
+		facet_.tolower(start_,last_);
+		// assumption is eos is properly placed
+		return string_type(start_);
 	}
 	/*-------------------------------------------------------------*/
 	template <
@@ -232,12 +235,12 @@ template <
 	>
 		constexpr inline 
 		// alow only std char types to be used
-		std::enable_if_t< dbj::is_std_char_v<CT>, string_view_type  >
+		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
 		lowerize(
-			string_view_type view_ 
+			std::basic_string_view<CT> view_
 		) 
 	{
-		return lowerize<CT>( view_.data(), view_.data() + view_.size());
+		return lowerize<CT>( (CT*)view_.front(), (CT*)view_.back());
 	}
 	/*-------------------------------------------------------------*/
 	template <
@@ -249,28 +252,32 @@ template <
 		// alow only std char types to be used
 		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
 		lowerize(
-			CT (&view_)[N]
+			const CT (&view_)[N]
 		)
 	{
-		return lowerize( view_ , view_ + N ); 
+		return lowerize( (CT*)view_ , (CT*)(view_ + N) );
 	}
 
 
 	/// <summary>
 	/// ui compare means locale friendly compare
+	/// apparently collate id can not be compiled/linked for 
+	/// char16_t and char32_t
 	/// </summary>
-	template<typename CT>
-	inline int ui_string_compare(
-		const std::enable_if_t< dbj::is_std_char_v<CT>, CT  > * p1, 
-		const std::enable_if_t< dbj::is_std_char_v<CT>, CT  > * p2, 
-		bool ignore_case
+	template<
+		typename CT,
+		typename std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, int > = 0
+	>
+	inline int ui_string_compare
+	(
+		const CT * p1, const CT  * p2,  bool ignore_case = true
 	)
 	{
 		_ASSERTE(p1 != nullptr);
 		_ASSERTE(p2 != nullptr);
 		std::basic_string<CT> s1{ p1 }, s2{ p2 };
 
-		if (false == ignore_case) {
+		if (ignore_case) {
 			s1 = lowerize<CT>(s1);
 			s2 = lowerize<CT>(s2);
 		}
@@ -289,8 +296,9 @@ template <
 	/// is Lhs prefix to Rhs
 	/// L must be shorter than R
 	/// </summary>
-	inline  bool  is_prefix(
-		const std::wstring_view lhs, const std::wstring_view rhs
+	template < typename CT , typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
+	inline  bool  is_view_prefix_to_view (
+		 std::basic_string_view<CT> lhs, std::basic_string_view<CT> rhs
 	)
 	{
 		_ASSERTE(lhs.size() > 0);
@@ -306,15 +314,41 @@ template <
 			rhs.begin());
 	}
 
-	extern "C" inline auto
-		add_backslash(wstring & path_)
+	// hard to believe but yes, all done at compile time
+	template < typename CT, 
+		typename string_type = std::basic_string<CT>,
+		typename string_view_type = std::basic_string_view<CT>,
+		typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
+	inline  bool  is_prefix(
+		CT const * lhs, CT const * rhs
+	)
 	{
-		constexpr auto char_backslash{ L'\\' };
-		if (path_.back() != char_backslash) {
-			path_.append(wstring{ char_backslash });
-		}
-		return path_.size();
+		_ASSERTE(lhs != nullptr );
+		_ASSERTE(rhs != nullptr );
+		string_type ls(lhs), rs(rhs);
+		return is_view_prefix_to_view(
+			string_view_type{ ls.data(), ls.size() },
+			string_view_type{ rs.data(), rs.size() }
+		);
 	}
+
+	class __declspec(novtable) backslash final 
+	{
+	public:
+		template< typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
+		size_t add ( std::basic_string<CT> & path_ , CT slash_ )
+		{
+			if (path_.back() != slash_) {
+				path_[path_.size() + 1] = slash_;
+			}
+			return path_.size();
+		}
+
+		auto operator () ( std::string & path_)
+		{
+			return this->add( path_, '\\' );
+		}
+	};
 
 
 	inline dbj::wstring_vector 

@@ -112,7 +112,6 @@
     <ClInclude Include="..\dbj_crt.h" />
     <ClInclude Include="..\dbj_defval.h" />
     <ClInclude Include="..\dbj_kalends.h" />
-    <ClInclude Include="..\dbj_kalends_test.h" />
     <ClInclude Include="..\dbj_key_value_store.h" />
     <ClInclude Include="..\dbj_micro_log.h" />
     <ClInclude Include="..\dbj_micro_log_fwd.h" />
@@ -121,7 +120,6 @@
     <ClInclude Include="..\dbj_startend.h" />
     <ClInclude Include="..\dbj_string_compare.h" />
     <ClInclude Include="..\dbj_string_util.h" />
-    <ClInclude Include="..\dbj_string_util_test.h" />
     <ClInclude Include="..\dbj_synchro.h" />
     <ClInclude Include="..\dbj_testing.h" />
     <ClInclude Include="..\dbj_testing_interface.h" />
@@ -133,9 +131,11 @@
     <ClInclude Include="..\test\dbj_console_test.h" />
     <ClInclude Include="..\test\dbj_crt_testing.h" />
     <ClInclude Include="..\test\dbj_defval_testing.h" />
+    <ClInclude Include="..\test\dbj_kalends_test.h" />
     <ClInclude Include="..\test\dbj_kv_store_test.h" />
     <ClInclude Include="..\test\dbj_native_arr_ref_testing.h" />
     <ClInclude Include="..\test\dbj_string_tests.h" />
+    <ClInclude Include="..\test\dbj_string_util_test.h" />
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
