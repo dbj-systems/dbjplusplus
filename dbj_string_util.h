@@ -208,24 +208,32 @@ template <
 		   = std::basic_string< std::decay_t<CT> >
 	>
 		inline 
-	// alow only std char types to be used
-	std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
+	// alow only char and wchar_t 
+	std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 	lowerize(
-			CT * from_ , const CT * last_
+			const CT * from_ , const CT * last_
 		)
 	{
 		_ASSERTE(from_ != nullptr);
 		_ASSERTE(last_ != nullptr);
 		_ASSERTE(last_ != from_);
 
+		// safe and simple: copy to string (first!)
+		string_type retval( from_, last_ );
+
 		auto loc = std::locale("");
 		// facet of user's preferred locale
-		auto & facet_ = std::use_facet<std::ctype<CT>>(loc);
-		CT * start_ = (CT*)from_ ;
+		const std::ctype<CT >	& facet_ = std::use_facet<std::ctype<CT>>(loc);
+
 		// this can fail for some locales
-		facet_.tolower(start_,last_);
-		// assumption is eos is properly placed
-		return string_type(start_);
+//		if constexpr(dbj::is_char_v<CT>) {
+			facet_.tolower(retval.data(), retval.data() + retval.size());
+//		}
+//		else {
+//			facet_.towlower(from_, last_);
+//		}
+		// assumption is eos is properly placed?
+		return retval ;
 	}
 	/*-------------------------------------------------------------*/
 	template <
@@ -234,13 +242,14 @@ template <
 		typename string_type = std::basic_string< CT >
 	>
 		constexpr inline 
-		// alow only std char types to be used
-		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
+		// alow only char and wchar_t
+		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
 			std::basic_string_view<CT> view_
 		) 
 	{
-		return lowerize<CT>( (CT*)view_.front(), (CT*)view_.back());
+		_ASSERTE( ! view_.empty() );
+		return lowerize<CT>( view_.data(), (view_.data() + view_.size()));
 	}
 	/*-------------------------------------------------------------*/
 	template <
@@ -249,13 +258,13 @@ template <
 		  = std::basic_string< std::decay_t<CT> >
 	>
 		constexpr inline 
-		// alow only std char types to be used
-		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
+		// only char wchar_t
+		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
 			const CT (&view_)[N]
 		)
 	{
-		return lowerize( (CT*)view_ , (CT*)(view_ + N) );
+		return lowerize( view_ , (view_ + N) );
 	}
 
 

@@ -83,14 +83,6 @@ DBJ_TEST_UNIT(dbj_string_util_lowerize) {
 	const  std::wstring
 		new_wstring
 		= DBJ_TEST_ATOM(dbj::str::lowerize(L"ABRA KA DABRA"sv));
-
-	const  std::u16string
-		new_u16string
-		= DBJ_TEST_ATOM(dbj::str::lowerize(u"ABRA KA DABRA"));
-
-	const  std::u32string
-		new_u32string
-		= DBJ_TEST_ATOM(dbj::str::lowerize(U"ABRA KA DABRA"));
 }
 
 DBJ_TEST_UNIT(dbj_string_util_ui_string_compare) {

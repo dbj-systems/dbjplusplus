@@ -24,7 +24,7 @@ namespace dbj::storage {
 	public:
 
 		static_assert(
-			dbj::is_std_string_v<key_type> , "dbj::storage requires key to be of a std string type"
+			dbj::is_std_string_v<key_type> , "dbj::storage requires key to be of some std string type"
 			);
 
 		using	storage_type = std::multimap< key_type, value_type >;
@@ -48,6 +48,10 @@ namespace dbj::storage {
 		void clear() const {
 			lock_unlock padlock{};
 			key_value_storage_.clear();
+		}
+
+		const size_t size() const noexcept {
+			return this->key_value_storage_.size();
 		}
 
 		/// <summary>
@@ -80,11 +84,10 @@ namespace dbj::storage {
 		/// add new K/V pair
 		/// return the iterator to them just inserted
 		/// </summary>
-		auto add( key_type && key, value_type && value) const
+		auto add( const key_type & key, const value_type & value) const
 		{
 			lock_unlock padlock{};
 			_ASSERTE(false == key.empty());
-			dbj::str::lowerize(key.data(), key.data() + key.size());
 			return key_value_storage_.insert( std::make_pair(key,value) );
 		}
 
@@ -110,8 +113,6 @@ namespace dbj::storage {
 			if (key_value_storage_.size() < 1)
 				return retval_;
 
-			query = dbj::str::lowerize(query.data(), query.data() + query.size());
-
 			if (true == find_by_prefix) {
 				retval_ = prefix_match_query(query);
 
@@ -130,7 +131,7 @@ namespace dbj::storage {
 		value_vector
 			exact_match_query(
 				// must be lower case!
-				wstring query
+				key_type query
 			) const
 		{
 			/// <summary>
@@ -153,10 +154,7 @@ namespace dbj::storage {
 
 		/* do not use as public in this form */
 		value_vector
-			prefix_match_query(
-				// must be lower case!
-				wstring prefix_
-			) const
+			prefix_match_query(	key_type prefix_ ) const
 		{
 			/// <summary>
 			/// general question is why is vector of values returned?

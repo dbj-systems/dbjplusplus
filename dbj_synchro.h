@@ -3,6 +3,13 @@
 // does not require any include before
 #include <mutex>
 
+// Multi Threaded Build Switch
+#ifdef DBJ_MT
+#define DBJ_AUTO_LOCK dbj::sync::lock_unlock __dbj_auto_lock__ 
+#else
+#define DBJ_AUTO_LOCK
+#endif
+
 namespace dbj {
 
 	/// <summary>
@@ -29,12 +36,6 @@ namespace dbj {
 			~lock_unlock() { mux_.unlock(); }
 		};
 
-// Multi Threaded Build 
-#ifdef DBJ_MT
-#define DBJ_AUTO_LOCK dbj::sync::lock_unlock __dbj_auto_lock__ 
-#else
-#define DBJ_AUTO_LOCK
-#endif
 		// The memset function call could be optimized 
 		// away by the compiler 
 		// if the array object used, is no futher accessed.
@@ -45,7 +46,7 @@ namespace dbj {
 			inline void 
 			   secure_zero(void *s, size_t n)
 		{
-			DBJ_AUTO_LOCK;
+			dbj::sync::lock_unlock __dbj_auto_lock__;
 			volatile char *p = (char *)s;
 			while (n--) *p++ = 0;
 		}
@@ -67,19 +68,20 @@ namespace dbj {
 		/// </code>
 		/// </summary>
 		template <typename T>
-		class guardian final {
-		public:
+		struct __declspec(novtable) guardian final 
+		{
 			typedef T value_type;
-			value_type load() const {
+
+			value_type & load() const noexcept  {
 				lock_unlock locker_;
 				return treasure_;
 			}
-			value_type store(value_type new_value) const {
+			value_type & store(value_type new_value) const noexcept {
 				lock_unlock locker_;
 				return treasure_ = new_value;
 			}
 		private:
-			mutable value_type treasure_{};
+			mutable value_type treasure_ ;
 		};
 
 
