@@ -45,12 +45,32 @@
 #endif
 #pragma endregion 
 
+/*
+DBJ preffered concept to code standard C++ string constants
+is to use string_view
+
+using namespace std::literals;
+
+namespace dbj::strings {
+	constexpr inline auto which_time() {
+		return "compile time"sv;
+	}
+};
+
+this even works at compile time
+
+static_assert(dbj::strings::which_time() == "compile time" );
+
+*/
+
 // DBJ namespace is different from dbj (lower case) namespace 
 namespace DBJ {
 
-	constexpr inline const char * LINE{ "--------------------------------------------------------------------------------" };
-	constexpr inline const char * COMPANY{ "DBJ.Systems Ltd." };
-	constexpr inline const char * YEAR{ (__DATE__ + 7) };
+	using namespace std::literals;
+
+	constexpr inline auto LINE    (){ return "--------------------------------------------------------------------------------"sv; };
+	constexpr inline auto COMPANY (){ return "DBJ.Systems Ltd."sv; };
+	constexpr inline auto YEAR    (){ return std::string_view{ (__DATE__ + 7) }; };
 
 	/* 512 happpens to be the POSIX BUFSIZ? */
 #ifdef BUFSIZ
@@ -67,23 +87,28 @@ namespace DBJ {
 	*/
 	extern "C" {
 
-		inline std::string  FILENAME(const std::string & file_path, const char delimiter_ = '\\') {
+		// inline std::string  FILENAME(const std::string & file_path, const char delimiter_ = '\\') {
+		inline std::string  FILENAME(std::string_view file_path, const char delimiter_ = '\\') 
+		{
+			_ASSERTE(!file_path.empty());
 			auto pos = file_path.find_last_of(delimiter_);
 			return
 				(std::string::npos != pos
-					? file_path.substr(pos, file_path.size())
-					: file_path
-					);
+			? std::string{ file_path.substr(pos, file_path.size()) }
+			: std::string{ file_path }
+				);
 		}
 
 		/*
 		usual usage :
-		FILELINE( __FILE__, __LINE__, "some text") ;
+		DBJ::FILELINE( __FILE__, __LINE__, "some text") ;
 		*/
-		inline std::string FILELINE(const std::string & file_path,
+		// inline std::string FILELINE(const std::string & file_path,
+		inline std::string FILELINE(std::string_view file_path,
 			unsigned line_,
 			const std::string & suffix = "")
 		{
+			_ASSERTE(!file_path.empty());
 			return {
 				FILENAME(file_path) + "(" + std::to_string(line_) + ")"
 				+ (suffix.empty() ? "" : suffix)
@@ -136,7 +161,7 @@ namespace DBJ {
 
 namespace dbj {
 
-	// the most used 4 types
+	// probably the most used types
 	using wstring = std::wstring;
 	using wstring_vector = std::vector<std::wstring>;
 
@@ -213,12 +238,12 @@ namespace dbj {
 	public:
 		typedef std::runtime_error _Mybase;
 
-		Exception(const std::string & _Message)
-			: _Mybase(_Message.c_str())
+		Exception(std::string_view _Message)
+			: _Mybase(_Message.data())
 		{	// construct from message string
 		}
 
-		Exception(const std::wstring_view _WMessage)
+		Exception( std::wstring_view _WMessage)
 			: _Mybase(
 				std::string(_WMessage.begin(), _WMessage.end() ).c_str()
 			)

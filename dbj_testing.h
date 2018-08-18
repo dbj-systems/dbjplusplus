@@ -202,9 +202,13 @@ moved to dbj_crt.h
 //__pragma(message("\n" __FILE__ "(" DBJ_STR(__LINE__) ")\nCompiled: " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)) "\n")); \
 //}
 
-#define DBJ_TEST_SPACE_OPEN(x) namespace dbj_test_namespace {  
+#ifndef DBJ_NO_TESTING
+#define DBJ_TEST_SPACE_OPEN(x) namespace _dbj_testing_namespace_ {  
 #define DBJ_TEST_SPACE_CLOSE }
-
+#else
+#define DBJ_TEST_SPACE_OPEN(x) #if 0
+#define DBJ_TEST_SPACE_CLOSE } #endif
+#endif
 /*
 remember: anonymous namespace variableas are static by default
 that is they are "internal linkage"
