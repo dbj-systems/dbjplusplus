@@ -55,6 +55,36 @@ namespace dbj {
 	  // usefull and important aliases
 	  // that make type traits much more palatable
 
+	// 201703L if the /std:c++17 compiler option is set
+	// to be in C++20
+	template< class T >
+	struct remove_cvref {
+		typedef std::remove_cv_t<std::remove_reference_t<T>> type;
+	};
+
+	template< class T >
+	using remove_cvref_t = typename remove_cvref<T>::type;
+	
+	/*
+	// what is the base type of the presumed compaund type?
+	// array of pointers to string
+	using arr_of_sp = std::string * (&)[42];
+	// should pass
+	static_assert(std::is_same_v<std::string, to_base_t<arr_of_sp>>);
+	//
+	static_assert(std::is_same_v<void(), to_base_t<void()>>);
+	// 
+	struct X { char data{}; char method() const { return {}; } };
+	static_assert(std::is_same_v<X, to_base_t<X(&)[]>>);
+	//
+	using method_t = char (X::*)();
+	static_assert(std::is_same_v<method_t, to_base_t< method_t(&)[]>>);
+	*/
+	template <class ARGT>
+	using to_base_t =
+		std::remove_pointer_t< std::remove_all_extents_t< remove_cvref_t < ARGT > > >;
+
+
 	template <class T1, class T2>
 	inline bool same_typeid = typeid(T1).hash_code() == typeid(T2).hash_code();
 
@@ -112,9 +142,9 @@ namespace dbj {
 
 	template<typename T>
 	struct actual_type final {
-		using unqualified = std::remove_cv_t< T >;
-		using not_ptr = std::remove_pointer_t< T > ;
-		using decayed = std::decay_t< T >;
+		using unqualified	= std::remove_cv_t< T >;
+		using not_ptr		= std::remove_pointer_t< T > ;
+		using decayed		= std::decay_t< T >;
 	};
 
 
@@ -133,6 +163,20 @@ namespace dbj {
 					= std::rank_v<TT>;
 				constexpr 	static inline const size_t  first_extent 
 					= std::extent_v<TT>;
+
+				const std::string to_string() const noexcept
+				{
+					return DBJ::printf_to_buffer(
+						"\n%-20s"
+						"\n%-20s : %s / %s"
+						"\n%-20s : %s -- %zu"
+						"\n%-20s : %s -- %zu",
+						name_<type>(),
+						space, (is_pointer ? "Pointer" : "NOT Pointer"), (is_array ? "Array" : "NOT Array"),
+						space, "dimensions, if array", number_of_dimension,
+						space, "dimension[0] size, if array", first_extent
+					);
+				}
 			};
 
 			using def_type 
@@ -142,31 +186,12 @@ namespace dbj {
 			using under_type 
 				= descriptor<typename std::remove_all_extents<T>::type>;
 
-			template<typename T>
-			static std::string to_string(void) noexcept
+			const std::string to_string(void) noexcept
 			{
 				return
-					std::string{ "\ndefault type" } +
-					std::string{ T::descriptor_to_string<T::def_type>() } +
-					std::string{ "\nactual type" } +
-					std::string{ T::descriptor_to_string<T::actual_type>() } +
-					std::string{ "\nunderlying type" } +
-					std::string{ T::descriptor_to_string<T::under_type>() };
-			}
-
-			template< typename T >
-			static std::string descriptor_to_string() noexcept
-			{
-				return DBJ::printf_to_buffer(
-					"\n%-20s"
-					"\n%-20s : %s / %s"
-					"\n%-20s : %s -- %zu"
-					"\n%-20s : %s -- %zu",
-					name_<T::type>(),
-					space, (T::is_pointer ? "Pointer" : "NOT Pointer"), (T::is_array ? "Array" : "NOT Array"),
-					space, "dimensions, if array", T::number_of_dimension,
-					space, "dimension[0] size, if array", T::first_extent
-				);
+					std::string{ "\ndefault type" } + def_type{}.to_string() +
+					"\nactual type"		+ actual_type{}.to_string() +
+					"\nunderlying type" + under_type{}.to_string() ;
 			}
 		};
 

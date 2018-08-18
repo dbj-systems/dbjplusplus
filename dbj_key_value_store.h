@@ -24,7 +24,7 @@ namespace dbj::storage {
 	public:
 
 		static_assert(
-			dbj::is_std_string_v<key_type> , "dbj::storage requires key to be of some std string type"
+			dbj::is_std_string_v<key_type> , "dbj::storage requires key to be of std string type"
 			);
 
 		using	storage_type = std::multimap< key_type, value_type >;
@@ -51,6 +51,7 @@ namespace dbj::storage {
 		}
 
 		const size_t size() const noexcept {
+			lock_unlock padlock{};
 			return this->key_value_storage_.size();
 		}
 

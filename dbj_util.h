@@ -272,7 +272,7 @@ namespace dbj {
 namespace dbj::console {
 	template <unsigned Size, char filler = ' '>
 	inline void out(const c_line<Size, filler> & const_line_) {
-		PRN.char_to_console(const_line_.data());
+		dbj::console::PRN.char_to_console(const_line_.data());
 	}
 }
 

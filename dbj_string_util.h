@@ -220,19 +220,11 @@ template <
 
 		// safe and simple: copy to string (first!)
 		string_type retval( from_, last_ );
-
 		auto loc = std::locale("");
 		// facet of user's preferred locale
 		const std::ctype<CT >	& facet_ = std::use_facet<std::ctype<CT>>(loc);
 
-		// this can fail for some locales
-//		if constexpr(dbj::is_char_v<CT>) {
-			facet_.tolower(retval.data(), retval.data() + retval.size());
-//		}
-//		else {
-//			facet_.towlower(from_, last_);
-//		}
-		// assumption is eos is properly placed?
+			auto the_end_ [[maybe_unused]] = facet_.tolower(retval.data(), retval.data() + retval.size());
 		return retval ;
 	}
 	/*-------------------------------------------------------------*/
@@ -341,11 +333,10 @@ template <
 		);
 	}
 
-	class __declspec(novtable) backslash final 
+	struct __declspec(novtable) backslash final 
 	{
-	public:
-		template< typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-		size_t add ( std::basic_string<CT> & path_ , CT slash_ )
+	template< typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
+		static size_t add ( std::basic_string<CT> & path_ , CT slash_ )
 		{
 			if (path_.back() != slash_) {
 				path_[path_.size() + 1] = slash_;
@@ -353,10 +344,10 @@ template <
 			return path_.size();
 		}
 
-		auto operator () ( std::string & path_)
-		{
-			return this->add( path_, '\\' );
-		}
+		static auto add ( std::string & path_)	{	return add( path_, '\\' );	}
+		static auto add ( std::wstring & path_)	{	return add( path_, L'\\' );	}
+		static auto add ( std::u16string & path_)	{	return add( path_, u'\\' );	}
+		static auto add ( std::u32string & path_)	{	return add( path_, U'\\' );	}
 	};
 
 
@@ -454,7 +445,7 @@ namespace dbj::str {
 	/*
 	remove all instances of a substring found in a string
 	call with string view literals for the easiest usage experience
-	work for all std char/string/stin_view types
+	work for all std char/string/string_view types
 	*/
 	template <
 		typename CT,
