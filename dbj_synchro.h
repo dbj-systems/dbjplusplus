@@ -4,11 +4,7 @@
 #include <mutex>
 
 // Multi Threaded Build Switch
-#ifdef DBJ_MT
 #define DBJ_AUTO_LOCK dbj::sync::lock_unlock __dbj_auto_lock__ 
-#else
-#define DBJ_AUTO_LOCK
-#endif
 
 namespace dbj {
 
