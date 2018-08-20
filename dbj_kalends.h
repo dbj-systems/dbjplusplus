@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
@@ -46,7 +45,7 @@ namespace dbj::kalends {
 	/// <summary>
 	/// we use the UnitDuration to transform tick to
 	/// different time units
-	/// remonder: Time Unit is std chrono duration
+	/// reminder: Time Unit is std chrono duration
 	/// for example 1 second is a duration that has takend 1 second.
 	/// </summary>
 	template< typename Unit >
@@ -59,7 +58,7 @@ namespace dbj::kalends {
 
 	/// <summary>
 	/// transfrom from duration unit (aka "ticks") to desired other 
-	/// std chrono duration , named as particular unit unit
+	/// std chrono duration , named as particular unit 
 	/// </summary>
 	template< typename Unit >
 	inline typename Unit to_desired_unit(UnitDuration ticks_) {
@@ -110,7 +109,7 @@ namespace dbj::kalends {
 	namespace internal {
 
 		/*
-		Taken form UntiTest++ then modified by dbj.org
+		Taken form UnitTest++ then modified by dbj.org
 		This is WIN32 implementation
 		*/
 		class  win32_timer_engine final : public ITimer
@@ -120,7 +119,7 @@ namespace dbj::kalends {
 				: threadHandle(::GetCurrentThread())
 				, startTime(0)
 			{
-				// https://docs.microsoft.com/en-us/windows/desktop/ProcThread/multiple-processors
+// https://docs.microsoft.com/en-us/windows/desktop/ProcThread/multiple-processors
 				_ASSERTE(threadHandle);
 				DWORD_PTR systemMask{};
 				::GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemMask);
