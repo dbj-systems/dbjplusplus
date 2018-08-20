@@ -234,10 +234,10 @@ namespace dbj {
 	// is T, a standard string
 	template< class T, typename base_t = dbj::tt::to_base_t<T> >
 	struct is_std_string : integral_constant<bool,
-		is_same<to_base_t<T>, string    >::value ||
-		is_same<to_base_t<T>, wstring   >::value ||
-		is_same<to_base_t<T>, u16string >::value ||
-		is_same<to_base_t<T>, u32string >::value> {};
+		is_same<base_t, string    >::value ||
+		is_same<base_t, wstring   >::value ||
+		is_same<base_t, u16string >::value ||
+		is_same<base_t, u32string >::value> {};
 
 	template<typename T>
 	inline constexpr bool  is_std_string_v = is_std_string<T>::value;
