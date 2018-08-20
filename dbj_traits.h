@@ -1,28 +1,21 @@
 #pragma once
 // license is at eof
 /*
-LINUX type name demangling has to ne done like this
+LINUX type name demangling has to be done like this
 
 #include <cxxabi.h>
 
 template < typemame T> 
 std::string demangle () {
-// delete malloc'd memory
-struct free_ {
-void operator()(void* p) const { std::free(p); }
-};
-// custom smart pointer for c-style strings allocated with std::malloc
-using ptr_type = std::unique_ptr<char, free_>;
-
-// special function to de-mangle names
-int error{};
-ptr_type name{ abi::__cxa_demangle(typeid(T).name(), 0, 0, &error) };
+int error{0};
+std::unique_ptr<char> 
+     name = 
+	   std::make_unique( abi::__cxa_demangle(typeid(T).name(), 0, 0, &error) );
 
 if (!error)        return { name.get() };
 if (error == -1)   return { "memory allocation failed" };
 if (error == -2)   return { "not a valid mangled name" };
-// else if(error == -3) or otherwise
-return { "bad argument" };
+     return { "bad argument" };
 }
 
 */
@@ -39,24 +32,26 @@ namespace dbj {
 
 	namespace tt {
 
-	constexpr inline const  char space[]{ " " };
-	constexpr inline const  char line[]{ "------------------------------------------------------------" };
+	constexpr inline const char space[]{ " " };
+	// constexpr inline const  char line[]{ "------------------------------------------------------------" };
 
-		// we hold the result
-	    // for each T in instance of dbj::tt::name_<T>
+	// we hold the result
+	// for each T inside
+	// the instance of dbj::tt::name_<T>
 	template < typename T >
-	inline const char * name_() noexcept
+	inline std::string_view name_() noexcept
 	{
 		// this might be wastefull ...?
 		static const std::string type_name_{ typeid(T).name() };
-		return type_name_.c_str() ;
+		return { type_name_.c_str() };
 	} // name_()
 
-	  // usefull and important aliases
-	  // that make type traits much more palatable
+  // usefull and important aliases
+  // that make type traits much more palatable
 
 	// 201703L if the /std:c++17 compiler option is set
-	// to be in C++20
+	/************************************************************************************/
+	// std::remove_cvref is to be in the C++20
 	template< class T >
 	struct remove_cvref {
 		typedef std::remove_cv_t<std::remove_reference_t<T>> type;
@@ -65,45 +60,40 @@ namespace dbj {
 	template< class T >
 	using remove_cvref_t = typename remove_cvref<T>::type;
 	
-	/*
-	// what is the base type of the presumed compaund type?
-	// array of pointers to string
-	using arr_of_sp = std::string * (&)[42];
-	// should pass
-	static_assert(std::is_same_v<std::string, to_base_t<arr_of_sp>>);
-	//
-	static_assert(std::is_same_v<void(), to_base_t<void()>>);
-	// 
-	struct X { char data{}; char method() const { return {}; } };
-	static_assert(std::is_same_v<X, to_base_t<X(&)[]>>);
-	//
-	using method_t = char (X::*)();
-	static_assert(std::is_same_v<method_t, to_base_t< method_t(&)[]>>);
+	/* 
+	   what is the base type of the presumed compound type?
 	*/
 	template <class ARGT>
 	using to_base_t =
 		std::remove_pointer_t< std::remove_all_extents_t< remove_cvref_t < ARGT > > >;
 
-
+/************************************************************************************/
+/* this can not be made to act at the compile time */
 	template <class T1, class T2>
 	inline bool same_typeid = typeid(T1).hash_code() == typeid(T2).hash_code();
+/************************************************************************************/
+/*
+are two types equal, for two values provided ?
+*/
+		inline auto equal_types = [](auto & a, auto & b) constexpr -> bool
+		{
+			return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
+/*
+if not using decay_t the following does not catch pointers hidden in auto's
+return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
+*/
+		};
+/************************************************************************************/
+// remove const-ness and/or volatility before comparing
+// do not remove anything else
+		template<typename T1, typename T2>
+		constexpr inline bool same_types = std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
+/************************************************************************************/
+/* see dbj_util tests for usage example */
 
 #pragma region is pointer
-	/*
-	constexpr inline  const char * holla_ = "Hola!";
-	inline const char buff[]{ "ABCD" };
-	// OK
-	static_assert(probe(buff));
-	static_assert(probe(holla_));
-	static_assert(probe("ola ola!") );
-	// OK
-	inline const std::array<int, 3> iarr{ 1,2,3 };
-	static_assert(probe(iarr.data()));
-	*/
 	template <typename T> inline constexpr const bool pointer(T const &) noexcept { return false; }
 	template <typename T> inline constexpr const bool pointer(T const *)  noexcept { return true; }
-	// template <typename T> inline constexpr const bool probe(T  &&)  noexcept  = delete;
-	// template <typename T> inline constexpr const bool probe(T) noexcept  = delete;
 
 	// #define CRAZY_ALGORITHMS
 #ifdef CRAZY_ALGORITHMS
@@ -120,31 +110,20 @@ namespace dbj {
 #endif
 #pragma endregion 
 
+// this might be much better idea than std::is_array
+// proof: https://godbolt.org/g/8skXRF
+template< typename T, size_t N>
+inline constexpr bool is_array_(const T(&specimen)[N])	{	return true;	}
+template< typename T, size_t N>	inline constexpr bool is_array_(const T(*specimen)[N])	{	return true; }
 
-	// remove const-ness and/or volatility before comparing
-	// do not remove anything else
-	template<typename T1, typename T2>
-	constexpr inline bool same_types = std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
-	
-	// this might be much better idea than std::is_array
-	// proof: https://godbolt.org/g/8skXRF
-	template< typename T, size_t N>
-	inline constexpr bool is_array_(const T(&specimen)[N])
-	{
-		return true;
-	}
-
-	template< typename T, size_t N>
-	inline constexpr bool is_array_(const T(*specimen)[N])
-	{
-		return true;
-	}
+/************************************************************************************/
 
 	template<typename T>
 	struct actual_type final {
 		using unqualified	= std::remove_cv_t< T >;
 		using not_ptr		= std::remove_pointer_t< T > ;
 		using decayed		= std::decay_t< T >;
+		using based         = to_base_t<T>;
 	};
 
 
@@ -239,26 +218,26 @@ namespace dbj {
 	template<typename T> inline constexpr bool  is_char32_v = is_char32<T>::value;
 
 	// and one for all
-	template<typename T>
+	template<typename T, typename base_t = dbj::tt::to_base_t<T> >
 	struct is_std_char :
 		std::integral_constant
 		<
 		bool,
-		is_char< std::remove_cv_t<T> >::value || is_wchar<std::remove_cv_t<T>>::value ||
-		is_char16<std::remove_cv_t<T>>::value || is_char32<std::remove_cv_t<T>>::value
+		is_char< base_t >::value || is_wchar<base_t>::value ||
+		is_char16<base_t>::value || is_char32<base_t>::value
 		>
 	{};
 
-	template<typename T>
+	template<typename T, typename base_t = dbj::tt::to_base_t<T> >
 	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
 
 	// is T, a standard string
-	template< class T>
+	template< class T, typename base_t = dbj::tt::to_base_t<T> >
 	struct is_std_string : integral_constant<bool,
-		is_same<remove_cv_t<T>, string    >::value ||
-		is_same<remove_cv_t<T>, wstring   >::value ||
-		is_same<remove_cv_t<T>, u16string >::value ||
-		is_same<remove_cv_t<T>, u32string >::value> {};
+		is_same<to_base_t<T>, string    >::value ||
+		is_same<to_base_t<T>, wstring   >::value ||
+		is_same<to_base_t<T>, u16string >::value ||
+		is_same<to_base_t<T>, u32string >::value> {};
 
 	template<typename T>
 	inline constexpr bool  is_std_string_v = is_std_string<T>::value;
@@ -321,7 +300,7 @@ namespace dbj {
 namespace dbj {
 	using char_star = decltype("X");
 	using wchar_star = decltype(L"X");
-
+#if 0
 	namespace {
 		/*
 		part of C++20, but also implemented here
@@ -335,7 +314,7 @@ namespace dbj {
 		template< class T >
 		using remove_cvref_t = typename remove_cvref<T>::type;
 	}
-
+#endif
 	/// <summary>
 	/// c++ 17 generic lambdas have issues
 	/// with required types of auto arguments
@@ -344,38 +323,12 @@ namespace dbj {
 	/// </summary>
 	namespace required
 	{
-		// does type of the value v matches the template 
-		// argument type RQ
-		template<typename RQ>
-		inline auto  is_type = [](const auto & v_ = 0) constexpr -> bool
-		{
-			using T = std::decay_t< decltype(v_) >;
-			return std::is_same<T, RQ>();
-		};
-
-		// here we can extend with helpers we need
-		// for example this one
-		inline auto is_uint64 = [](const auto & v_ = 0) constexpr -> bool
-		{
-			return is_type<std::uint64_t>(v_);
-		};
+		template<typename T>
+		using is_uint64 = std::is_same< std::uint64_t, dbj::tt::to_base_t<T>>;
 
 	} // required 
 
-	namespace {
-		/*
-		are two types equal, for two values provided ?
-		*/
-		inline auto equal_types = [](auto & a, auto & b) constexpr -> bool
-		{
-			return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
-/*
-if not using decay_t the following does not catch pointers hidden in auto's
-return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
-*/
-		};
-	}
-	/* see dbj_util tests for usage example */
+
 } // dbj
 #pragma endregion 
 
