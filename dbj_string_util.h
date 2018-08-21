@@ -241,7 +241,10 @@ template <
 		) 
 	{
 		_ASSERTE( ! view_.empty() );
-		return lowerize<CT>( view_.data(), (view_.data() + view_.size()));
+		return lowerize<CT>( 
+			view_.data(), 
+			view_.data() + ptrdiff_t(view_.size())
+		);
 	}
 	/*-------------------------------------------------------------*/
 	template <
@@ -506,8 +509,8 @@ namespace dbj::str {
 		std::basic_string<C> input{ (C *)subject.data() };
 		size_t pos = 0;
 		while ((pos = input.find(search, pos)) != std::string::npos) {
-			input.replace(pos, search.length(), replace);
-			pos += replace.length();
+			input.replace(pos, ptrdiff_t(search.length()), replace);
+			pos += ptrdiff_t(replace.length());
 		}
 		return input;
 	}

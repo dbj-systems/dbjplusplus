@@ -91,7 +91,7 @@ namespace DBJ {
 		inline std::string  FILENAME(std::string_view file_path, const char delimiter_ = '\\') 
 		{
 			_ASSERTE(!file_path.empty());
-			auto pos = file_path.find_last_of(delimiter_);
+			size_t pos = file_path.find_last_of(delimiter_);
 			return
 				(std::string::npos != pos
 			? std::string{ file_path.substr(pos, file_path.size()) }

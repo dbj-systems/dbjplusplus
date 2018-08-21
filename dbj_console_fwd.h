@@ -106,7 +106,8 @@ namespace dbj::console {
 	template <typename ... Args>
 	void printf(wchar_t const * const message, Args ... args) const noexcept
 	{
-		wchar_t buffer[DBJ::BUFSIZ_]{};
+		static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
+		wchar_t buffer[buff_siz_]{};
 		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
 		wchar_to_console(buffer);
@@ -115,8 +116,9 @@ namespace dbj::console {
 	template <typename ... Args>
 	void printf(const char * const message, Args ... args) const noexcept
 	{
-		char buffer[DBJ::BUFSIZ_]{};
-		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
+		static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
+		char buffer[buff_siz_]{};
+		auto R = _snprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R );
 		char_to_console(buffer );
 	}

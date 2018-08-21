@@ -162,7 +162,8 @@ namespace dbj::storage {
 			/// vector of keys is lighter
 			/// </summary>
 			value_vector retvec{};
-			storage_type::iterator & walker_ = this->key_value_storage_.upper_bound(prefix_);
+			typename storage_type::iterator && walker_ 
+				= this->key_value_storage_.upper_bound(prefix_);
 
 			while (walker_ != key_value_storage_.end())
 			{

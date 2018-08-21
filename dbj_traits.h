@@ -28,23 +28,24 @@ if (error == -2)   return { "not a valid mangled name" };
 #include <vector>
 #include <string>
 
+/*
+ typeid() returns highly specific implementations
+ thus we can not do anything meaningfull with it
+ but these two simple macros
+*/
+#ifndef DBJ_TYPENAME
+#define DBJ_TYPENAME(dbj_some_type_t_) ( typeid(dbj_some_type_t_).name() ) 
+#define DBJ_VALTYPENAME(dbj_some_value_) ( typeid(decltype(dbj_some_value_)).name() ) 
+#else
+#error  DBJ_TYPENAME already defined?
+#endif // !DBJ_TYPENAME
+
 namespace dbj {
 
 	namespace tt {
 
 	constexpr inline const char space[]{ " " };
 	// constexpr inline const  char line[]{ "------------------------------------------------------------" };
-
-	// we hold the result
-	// for each T inside
-	// the instance of dbj::tt::name_<T>
-	template < typename T >
-	inline std::string_view name_() noexcept
-	{
-		// this might be wastefull ...?
-		static const std::string type_name_{ typeid(T).name() };
-		return { type_name_.c_str() };
-	} // name_()
 
   // usefull and important aliases
   // that make type traits much more palatable
@@ -123,7 +124,7 @@ template< typename T, size_t N>	inline constexpr bool is_array_(const T(*specime
 		using unqualified	= std::remove_cv_t< T >;
 		using not_ptr		= std::remove_pointer_t< T > ;
 		using decayed		= std::decay_t< T >;
-		using based         = to_base_t<T>;
+		using base          = to_base_t<T>;
 	};
 
 
@@ -150,7 +151,7 @@ template< typename T, size_t N>	inline constexpr bool is_array_(const T(*specime
 						"\n%-20s : %s / %s"
 						"\n%-20s : %s -- %zu"
 						"\n%-20s : %s -- %zu",
-						name_<type>(),
+						DBJ_TYPENAME(typename descriptor::type),
 						space, (is_pointer ? "Pointer" : "NOT Pointer"), (is_array ? "Array" : "NOT Array"),
 						space, "dimensions, if array", number_of_dimension,
 						space, "dimension[0] size, if array", first_extent
@@ -177,12 +178,7 @@ template< typename T, size_t N>	inline constexpr bool is_array_(const T(*specime
 	} // tt
 } // dbj 
 
-#ifndef DBJ_TYPENAME
-#define DBJ_TYPENAME(T) (dbj::tt::name_<T>()) 
-#define DBJ_VALTYPENAME(V) (dbj::tt::name_<decltype(V)>()) 
-#else
-#error  DBJ_TYPENAME already defined?
-#endif // !DBJ_TYPENAME
+
 
 #pragma region char and string related traits
 namespace dbj {

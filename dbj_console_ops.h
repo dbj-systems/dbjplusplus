@@ -95,12 +95,9 @@ namespace dbj::console {
 #endif
 
 #define DBJ_UNHANDLED_(P)\
-	 PRN.printf(\
-		 "\nunhandled " P " argument: %s\nunqualified_type: %s\nnot a pointer type: %s",\
-		 DBJ_TYPENAME(T),\
-		 DBJ_TYPENAME(actual::unqualified),\
-		 DBJ_TYPENAME(actual::not_ptr)\
-	 )
+	 dbj::console::PRN.printf(\
+		 __FUNCSIG__ "\nunhandled " P " argument type: %s\nbase type: %s\n",\
+		 DBJ_TYPENAME(T), DBJ_TYPENAME(actual::base) )
 
 	/// <summary>
 	/// in here we essentially mimic the standard C++ 

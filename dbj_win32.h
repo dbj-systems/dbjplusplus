@@ -1,5 +1,4 @@
 #pragma once
-#ifdef DBJ_WIN
 //
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -8,7 +7,7 @@
 #include <windows.h>
 #endif
 
-#if 0
+#ifdef DBJ_GDI_LINE
 #ifndef _GDIPLUS_H
 // because GDI+ 
 // can not cope with
@@ -209,6 +208,8 @@ namespace dbj {
 		https://docs.microsoft.com/en-us/windows/desktop/api/winnls/ne-winnls-sysgeotype
 		for SYSGEOTYPE
 		*/
+		// PWSTR is WCHAR *
+		// thus for us it is wchar_t *
 
 		using geo_info_map_type = std::map<const wchar_t *, std::wstring >;
 
@@ -271,7 +272,7 @@ namespace dbj {
 	} // win32
 } // dbj
 
-#endif // DBJ_WIN
+
   /*
   Copyright 2017,2018 by dbj@dbj.org
 

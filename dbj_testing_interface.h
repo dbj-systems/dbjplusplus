@@ -141,7 +141,8 @@ namespace dbj {
 		/// whose return value is returned
 		/// </summary>
 		template<typename return_type>
-		inline decltype(auto)
+		// inline decltype(auto)
+		inline auto
 			test_lambada(const char * expression, const return_type & anything)
 		{
 			using namespace dbj::console;
@@ -151,7 +152,8 @@ namespace dbj {
 				"\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
 				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
-			return std::move(anything) ;
+			// return std::move(anything) ;
+			return anything ;
 		};
 
 #define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
