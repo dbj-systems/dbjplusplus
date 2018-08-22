@@ -50,23 +50,31 @@ namespace dbj {
   // usefull and important aliases
   // that make type traits much more palatable
 
-	// 201703L if the /std:c++17 compiler option is set
 	/************************************************************************************/
-	// std::remove_cvref is to be in the C++20
-	template< class T >
-	struct remove_cvref {
-		typedef std::remove_cv_t<std::remove_reference_t<T>> type;
-	};
 
-	template< class T >
-	using remove_cvref_t = typename remove_cvref<T>::type;
-	
-	/* 
-	   what is the base type of the presumed compound type?
-	*/
-	template <class ARGT>
-	using to_base_t =
-		std::remove_pointer_t< std::remove_all_extents_t< remove_cvref_t < ARGT > > >;
+	template <typename T> struct remove_all_ptr { typedef T type; };
+
+		template <typename T> struct remove_all_ptr<T*> {
+			using type = typename remove_all_ptr<std::remove_cv_t<T>>::type;
+		};
+
+		// reduce T***** to T, for any level of pointers to pointers
+		template <typename T>
+		using remove_all_ptr_t = typename remove_all_ptr<T>::type;
+
+		// std::remove_cvref is to be in the C++20
+		template< class T >
+		struct remove_cvref {
+			typedef std::remove_cv_t<std::remove_reference_t<T>> type;
+		};
+
+		template< class T >
+		using remove_cvref_t = typename remove_cvref<T>::type;
+
+		// reduce any compound T , to its base type
+		template <class T>
+		using to_base_t =
+			remove_all_ptr_t< std::remove_all_extents_t< remove_cvref_t < T > > >;
 
 /************************************************************************************/
 /* this can not be made to act at the compile time */
