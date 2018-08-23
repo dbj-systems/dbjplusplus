@@ -20,15 +20,16 @@
 
 #ifndef __clang__
 #ifndef _MSC_VER
-#error This code requires Visual C++ 
+#error dbj++  requires Visual C++ 
 #endif // !_MSC_VER
 #if _MSC_VER < 1911
-#error This code requires Visual C++ 14.1 or better
+#error dbj++ requires Visual C++ 14.1 or better
 #endif
 #endif
 
 #if (WINVER < NTDDI_WIN10_RS3)
-#error dbj++ requires systems above REDSTONE 3
+#else
+#error dbj++ requires Windows builds above REDSTONE 3 or above
 #endif
 
 #ifndef UNICODE

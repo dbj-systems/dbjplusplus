@@ -218,19 +218,18 @@ namespace dbj {
 			auto info_query = [](PWSTR location, SYSGEOTYPE query)
 				-> std::wstring
 			{
+// WINVER is set to	_WIN32_WINNT
+// but GetGeoInfoEx requires REDSTONE 3 or above
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS3)
 				/*https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-getgeoinfoex*/
 
 				auto use_geo_info = [&](PWSTR geoData, int geoDataCount) {
-#if (WINVER >= NTDDI_WIN10_RS3)
 					return ::GetGeoInfoEx(
 						(PWSTR)location,
 						(GEOTYPE)query,
 						(PWSTR)geoData,
 						(int)geoDataCount
 					);
-#else
-					return -1;
-#endif
 				};
 
 				int size = use_geo_info(NULL, 0);
@@ -249,12 +248,10 @@ namespace dbj {
 						return { L"The values supplied for flags were not valid" };
 				}
 				DBJ_ASSERT(rezult != 0);
-
-				if (rezult != -1)
-				{
 					return geoData;
-				}
-					return { L"GetGeoInfoEx requires systems above REDSTONE 3" };
+#else
+				return std::wstring{ L"GetGeoInfoEx requires systems above REDSTONE 3" };
+#endif
 			};
 
 			geo_info_map_type geo_info_map{};
@@ -275,9 +272,6 @@ namespace dbj {
 			return geo_info_map;
 
 		}; // geo_info
-
-
-
 	} // win32
 } // dbj
 
