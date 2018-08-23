@@ -221,12 +221,22 @@ namespace dbj {
 				/*https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-getgeoinfoex*/
 
 				auto use_geo_info = [&](PWSTR geoData, int geoDataCount) {
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS3)
 					return ::GetGeoInfoEx(
 						(PWSTR)location,
 						(GEOTYPE)query,
 						(PWSTR)geoData,
 						(int)geoDataCount
 					);
+#else
+					return ::GetGeoInfoW(
+						(PWSTR)location,
+						(GEOTYPE)query,
+						(PWSTR)geoData,
+						(int)geoDataCount,
+						GetUserDefaultLangID()
+					);
+#endif
 				};
 
 				int size = use_geo_info(NULL, 0);
