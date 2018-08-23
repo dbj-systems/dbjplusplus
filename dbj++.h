@@ -1,4 +1,19 @@
 #pragma once
+
+// so windows.h it is
+// for the time being
+#define DBJ_WIN 
+
+#ifdef DBJ_WIN
+#ifndef _INC_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define STRICT
+// avoid min/max macros 
+#define NOMINMAX
+#include <windows.h>
+#endif
+#endif DBJ_WIN
+
 /*
  see the licence blurb at eof
 */
@@ -12,6 +27,10 @@
 #endif
 #endif
 
+#if (WINVER < NTDDI_WIN10_RS3)
+#error dbj++ requires systems above REDSTONE 3
+#endif
+
 #ifndef UNICODE
 #error dbj++ requires UNICODE builds
 #endif
@@ -20,43 +39,7 @@
 #error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
 #endif
 
-// avoid min/max macros 
-#define NOMINMAX
 
-// DBJ_WIN to be defined on CL command line
-// or not
-
-// the whole dbj console 
-// is of course  WIN32 
-// code
-// so windows.h it is
-// for the time being
-#define DBJ_WIN 
-
-#ifdef DBJ_WIN
-#ifndef _INC_WINDOWS
-#define WIN32_LEAN_AND_MEAN
-#define STRICT
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#if 0
-#ifndef _GDIPLUS_H
-#include <algorithm>
-namespace Gdiplus
-{
-	using std::min;
-	using std::max;
-}
-#include <objidl.h>
-#include <gdiplus.h>
-using namespace Gdiplus;
-#pragma comment(lib, "Gdiplus.lib")
-#endif // _GDIPLUS_H
-#endif
-#else
-#endif DBJ_WIN
 
 /*
 dbj++ begins here

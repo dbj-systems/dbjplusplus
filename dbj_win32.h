@@ -221,7 +221,7 @@ namespace dbj {
 				/*https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-getgeoinfoex*/
 
 				auto use_geo_info = [&](PWSTR geoData, int geoDataCount) {
-#if (NTDDI_VERSION >= NTDDI_WIN10_RS3)
+#if (WINVER >= NTDDI_WIN10_RS3)
 					return ::GetGeoInfoEx(
 						(PWSTR)location,
 						(GEOTYPE)query,
@@ -229,13 +229,7 @@ namespace dbj {
 						(int)geoDataCount
 					);
 #else
-					return ::GetGeoInfoW(
-						(PWSTR)location,
-						(GEOTYPE)query,
-						(PWSTR)geoData,
-						(int)geoDataCount,
-						GetUserDefaultLangID()
-					);
+					return -1;
 #endif
 				};
 
@@ -255,7 +249,12 @@ namespace dbj {
 						return { L"The values supplied for flags were not valid" };
 				}
 				DBJ_ASSERT(rezult != 0);
-				return geoData;
+
+				if (rezult != -1)
+				{
+					return geoData;
+				}
+					return { L"GetGeoInfoEx requires systems above REDSTONE 3" };
 			};
 
 			geo_info_map_type geo_info_map{};
