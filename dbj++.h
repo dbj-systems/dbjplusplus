@@ -6,8 +6,9 @@
 
 #ifdef DBJ_WIN
 #ifndef _INC_WINDOWS
-#define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
 #define STRICT
+#define NOSERVICE
 // avoid min/max macros 
 #define NOMINMAX
 #include <windows.h>

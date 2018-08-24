@@ -3,6 +3,7 @@
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
+#define NOSERVICE
 #define NOMINMAX
 #include <windows.h>
 #endif
