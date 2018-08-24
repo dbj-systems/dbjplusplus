@@ -1,8 +1,16 @@
 #pragma once
 
+#ifndef _INC_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN 1
+#endif
+#define STRICT
+#define NOSERVICE
+// avoid min/max macros 
 #define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
+
 #ifndef _ASSERTE
 #include <crtdbg.h>
 #endif

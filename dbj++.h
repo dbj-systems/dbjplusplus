@@ -6,7 +6,9 @@
 
 #ifdef DBJ_WIN
 #ifndef _INC_WINDOWS
-#define WIN32_LEAN_AND_MEAN 1
+#ifndef WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN 1
+#endif
 #define STRICT
 #define NOSERVICE
 // avoid min/max macros 
@@ -40,26 +42,6 @@
 #ifdef _SCL_SECURE_NO_WARNINGS
 #error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
 #endif
-
-
-
-/*
-dbj++ begins here
-
-moved to dbj_crt.h
-
-	#define DBJ_STRINGIFY(s) # s
-	#define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
-	#define DBJ_CONCAT_IMPL( x, y ) x##y
-	#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-#ifndef DBJ_COMPANY	
-	#define DBJ_COMPANY "DBJ.Systems Ltd."
-	#define DBJ_YEAR ( __DATE__ + 7 ) 
-	#define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
-#endif
-
-*/
-
 
 /*
 __interface msvc keyword

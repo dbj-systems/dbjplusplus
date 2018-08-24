@@ -1,14 +1,20 @@
 #pragma once
 
 #ifndef  UNICODE
-#define UNICODE
-#else
+#error dbj++ requires UNICODE
 #endif // ! UNICODE
 
-#define WIN32_LEAN_AND_MEAN
+#ifndef _INC_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN 1
+#endif
 #define STRICT
+#define NOSERVICE
+// avoid min/max macros 
 #define NOMINMAX
 #include <windows.h>
+#endif
+
 
 #include <algorithm>
 #include <variant>

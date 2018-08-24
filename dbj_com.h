@@ -1,17 +1,30 @@
 #pragma once
 // 
-#ifdef DBJ_WIN	
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
+
+#ifndef _INC_WINDOWS
+#ifndef WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN 1
+#endif
 #define STRICT
+#define NOSERVICE
+// avoid min/max macros 
+#define NOMINMAX
+#include <windows.h>
+#endif
+// 
+// ::CoInitialize() and the rest
 #include <objbase.h>
-namespace com {
-	namespace {
+
+namespace dbj::com {
+	namespace internal {
 		/*
-		In anonymous namespace we hide the auto-initializer
+		In internal namespace we hide the auto-initializer
 		This ensures that COM is initialized “as soon as possible”
 		This mechanism really works. Convince yourself once through the
 		debugger, and then just forget about COM init/uninit.
+
+		NOTE: this is slightly change to work and use 
+		correctly the standard C++ 11/14/17
 		*/
 		class __declspec(novtable) COMAUTOINIT final
 		{
@@ -25,9 +38,8 @@ namespace com {
 			COMAUTOINIT(const COMAUTOINIT &&) = delete;
 			COMAUTOINIT && operator = (const COMAUTOINIT &&) = delete;
 			/* also singleton swap has no meaning */
-			friend void swap(COMAUTOINIT &, COMAUTOINIT &) {
-				__noop;
-			}
+			friend void swap(COMAUTOINIT &, COMAUTOINIT &) = delete;
+			// {__noop;	}
 			/*
 			also hide the default ctor so that instances can not be delete-d
 
@@ -48,9 +60,11 @@ namespace com {
 			}
 		public:
 			COMAUTOINIT(const COMAUTOINIT &) = default;
+
 			/* TODO: resilience in presence of multiple threads */
-			static COMAUTOINIT & singleton() {
-				static COMAUTOINIT  singleton_;
+			static COMAUTOINIT & singleton()
+			{
+				static COMAUTOINIT  singleton_{};
 				return singleton_;
 			}
 
@@ -62,10 +76,13 @@ namespace com {
 			}
 
 		};
-		static auto insta = COMAUTOINIT::singleton() ;
+
+		inline auto _comautoinit_single_instance_
+			= COMAUTOINIT::singleton() ;
+
 	} // anonspace
-} // com
-#endif // DBJ_WIN
+} // dbj::com
+
 
 /*
 Copyright 2017 by dbj@dbj.org
