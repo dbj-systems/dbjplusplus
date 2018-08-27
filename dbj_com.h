@@ -1,6 +1,8 @@
 #pragma once
 // 
 
+#ifdef DBJ_COMAUTOINIT
+
 #ifndef _INC_WINDOWS
 #ifndef WIN32_LEAN_AND_MEAN
 # define WIN32_LEAN_AND_MEAN 1
@@ -61,7 +63,9 @@ namespace dbj::com {
 		public:
 			COMAUTOINIT(const COMAUTOINIT &) = default;
 
-			/* TODO: resilience in presence of multiple threads */
+			/* NOTE: resilience in presence of multiple threads 
+			   apparently this is it, in case compiler is C++11 or better
+			*/
 			static COMAUTOINIT & singleton()
 			{
 				static COMAUTOINIT  singleton_{};
@@ -82,6 +86,8 @@ namespace dbj::com {
 
 	} // anonspace
 } // dbj::com
+
+#endif
 
 
 /*

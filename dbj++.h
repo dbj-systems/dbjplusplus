@@ -71,6 +71,16 @@ long var [[maybe_unused]] {42L} ;
 #define DBJ_UNUSED(x) x [[maybe_unused]]
 #endif
 
+/*
+
+in case you need/want COM init 
+but beware: there should be only one per app
+and thread model must be always the same if 
+there is another one
+
+#define DBJ_COMAUTOINIT
+*/
+
 // #define DBJ_MT
 // Multi Threaded Build
 // used in dbj_synchro to 
