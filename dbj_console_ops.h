@@ -180,22 +180,24 @@ namespace dbj::console {
 	{
 		DBJ_TYPE_REPORT_FUNCSIG;
 
+		using base_type = dbj::tt::to_base_t<T>;
+
 		if constexpr (
-			dbj::tt::same_types<T,char>
-			/* std::is_same_v<std::remove_cv_t<T>, char > */
+			std::is_same_v< base_type, char > 
 			) {
-			PRN.char_to_console(native_array);
+			PRN.char_to_console((const char *)native_array);
 		}
 		else
 			if constexpr (
-				dbj::tt::same_types<T, wchar_t>
-			) 
+				std::is_same_v< base_type, wchar_t >
+				)
 			{
-				PRN.wchar_to_console(native_array);
+				PRN.wchar_to_console((const wchar_t *)native_array);
 			}
 			else 
 			{
-				// try any other type
+				// try to output as native 
+				// array of any other type
 				PRN.wchar_to_console( wprefix_str );
 					for (auto && elem : native_array) {
 						PRN.wchar_to_console(wspace_str);
