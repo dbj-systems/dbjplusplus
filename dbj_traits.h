@@ -29,8 +29,9 @@ if (error == -2)   return { "not a valid mangled name" };
 #include <string>
 
 /*
- typeid() returns highly specific implementations
- thus we can not do anything meaningfull with it
+ typeid() returns the outcome of  
+ highly specific implementation
+ we can not do anything meaningfull with it
  but these two simple macros
 */
 #ifndef DBJ_TYPENAME
@@ -48,7 +49,27 @@ namespace dbj {
 	// constexpr inline const  char line[]{ "------------------------------------------------------------" };
 
   // usefull and important aliases
-  // that make type traits much more palatable
+  // these make type traits more palatable
+
+	/************************************************************************************/
+	
+	template<typename T>
+	struct is_pointer_pointer final {
+		enum : bool {
+			value =
+			std::is_pointer_v<T> &&
+			std::is_pointer_v< typename std::remove_pointer_t<T> >
+		};
+	};
+
+	template<typename T>
+	constexpr auto is_pointer_pointer_v = is_pointer_pointer<T>::value;
+
+	// to check the value
+	inline auto is_p2p = [](auto arg) constexpr -> bool {
+		using arg_type = decltype(arg);
+		return is_pointer_pointer_v< arg_type >;
+	};
 
 	/************************************************************************************/
 
@@ -82,21 +103,22 @@ namespace dbj {
 	inline bool same_typeid = typeid(T1).hash_code() == typeid(T2).hash_code();
 /************************************************************************************/
 /*
-are two types equal, for two values provided ?
+are two type-id's equal, for the two values provided ?
 */
-		inline auto equal_types = [](auto & a, auto & b) constexpr -> bool
-		{
-			return std::is_same_v< std::decay_t<decltype(a)>, std::decay_t<decltype(b)> >;
-/*
-if not using decay_t the following does not catch pointers hidden in auto's
-return std::is_same_v< dbj::remove_cvref_t<decltype(a)>, dbj::remove_cvref_t<decltype(b)> >;
-*/
-		};
+
+inline auto equal_types 
+	= [](auto & a, auto & b) 
+		constexpr -> bool
+{
+// do not remove anything else from the type tested 
+return std::is_same_v< decltype(a), decltype(b) >;
+};
 /************************************************************************************/
 // remove const-ness and/or volatility before comparing
 // do not remove anything else
-		template<typename T1, typename T2>
-		constexpr inline bool same_types = std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
+template<typename T1, typename T2>
+	constexpr inline bool remove_cv_compare_types 
+		= std::is_same_v< std::remove_cv_t<T1>, std::remove_cv_t<T2>  >;
 /************************************************************************************/
 /* see dbj_util tests for usage example */
 
