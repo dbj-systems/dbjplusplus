@@ -54,6 +54,12 @@ so we can not do this:
 #define implements public
 */
 
+#ifdef __cpp_coroutines
+#pragma message ("coroutines available")
+#else
+#pragma message ("no coroutines")
+#endif
+
 #ifdef __cpp_lib_is_final
 #define DBJ_FINAL final
 #else
@@ -107,6 +113,7 @@ there is another one
 #include "dbj_app_env.h"
 #include "dbj_micro_log.h"
 #include "dbj_kalends.h"
+#include "dbj_tokenizer.h"
 
 
 /* 

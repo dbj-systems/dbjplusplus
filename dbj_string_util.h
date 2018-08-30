@@ -353,7 +353,7 @@ template <
 		static auto add ( std::u32string & path_)	{	return add( path_, U'\\' );	}
 	};
 
-
+#ifdef DBJ_USE_STD_STREAMS
 	inline dbj::wstring_vector 
 		tokenize (const wchar_t * szText, wchar_t token = L' ')
 	{
@@ -385,6 +385,7 @@ template <
 
 		return words;
 	}
+#endif
 
 	namespace inner {
 		/// <summary>
