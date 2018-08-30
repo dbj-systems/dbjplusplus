@@ -6,7 +6,8 @@ and this has to be rectified with a common engine for console/logging
 which is a future extensions
 (c) 2018 by dbj.org license at eof
 */
-#pragma once
+
+#ifdef DBJ_USE_STD_STREAMS
 
 #include <ctime>
 #include <array>
@@ -270,3 +271,5 @@ DBJ_TEST_UNIT(" dbj micro log test") {
 DBJ_TEST_SPACE_CLOSE
 */
 
+#endif 
+// DBJ_USE_STD_STREAMS
