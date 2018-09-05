@@ -162,9 +162,22 @@ namespace dbj::console {
 		L"Yu Gothic UI"
 	};
 
+//
+// choice of console font is critical
+// on my machine this font produces 
+// almost all chars from various 
+// non english languages
+// on your system that might be different
+// check what gives results 
+// by using console properties dialogue
+// while non-displayable chars are shown
+// on the console
+//
+	constexpr inline const wchar_t * const extended_chars_good_font{ L"SimSun-ExtB" };
+
 	constexpr inline const wchar_t * const default_font{ SafeFontNames[0] };
 
-	inline bool setfont(const wchar_t * font_name = default_font, short height_ = 20) {
+	inline bool set_font(const wchar_t * font_name = default_font, short height_ = 20) {
 		CONSOLE_FONT_INFOEX cfi;
 		cfi.cbSize = sizeof cfi;
 		cfi.nFont = 0;
@@ -176,6 +189,14 @@ namespace dbj::console {
 		::wcscpy_s(cfi.FaceName, LF_FACESIZE, font_name);
 		return ::SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
 	}
+
+	inline bool set_extended_chars_font(
+		const wchar_t * font_name = extended_chars_good_font, short height_ = 20
+	)
+	{
+		return set_font(font_name, height_);
+	}
+
 
 #pragma endregion
 

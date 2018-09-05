@@ -61,7 +61,16 @@ namespace dbj::console {
 		/* what code page is used */
 		const unsigned code_page() const noexcept override { return this->code_page_; }
 		/* out__ is based on HANDLE and std::wstring */
-		HANDLE handle() const override  { return this->output_handle_; }
+		HANDLE handle() const override  { 
+
+			if (output_handle_ == INVALID_HANDLE_VALUE) {
+				auto lems = dbj::win32::getLastErrorMessage(
+__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE? -- "
+				);
+				throw dbj::Exception(lems);
+			}
+				return this->output_handle_;
+		}
     	// from --> to, must be a sequence
 		// this is the *fastest* method
 		void out( const wchar_t * from,  const wchar_t * to) const override
@@ -117,6 +126,33 @@ namespace dbj::console {
 
 
 	inline WideOut & console_ = WideOut::instance();
+
+	inline wchar_t * get_font_name()
+	{
+		static HANDLE handle_ = WideOut::instance().handle();
+		static CONSOLE_FONT_INFOEX cfi;
+		cfi.cbSize = sizeof cfi;
+		cfi.nFont = 0;
+		cfi.dwFontSize.X = 0;
+		cfi.dwFontSize.Y = 0;
+		cfi.FontFamily = FF_DONTCARE;
+		cfi.FontWeight = FW_NORMAL;
+		auto wmemset_rez = std::wmemset(cfi.FaceName, '?', LF_FACESIZE);
+
+		BOOL rez = ::GetCurrentConsoleFontEx(
+			handle_,
+			FALSE,
+			&cfi
+		);
+
+		if (rez == 0) {
+			auto lems = dbj::win32::getLastErrorMessage(
+				__FILE__ "(" DBJ_EXPAND(__LINE__) ") dbj console get_font_name() failed -- "
+			);
+			throw dbj::Exception(lems);
+		}
+		return cfi.FaceName;
+	}
 	
 	/* 
 	do we need this?
@@ -452,7 +488,7 @@ output the exceptions
 					// TODO: switch code page on a single running instance
 					// auto new_console[[maybe_unused]] = con::switch_console(code_page_);
 
-					dbj::console::setfont(font_name_);
+					dbj::console::set_font(font_name_);
 					DBJ::TRACE(L"\nConsole code page set to %d and font to: %s\n"
 						, code_page_, font_name_
 					);
