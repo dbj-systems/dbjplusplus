@@ -9,7 +9,7 @@ namespace dbj::console {
 	/*
 	Windows "native" unicode is UTF-16
 	Be warned than proper implementation of UTF-8 related code page did not happen
-	before W7 and perhaps it is full on W10
+	before W7 and just *perhaps* it is full on W10
 	See :	http://www.dostips.com/forum/viewtopic.php?t=5357
 	Bellow is not FILE * but HANDLE based output.
 	It also uses #define CP_UTF8 65001, as defined in winnls.h
@@ -18,7 +18,7 @@ namespace dbj::console {
 	https://msdn.microsoft.com/en-us/library/windows/desktop/dd374122(v=vs.85).aspx
 
 	Even if you get your program to write UTF16 correctly to the console,
-	Note that the Windows console isn't UTF16 friendly and may just show garbage.
+	Note that the Windows console isn't Unicode friendly and may just show garbage.
 	*/
 	struct WideOut final : public IConsole
 	{
@@ -28,7 +28,7 @@ namespace dbj::console {
 
 	public:
 
-		static constexpr CODE DEFAULT_CODEPAGE_ = CODE::page_1201;
+		static constexpr CODE DEFAULT_CODEPAGE_ = CODE::page_65001 ;
 
 		WideOut(CODE CODEPAGE_ = DEFAULT_CODEPAGE_) noexcept
 			: code_page_((UINT)CODEPAGE_)
@@ -40,6 +40,8 @@ namespace dbj::console {
 			// previous_code_page_ = ::GetConsoleOutputCP();
 			_ASSERTE(0 != ::SetConsoleOutputCP(code_page_));
 			/*			TODO: GetLastError()			*/
+			// apparently for a good measure one has to do this too ...
+			::SetConsoleCP(code_page_);
 		}
 		// no copying
 		WideOut(const WideOut & other) = delete;
@@ -51,6 +53,8 @@ namespace dbj::console {
 		~WideOut()
 		{
 			auto rezult = ::SetConsoleOutputCP(previous_code_page_);
+			// apparently for a good measure one has to do this too ...
+			::SetConsoleCP(previous_code_page_);
 			_ASSERTE(0 != rezult);
 		}
 
@@ -97,7 +101,9 @@ namespace dbj::console {
 		here we hide the single application wide 
 		IConsole implementation instance
 		*/
-		static WideOut & instance( CODE_PAGE const & code_page = default_code_page)
+		static WideOut & instance( 
+			CODE_PAGE const & code_page = default_code_page
+		)
 		{
 			static WideOut single_instance
 				= [&]() -> WideOut {
