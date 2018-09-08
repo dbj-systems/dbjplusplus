@@ -137,10 +137,6 @@ namespace DBJ {
 	}
 
 	// DBJ::TRACE exist in release builds too
-
-	// this requires all the  args 
-	// that are strings to be wide strings 
-	// so I am doubtfull it will work ... easily
 	template <typename ... Args>
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{

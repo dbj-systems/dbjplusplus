@@ -7,73 +7,65 @@ somewehere else in the same app
 -------------------------------------------------------------
 void f1 () { printf("Start once!"); } ;
 void f2 () { printf("End   once!"); } ;
-static inline auto gbe =  dbj::STARTEND<f1,f2>::singleton() ;
+static inline auto gbe =  dbj::begin_end_singleton<f1,f2>() ;
 */
 
-namespace dbj {
-#pragma region STARTEND
+#pragma region begin_end
 
+namespace dbj {
+	    
+	    auto vvl = []() -> void {};
 		using  voidvoidfun = void(*) ();
+		using  vv_lambda = decltype( vvl );
+
 		/*
-		call ATSTART on stat at ATEND on end of application lifetime
+		call ATSTART on start and at ATEND 
+		on end of instance lifetime
 		(possibly too)  simple class to do whatever two functions provided do when called
 		*/
-		template< voidvoidfun ATSTART, voidvoidfun ATEND>
-		class __declspec(novtable)	STARTEND final
+		template< typename BF, typename EF>
+		class __declspec(novtable)	begin_end final
 		{
-			unsigned int & counter()
-			{
-				static unsigned int counter_ = 0;
-				return counter_;
-			}
+			BF begin_f_ ;
+			EF end_f_   ;
 			/*stop copying moving and swapping*/
-			STARTEND(const STARTEND &) = delete;
-			STARTEND & operator = (const STARTEND &) = delete;
-			STARTEND(const STARTEND &&) = delete;
-			STARTEND && operator = (const STARTEND &&) = delete;
-			/* also singleton swap has no meaning */
-			friend void swap(STARTEND &, STARTEND &) {
-				__noop;
-			}
+			begin_end(const begin_end &) = delete;
+			begin_end & operator = (const begin_end &) = delete;
+			begin_end(begin_end &&) = delete;
+			begin_end && operator = (begin_end &&) = delete;
 			/* we also hide the default ctor so that instances of this class can not be delete-d */
-			STARTEND() {
-				const UINT & ctr = (counter())++;
-				if (0 == ctr) {
+			begin_end() {};
+		public:
+			explicit begin_end( BF begin_, EF end_) 
+				: begin_f_(begin_), 
+				  end_f_(end_)
+			{ 
 					// do something once and upon construction
 					try {
-						ATSTART();
+						begin_f_();
 					}
 					catch (...) {
 						throw "Calling ATSTART() failed in " __FUNCDNAME__;
 					}
-				}
-			}
-		public:
-			/* TODO: resilience in presence of multiple threads */
-			STARTEND & singleton() {
-				static STARTEND  singleton_;
-				return singleton_;
 			}
 
-			~STARTEND() {
-				const UINT & ctr = --(counter());
-				if (0 == ctr) {
+			~ begin_end() {
 					// before destruction do something once
 					try {
-						ATEND();
+						end_f_();
 					}
 					catch (...) {
 						// must not throw from destructor
-						// throw "Calling ATEND() failed in " __FUNCDNAME__;
+						DBJ::TRACE("Calling ATEND() failed in %s", __FUNCSIG__);
 					}
-				}
 			}
 		};
 
-	}
-#pragma endregion STARTEND
+	} // dbj
+#pragma endregion
+
 /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
 /*
 Copyright 2017 by dbj@dbj.org
 

@@ -53,7 +53,7 @@ so we can not do this:
 
 #define implements public
 */
-
+// #ifdef _MSC_VER
 #ifdef __cpp_coroutines
 #pragma message ("coroutines available")
 #else

@@ -1,9 +1,6 @@
 #pragma once
-/*
-#include <vector>
-#include <array>
-#include <ctime>
-*/
+#include "dbj_traits.h"
+
 namespace dbj::arr {
 
 	template<typename T, size_t N>
@@ -12,7 +9,7 @@ namespace dbj::arr {
 	) {
 		static_assert( 
 			std::is_trivially_copy_assignable_v<T>, 
-			"non trivial copy-assignment is required of T"
+			" dbj::arr::array_copy() -- trivial copy-assignment is required of T"
 		);
 		void * rez = std::memcpy(dst, src, N * sizeof(T));
 		_ASSERTE( rez );
@@ -20,7 +17,7 @@ namespace dbj::arr {
 
 	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
 	template <class T, size_t ROW, size_t COL>
-	using Matrix = std::array<std::array<T, COL>, ROW>;
+	using Matrix = typename std::array<std::array<T, COL>, ROW>;
 	// usage: Matrix<float, 3, 4> mat;
 
 	template <class T, size_t ROW, size_t COL>
@@ -29,13 +26,30 @@ namespace dbj::arr {
 
 		// http://en.cppreference.com/w/cpp/experimental/to_array
 		namespace inner {
+			
 			using namespace std;
+
 			template <class T, size_t N, size_t... I>
 			/*constexpr*/ inline array<remove_cv_t<T>, N>
 				to_array_impl(T(&a)[N], index_sequence<I...>)
 			{
 				return { { a[I]... } };
 			}
+
+			// std array is indeed "tuple like"
+			// but in some use cases one might 
+			// need to make a tuple from an native array
+			template <
+				class T, 
+				size_t N, 
+				size_t... I>
+			/*constexpr*/ inline 
+				::dbj::tt::array_as_tuple_t< std::remove_cv_t<T>, N>
+				to_tuple_impl(T(&a)[N], index_sequence<I...>)
+			{
+				return make_tuple( a[I]... );
+			}
+
 		}
 
 	/*
@@ -46,6 +60,17 @@ namespace dbj::arr {
 		native_to_std_array(T(& narf)[N])
 	{
 		return inner::to_array_impl(narf, std::make_index_sequence<N>{});
+	}
+
+/*
+Transform native array into std::tuple at compile time
+*/
+	template <class T, std::size_t N >
+	inline 
+		::dbj::tt::array_as_tuple_t< std::remove_cv_t<T>, N>
+		native_arr_to_tuple(T(&narf)[N])
+	{
+		return inner::to_tuple_impl(narf, std::make_index_sequence<N>{});
 	}
 
 	/*

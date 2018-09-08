@@ -204,7 +204,53 @@ template< typename T, size_t N>	inline constexpr bool is_array_(const T(*specime
 					"\nunderlying type" + under_type{}.to_string() ;
 			}
 		};
+#pragma region TUPLE MANIPULATORS
+		template<typename T1, typename T2>
+		struct tuple_concat;
 
+		template<typename... T1, typename... T2>
+		struct tuple_concat<std::tuple<T1...>, std::tuple<T2...>>
+		{
+			using type = std::tuple<T1..., T2...>;
+		};
+
+		template<typename T, size_t n>
+		struct tuple_n_concat;
+
+		template<typename T>
+		struct tuple_n_concat<T, 0>
+		{
+			using type = std::tuple<>;
+		};
+
+		template<typename T, size_t n>
+		struct tuple_n_concat
+		{
+			using type = typename tuple_concat<
+				typename tuple_n_concat<T, n - 1>::type,
+				std::tuple<T>
+			>::type;
+		};
+
+		template<typename T, size_t N>
+		using array_as_tuple = tuple_n_concat<T, N>;
+
+		template<typename T, size_t N>
+		using array_as_tuple_t = typename tuple_n_concat<T, N>::type;
+
+		/*
+		   to map array to tuple type, somehow, one has to do this
+
+		   int int_arr[3]
+		   std::tuple<int,int,int>
+
+		   for arbitrary arrays that tuple declaration might be very
+		   difficult to write by hand. Thus the helper above was invented:
+
+		   int int_arr[65535]{} ;
+		   array_as_tuple_t<int,65535> very_large_tuple{} ;
+		*/
+#pragma endregion
 	} // tt
 } // dbj 
 

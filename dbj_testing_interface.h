@@ -142,7 +142,7 @@ namespace dbj {
 		/// </summary>
 		template<typename return_type>
 		// inline decltype(auto)
-		inline auto
+		inline return_type &
 			test_lambada(const char * expression, const return_type & anything)
 		{
 			using namespace dbj::console;
@@ -153,7 +153,7 @@ namespace dbj {
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
 				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
 			// return std::move(anything) ;
-			return anything ;
+			return const_cast<return_type &>( anything ) ;
 		};
 
 #define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
