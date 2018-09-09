@@ -7,10 +7,10 @@ somewehere else in the same app
 -------------------------------------------------------------
 void f1 () { printf("Start once!"); } ;
 void f2 () { printf("End   once!"); } ;
-static inline auto gbe =  dbj::begin_end_singleton<f1,f2>() ;
+static inline auto gbe =  dbj::entry_exit_singleton<f1,f2>() ;
 */
 
-#pragma region begin_end
+#pragma region entry_exit
 
 namespace dbj {
 	    
@@ -24,19 +24,19 @@ namespace dbj {
 		(possibly too)  simple class to do whatever two functions provided do when called
 		*/
 		template< typename BF, typename EF>
-		class __declspec(novtable)	begin_end final
+		class __declspec(novtable)	entry_exit final
 		{
 			BF begin_f_ ;
 			EF end_f_   ;
 			/*stop copying moving and swapping*/
-			begin_end(const begin_end &) = delete;
-			begin_end & operator = (const begin_end &) = delete;
-			begin_end(begin_end &&) = delete;
-			begin_end && operator = (begin_end &&) = delete;
+			entry_exit(const entry_exit &) = delete;
+			entry_exit & operator = (const entry_exit &) = delete;
+			entry_exit(entry_exit &&) = delete;
+			entry_exit && operator = (entry_exit &&) = delete;
 			/* we also hide the default ctor so that instances of this class can not be delete-d */
-			begin_end() {};
+			entry_exit() {};
 		public:
-			explicit begin_end( BF begin_, EF end_) 
+			explicit entry_exit( BF begin_, EF end_) 
 				: begin_f_(begin_), 
 				  end_f_(end_)
 			{ 
@@ -49,7 +49,7 @@ namespace dbj {
 					}
 			}
 
-			~ begin_end() {
+			~ entry_exit() {
 					// before destruction do something once
 					try {
 						end_f_();
