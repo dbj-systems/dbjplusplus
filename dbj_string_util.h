@@ -3,15 +3,11 @@
 #include "dbj_crt.h"
 #include "dbj_traits.h"
 
-/*
-#include <string>
-#include <map>
-#include <vector>
-#include <iterator>
-*/
 // #include <type_traits>
 #include <locale>
+#ifdef DBJ_USE_STD_STREAMS
 #include <sstream> // wstringstream
+#endif
 #include <memory>  // allocator
 #include <string>
 #include <optional>
@@ -110,7 +106,8 @@ https://en.cppreference.com/w/cpp/language/constexpr
 namespace dbj::str {
 
 	// constexpr string
-	// dbj: big note! this class does not won anything, just points to
+	// dbj: big note! this class does not own anything, 
+	// just points to
 	class str_const final 
 	{ 
 		const char* const p_{ nullptr };
@@ -198,6 +195,17 @@ optimal
 		SMALL_SIZE,	
 		init_char_
 	);
+}
+
+template <
+	typename CT,
+	typename buffer_type = ::std::array< CT, small_string_optimal_size >
+>
+inline buffer_type optimal_buffer ( void )
+{
+	// alow only std char types to be used
+	static_assert( ::dbj::is_std_char_v<CT> );
+	return buffer_type{ };
 }
 
 /*-------------------------------------------------------------*/

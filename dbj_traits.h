@@ -23,6 +23,7 @@ if (error == -2)   return { "not a valid mangled name" };
 #include "dbj_crt.h"
 
 #include <type_traits>
+#include <utility>
 #include <typeinfo>
 #include <array>
 #include <vector>
@@ -300,16 +301,16 @@ namespace dbj {
 		>
 	{};
 
-	template<typename T, typename base_t = dbj::tt::to_base_t<T> >
+	template<typename T >
 	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
 
 	// is T, a standard string
-	template< class T, typename base_t = dbj::tt::to_base_t<T> >
+	template< class T >
 	struct is_std_string : integral_constant<bool,
-		is_same<base_t, string    >::value ||
-		is_same<base_t, wstring   >::value ||
-		is_same<base_t, u16string >::value ||
-		is_same<base_t, u32string >::value> {};
+		is_same<T, string    >::value ||
+		is_same<T, wstring   >::value ||
+		is_same<T, u16string >::value ||
+		is_same<T, u32string >::value> {};
 
 	template<typename T>
 	inline constexpr bool  is_std_string_v = is_std_string<T>::value;

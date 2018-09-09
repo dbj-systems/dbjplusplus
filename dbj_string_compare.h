@@ -23,7 +23,7 @@ namespace dbj {
 }
 /*
 2018-04-30	dbj@dbj.org		
-created	basically a C code and thus not in the namespace
+created	basically as a C code and thus not in the namespace
 */
 
 extern "C" {
