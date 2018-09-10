@@ -12,6 +12,8 @@
 #include <string>
 #include <optional>
 
+#define DBJ_INLINE inline
+
 namespace dbj {
 
 
@@ -43,7 +45,7 @@ namespace dbj {
 
 	*/
 	template<typename T, size_t N>
-	inline size_t strnlen(
+	DBJ_INLINE size_t strnlen(
 		const T(&carr)[N],
 		const size_t & maxlen,
 		typename std::enable_if_t< dbj::is_std_char_v<T>, int > = 0)
@@ -54,7 +56,7 @@ namespace dbj {
 	strlen for C++ native char array reference
 	*/
 	template<typename T, size_t N>
-	inline size_t strlen(
+	DBJ_INLINE size_t strlen(
 		const T(&carr)[N],
 		typename
 		std::enable_if_t< dbj::is_std_char_v<T>, int > = 0
@@ -71,14 +73,14 @@ namespace dbj {
 	namely char and wchar_t versions
 	std lib defines strlen for char * and wchr_t *
 	*/
-	inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
-	inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
+	DBJ_INLINE size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
+	DBJ_INLINE size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
 
-	inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
+	DBJ_INLINE size_t strnlen(const char16_t * cp, const size_t & maxlen) {
 		size_t cpl = std::char_traits<char16_t>::length(cp);
 		return (cpl > maxlen ? maxlen : cpl);
 	}
-	inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
+	DBJ_INLINE size_t strnlen(const char32_t * cp, const size_t & maxlen) {
 		size_t cpl = std::char_traits<char32_t>::length(cp);
 		return (cpl > maxlen ? maxlen : cpl);
 	}
@@ -181,7 +183,7 @@ typename string_type = std::basic_string< CT > ,
 typename char_type = typename string_type::value_type,
 typename size_type = typename string_type::size_type
 >
-constexpr inline 
+constexpr DBJ_INLINE 
 // alow only std char types to be used
 std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
 optimal
@@ -201,7 +203,7 @@ template <
 	typename CT,
 	typename buffer_type = ::std::array< CT, small_string_optimal_size >
 >
-inline buffer_type optimal_buffer ( void )
+DBJ_INLINE buffer_type optimal_buffer ( void )
 {
 	// alow only std char types to be used
 	static_assert( ::dbj::is_std_char_v<CT> );
@@ -215,7 +217,7 @@ template <
 		typename string_type
 		   = std::basic_string< std::decay_t<CT> >
 	>
-		inline 
+		DBJ_INLINE 
 	// alow only char and wchar_t 
 	std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 	lowerize(
@@ -241,7 +243,7 @@ template <
 		typename string_view_type = basic_string_view<CT>,
 		typename string_type = std::basic_string< CT >
 	>
-		constexpr inline 
+		constexpr DBJ_INLINE 
 		// alow only char and wchar_t
 		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
@@ -260,7 +262,7 @@ template <
 		typename string_type 
 		  = std::basic_string< std::decay_t<CT> >
 	>
-		constexpr inline 
+		constexpr DBJ_INLINE 
 		// only char wchar_t
 		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
@@ -280,7 +282,7 @@ template <
 		typename CT,
 		typename std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, int > = 0
 	>
-	inline int ui_string_compare
+	DBJ_INLINE int ui_string_compare
 	(
 		const CT * p1, const CT  * p2,  bool ignore_case = true
 	)
@@ -309,7 +311,7 @@ template <
 	/// L must be shorter than R
 	/// </summary>
 	template < typename CT , typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-	inline  bool  is_view_prefix_to_view (
+	DBJ_INLINE  bool  is_view_prefix_to_view (
 		 std::basic_string_view<CT> lhs, std::basic_string_view<CT> rhs
 	)
 	{
@@ -331,7 +333,7 @@ template <
 		typename string_type = std::basic_string<CT>,
 		typename string_view_type = std::basic_string_view<CT>,
 		typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-	inline  bool  is_prefix(
+	DBJ_INLINE  bool  is_prefix(
 		CT const * lhs, CT const * rhs
 	)
 	{
@@ -362,7 +364,7 @@ template <
 	};
 
 #ifdef DBJ_USE_STD_STREAMS
-	inline dbj::wstring_vector 
+	DBJ_INLINE dbj::wstring_vector 
 		tokenize (const wchar_t * szText, wchar_t token = L' ')
 	{
 		dbj::wstring_vector words{};
@@ -378,7 +380,7 @@ template <
 		return words;
 	}
 	// narrow version
-	inline dbj::string_vector
+	DBJ_INLINE dbj::string_vector
 		tokenize(const char * szText, char token = ' ')
 	{
 		dbj::string_vector words{};
@@ -444,10 +446,10 @@ template <
 
 namespace dbj {
 	// all the meta converter INTANCES required / implicit instantiations
-	inline dbj::str::inner::meta_converter<std::string   > range_to_string{};
-	inline dbj::str::inner::meta_converter<std::wstring  > range_to_wstring{};
-	inline dbj::str::inner::meta_converter<std::u16string> range_to_u16string{};
-	inline dbj::str::inner::meta_converter<std::u32string> range_to_u32string{};
+	DBJ_INLINE dbj::str::inner::meta_converter<std::string   > range_to_string{};
+	DBJ_INLINE dbj::str::inner::meta_converter<std::wstring  > range_to_wstring{};
+	DBJ_INLINE dbj::str::inner::meta_converter<std::u16string> range_to_u16string{};
+	DBJ_INLINE dbj::str::inner::meta_converter<std::u32string> range_to_u32string{};
 }
 
 namespace dbj::str {
@@ -464,7 +466,7 @@ namespace dbj::str {
 		typename string_type = std::basic_string<CT>,
 		typename size_type = typename string_type::size_type
 	>
-	inline 
+	DBJ_INLINE 
 		std::enable_if_t< dbj::is_std_char_v<CT>, string_type >
 		remove_all_subs(
 			std::basic_string_view<CT> input_,
@@ -488,7 +490,7 @@ namespace dbj::str {
 		typename string_type = std::basic_string<CT> ,
 		typename size_type = typename string_type::size_type
 	>
-	inline 
+	DBJ_INLINE 
 		std::enable_if_t< dbj::is_std_char_v<CT>, string_type >
 	remove_first_sub(
 		std::basic_string_view<CT> s, std::basic_string_view<CT> pattern
@@ -506,7 +508,7 @@ namespace dbj::str {
 	// https://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c
 
 	template<typename C>
-	inline
+	DBJ_INLINE
 		std::enable_if_t< dbj::is_std_char_v<C>, std::basic_string<C> >
 		replace_inplace
 	(
@@ -525,7 +527,7 @@ namespace dbj::str {
 	}
 
 	template<typename C>
-	inline
+	DBJ_INLINE
 		std::enable_if_t< dbj::is_std_char_v<C>, std::basic_string<C> >
 		replace_inplace
 		(
@@ -541,6 +543,10 @@ namespace dbj::str {
 		};
 	    }
 } // dbj::str
+
+#undef DBJ_INLINE
+
+
 /*
 Copyright 2017,2018 by dbj@dbj.org
 

@@ -52,6 +52,35 @@ namespace dbj {
   // usefull and important aliases
   // these make type traits more palatable
 
+    /************************************************************************************/
+	/* constraint: both types must be fundamental */
+	template<typename T1, typename T2>
+	struct fundamental_pair {
+		constexpr static const bool value{
+		   std::is_fundamental_v<T1> == std::is_fundamental_v<T2>
+		};
+		using type_1 = T1;
+		using type_2 = T2;
+	};
+
+	template<typename T1, typename T2>
+	constexpr inline bool fundamental_pair_v = fundamental_pair<T1, T2>::value;
+
+	template< class T1, class T2 >
+	struct fundamental_twins final
+		: public std::bool_constant< 
+fundamental_pair_v<T1, T2> && std::is_same_v<std::decay_t<T1>, std::decay_t<T2>>
+		> {	
+		using decay_1 = std::decay_t<T1>;
+		using decay_2 = std::decay_t<T2>;
+	};
+
+	template<typename T1, typename T2>
+	inline constexpr bool
+		same_fundamental_types(T1&&, T2&&)
+	{
+		return fundamental_twins<T1, T2>{}();
+	}
 	/************************************************************************************/
 	
 	template<typename T>
