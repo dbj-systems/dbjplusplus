@@ -66,19 +66,28 @@ so we can not do this:
 #define DBJ_FINAL
 #endif
 
-#ifndef DBJ_UNUSED
+#ifndef DBJ_MAYBE
 /*
 this is for variables only
 example 
-long DBJ_UNUSED(var) {42L} ;
+long DBJ_MAYBE(var) {42L} ;
 after expansion:
 long var [[maybe_unused]] {42L} ;
 */
-#define DBJ_UNUSED(x) x [[maybe_unused]]
+#define DBJ_MAYBE(x) x [[maybe_unused]]
+#endif
+
+#ifndef DBJ_UNUSED
+// for variables and expressions
+// guranteed no evaluation
+// guaranteed zero bytes overhead
+// standard c++ 
+// works in any space
+// https://godbolt.org/z/jGC98L
+#define DBJ_UNUSED(x) static_assert( (noexcept(x),true) );
 #endif
 
 /*
-
 in case you need/want COM init 
 but beware: there should be only one per app
 and thread model must be always the same if 
