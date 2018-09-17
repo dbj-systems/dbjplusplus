@@ -107,7 +107,7 @@ inline int dbj_win32_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ig
 		const size_t sze_ = strlen(dup);
 		size_t cnt_ = 0;
 		do  {
-			dup[cnt_] = tolower(dup[cnt_]);
+			dup[cnt_] = (char)tolower(dup[cnt_]);
 		} while (cnt_++ < sze_);
 		return dup;
 	}

@@ -68,7 +68,7 @@ namespace dbj {
 
 	template< class T1, class T2 >
 	struct fundamental_twins final
-		: public std::bool_constant< 
+		: std::bool_constant< 
 fundamental_pair_v<T1, T2> && std::is_same_v<std::decay_t<T1>, std::decay_t<T2>>
 		> {	
 		using decay_1 = std::decay_t<T1>;

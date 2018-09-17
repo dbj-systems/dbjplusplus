@@ -156,6 +156,27 @@ Transform native array into std::tuple at compile time
 			/* disallow args as references to temporaries */
 			static constexpr void to_arf(ARR && arr) = delete;
 
+			/*
+			return reference to the underlying array
+			of an instance of std::vector<T>
+			*/
+			static constexpr ARF to_arf(const ARV & vct_)
+			{
+				return *(ARP) const_cast<typename ARR::pointer>(vct_.data());
+			}
+
+			/* disallow args as references to temporaries */
+			static constexpr void to_arf(ARV && vct_) = delete;
+
+			/* to std array from std vector */
+			static constexpr ARR from_vector(const ARV vct_)
+			{
+				// T(&narf)[N] = *(T(*)[N])vct_.data();
+				ARF narf = to_arf(vct_);
+				ARR retval_;
+					std::copy(narf, narf + N, retval_.data());
+				return retval_;
+			}
 
 			/*		native	array to vector			*/
 			static constexpr ARV to_vector(const ARF arr_)

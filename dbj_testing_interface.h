@@ -96,9 +96,9 @@ namespace dbj {
 
 		/*  execute all the tests collected  */
 		inline void _stdcall execute(
-			const int argc,
-			const wchar_t *argv[],
-			const wchar_t *envp[]
+			const int		DBJ_MAYBE(argc),
+			const wchar_t * DBJ_MAYBE(argv) [],
+			const wchar_t * DBJ_MAYBE(envp) []
 		) noexcept 
 		{
 			if ( internal::dbj_tests_map_.size() < 1) {

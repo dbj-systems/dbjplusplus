@@ -137,7 +137,7 @@ __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE?
 		cfi.dwFontSize.Y = 0;
 		cfi.FontFamily = FF_DONTCARE;
 		cfi.FontWeight = FW_NORMAL;
-		auto wmemset_rez = std::wmemset(cfi.FaceName, '?', LF_FACESIZE);
+		auto DBJ_MAYBE( wmemset_rez ) = std::wmemset(cfi.FaceName, '?', LF_FACESIZE);
 
 		BOOL rez = ::GetCurrentConsoleFontEx(
 			handle_,

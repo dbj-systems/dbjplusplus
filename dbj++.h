@@ -77,14 +77,14 @@ long var [[maybe_unused]] {42L} ;
 #define DBJ_MAYBE(x) x [[maybe_unused]]
 #endif
 
-#ifndef DBJ_UNUSED
+#ifndef DBJ_VANISH
 // for variables and expressions
 // guranteed no evaluation
 // guaranteed zero bytes overhead
 // standard c++ 
 // works in any space
 // https://godbolt.org/z/jGC98L
-#define DBJ_UNUSED(x) static_assert( (noexcept(x),true) );
+#define DBJ_VANISH(x) static_assert( (noexcept(x),true) );
 #endif
 
 /*
