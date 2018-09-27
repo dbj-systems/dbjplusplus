@@ -87,6 +87,12 @@ long var [[maybe_unused]] {42L} ;
 #define DBJ_VANISH(x) static_assert( (noexcept(x),true) );
 #endif
 
+#ifdef DBJ
+#error "#define DBJ ::dbj already defined"
+#else
+#define DBJ ::dbj
+#endif
+
 /*
 in case you need/want COM init 
 but beware: there should be only one per app

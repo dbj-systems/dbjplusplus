@@ -106,7 +106,7 @@ namespace dbj::storage {
 				key_type		query,
 				bool			find_by_prefix = true,
 				/* currently we ignore maxResults */
-				unsigned		maxResults = ULONG_MAX
+				unsigned		DBJ_MAYBE(maxResults) = ULONG_MAX
 			) const
 		{
 			lock_unlock padlock{};

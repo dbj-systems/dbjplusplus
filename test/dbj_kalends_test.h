@@ -10,7 +10,7 @@ DBJ_TEST_UNIT(dbj_timers_) {
 	auto test = [&](timer_kind which_) -> time_ticks_type {
 		using namespace dbj::kalends;
 		auto timer_ = create_timer(which_);
-		time_ticks_type stp = DBJ_TEST_ATOM(timer_.start());
+		DBJ_TEST_ATOM(timer_.start());
 		dbj_sleep_seconds(1);
 		time_ticks_type esd = DBJ_TEST_ATOM(timer_.elapsed());
 		return esd;

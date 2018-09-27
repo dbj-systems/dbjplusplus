@@ -95,11 +95,11 @@ namespace dbj {
 		}
 
 		/*  execute all the tests collected  */
-		inline void _stdcall execute(
+		inline void execute(
 			const int		DBJ_MAYBE(argc),
 			const wchar_t * DBJ_MAYBE(argv) [],
 			const wchar_t * DBJ_MAYBE(envp) []
-		) noexcept 
+		)  
 		{
 			if ( internal::dbj_tests_map_.size() < 1) {
 				white_line();
@@ -117,11 +117,8 @@ namespace dbj {
 					internal::unit_execute(tunit.first);
 					white_line(" ");
 				}
-				catch (dbj::Exception & x) {
-					red_line(x);
-				}
 				catch (...) {
-					red_line( dbj::Exception("\nUnknown Exception") );
+					throw;
 				}
 				unit_suffix(tunit.second.c_str());
 			}

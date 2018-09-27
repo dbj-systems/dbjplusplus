@@ -59,8 +59,7 @@ static_assert(dbj::strings::which_time() == "compile time" );
 
 */
 
-// DBJ namespace is different from dbj (lower case) namespace 
-namespace DBJ {
+namespace dbj {
 
 	using namespace std::literals;
 
@@ -214,7 +213,7 @@ namespace DBJ {
 		(message,
 			(args)...)).c_str());
 	}
-} // eof DBJ 
+} // eof dbj ns
 
 namespace dbj {
 

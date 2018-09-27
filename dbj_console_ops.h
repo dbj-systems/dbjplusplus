@@ -107,7 +107,7 @@ namespace dbj::console {
 	/// the one and only, only the lonely ...etc ...
 	/// </summary>
 	template <typename T>
-	void out(T specimen)
+	void out([[maybe_unused]] T specimen)
 	{
 		using actual = dbj::tt::actual_type<T>;
 
@@ -352,9 +352,9 @@ namespace dbj::console {
 	template <class... Args>
 	inline void out(const std::tuple<Args...> & tple) {
 		DBJ_TYPE_REPORT_FUNCSIG;
-		if (std::tuple_size< std::tuple<Args...> >::value < 1) return;
-
-		std::apply(	[](auto&&... xs) {	inner::print_varargs(xs...);}, tple);
+		if constexpr (std::tuple_size< std::tuple<Args...> >::value > 0) {
+			std::apply([](auto&&... xs) {	inner::print_varargs(xs...); }, tple);
+		}
 	}
 
 	template <typename T1, typename T2>

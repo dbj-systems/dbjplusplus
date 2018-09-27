@@ -20,13 +20,15 @@ include dbj_crt.h before this
 /// which is based on char ** (or wchar_t ** in case of Windows). 
 /// Internaly to represent the command line we will  use 
 /// <code>
-///  std::array< std::string, size_t > ;
+///  std::vector< std::wstring >; ;
 /// </code>
 /// when dealing with the actual cli we will transform asap to  this
 /// thus internaly we do not have to deal with raw pointers.
 /// </remarks>
 /// </summary>
 namespace dbj::app_env {
+
+	using string_type = std::wstring;
 
 	/// <summary>
 	/// we develop only unicode windows app's
@@ -124,10 +126,26 @@ namespace dbj::app_env {
 	// client code gets the instance of this
 	class structure final {
 	public:
-		const unsigned __int64	cli_args_count{};
-		const data_type		cli_data{};
-		const unsigned __int64	env_vars_count{};
-		const map_type		env_vars{};
+		
+		using string_type = typename data_type::value_type;
+		using cli_type = data_type;
+		using env_var_type = map_type;
+
+		mutable unsigned __int64	cli_args_count{};
+		mutable data_type		cli_data{};
+		mutable unsigned __int64	env_vars_count{};
+		mutable map_type		env_vars{};
+
+		// get's cli data -- no error check
+		dbj::app_env::string_type 
+			operator [] 
+			(size_t pos_) const noexcept
+				{ return cli_data[pos_]; }
+		// get's env var data -- no error check
+		typename env_var_type::mapped_type 
+			operator []
+				(typename env_var_type::key_type key_) const noexcept 
+					{ return env_vars[key_]; }
 
 	private:
 

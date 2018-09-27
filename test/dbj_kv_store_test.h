@@ -44,9 +44,9 @@ DBJ_TEST_UNIT( dbj_kv_storage_test ) {
 	size_t r2 = DBJ_TEST_ATOM( handle_2.get() );
 
 	const KVS & kvs = guarded_kvs_.load();
-	bool should_be_true = (r1 + r2) == kvs.size();
+	bool DBJ_MAYBE(should_be_true) = (r1 + r2) == kvs.size();
 	KVS::value_vector r3 = DBJ_TEST_ATOM( kvs.retrieve("K"));
-	bool should_be_true_too = (r1 + r2) == r3.size();
+	bool DBJ_MAYBE(should_be_true_too) = (r1 + r2) == r3.size();
 }
 
 DBJ_TEST_SPACE_CLOSE

@@ -20,8 +20,10 @@ namespace dbj {
 	{
 		return _tcsnccmp(a, b, N - 1);
 	}
-}
-/*
+
+} // dbj
+
+	/*
 2018-04-30	dbj@dbj.org		
 created	basically as a C code and thus not in the namespace
 */
