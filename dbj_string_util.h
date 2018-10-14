@@ -1,8 +1,8 @@
 #pragma once
 /*
 
-UNLESS OTHERWISE STATED THIS CODE IS GOOD ONLY FOR FIRST 127 CHARS 
-IN ASCI locale unaware situations 
+UNLESS OTHERWISE STATED THIS CODE IS GOOD ONLY FOR FIRST 127 CHARS
+IN ASCI locale unaware situations
 
 */
 
@@ -18,7 +18,8 @@ IN ASCI locale unaware situations
 #include <string>
 #include <optional>
 
-namespace dbj {
+namespace dbj::str {
+
 #pragma region low level
 	extern "C" {
 
@@ -36,26 +37,24 @@ namespace dbj {
 
 		inline bool isspace(int c)
 		{
-			return c == 32 ; 
+			return c == 32;
 		}
 
 		inline bool ispunct(int c)
 		{
 			static const char *punct = ".;!?...";
-			return strchr(punct, c) == NULL ? false : true; 
+			return strchr(punct, c) == NULL ? false : true;
 			// can make this shorter
 		}
 
 		// locale unaware, for ASCII char 0 - char 127
 		inline int tolower(int c)
 		{
-			if (! ::dbj::isalpha(c)) return c;
+			if (!::dbj::str::isalpha(c)) return c;
 			return (c >= 'A' && c <= 'Z') ? c - 'A' : c;
 		}
 	}
 #pragma endregion 
-
-
 
 	/*
 	(c) 2017, 2018 by dbj.org
@@ -100,7 +99,7 @@ namespace dbj {
 		const T(&carr)[N],
 		typename
 		std::enable_if_t< dbj::is_std_char_v<T>, int > = 0
-		)
+	)
 	{
 		return N - 1;
 	}
@@ -125,33 +124,11 @@ namespace dbj {
 		return (cpl > maxlen ? maxlen : cpl);
 	}
 
-} // dbj
-
-/*
-TODO: this is very old stuff of questionalbe value, has to be checked as a such
-
-Schurr_cpp11_tools_for_class_authors.pdf
-
-constexpr str_const my_string = "Hello, world!";
-static_assert(my_string.size() == 13);
-static_assert(my_string[4] == 'o');
-constexpr str_const my_other_string = my_string;
-static_assert(my_string == my_other_string);
-constexpr str_const world(my_string, 7, 5);
-static_assert(world == "world");
-constexpr char x = world[5]; // Does not compile because index is out of range!
-
-also presented here:
-https://en.cppreference.com/w/cpp/language/constexpr
-*/
-
-namespace dbj::str {
-
 	// constexpr string
 	// dbj: big note! this class does not own anything, 
 	// just points to
-	class str_const final 
-	{ 
+	class str_const final
+	{
 		const char* const p_{ nullptr };
 		const std::size_t sz_{ 0 };
 	public:
@@ -166,7 +143,7 @@ namespace dbj::str {
 			p_(a + from), sz_(from + to)
 		{
 			static_assert(to <= N);
-			static_assert(from <  to);
+			static_assert(from < to);
 		}
 
 		// dbj added
@@ -209,59 +186,59 @@ namespace dbj::str {
 
 	constexpr std::size_t small_string_optimal_size{ 255 };
 
-/*
-Make a string optimized for small sizes
-that is up to arbitrary value of 255
-this makes std::basic_string not to do heap alloc/de-alloc
-for strings up to 255 in length
-Discussion (for example):
-http://www.modernescpp.com/index.php/component/jaggyblog/c-17-avoid-copying-with-std-string-view
-*/
-template < 
-typename CT,
-typename string_type = std::basic_string< CT > ,
-typename char_type = typename string_type::value_type,
-typename size_type = typename string_type::size_type
->
-constexpr inline 
-// alow only std char types to be used
-std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
-optimal
-(
-	size_type SMALL_SIZE = small_string_optimal_size ,
-	char_type init_char_ 
-		= static_cast<char_type>('?')
-)
-{
-	return string_type(	
-		SMALL_SIZE,	
-		init_char_
-	);
-}
+	/*
+	Make a string optimized for small sizes
+	that is up to arbitrary value of 255
+	this makes std::basic_string not to do heap alloc/de-alloc
+	for strings up to 255 in length
+	Discussion (for example):
+	http://www.modernescpp.com/index.php/component/jaggyblog/c-17-avoid-copying-with-std-string-view
+	*/
+	template <
+		typename CT,
+		typename string_type = std::basic_string< CT >,
+		typename char_type = typename string_type::value_type,
+		typename size_type = typename string_type::size_type
+	>
+		constexpr inline
+		// alow only std char types to be used
+		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
+		optimal
+		(
+			size_type SMALL_SIZE = small_string_optimal_size,
+			char_type init_char_
+			= static_cast<char_type>('?')
+		)
+	{
+		return string_type(
+			SMALL_SIZE,
+			init_char_
+		);
+	}
 
-template <
-	typename CT,
-	typename buffer_type = ::std::array< CT, small_string_optimal_size >
->
-inline buffer_type optimal_buffer ( void )
-{
-	// alow only std char types to be used
-	static_assert( ::dbj::is_std_char_v<CT> );
-	return buffer_type{ };
-}
+	template <
+		typename CT,
+		typename buffer_type = ::std::array< CT, small_string_optimal_size >
+	>
+		inline buffer_type optimal_buffer(void)
+	{
+		// alow only std char types to be used
+		static_assert(::dbj::is_std_char_v<CT>);
+		return buffer_type{ };
+	}
 
-/*-------------------------------------------------------------*/
-template <
+	/*-------------------------------------------------------------*/
+	template <
 		typename CT,
 		typename string_view_type = basic_string_view<CT>,
 		typename string_type
-		   = std::basic_string< std::decay_t<CT> >
+		= std::basic_string< std::decay_t<CT> >
 	>
-		inline 
-	// alow only char and wchar_t 
-	std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
-	lowerize(
-			const CT * from_ , const CT * last_
+		inline
+		// alow only char and wchar_t 
+		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
+		lowerize(
+			const CT * from_, const CT * last_
 		)
 	{
 		_ASSERTE(from_ != nullptr);
@@ -269,13 +246,13 @@ template <
 		_ASSERTE(last_ != from_);
 
 		// safe and simple: copy to string (first!)
-		string_type retval( from_, last_ );
+		string_type retval(from_, last_);
 		auto loc = std::locale("");
 		// facet of user's preferred locale
 		const std::ctype<CT >	& facet_ = std::use_facet<std::ctype<CT>>(loc);
 
-			auto the_end_ [[maybe_unused]] = facet_.tolower(retval.data(), retval.data() + retval.size());
-		return retval ;
+		auto the_end_[[maybe_unused]] = facet_.tolower(retval.data(), retval.data() + retval.size());
+		return retval;
 	}
 	/*-------------------------------------------------------------*/
 	template <
@@ -283,33 +260,33 @@ template <
 		typename string_view_type = basic_string_view<CT>,
 		typename string_type = std::basic_string< CT >
 	>
-		constexpr inline 
+		constexpr inline
 		// alow only char and wchar_t
 		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
 			std::basic_string_view<CT> view_
-		) 
+		)
 	{
-		_ASSERTE( ! view_.empty() );
-		return lowerize<CT>( 
-			view_.data(), 
+		_ASSERTE(!view_.empty());
+		return lowerize<CT>(
+			view_.data(),
 			view_.data() + ptrdiff_t(view_.size())
-		);
+			);
 	}
 	/*-------------------------------------------------------------*/
 	template <
 		typename CT, std::size_t N,
-		typename string_type 
-		  = std::basic_string< std::decay_t<CT> >
+		typename string_type
+		= std::basic_string< std::decay_t<CT> >
 	>
-		constexpr inline 
+		constexpr inline
 		// only char wchar_t
 		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
-			const CT (&view_)[N]
+			const CT(&view_)[N]
 		)
 	{
-		return lowerize( view_ , (view_ + N) );
+		return lowerize(view_, (view_ + N));
 	}
 
 
@@ -322,10 +299,10 @@ template <
 		typename CT,
 		typename std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, int > = 0
 	>
-	inline int ui_string_compare
-	(
-		const CT * p1, const CT  * p2,  bool ignore_case = true
-	)
+		inline int ui_string_compare
+		(
+			const CT * p1, const CT  * p2, bool ignore_case = true
+		)
 	{
 		_ASSERTE(p1 != nullptr);
 		_ASSERTE(p2 != nullptr);
@@ -340,7 +317,7 @@ template <
 		// the collate type 
 		using collate_type = std::collate<CT>;
 		// get collate facet:
-		const auto & coll = std::use_facet< collate_type >( loc );
+		const auto & coll = std::use_facet< collate_type >(loc);
 		//
 		return coll.compare(p1, p1 + s1.size(), p2, p2 + s2.size());
 	}
@@ -350,9 +327,9 @@ template <
 	/// is Lhs prefix to Rhs
 	/// L must be shorter than R
 	/// </summary>
-	template < typename CT , typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-	inline  bool  is_view_prefix_to_view (
-		 std::basic_string_view<CT> lhs, std::basic_string_view<CT> rhs
+	template < typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
+	inline  bool  is_view_prefix_to_view(
+		std::basic_string_view<CT> lhs, std::basic_string_view<CT> rhs
 	)
 	{
 		_ASSERTE(lhs.size() > 0);
@@ -369,16 +346,16 @@ template <
 	}
 
 	// hard to believe but yes, all done at compile time
-	template < typename CT, 
+	template < typename CT,
 		typename string_type = std::basic_string<CT>,
 		typename string_view_type = std::basic_string_view<CT>,
 		typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-	inline  bool  is_prefix(
-		CT const * lhs, CT const * rhs
-	)
+		inline  bool  is_prefix(
+			CT const * lhs, CT const * rhs
+		)
 	{
-		_ASSERTE(lhs != nullptr );
-		_ASSERTE(rhs != nullptr );
+		_ASSERTE(lhs != nullptr);
+		_ASSERTE(rhs != nullptr);
 		string_type ls(lhs), rs(rhs);
 		return is_view_prefix_to_view(
 			string_view_type{ ls.data(), ls.size() },
@@ -386,10 +363,10 @@ template <
 		);
 	}
 
-	struct __declspec(novtable) backslash final 
+	struct __declspec(novtable) backslash final
 	{
-	template< typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-		static size_t add ( std::basic_string<CT> & path_ , CT slash_ )
+		template< typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
+		static size_t add(std::basic_string<CT> & path_, CT slash_)
 		{
 			if (path_.back() != slash_) {
 				path_[path_.size() + 1] = slash_;
@@ -397,15 +374,15 @@ template <
 			return path_.size();
 		}
 
-		static auto add ( std::string & path_)	{	return add( path_, '\\' );	}
-		static auto add ( std::wstring & path_)	{	return add( path_, L'\\' );	}
-		static auto add ( std::u16string & path_)	{	return add( path_, u'\\' );	}
-		static auto add ( std::u32string & path_)	{	return add( path_, U'\\' );	}
+		static auto add(std::string & path_) { return add(path_, '\\'); }
+		static auto add(std::wstring & path_) { return add(path_, L'\\'); }
+		static auto add(std::u16string & path_) { return add(path_, u'\\'); }
+		static auto add(std::u32string & path_) { return add(path_, U'\\'); }
 	};
 
 #ifdef DBJ_USE_STD_STREAMS
-	inline dbj::wstring_vector 
-		tokenize (const wchar_t * szText, wchar_t token = L' ')
+	inline dbj::wstring_vector
+		tokenize(const wchar_t * szText, wchar_t token = L' ')
 	{
 		dbj::wstring_vector words{};
 		std::wstringstream ss;
@@ -506,19 +483,19 @@ namespace dbj::str {
 		typename string_type = std::basic_string<CT>,
 		typename size_type = typename string_type::size_type
 	>
-	inline 
+		inline
 		std::enable_if_t< dbj::is_std_char_v<CT>, string_type >
 		remove_all_subs(
 			std::basic_string_view<CT> input_,
 			std::basic_string_view<CT> pattern
-		) 
+		)
 	{
 		string_type rezult{ input_.data() };
 		size_type n = pattern.length();
 		for (size_type j = rezult.find(pattern);
 			j != string::npos;
 			j = rezult.find(pattern)
-			) 
+			)
 		{
 			rezult.erase(j, n);
 		}
@@ -526,15 +503,15 @@ namespace dbj::str {
 	}
 
 	template <
-		typename CT, 
-		typename string_type = std::basic_string<CT> ,
+		typename CT,
+		typename string_type = std::basic_string<CT>,
 		typename size_type = typename string_type::size_type
 	>
-	inline 
+		inline
 		std::enable_if_t< dbj::is_std_char_v<CT>, string_type >
-	remove_first_sub(
-		std::basic_string_view<CT> s, std::basic_string_view<CT> pattern
-	) {
+		remove_first_sub(
+			std::basic_string_view<CT> s, std::basic_string_view<CT> pattern
+		) {
 		string_type rezult{ s.data() };
 		size_type j = rezult.find(pattern.data());
 		if (j != string_type::npos) {
@@ -551,11 +528,11 @@ namespace dbj::str {
 	inline
 		std::enable_if_t< dbj::is_std_char_v<C>, std::basic_string<C> >
 		replace_inplace
-	(
-		std::basic_string_view<C>  subject,
-		std::basic_string_view<C>  search,
-		std::basic_string_view<C>  replace
-	)
+		(
+			std::basic_string_view<C>  subject,
+			std::basic_string_view<C>  search,
+			std::basic_string_view<C>  replace
+		)
 	{
 		std::basic_string<C> input{ (C *)subject.data() };
 		size_t pos = 0;
@@ -581,17 +558,17 @@ namespace dbj::str {
 				std::basic_string_view<C>{ search },
 				std::basic_string_view<C>{ replace })
 		};
-	    }
+	}
 
 } // dbj::str
 
 namespace dbj {
-/*
-    A bit more classical approach, in a struct that dictates behaviour
+	/*
+		A bit more classical approach, in a struct that dictates behaviour
 
-	How? It has no data but types which must be used and functions operating
-	on them types only
-*/
+		How? It has no data but types which must be used and functions operating
+		on them types only
+	*/
 	template<typename C = char>
 	struct str_util {
 
@@ -782,7 +759,51 @@ namespace dbj {
 		str_util_char::whitespaces_and_space[] = { "\t\n\v\f\r " };
 
 
+	namespace str {
+
+		/*
+		Actually a left pad where default maxlen is 12
+		*/
+		inline auto string_pad(std::string s_, char padchar = ' ', size_t maxlen = 12) {
+			return s_.insert(0, maxlen - s_.length(), padchar);
+		};
+
+		inline auto string_pad(int number_, char padchar = ' ', size_t maxlen = 12) {
+			return string_pad(std::to_string(number_), padchar, maxlen);
+		};
+
+
+		// create text line of 80 chars '-' by default
+		// once called can not be changed ;)
+		template< size_t N = 80, typename ARF = char(&)[N], typename ARR = char[N] >
+		constexpr auto line(char fill_char = '-') -> ARF
+		{
+			auto set = [&]() -> ARF {
+				static ARR arr;
+				auto rz = std::memset(arr, fill_char, N);
+				return arr;
+			};
+
+			// allocate array on stack once
+			static ARF arr_ = set();
+			return arr_;
+		}
+	} // str
 } // dbj
+
+
+// console out overload
+/*
+namespace dbj::console {
+	template <size_t size_, char filler = ' '>
+	inline void out(
+		const ::dbj::util::c_line<size_, filler> & const_line_
+	)
+	{
+		dbj::console::PRN.char_to_console(const_line_.data());
+	}
+}
+*/
 
 
 /*

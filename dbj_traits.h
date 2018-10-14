@@ -171,11 +171,20 @@ template<typename T1, typename T2>
 #endif
 #pragma endregion 
 
-// this might be much better idea than std::is_array
+// vs std::is_array works on values not types
 // proof: https://godbolt.org/g/8skXRF
+
+/* is object an instance of native array */
 template< typename T, size_t N>
-inline constexpr bool is_array_(const T(&specimen)[N])	{	return true;	}
-template< typename T, size_t N>	inline constexpr bool is_array_(const T(*specimen)[N])	{	return true; }
+inline constexpr bool is_array_(
+	const T(&specimen[[maybe_unused]])[N]
+)	{	return true;	}
+
+/* is object an pointer to native array */
+template< typename T, size_t N>	
+inline constexpr bool is_array_(
+	const T(*specimen[[maybe_unused]])[N]
+)	{	return true; }
 
 /************************************************************************************/
 

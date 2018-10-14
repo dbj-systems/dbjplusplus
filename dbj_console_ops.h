@@ -99,6 +99,32 @@ namespace dbj::console {
 		 __FUNCSIG__ "\nunhandled " P " argument type: %s\nbase type: %s\n",\
 		 DBJ_TYPENAME(T), DBJ_TYPENAME(actual::base) )
 
+/*
+dbj::console::out does not have ref or pointer argument
+thus it can not be sent pointer or ref to some ABC
+this is not a bug, this is by design
+explanations: circle and triangle are both shapes
+but triangle has no radius or center point
+triangle and circle need to output different string
+thus out(shape *) will do what with the pointer to the ABC?
+it can call some mwthod that offsprings have implemented
+if such a method exists. If not, it can not be done and the
+out for the offspiring value has to be created
+
+It is not logical to force the method ono the ABC for the 
+implementation convenince ... that is yet another bad 
+consequence of using inhertiance at all. 
+
+Example: it seems very logical to have method "rotate()" 
+on the shape ABC. But then what is rotate() implementation
+for the circle ?
+
+This is the logic and this is the design. 
+
+Users can not creates specializations of top level out< T > ( T )
+with reference or pointer type argument.
+*/
+
 	/// <summary>
 	/// in here we essentially mimic the standard C++ 
 	/// type hierarchy as described in here
@@ -314,11 +340,22 @@ namespace dbj::console {
 		paint(painter_command::text_color_reset);
 	}
 	
-		template<> inline void out< std::runtime_error >(std::runtime_error x_) {
+	template<> inline void out< std::runtime_error >(std::runtime_error x_) {
 		DBJ_TYPE_REPORT_FUNCSIG;
 		out(painter_command::bright_red);
 		PRN.char_to_console(x_.what());
 		paint(painter_command::text_color_reset);
+	}
+
+	// vs others std::system_error has code memeber of type std:error_code
+	template<> inline void out<class std::error_code>(class std::error_code ec_)
+	{
+		::dbj::console::PRN.printf(
+			"value:%d, category:'%s', message:'%s'",
+			ec_.value(),
+			ec_.category().name(),
+			ec_.message().c_str()
+		);
 	}
 
 	template<typename T, typename A	>

@@ -22,49 +22,24 @@ namespace dbj {
 
 	/*
 	text line of chars, usage
-	constexpr c_line<80, '-'> L80;
+	constexpr auto line_ = c_line();
+	constexpr auto line_2 = c_line<60>('=');
 	*/
-	template <unsigned Size, char filler = ' '>
-	class c_line final {
-		mutable char array_[Size] = {};
-	public:
-		using value_type = char(&)[Size];
-		constexpr c_line() noexcept {
-			int b = 0;
-			while (b != (Size)) {
-				array_[b] = filler; b++;
-			}
-			array_[Size - 1] = '\x0';
-		}
-		
-		operator const std::string() const noexcept { return { array_ }; }
-
-		constexpr char const * data() const noexcept { return array_ ; }
+	template<size_t size = 80>
+	inline std::string_view  c_line (const char filler = '-') 
+	{
+		static std::string_view the_line_(
+			[&]() -> std::string_view
+		{
+			static std::array< char, size + 1 > array_{0};
+				array_.fill(filler);
+					array_[size] = '\0';
+					return std::string_view( array_.data() );
+		}()
+		) ;
+		return the_line_;
 	};
 
-
-	namespace util {
-		//-----------------------------------------------------------------------------
-		// rac == Range and Container
-		// I prefer it to std::array
-		template<
-			typename T, std::size_t N
-		>
-			struct rac final
-		{
-			using type = T;
-			using data_ref = std::reference_wrapper<T[N]>;
-			T * begin() const { return value; }
-			T * end() const { return value + N; }
-			size_t size() const { return N; }
-			data_ref data() const { return data_ref{ value }; }
-			// yes data is public
-			// if you need a foot gun
-			// help yourself
-			mutable T value[N]{};
-		};
-	}
-	 
 	namespace math {
 
 		namespace float_to_integer {
@@ -85,6 +60,26 @@ namespace dbj {
 
 	namespace util {
 
+	//-----------------------------------------------------------------------------
+	// rac == Range and Container
+	// I prefer it to std::array
+	template<
+		typename T, std::size_t N
+	>
+		struct rac final
+	{
+		using type = T;
+		using data_ref = std::reference_wrapper<T[N]>;
+		T * begin() const { return value; }
+		T * end() const { return value + N; }
+		size_t size() const { return N; }
+		data_ref data() const { return data_ref{ value }; }
+		// yes data is public
+		// if you need a foot gun
+		// help yourself
+		mutable T value[N]{};
+	};
+
 			inline auto random = [](int max_val, int min_val = 1) -> int {
 				static auto initor = []() {
 					std::srand((unsigned)std::time(nullptr)); return 0;
@@ -94,6 +89,7 @@ namespace dbj {
 
 			inline auto dbj_count = [](auto && range) constexpr->size_t
 			{
+				static_assert( ::dbj::is_range_v< decltype(range) > )
 				return std::distance(std::begin(range), std::end(range));
 			};
 
@@ -238,43 +234,10 @@ namespace dbj {
 				return remove_duplicates(std::vector<Type>{arr_, arr_ + N});
 			}
 
-			/*
-			Actually a left pad where maxlen is 12
-			*/
-			inline auto string_pad(std::string s_, char padchar = ' ', size_t maxlen = 12) {
-				return s_.insert(0, maxlen - s_.length(), padchar);
-			};
 
-			inline auto string_pad(int number_, char padchar = ' ', size_t maxlen = 12) {
-				return string_pad(std::to_string(number_), padchar, maxlen );
-			};
-
-
-			// create text line of 80 chars '-' by default
-			// once called can not be changed ;)
-			template< size_t N = 80, typename ARF = char(&)[N], typename ARR = char[N] >
-			constexpr auto line(char fill_char = '-') -> ARF
-			{
-				auto set = [&]() -> ARF {
-					static ARR arr;
-					auto rz = std::memset(arr, fill_char, N);
-					return arr;
-				};
-
-				// allocate array on stack once
-				static ARF arr_ = set();
-				return arr_;
-			}
 	} // util
 } // dbj
 
-// console out overloads
-namespace dbj::console {
-	template <unsigned Size, char filler = ' '>
-	inline void out(const c_line<Size, filler> & const_line_) {
-		dbj::console::PRN.char_to_console(const_line_.data());
-	}
-}
 
   /*
   Copyright 2017 by dbj@dbj.org

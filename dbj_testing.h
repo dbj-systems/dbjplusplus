@@ -45,7 +45,8 @@ No exceptions are thrown outside. They are reported to console.
 */
 
 #include "dbj_synchro.h"
-#include "dbj_micro_log.h"
+// #include "dbj_micro_log.h"
+#include "dbj_string_util.h"
 
 namespace dbj {
 	namespace testing {
@@ -121,7 +122,7 @@ namespace dbj {
 
 				   auto next_test_id = []() -> std::string {
 					   static int tid{ 0 };
-					   return   "[TID:" + dbj::util::string_pad(tid++, '0', 3) + "]";
+					   return   "[TID:" + dbj::str::string_pad(tid++, '0', 3) + "]";
 				   };
 
 				   const std::string final_description_ = 
@@ -219,7 +220,7 @@ to avoid that phenomenon
 void name(); \
 namespace __dbj_register__namespace_  { \
   inline auto DBJ_CONCAT( dbj_dumsy_ , __COUNTER__ ) \
-           = dbj::testing::add( description, name ); \
+           = ::dbj::testing::add( description, name ); \
 } \
 inline void name() 
 

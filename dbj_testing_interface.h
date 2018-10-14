@@ -15,6 +15,9 @@ namespace dbj {
 		typedef typename dbj::console::painter_command CMD;
 		using dbj::console::print;
 
+		inline std::string_view hyphens_line_ = dbj::c_line();
+
+
 		template< typename ... Args >
 		inline void text_line (
 			CMD && cmd_ , 
@@ -143,9 +146,8 @@ namespace dbj {
 			test_lambada(const char * expression, const return_type & anything)
 		{
 			using namespace dbj::console;
-			static dbj::c_line<80, '-'> L80;
 			dbj::console::print(
-				painter_command::green, "\n", L80,
+				painter_command::green, "\n", hyphens_line_,
 				"\n- expression -> ", painter_command::text_color_reset, expression,
 				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
 				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);

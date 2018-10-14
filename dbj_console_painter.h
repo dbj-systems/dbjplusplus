@@ -117,7 +117,7 @@ namespace inner {
 	/*
 	Here we use the dbj::cmd::Commander,  define the comand id's and functions to execute them etc..
 	*/
-	typedef enum {
+	typedef enum painter_command_ {
 		white = 0,		red,		green,
 		blue,			cyan,		yellow,
 		grey,			bright_red, bright_blue, 

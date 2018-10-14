@@ -3,21 +3,26 @@
 
 namespace dbj::arr {
 
+	using namespace std;
+
 	template<typename T, size_t N>
 	inline void array_copy(
 		T(&dst)[N], const T(&src)[N]
 	) {
 		static_assert( 
-			std::is_trivially_copy_assignable_v<T>, 
+			is_trivially_copy_assignable_v<T>, 
 			" dbj::arr::array_copy() -- trivial copy-assignment is required of T"
 		);
-		void * rez = std::memcpy(dst, src, N * sizeof(T));
+#ifdef _DEBUG
+		void * rez =
+#endif 
+	    memcpy(dst, src, N * sizeof(T));
 		_ASSERTE( rez );
 	}
 
 	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
 	template <class T, size_t ROW, size_t COL>
-	using Matrix = typename std::array<std::array<T, COL>, ROW>;
+	using Matrix = typename array<array<T, COL>, ROW>;
 	// usage: Matrix<float, 3, 4> mat;
 
 	template <class T, size_t ROW, size_t COL>
@@ -44,7 +49,7 @@ namespace dbj::arr {
 				size_t N, 
 				size_t... I>
 			/*constexpr*/ inline 
-				::dbj::tt::array_as_tuple_t< std::remove_cv_t<T>, N>
+				::dbj::tt::array_as_tuple_t< remove_cv_t<T>, N>
 				to_tuple_impl(T(&a)[N], index_sequence<I...>)
 			{
 				return make_tuple( a[I]... );
@@ -53,62 +58,62 @@ namespace dbj::arr {
 		}
 
 	/*
-	Transform native array into std::array at compile time
+	Transform native array into std array at compile time
 	*/
-	template <class T, std::size_t N>
-	inline std::array<std::remove_cv_t<T>, N> 
+	template <class T, size_t N>
+	inline array<remove_cv_t<T>, N> 
 		native_to_std_array(T(& narf)[N])
 	{
-		return inner::to_array_impl(narf, std::make_index_sequence<N>{});
-	}
-
-/*
-Transform native array into std::tuple at compile time
-*/
-	template <class T, std::size_t N >
-	inline 
-		::dbj::tt::array_as_tuple_t< std::remove_cv_t<T>, N>
-		native_arr_to_tuple(T(&narf)[N])
-	{
-		return inner::to_tuple_impl(narf, std::make_index_sequence<N>{});
+		return inner::to_array_impl(narf, make_index_sequence<N>{});
 	}
 
 	/*
-	Transform native array into std::vector at compile time
+	Transform native array into tuple at compile time
 	*/
-	template<typename Type, size_t N, typename outype = std::vector<Type> >
+	template <class T, size_t N >
+	inline 
+		::dbj::tt::array_as_tuple_t< remove_cv_t<T>, N>
+		native_arr_to_tuple(T(&narf)[N])
+	{
+		return inner::to_tuple_impl(narf, make_index_sequence<N>{});
+	}
+
+	/*
+	Transform native array into vector at compile time
+	*/
+	template<typename Type, size_t N, typename outype = vector<Type> >
 	inline constexpr outype array_to_vector(const Type(&arr_)[N])
 	{
 		return { arr_, arr_ + N };
 	}
 
 		/*
-		return array reference to the C array inside std::array
+		return array reference to the C array inside array
 		usage:
 				decltype(auto) iar =
-					internal_array_reference(
-							std::array<int,3>{1,2,3}
+					dbj::arr::reference(
+							array<int,3>{1,2,3}
 				) ;
 		*/
 		template<typename T, size_t N,
-			typename ARR = std::array<T, N>, /* std::array */
+			typename ARR = array<T, N>, /* array */
 			typename ART = T[N],    /* C array */
 			typename ARF = ART & ,  /* reference to it */
 			typename ARP = ART * >  /* pointer   to it */
 				constexpr inline	ARF
-			reference(const std::array<T, N> & arr)
+			reference(const array<T, N> & arr)
 		{
 			return *(ARP) const_cast<typename ARR::pointer>(arr.data());
 		}
 
 		// we allow references, but not references to temporaries
 		template<typename T, size_t N,
-			typename ARR = std::array<T, N>, /* std::array */
+			typename ARR = array<T, N>, /* array */
 			typename ART = T[N],    /* C array */
 			typename ARF = ART & ,  /* reference to it */
 			typename ARP = ART * >  /* pointer   to it */
 			constexpr inline	ARF
-			reference( std::array<T, N> && arr) = delete;
+			reference( array<T, N> && arr) = delete;
 
 		/*
 		native ARray Helper
@@ -121,9 +126,9 @@ Transform native array into std::tuple at compile time
 			constexpr static const size_t size{ N };
 			typedef T value_type;
 			// vector type
-			typedef std::vector<T> ARV;
-			// std::array type
-			typedef std::array<T, N> ARR;
+			typedef vector<T> ARV;
+			// array type
+			typedef array<T, N> ARR;
 			// native ARray type
 			typedef T ART[N];
 			// reference to ART
@@ -134,7 +139,7 @@ Transform native array into std::tuple at compile time
 
 			/*
 			return pointer to the underlying array
-			of an instance of std::array<T,N>
+			of an instance of array<T,N>
 			*/
 			static constexpr ARP to_arp( const ARR & arr)
 			{
@@ -146,7 +151,7 @@ Transform native array into std::tuple at compile time
 
 			/*
 			return reference to the underlying array
-			of an instance of std::array<T,N>
+			of an instance of array<T,N>
 			*/
 			static constexpr ARF to_arf( const ARR & arr)
 			{
@@ -158,7 +163,7 @@ Transform native array into std::tuple at compile time
 
 			/*
 			return reference to the underlying array
-			of an instance of std::vector<T>
+			of an instance of vector<T>
 			*/
 			static constexpr ARF to_arf(const ARV & vct_)
 			{
@@ -174,7 +179,7 @@ Transform native array into std::tuple at compile time
 				// T(&narf)[N] = *(T(*)[N])vct_.data();
 				ARF narf = to_arf(vct_);
 				ARR retval_;
-					std::copy(narf, narf + N, retval_.data());
+					copy(narf, narf + N, retval_.data());
 				return retval_;
 			}
 
@@ -191,13 +196,13 @@ Transform native array into std::tuple at compile time
 			static constexpr ARR to_std_array(const ARF arr_)
 			{
 				ARR retval_{};
-				std::copy(arr_, arr_ + N, retval_.begin() );
+				copy(arr_, arr_ + N, retval_.begin() );
 				return retval_;
 			}
 			/* disallow args as references to temporaries */
 			static constexpr void to_std_array(T(&&arr_)[N]) = delete;
 
-			/*		make and return empty std::array<T,N> */
+			/*		make and return empty array<T,N> */
 			static constexpr ARR to_std_array()
 			{
 				return {};
