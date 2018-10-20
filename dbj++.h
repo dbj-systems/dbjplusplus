@@ -109,11 +109,12 @@ there is another one
 // DBJ_AUTO_LOCK
 // TODO: not implmented yet
 #include "dbj_synchro.h"
-
+#include "dbj_constexpr.h"
 #include "dbj_crt.h"
 #include "dbj_array.h"
 #include "dbj_string_util.h"
 #include "dbj_util.h"
+#include "dbj_uuid.h"
 #include "dbj_string_compare.h"
 #include "dbj_commander.h"
 #include "dbj_console_painter.h"

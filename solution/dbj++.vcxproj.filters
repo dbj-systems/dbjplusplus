@@ -68,6 +68,8 @@
       <Filter>test</Filter>
     </ClInclude>
     <ClInclude Include="..\dbj_tokenizer.h" />
+    <ClInclude Include="..\dbj_constexpr.h" />
+    <ClInclude Include="..\dbj_uuid.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
