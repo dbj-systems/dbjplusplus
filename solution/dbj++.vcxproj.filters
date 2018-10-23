@@ -40,9 +40,6 @@
     <ClInclude Include="..\test\dbj_kv_store_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\test\dbj_native_arr_ref_testing.h">
-      <Filter>test</Filter>
-    </ClInclude>
     <ClInclude Include="..\test\dbj_string_tests.h">
       <Filter>test</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
     <ClInclude Include="..\dbj_tokenizer.h" />
     <ClInclude Include="..\dbj_constexpr.h" />
     <ClInclude Include="..\dbj_uuid.h" />
+    <ClInclude Include="..\test\dbj_array_testing.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

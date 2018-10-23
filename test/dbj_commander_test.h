@@ -5,9 +5,7 @@
 
   NOTE: we do not include testing headers into the dbj++.h
 */
-namespace dbj {
-	namespace cmd {
-		namespace /* test the Commander*/ dbj_testing_space {
+DBJ_TEST_SPACE_OPEN(dbj_cmd_testing )
 			/*
 			Define comand id's first
 			*/
@@ -17,7 +15,7 @@ namespace dbj {
 				nop = (unsigned)-1
 			};
 
-			DBJ_TEST_UNIT("dbj cmd Commander<>") {
+			DBJ_TEST_UNIT(dbj_commander) {
 				/*
 				observe CAREFULY!
 				declaration of a function type, NOT function pointer type
@@ -39,6 +37,5 @@ namespace dbj {
 					dbj::log::print(x);
 				}
 			}
-		}
-	} // cmd
-} // dbj
+
+DBJ_TEST_SPACE_CLOSE
