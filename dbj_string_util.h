@@ -21,7 +21,66 @@ IN ASCI locale unaware situations
 namespace dbj::str {
 
 #pragma region low level
+
 	extern "C" {
+
+	inline void reverse(char * str, size_t N)
+	{
+		int start = 0;
+		int end = N - 1;
+		while (start < end)
+		{
+			std::swap(*(str + start), *(str + end));
+			start++;
+			end--;
+		}
+	}
+
+	// Implementation of itoa()  depends on the reverse above
+	// note: this is low level, be sure str has enough space
+	inline char* itoa(int num, char* str, int base)
+	{
+		int i = 0;
+		bool isNegative = false;
+
+		/* Handle 0 explicitely, otherwise empty string is printed for 0 */
+		if (num == 0)
+		{
+			str[i++] = '0';
+			str[i] = '\0';
+			return str;
+		}
+
+		// In standard itoa(), negative numbers are handled only with  
+		// base 10. Otherwise numbers are considered unsigned. 
+		if (num < 0 && base == 10)
+		{
+			isNegative = true;
+			num = -num;
+		}
+
+		// Process individual digits 
+		while (num != 0)
+		{
+			int rem = num % base;
+			str[i++] = (char)
+				(
+				(rem > 9) ? (rem - 10) + 'a' : rem + '0'
+					);
+			num = num / base;
+		}
+
+		// If number is negative, append '-' 
+		if (isNegative)
+			str[i++] = '-';
+
+		str[i] = '\0'; // Append string terminator 
+
+		// Reverse the string 
+		reverse(str, i);
+
+		return str;
+	}
 
 		// locale unaware, for char 0 - char 127
 		inline bool isalpha(int c)
