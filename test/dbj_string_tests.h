@@ -8,7 +8,6 @@ DBJ_TEST_SPACE_OPEN(string_util_tests )
 
 
 #pragma region dbj strlen and strnlen
-DBJ_TEST_SPACE_OPEN(_dbj_crt_testing_space_)
 /*
 dbj crt caters for char, wchar_t, char16_t, char32_t
 for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
@@ -65,8 +64,6 @@ DBJ_TEST_UNIT(dbj_strnlen)
 	static_assert(dbj::str::strnlen(prompt32, dbj::BUFSIZ_) == 10);
 
 }
-
-DBJ_TEST_SPACE_CLOSE
 
 #pragma endregion 
 
