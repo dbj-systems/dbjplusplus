@@ -9,7 +9,11 @@
 // #include <vector>
 // #include <map>
 // #include <algorithm>
+
 #include <string_view>
+#include <charconv>
+#include <system_error>
+#include <array>
 
 // NOTE: do not have a space after a macro name and before the '(' !!
 #ifndef DBJ_STRINGIFY	
@@ -61,6 +65,12 @@ static_assert(dbj::strings::which_time() == "compile time" );
 
 namespace dbj {
 
+	// probably the most used types
+	using wstring = std::wstring;
+	using wstring_vector = std::vector<std::wstring>;
+	using string = std::string;
+	using string_vector = std::vector<std::string>;
+
 	using namespace std::string_view_literals;
 
 	constexpr inline auto LINE    (){ return "--------------------------------------------------------------------------------"sv; };
@@ -68,78 +78,22 @@ namespace dbj {
 	constexpr inline auto YEAR    (){ return std::string_view{ (__DATE__ + 7) }; };
 
 	/* 512 happpens to be the POSIX BUFSIZ? */
-#ifdef BUFSIZ
-	constexpr inline const size_t BUFSIZ_ = BUFSIZ * 2 * 4; // 4096
-#else
-	constexpr inline const size_t BUFSIZ_ = 512 * 2 * 4 ; // 4096
+#ifndef BUFSIZ
+#define BUFSIZ 512
 #endif
 
-#pragma region dbj itoa
-
-/* An C++ itoa() */
-
-	/* A utility function to reverse a string  */
-	extern "C" inline void reverse(char str[], int length)
-	{
-		int start = 0;
-		int end = length - 1;
-		while (start < end)
-		{
-			std::swap(*(str + start), *(str + end));
-			start++;
-			end--;
-		}
-	}
-
-	// Implementation of itoa() 
-	extern "C" inline char* itoa(int num, char* str, int base)
-	{
-		int i = 0;
-		bool isNegative = false;
-
-		/* Handle 0 explicitely, otherwise empty string is printed for 0 */
-		if (num == 0)
-		{
-			str[i++] = '0';
-			str[i] = '\0';
-			return str;
-		}
-
-		// In standard itoa(), negative numbers are handled only with  
-		// base 10. Otherwise numbers are considered unsigned. 
-		if (num < 0 && base == 10)
-		{
-			isNegative = true;
-			num = -num;
-		}
-
-		// Process individual digits 
-		while (num != 0)
-		{
-			int rem = num % base;
-			str[i++] = (char) 
-			(
-			(rem > 9) ? (rem - 10) + 'a' : rem + '0'
-			);
-			num = num / base;
-		}
-
-		// If number is negative, append '-' 
-		if (isNegative)
-			str[i++] = '-';
-
-		str[i] = '\0'; // Append string terminator 
-
-		// Reverse the string 
-		reverse(str, i);
-
-		return str;
-	}
-#pragma endregion 
-
+	constexpr inline const size_t BUFSIZ_ = BUFSIZ * 2 * 4; // 4096
 
 #pragma warning( push )
 #pragma warning( disable: 4190 )
+
+	inline dbj::string itos(long l_) {
+		std::array<char, 64> str;
+
+		auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), l_);
+		_ASSERTE(ec != std::errc::value_too_large);
+			return { p };
+	}
 	/*
 	transform path to filename
 	delimeter is '\\'
@@ -168,9 +122,8 @@ namespace dbj {
 			const std::string & suffix = "")
 		{
 			_ASSERTE(!file_path.empty());
-			char buf[BUFSIZ_]{};
 			return {
-				FILENAME(file_path) + "(" + DBJ::itoa(line_, buf, 10 ) + ")"
+				FILENAME(file_path) + "(" + dbj::itos(line_) + ")"
 				+ (suffix.empty() ? "" : suffix)
 			};
 		}
@@ -213,18 +166,6 @@ namespace dbj {
 		(message,
 			(args)...)).c_str());
 	}
-} // eof dbj ns
-
-namespace dbj {
-
-	// probably the most used types
-	using wstring = std::wstring;
-	using wstring_vector = std::vector<std::wstring>;
-
-	using string = std::string;
-	using string_vector = std::vector<std::string>;
-
-
 
 	// std::equal has many overloads
 	// it is less error prone to have it here
@@ -284,10 +225,8 @@ namespace dbj {
 
 	}
 
-	/*
-	-------------------------------------------------------------------------
-	dbj++ exception
-	*/
+#pragma region dbj exceptions
+
 	struct Exception : public std::runtime_error 
 	{
 
@@ -320,6 +259,8 @@ namespace dbj {
 			return { std::begin(s_), std::end(s_) };
 		}
 	};
+
+#pragma endregion 
 
 	/*
 	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
