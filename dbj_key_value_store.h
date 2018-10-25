@@ -20,7 +20,9 @@ namespace dbj::storage {
 	template <typename value_type, typename key_type = std::wstring >
 	class __declspec(novtable)  keyvalue_storage final
 	{
+#ifdef _DBJ_MT_
 		using lock_unlock = dbj::sync::lock_unlock;
+#endif
 	public:
 
 		static_assert(
@@ -38,7 +40,9 @@ namespace dbj::storage {
 		/// </summary>
 		friend void swap(keyvalue_storage & left_, keyvalue_storage & right_)	noexcept
 		{
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			std::swap(left_.key_value_storage_, right_.key_value_storage_);
 		}
 
@@ -46,12 +50,16 @@ namespace dbj::storage {
 		/// clear the storage held
 		/// </summary>
 		void clear() const {
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			key_value_storage_.clear();
 		}
 
 		const size_t size() const noexcept {
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			return this->key_value_storage_.size();
 		}
 
@@ -64,7 +72,9 @@ namespace dbj::storage {
 		/// </summary>
 		template< typename F>
 		const auto for_each(F callback_) const noexcept {
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			return
 				std::for_each(
 					this->key_value_storage_.begin(),
@@ -77,7 +87,9 @@ namespace dbj::storage {
 		/// is the storage held empty?
 		/// </summary>
 		const bool empty() const noexcept {
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			return this->key_value_storage_.size() < 1;
 		}
 
@@ -87,7 +99,9 @@ namespace dbj::storage {
 		/// </summary>
 		auto add( const key_type & key, const value_type & value) const
 		{
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			_ASSERTE(false == key.empty());
 			return key_value_storage_.insert( std::make_pair(key,value) );
 		}
@@ -109,7 +123,9 @@ namespace dbj::storage {
 				unsigned		DBJ_MAYBE(maxResults) = ULONG_MAX
 			) const
 		{
+#ifdef _DBJ_MT_
 			lock_unlock padlock{};
+#endif
 			value_vector retval_{};
 			if (key_value_storage_.size() < 1)
 				return retval_;

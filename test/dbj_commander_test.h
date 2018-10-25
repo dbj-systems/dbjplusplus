@@ -16,6 +16,8 @@ DBJ_TEST_SPACE_OPEN(dbj_cmd_testing )
 			};
 
 			DBJ_TEST_UNIT(dbj_commander) {
+
+				using namespace dbj::cmd;
 				/*
 				observe CAREFULY!
 				declaration of a function type, NOT function pointer type
@@ -25,16 +27,16 @@ DBJ_TEST_SPACE_OPEN(dbj_cmd_testing )
 				BIG NOTE! [&] scoping operator '&' MUST exist
 				*/
 				auto paint_it_red = [&]() {
-					dbj::log::print("\n", __FUNCSIG__, " called!");
+					dbj::console::print("\n", __FUNCSIG__, " called!");
 					return true;
 				};
-				Commander<CMD, cmd_fun_t > commander_;
+				dbj::cmd::Commander<CMD, cmd_fun_t > commander_;
 				try {
 					commander_.reg(CMD::red, paint_it_red);
 					bool r = commander_.execute(CMD::red);
 				}
 				catch (dbj::Exception & x) {
-					dbj::log::print(x);
+					dbj::console::print(x);
 				}
 			}
 

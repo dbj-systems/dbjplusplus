@@ -1,7 +1,7 @@
 #pragma once
+DBJ_TEST_SPACE_OPEN(_dbj_defval_)
 
-namespace dbj_testing_space {
-
+#ifdef	DBJ_GDI_LINE
 using namespace Gdiplus;
 
 // test the const onstance behaviour
@@ -33,12 +33,6 @@ auto lc_ = linecap();
 auto sness = smoothnes();
 }
 
-	DBJ_TEST_UNIT(" : dbj def val option three") {
-		// reminder: since C++11 local static vars
-		// are thread safe
-		static bool retval = [] { test_dbj_defval_option_three(); return true; }();
-	}
-
 	/****************************************************************/
 	/*OPTION 2.1*/
 	/****************************************************************/
@@ -67,7 +61,10 @@ inline void test_dbj_defval_option_two() {
 	auto df2 = default_width(42);
 }
 
-	DBJ_TEST_UNIT(" : dbj def val option two") {
+	DBJ_TEST_UNIT(dbjdefvaloptiontwo) 
+	{
 		static bool retval = [] { test_dbj_defval_option_two(); return true; }();
 	}
-}
+	DBJ_TEST_SPACE_CLOSE
+
+#endif //	DBJ_GDI_LINE

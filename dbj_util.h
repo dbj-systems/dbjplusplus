@@ -163,50 +163,16 @@ namespace dbj {
 			and it is all inside the single lambda
 			which is fast because redundant code is removed at compile time
 			*/
-			inline auto starts_with = [](auto val_, auto mat_) {
-
-				static_assert(equal_types  (val_, mat_),
-					"dbj::does_start [error] arguments not of the same type"
-					);
-
-				if  constexpr(equal_types(val_, char_star{})) {
-					// #pragma message ("val type is char *")
-					return starts_with(std::string(val_), std::string(mat_));
-				}
-				else if  constexpr(equal_types(val_, wchar_star{})) {
-					// #pragma message ("val type is wchar_t *")
-					return starts_with(std::wstring(val_), std::wstring(mat_));
-				}
-				else {
-					return 0 == val_.compare(0, mat_.size(), mat_);
-				}
-			};
-#if classical_overloading_solution
-			/*
-			classical overloading solution
-			*/
-			template<typename T = char>
-			inline
-				bool starts_with(const std::basic_string<T> & value, const std::basic_string<T> & match)
+			template<
+				typename C
+			>
+			inline auto starts_with (
+				std::basic_string_view<C> val_, 
+				std::basic_string_view<C> mat_
+				) 
 			{
-				return 0 == value.compare(0, match.size(), match);
+				return 0 == val_.compare(0, mat_.size(), mat_);
 			}
-
-			template<size_t N, typename C = char >
-			inline
-				bool starts_with(const C(&value_)[N], const C(&match)[N])
-			{
-				return starts_with<C>(std::basic_string<C>{value_}, std::basic_string<C>{match});
-			}
-
-			template< typename  C = char >
-			inline
-				bool starts_with(const C * value_, const C * match)
-			{
-				return starts_with<C>(std::basic_string<C>{value_}, std::basic_string<C>{match});
-			}
-#endif // 0
-
 			/*
 			------------------------------------------------------------------------------------
 			*/
@@ -235,6 +201,22 @@ namespace dbj {
 				return remove_duplicates(std::vector<Type>{arr_, arr_ + N});
 			}
 
+// The memset function call could be optimized 
+// away by the compiler 
+// if the array object used, is no futher accessed.
+// other than this bellow  
+// one can use the more complex
+// std way: http://en.cppreference.com/w/c/string/byte/memset
+extern "C"
+	inline void
+	secure_zero(void *s, size_t n)
+{
+#ifdef _DBJ_MT_
+	dbj::sync::lock_unlock __dbj_auto_lock__;
+#endif // _DBJ_MT_
+	volatile char *p = (char *)s;
+	while (n--) *p++ = 0;
+}
 
 	} // util
 } // dbj

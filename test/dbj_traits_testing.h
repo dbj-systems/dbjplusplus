@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <variant>
-#include <dbj_testing_interface.h>
+//#include <vector>
+//#include <variant>
+//#include <dbj_testing_interface.h>
 
 DBJ_TEST_SPACE_OPEN(dbj_traits_testing)
 
@@ -43,16 +43,14 @@ DBJ_TEST_UNIT( compound_type_reduction )
 	static_assert(std::is_same_v<method_t, dbj::tt::to_base_t< method_t(&)[]>>);
 }
 
-/*****************************************************************************************/
-
-   template<typename T, typename dbj::require_integral<T> = 0 >
+template<typename T, typename dbj::require_integral<T> = 0 >
 	inline auto Object(T&& t) { return std::variant<T>(t); }
 
 	template<typename T, typename dbj::require_floating<T> = 0>
 	inline auto Object(T&& t) { return std::variant<T>(t); }
 
 	/*usage*/
-	DBJ_TEST_UNIT(dbj_basic_traits_tests)
+DBJ_TEST_UNIT(dbj_basic_traits_tests)
 	{
 
 		DBJ_TEST_ATOM(dbj::is_floating<decltype(42.0f)>());
@@ -63,40 +61,71 @@ DBJ_TEST_UNIT( compound_type_reduction )
 		DBJ_TEST_ATOM(Object(42.0f));
 	}
 
-	//-----------------------------------------------------------------------------
-	// RC == micro Range and Container
-	// I like it. A lot.
-	/*
-	template< typename T, std::size_t N>
-	struct range_container final {
-		using data_ref = T(&)[N];
-		T data_[N]{};
-		T * begin() { return data_; }
-		T * end() { return data_ + N; }
-		size_t size() const { return N; }
-		data_ref data() const { return data_; }
-	};
-	*/
-
-	DBJ_TEST_UNIT(containertraitstests) 
+DBJ_TEST_UNIT(containertraitstests) 
 	{
 		using namespace std;
 
-		using ia3 = array<int, 3>;
+		using ia3 = ::std::array<int, 3>;
 		using vi =  vector<int>;
 
-		DBJ_TEST_ATOM( dbj::is_std_array_v<array<int,3>> );
-		DBJ_TEST_ATOM( dbj::is_std_array_v<vector<int>>);
+		DBJ_TEST_ATOM( ::dbj::is_std_array_v<ia3> );
+		DBJ_TEST_ATOM( ::dbj::is_std_array_v<vector<int>>);
 
-		DBJ_TEST_ATOM(dbj::is_std_vector_v<array<int, 3>>);
-		DBJ_TEST_ATOM(dbj::is_std_vector_v<vector<int>>);
+		DBJ_TEST_ATOM(::dbj::is_std_vector_v<ia3>);
+		DBJ_TEST_ATOM(::dbj::is_std_vector_v<vector<int>>);
 
-		DBJ_TEST_ATOM(dbj::is_range_v<array<int, 3>>);
-		DBJ_TEST_ATOM(dbj::is_range_v<vector<int>>);
+		DBJ_TEST_ATOM(::dbj::is_range_v<ia3>);
+		DBJ_TEST_ATOM(::dbj::is_range_v<vector<int>>);
 
-		DBJ_TEST_ATOM(dbj::is_range_v<range_container<int, 3>>);
+		using rc10 = dbj::util::rac<int, 10>;
+
+		DBJ_TEST_ATOM(::dbj::is_range_v<rc10>);
 	}
 
+	DBJ_TEST_UNIT(_dbj_container_traits_tests)
+{
+	using namespace std;
+
+	using ia3 = array<int, 3>;
+	using vi = vector<int>;
+
+	DBJ_TEST_ATOM(dbj::is_std_array_v<ia3>);
+	DBJ_TEST_ATOM(dbj::is_std_array_v<vi>);
+
+	DBJ_TEST_ATOM(dbj::is_std_vector_v<ia3>);
+	DBJ_TEST_ATOM(dbj::is_std_vector_v<vi>);
+
+	DBJ_TEST_ATOM(dbj::is_range_v<ia3>);
+	DBJ_TEST_ATOM(dbj::is_range_v<vi>);
+
+	// bellow wont work because comma operator screws macros in a royal way
+	// DBJ_TEST_ATOM(dbj::inner::is_range<range_container<int,3>>::value);
+	// it actually screws the whole closure it is in
+	// https://stackoverflow.com/questions/13842468/comma-in-c-c-macro
+	// ditto ...
+
+	using rci3 = dbj::util::rac<int, 3>;
+	DBJ_TEST_ATOM(dbj::is_range_v<rci3>);
+}
+
+DBJ_TEST_UNIT(_dbj_pointer_traits_tests) 
+{
+	using namespace dbj::tt;
+	constexpr const char * holla_ = "Hola!";
+	const char buff[]{ "ABCD" };
+	// OK
+	static_assert(pointer(buff));
+	static_assert(pointer(holla_));
+	static_assert(pointer("ola ola!"));
+	//
+	const std::array<int, 3> iarr{ 1,2,3 };
+	static_assert(pointer(iarr.data()));
+
+	auto n1 = DBJ_TEST_ATOM(DBJ_VALTYPENAME(holla_));
+	auto n2 = DBJ_TEST_ATOM(DBJ_VALTYPENAME(&holla_));
+}
 
 DBJ_TEST_SPACE_CLOSE
+
+
 

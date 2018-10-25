@@ -6,13 +6,16 @@
 
 DBJ_TEST_SPACE_OPEN(string_util_tests )
 
-DBJ_TEST_UNIT(" dbj str tokenizer") {
-
+// todo: pull in the C solution from dbj clib
+#ifdef DBJ_USE_STD_STREAMS
+DBJ_TEST_UNIT(dbjstrtokenizer)
+{
 	DBJ_TEST_ATOM(dbj::str::tokenize("prefix mif fix fenix"));
 	DBJ_TEST_ATOM(dbj::str::tokenize(L"prefix mif fix fenix"));
 }
+#endif
 
-DBJ_TEST_UNIT(" dbj str optimal") {
+DBJ_TEST_UNIT(dbjstroptimal) {
 
 	// capacity and size of os1 is 255
 	// it will not do any heap alloc / de-alloc
@@ -26,33 +29,33 @@ DBJ_TEST_UNIT(" dbj str optimal") {
 	DBJ_TEST_ATOM(dbj::str::optimal<char32_t>(128, U'+'));
 }
 
-DBJ_TEST_UNIT(" testing dbj::str::is_std_string_v<>")
+DBJ_TEST_UNIT(testingdbjstris_std_string_v)
 {
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::string>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::wstring>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::u16string>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<std::u32string>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char *>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<const char *>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char(&)[]>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char(*)[]>);
-	DBJ_TEST_ATOM(dbj::str::is_std_string_v<char[]>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<std::string>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<std::wstring>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<std::u16string>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<std::u32string>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<char *>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<const char *>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<char(&)[]>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<char(*)[]>);
+	DBJ_TEST_ATOM(dbj::is_std_string_v<char[]>);
 }
 
-DBJ_TEST_UNIT(" testing dbj::str::is_std_char_v<>")
+DBJ_TEST_UNIT(testingdbjstris_std_char_v)
 {
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<wchar_t>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char16_t>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char32_t>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char *>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<const char *>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char & >);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<char &&>);
-	DBJ_TEST_ATOM(dbj::str::is_std_char_v<const wchar_t >);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<char>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<wchar_t>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<char16_t>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<char32_t>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<char *>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<const char *>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<char & >);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<char &&>);
+	DBJ_TEST_ATOM(dbj::is_std_char_v<const wchar_t >);
 }
 
-DBJ_TEST_UNIT(" dbj string utils ") {
+DBJ_TEST_UNIT(dbjstringutils) {
 	//auto rez =
 		DBJ_TEST_ATOM(
 			0 == dbj_ordinal_string_compareW(L"A", L"A", true));
@@ -150,12 +153,12 @@ void test_conversion(converter_type && the_converter)
 	// DBJ_SHOW(the_converter(std::basic_string<int>{  1, 2, 3, 4, 5, 6 }));
 }
 
-DBJ_TEST_UNIT(" meta convertor test" ) {
+DBJ_TEST_UNIT(metaconvertortest) {
 
-	test_conversion(dbj::str::char_range_to_string{});
-	test_conversion(dbj::str::wchar_range_to_string{});
-	test_conversion(dbj::str::u16char_range_to_string{});
-	test_conversion(dbj::str::u32char_range_to_string{});
+	test_conversion(dbj::range_to_string    );
+	test_conversion(dbj::range_to_wstring   );
+	test_conversion(dbj::range_to_u16string );
+	test_conversion(dbj::range_to_u32string );
 }
 
 DBJ_TEST_SPACE_CLOSE

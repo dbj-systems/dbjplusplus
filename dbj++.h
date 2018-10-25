@@ -130,6 +130,7 @@ there is another one
 #include "dbj_micro_log.h"
 #include "dbj_kalends.h"
 #include "dbj_tokenizer.h"
+#include "dbj_key_value_store.h"
 
 
 /* 

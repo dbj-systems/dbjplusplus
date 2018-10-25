@@ -61,7 +61,7 @@ static_assert(dbj::strings::which_time() == "compile time" );
 
 namespace dbj {
 
-	using namespace std::literals;
+	using namespace std::string_view_literals;
 
 	constexpr inline auto LINE    (){ return "--------------------------------------------------------------------------------"sv; };
 	constexpr inline auto COMPANY (){ return "DBJ.Systems Ltd."sv; };

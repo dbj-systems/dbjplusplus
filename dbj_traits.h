@@ -55,22 +55,25 @@ namespace dbj {
     /************************************************************************************/
 	/* constraint: both types must be fundamental */
 	template<typename T1, typename T2>
-	struct fundamental_pair {
+	struct is_fundamental_pair {
+		
+		using type_1 = std::remove_cv_t <T1>;
+		using type_2 = std::remove_cv_t <T2>;
+
 		constexpr static const bool value{
-		   std::is_fundamental_v<T1> == std::is_fundamental_v<T2>
+			std::is_fundamental_v<type_1> == std::is_fundamental_v<type_2>
 		};
-		using type_1 = T1;
-		using type_2 = T2;
 	};
 
 	template<typename T1, typename T2>
-	constexpr inline bool fundamental_pair_v = fundamental_pair<T1, T2>::value;
+	constexpr inline bool is_fundamental_pair_v = is_fundamental_pair<T1, T2>::value;
 
 	template< class T1, class T2 >
 	struct fundamental_twins final
 		: std::bool_constant< 
-fundamental_pair_v<T1, T2> && std::is_same_v<std::decay_t<T1>, std::decay_t<T2>>
-		> {	
+		is_fundamental_pair_v<T1, T2> && std::is_same_v<std::decay_t<T1>, std::decay_t<T2>>
+		> 
+	{	
 		using decay_1 = std::decay_t<T1>;
 		using decay_2 = std::decay_t<T2>;
 	};
@@ -140,8 +143,8 @@ inline auto equal_types
 	= [](auto & a, auto & b) 
 		constexpr -> bool
 {
-// do not remove anything else from the type tested 
-return std::is_same_v< decltype(a), decltype(b) >;
+using namespace std;
+return is_same_v< remove_cvref_t<decltype(a)>, remove_cvref_t<decltype(b)> >;
 };
 /************************************************************************************/
 // remove const-ness and/or volatility before comparing
@@ -408,24 +411,12 @@ namespace dbj {
 // enable_if helpers
 
 #pragma region type traits + generic lambdas
-namespace dbj {
-	using char_star = decltype("X");
-	using wchar_star = decltype(L"X");
-#if 0
-	namespace {
-		/*
-		part of C++20, but also implemented here
-		http://en.cppreference.com/w/cpp/types/remove_cvref
-		*/
-		template< class T >
-		struct remove_cvref {
-			typedef std::remove_cv_t<std::remove_reference_t<T>> type;
-		};
 
-		template< class T >
-		using remove_cvref_t = typename remove_cvref<T>::type;
-	}
-#endif
+namespace dbj 
+{
+	using char_star = std::remove_cv_t< decltype("X") >;
+	using wchar_star = std::remove_cv_t< decltype(L"X") >;
+
 	/// <summary>
 	/// c++ 17 generic lambdas have issues
 	/// with required types of auto arguments
@@ -449,7 +440,7 @@ namespace dbj {
   */
 namespace dbj {
 
-	using namespace std;
+	//NOT here --> using namespace std;
 
 	namespace inner {
 

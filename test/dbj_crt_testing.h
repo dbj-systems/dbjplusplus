@@ -1,37 +1,46 @@
 #pragma once
+#include <typeinfo>
 #pragma region "dbj stlen and strnlen"
-namespace dbj_testing_space  {
+DBJ_TEST_SPACE_OPEN(_dbj_crt_testing_space_)
 	/*
 	dbj crt caters for char, wchar_t, char16_t, char32_t
 	for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
 	*/
 	template< typename T, size_t N>
-	inline void strlen_strnlen_test(
-		const T(&prompt)[N])
+	inline void strlen_strnlen_test
+	(
+		const T(&prompt)[N]
+	)
 	{
-		dbj::log::print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");
-		dbj::log::print("\n\t", DBJ_NV(dbj::countof(prompt)));
-		// char type arrays are using dbj.org "zero time" versions     
-		dbj::log::print("\n\t", DBJ_NV(dbj::strlen(prompt)));
-		dbj::log::print("\n\t", DBJ_NV(dbj::strnlen(prompt, BUFSIZ)));
+		using ::dbj::console::print;
+		print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");
+		print("\n\t", DBJ_NV(dbj::countof(prompt)));
+		// native char arrays are using dbj.org "zero time" versions     
+		print("\n\t", DBJ_NV(dbj::str::strlen(prompt)));
+		print("\n\t", DBJ_NV(dbj::str::strnlen(prompt, dbj::BUFSIZ_)));
 
 		// testing for the T * support 
-		auto pointer_tester = [](auto cptr) {
-			// cptr becomes pointer due to the standard decay of C++ array to pointer
+		auto pointer_tester = [&](auto cptr) 
+		{
+			using ::dbj::console::print;
+			// cptr become a pointer due to the standard decay
 			using pointer_to_array = decltype(cptr);
 
-			dbj::log::print("\n\nTesting the support for the ", typeid(pointer_to_array).name(), " pointer to the same array\n");
+			print("\n\nTesting the support for the ", typeid(pointer_to_array).name(), " pointer to the same array\n");
 			// using UCRT strlen
-			dbj::log::print("\n\t", DBJ_NV(dbj::strlen(cptr)));
+			print("\n\t", DBJ_NV(dbj::str::strlen(cptr)));
 			// using UCRT strnlen note: std has no strnlen ...
-			dbj::log::print("\n\t", DBJ_NV(dbj::strnlen(cptr, BUFSIZ)));
+			print("\n\t", DBJ_NV(dbj::str::strnlen(cptr, dbj::BUFSIZ_)));
+
+			::dbj::str::strnlen(cptr, dbj::BUFSIZ_);
 		};
 
 		pointer_tester(prompt);
 	}
 
-	DBJ_TEST_UNIT(" : dbj crt") {
-		dbj::log::print("\n(c) ", DBJ_YEAR, "by " DBJ_COMPANY ", MSVC version: ", _MSC_FULL_VER);
+	DBJ_TEST_UNIT(dbj_strnlen) 
+	{
+		using ::dbj::console::print;
 
 		char	 promptA[] = "0123456789";
 		wchar_t  promptW[] = L"0123456789";
@@ -43,12 +52,12 @@ namespace dbj_testing_space  {
 		strlen_strnlen_test(prompt16);
 		strlen_strnlen_test(prompt32);
 
-		_ASSERTE(dbj::strnlen(promptA, BUFSIZ) == 10);
-		_ASSERTE(dbj::strnlen(promptW, BUFSIZ) == 10);
-		_ASSERTE(dbj::strnlen(prompt16, BUFSIZ) == 10);
-		_ASSERTE(dbj::strnlen(prompt32, BUFSIZ) == 10);
+		_ASSERTE(dbj::str::strnlen(promptA, BUFSIZ) == 10);
+		_ASSERTE(dbj::str::strnlen(promptW, BUFSIZ) == 10);
+		_ASSERTE(dbj::str::strnlen(prompt16, BUFSIZ) == 10);
+		_ASSERTE(dbj::str::strnlen(prompt32, BUFSIZ) == 10);
 
 	}
-}
+	DBJ_TEST_SPACE_CLOSE
 
 #pragma endregion "eof dbj stlen and strnlen"

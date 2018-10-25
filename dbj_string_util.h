@@ -86,23 +86,34 @@ namespace dbj::str {
 	template<typename T, size_t N>
 	inline size_t strnlen(
 		const T(&carr)[N],
-		const size_t & maxlen,
-		typename std::enable_if_t< dbj::is_std_char_v<T>, int > = 0)
+		const size_t & maxlen
+	)
 	{
+		static_assert(dbj::is_std_char_v< std::remove_cv_t<T>>,
+			"[dbj strlen] requires only standard chars");
+
 		return dbj::MIN(N, maxlen) - 1;
 	}
+
+	template<typename T, size_t N>
+	inline size_t strnlen(
+		const T(*carr)[N],	const size_t & maxlen
+	) = delete;
+
 	/*
 	strlen for C++ native char array reference
 	*/
 	template<typename T, size_t N>
-	inline size_t strlen(
-		const T(&carr)[N],
-		typename
-		std::enable_if_t< dbj::is_std_char_v<T>, int > = 0
-	)
+	inline size_t strlen(	const T(&carr)[N]	)
 	{
+		static_assert(dbj::is_std_char_v< std::remove_cv_t<T>>,
+			"[dbj strlen] requires only standard chars");
 		return N - 1;
 	}
+
+	template<typename T, size_t N>
+	inline size_t strlen(const T(*carr)[N]) = delete;
+
 
 	/*
 	Pointer (to character arrays) support
@@ -112,8 +123,54 @@ namespace dbj::str {
 	namely char and wchar_t versions
 	std lib defines strlen for char * and wchr_t *
 	*/
+#ifdef _MSC_VER
+	inline size_t strlen(const wchar_t  * cp) { return std::char_traits<wchar_t>::length(cp); }
+	inline size_t strlen(const char     * cp) { return std::char_traits<char>::length(cp); }
 	inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
 	inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
+#else
+	// https://godbolt.org/z/L_uhKR
+	// apparently not ok for MSVC
+	template<typename C>
+	inline size_t strlen(const C * cp) 
+	{ 
+		return std::char_traits<C>::length(cp); 
+	}
+#endif
+
+#ifdef _MSC_VER
+	
+	template<typename C >
+	struct strnlen_provider final {
+		constexpr size_t operator () (C * cp_, size_t maxlen) noexcept 
+		{
+			auto sz_ = std::char_traits<C>::length(cp_);
+			return (sz_ > maxlen ? maxlen : sz_ );
+		}
+		
+		template<size_t N>
+		constexpr size_t operator () (const C (&arr) [N]) noexcept 
+		{
+			return (N > maxlen ? maxlen : N );
+		}
+	};
+
+	//template<typename C>
+	//using dbj_strnlen = strnlen_provider<C>;
+
+	constexpr inline strnlen_provider<char> dbj_strnlen{};
+
+	static_assert(3 == dbj_strnlen("ABC",6));
+
+	inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
+		size_t cpl = std::char_traits<wchar_t>::length(cp);
+		return (cpl > maxlen ? maxlen : cpl);
+	}
+
+	inline size_t strnlen(const char * cp, const size_t & maxlen) {
+		size_t cpl = std::char_traits<char>::length(cp);
+		return (cpl > maxlen ? maxlen : cpl);
+	}
 
 	inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
 		size_t cpl = std::char_traits<char16_t>::length(cp);
@@ -123,7 +180,15 @@ namespace dbj::str {
 		size_t cpl = std::char_traits<char32_t>::length(cp);
 		return (cpl > maxlen ? maxlen : cpl);
 	}
+	*/
+#else
+	template<typename T>
+	inline size_t strnlen(const T * cp, const size_t & maxlen) {
+		size_t cpl = std::char_traits<T>::length(cp);
+		return (cpl > maxlen ? maxlen : cpl);
+	}
 
+#endif
 	// constexpr string
 	// dbj: big note! this class does not own anything, 
 	// just points to

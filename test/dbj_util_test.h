@@ -3,7 +3,7 @@
 
 DBJ_TEST_SPACE_OPEN( dbj_util )
 
-DBJ_TEST_UNIT(": dbj util unit range container test ") 
+DBJ_TEST_UNIT(dbjutilunitrangecontainertest) 
 {
 	using RCI10 = dbj::util::rac<int, 10>;
 	RCI10 rci10{};
@@ -17,12 +17,12 @@ DBJ_TEST_UNIT(": dbj util unit range container test ")
 	DBJ_TEST_ATOM( rci10.data() );
 }
 
-	DBJ_TEST_UNIT(": dbj util math float_to_integer test ") {
+	DBJ_TEST_UNIT(dbjutilmathfloat_to_integertest) {
 
 		using namespace dbj::math::float_to_integer;
 
 		auto test = [](float val_) {
-			dbj::log::print("\n\nInput:\t");
+			dbj::console::print("\n\nInput:\t");
 			DBJ_TEST_ATOM(val_);
 			DBJ_TEST_ATOM(nearest(val_));
 			DBJ_TEST_ATOM(drop_fractional_part(val_));
@@ -36,10 +36,10 @@ DBJ_TEST_UNIT(": dbj util unit range container test ")
 		test(123.501f);
 	}
 
-	DBJ_TEST_UNIT(": dbj dbj_util_test ") {
+	DBJ_TEST_UNIT(dbjdbj_util_test) {
 
 		int intarr[]{ 1,1,2,2,3,4,5,6,6,6,7,8,9,9,0,0 };
-		auto DBJ_UNUSED(ret1)
+		auto DBJ_MAYBE(ret1)
 			= DBJ_TEST_ATOM ( dbj::util::remove_duplicates(intarr) );
 		std::string as2[16]{
 			"abra", "ka", "dabra", "babra",
@@ -50,11 +50,14 @@ DBJ_TEST_UNIT(": dbj util unit range container test ")
 
 		auto ad = DBJ_TEST_ATOM( dbj::util::remove_duplicates(as2) );
 		char carr[] { 'c','a','b','c','c','c','d', 0x0 };
-		auto DBJ_UNUSED(rez) 
+		auto DBJ_MAYBE(rez) 
 			 = DBJ_TEST_ATOM( dbj::util::remove_duplicates(carr) );
 		auto see_mee_here = carr;
-		DBJ_TEST_ATOM( dbj::util::starts_with("abra ka dabra", "abra") );
-		DBJ_TEST_ATOM( dbj::util::starts_with(L"abra ka dabra", L"abra") );
+
+		using namespace std::string_view_literals;
+
+		DBJ_TEST_ATOM( dbj::util::starts_with("abra ka dabra"sv, "abra"sv) );
+		DBJ_TEST_ATOM( dbj::util::starts_with(L"abra ka dabra"sv, L"abra"sv) );
 	};
 
 

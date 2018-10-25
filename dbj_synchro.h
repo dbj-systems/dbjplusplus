@@ -32,21 +32,6 @@ namespace dbj {
 			~lock_unlock() { mux_.unlock(); }
 		};
 
-		// The memset function call could be optimized 
-		// away by the compiler 
-		// if the array object used, is no futher accessed.
-		// other than this bellow  
-		// one can use the more complex
-		// std way: http://en.cppreference.com/w/c/string/byte/memset
-		extern "C" 
-			inline void 
-			   secure_zero(void *s, size_t n)
-		{
-			dbj::sync::lock_unlock __dbj_auto_lock__;
-			volatile char *p = (char *)s;
-			while (n--) *p++ = 0;
-		}
-
 		/// <summary>
 		/// in presence of multiple threads
 		/// guard value of type T

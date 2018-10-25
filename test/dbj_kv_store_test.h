@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../dbj_key_value_store.h"
+// #include "../dbj_key_value_store.h"
 
 #include <future>
 #include <random>
 
 DBJ_TEST_SPACE_OPEN(kv_storage_test)
 
-using KVS = dbj::storage::keyvalue_storage<int, std::string>;
+using KVS =  ::dbj::storage::keyvalue_storage<int, std::string>;
 // KVS has to be trivially constructible
 inline dbj::sync::guardian<KVS> guarded_kvs_;
 

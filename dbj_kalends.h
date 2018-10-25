@@ -18,7 +18,7 @@
 #include <chrono>
 
 extern "C" inline void dbj_sleep_seconds(int seconds_) {
-	std::this_thread::sleep_for(std::chrono::seconds(seconds_));
+	std::this_thread::sleep_for(::std::chrono::seconds(seconds_));
 }
 /// <summary>
 /// `Kalends` are dbj std chrono utilities
@@ -30,13 +30,13 @@ namespace dbj::kalends {
 	/// all abstractions in this namespace do use 
 	/// the same std chrono clock
 	/// </summary>
-	using Clock = typename  std::chrono::steady_clock;
+	using Clock = typename  ::std::chrono::steady_clock;
 	// std chrono concept is that (for example) a Second
 	// is a duration in time, of a lengt of one second
-	using Seconds = typename std::chrono::seconds;
-	using MilliSeconds = typename std::chrono::milliseconds;
-	using Microseconds = typename std::chrono::microseconds;
-	using Nanoseconds = typename std::chrono::nanoseconds;
+	using Seconds = typename ::std::chrono::seconds;
+	using MilliSeconds = typename ::std::chrono::milliseconds;
+	using Microseconds = typename ::std::chrono::microseconds;
+	using Nanoseconds = typename ::std::chrono::nanoseconds;
 
 	using time_ticks_type = Clock::rep;
 	using frequency_type = Clock::rep;
@@ -61,7 +61,7 @@ namespace dbj::kalends {
 		// create unit duration from ticks
 		UnitDuration dura{ ticks_ };
 		// we let std lib create a duration we are transforming to
-		return std::chrono::duration_cast<Unit>(dura);
+		return ::std::chrono::duration_cast<Unit>(dura);
 	}
 
 	/// <summary>
@@ -71,7 +71,7 @@ namespace dbj::kalends {
 	template< typename Unit >
 	inline typename Unit to_desired_unit(UnitDuration ticks_) {
 		// we let std lib to create a duration we are transforming to
-		return std::chrono::duration_cast<Unit>(ticks_);
+		return ::std::chrono::duration_cast<Unit>(ticks_);
 	}
 
 
@@ -202,7 +202,7 @@ namespace dbj::kalends {
 		   }
 		   */
 
-		using std::chrono::duration_cast;
+		using ::std::chrono::duration_cast;
 
 		class modern_timer final : public ITimer
 		{
