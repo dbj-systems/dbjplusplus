@@ -6,6 +6,70 @@
 
 DBJ_TEST_SPACE_OPEN(string_util_tests )
 
+
+#pragma region dbj strlen and strnlen
+DBJ_TEST_SPACE_OPEN(_dbj_crt_testing_space_)
+/*
+dbj crt caters for char, wchar_t, char16_t, char32_t
+for details please see https://docs.microsoft.com/en-us/cpp/cpp/char-wchar-t-char16-t-char32-t
+*/
+template< typename T, size_t N>
+inline void strlen_strnlen_test
+(
+	const T(&prompt)[N]
+)
+{
+	using ::dbj::console::print;
+	print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");
+	print("\n\t", DBJ_NV(dbj::countof(prompt)));
+	// native char arrays are using dbj.org "zero time" versions     
+	print("\n\t", DBJ_NV(dbj::str::strlen(prompt)));
+	print("\n\t", DBJ_NV(dbj::str::strnlen(prompt, dbj::BUFSIZ_)));
+
+	// testing for the T * support 
+	auto pointer_tester = [&](auto cptr)
+	{
+		using ::dbj::console::print;
+		// cptr become a pointer due to the standard decay
+		using pointer_to_array = decltype(cptr);
+
+		print("\n\nTesting the support for the ", typeid(pointer_to_array).name(), " pointer to the same array\n");
+		// using UCRT strlen
+		print("\n\t", DBJ_NV(dbj::str::strlen(cptr)));
+		// using UCRT strnlen note: std has no strnlen ...
+		print("\n\t", DBJ_NV(dbj::str::strnlen(cptr, dbj::BUFSIZ_)));
+
+		::dbj::str::strnlen(cptr, dbj::BUFSIZ_);
+	};
+
+	pointer_tester(prompt);
+}
+
+DBJ_TEST_UNIT(dbj_strnlen)
+{
+	using ::dbj::console::print;
+
+	constexpr char	 promptA[] = "0123456789";
+	constexpr wchar_t  promptW[] = L"0123456789";
+	constexpr char16_t prompt16[] = u"0123456789";
+	constexpr char32_t prompt32[] = U"0123456789";
+
+	strlen_strnlen_test(promptA);
+	strlen_strnlen_test(promptW);
+	strlen_strnlen_test(prompt16);
+	strlen_strnlen_test(prompt32);
+
+	static_assert(dbj::str::strnlen(promptA, dbj::BUFSIZ_) == 10);
+	static_assert(dbj::str::strnlen(promptW, dbj::BUFSIZ_) == 10);
+	static_assert(dbj::str::strnlen(prompt16, dbj::BUFSIZ_) == 10);
+	static_assert(dbj::str::strnlen(prompt32, dbj::BUFSIZ_) == 10);
+
+}
+
+DBJ_TEST_SPACE_CLOSE
+
+#pragma endregion 
+
 // todo: pull in the C solution from dbj clib
 #ifdef DBJ_USE_STD_STREAMS
 DBJ_TEST_UNIT(dbjstrtokenizer)
@@ -29,31 +93,7 @@ DBJ_TEST_UNIT(dbjstroptimal) {
 	DBJ_TEST_ATOM(dbj::str::optimal<char32_t>(128, U'+'));
 }
 
-DBJ_TEST_UNIT(testingdbjstris_std_string_v)
-{
-	DBJ_TEST_ATOM(dbj::is_std_string_v<std::string>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<std::wstring>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<std::u16string>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<std::u32string>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<char *>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<const char *>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<char(&)[]>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<char(*)[]>);
-	DBJ_TEST_ATOM(dbj::is_std_string_v<char[]>);
-}
 
-DBJ_TEST_UNIT(testingdbjstris_std_char_v)
-{
-	DBJ_TEST_ATOM(dbj::is_std_char_v<char>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<wchar_t>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<char16_t>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<char32_t>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<char *>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<const char *>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<char & >);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<char &&>);
-	DBJ_TEST_ATOM(dbj::is_std_char_v<const wchar_t >);
-}
 
 DBJ_TEST_UNIT(dbjstringutils) {
 	//auto rez =

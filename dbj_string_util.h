@@ -84,13 +84,13 @@ namespace dbj::str {
 
 	*/
 	template<typename T, size_t N>
-	inline size_t strnlen(
+	constexpr inline size_t strnlen(
 		const T(&carr)[N],
 		const size_t & maxlen
 	)
 	{
 		static_assert(dbj::is_std_char_v< std::remove_cv_t<T>>,
-			"[dbj strlen] requires only standard chars");
+			"[dbj strnlen] requires only standard chars");
 
 		return dbj::MIN(N, maxlen) - 1;
 	}
@@ -104,7 +104,7 @@ namespace dbj::str {
 	strlen for C++ native char array reference
 	*/
 	template<typename T, size_t N>
-	inline size_t strlen(	const T(&carr)[N]	)
+	constexpr inline size_t strlen(	const T(&carr)[N]	)
 	{
 		static_assert(dbj::is_std_char_v< std::remove_cv_t<T>>,
 			"[dbj strlen] requires only standard chars");
@@ -124,10 +124,10 @@ namespace dbj::str {
 	std lib defines strlen for char * and wchr_t *
 	*/
 #ifdef _MSC_VER
-	inline size_t strlen(const wchar_t  * cp) { return std::char_traits<wchar_t>::length(cp); }
-	inline size_t strlen(const char     * cp) { return std::char_traits<char>::length(cp); }
-	inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
-	inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
+	constexpr inline size_t strlen(const wchar_t  * cp) { return std::char_traits<wchar_t>::length(cp); }
+	constexpr inline size_t strlen(const char     * cp) { return std::char_traits<char>::length(cp); }
+	constexpr inline size_t strlen(const char16_t * cp) { return std::char_traits<char16_t>::length(cp); }
+	constexpr inline size_t strlen(const char32_t * cp) { return std::char_traits<char32_t>::length(cp); }
 #else
 	// https://godbolt.org/z/L_uhKR
 	// apparently not ok for MSVC
@@ -141,46 +141,43 @@ namespace dbj::str {
 #ifdef _MSC_VER
 	
 	template<typename C >
-	struct strnlen_provider final {
-		constexpr size_t operator () (C * cp_, size_t maxlen) noexcept 
+	struct strnlen_provider final
+	{
+		using ptr_t = C * ;
+
+		constexpr size_t operator () ( const ptr_t cp_, size_t maxlen) const noexcept
 		{
 			auto sz_ = std::char_traits<C>::length(cp_);
-			return (sz_ > maxlen ? maxlen : sz_ );
+			return (sz_ > maxlen ? maxlen : sz_);
 		}
-		
+
 		template<size_t N>
-		constexpr size_t operator () (const C (&arr) [N]) noexcept 
+		constexpr size_t operator () (const C(&arr)[N]) const noexcept
 		{
-			return (N > maxlen ? maxlen : N );
+			return N;
 		}
 	};
 
-	//template<typename C>
-	//using dbj_strnlen = strnlen_provider<C>;
+	constexpr inline strnlen_provider<char>       char_strnlen{};
+	constexpr inline strnlen_provider<wchar_t>   wchar_strnlen{};
+	constexpr inline strnlen_provider<char16_t> char16_strnlen{};
+	constexpr inline strnlen_provider<char32_t> char32_strnlen{};
 
-	constexpr inline strnlen_provider<char> dbj_strnlen{};
-
-	static_assert(3 == dbj_strnlen("ABC",6));
-
-	inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<wchar_t>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
+	/*---------------------------------------------------------------*/
+	constexpr inline size_t strnlen(const wchar_t * cp, const size_t & maxlen) {
+		return wchar_strnlen( const_cast<strnlen_provider<wchar_t>::ptr_t>(cp), maxlen);
 	}
 
-	inline size_t strnlen(const char * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<char>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
+	constexpr inline size_t strnlen(const char * cp, const size_t & maxlen) {
+		return char_strnlen(const_cast<strnlen_provider<char>::ptr_t>(cp), maxlen);
 	}
 
-	inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<char16_t>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
+	constexpr inline size_t strnlen(const char16_t * cp, const size_t & maxlen) {
+		return char16_strnlen(const_cast<strnlen_provider<char16_t>::ptr_t>(cp), maxlen);
 	}
-	inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
-		size_t cpl = std::char_traits<char32_t>::length(cp);
-		return (cpl > maxlen ? maxlen : cpl);
+	constexpr inline size_t strnlen(const char32_t * cp, const size_t & maxlen) {
+		return char32_strnlen(const_cast<strnlen_provider<char32_t>::ptr_t>(cp), maxlen);
 	}
-	*/
 #else
 	template<typename T>
 	inline size_t strnlen(const T * cp, const size_t & maxlen) {
