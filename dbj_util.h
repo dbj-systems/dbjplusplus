@@ -19,6 +19,7 @@
 #define DBJ_IL(T,...) (std::initializer_list<T>{__VA_ARGS__})
 
 namespace dbj {
+	namespace util {
 
 	/*
 	text line of chars, usage
@@ -58,9 +59,40 @@ namespace dbj {
 		};
 	}
 
-	namespace util {
 
 	//-----------------------------------------------------------------------------
+	/*
+		
+	why? to have "void" as function return type
+	why? for std::cout << T situations
+	how to use:
+
+	void f1() {}
+	const char * f2() { return __func__ ; }
+
+	std::cout << std::endl <<
+	std::get<0>( possible_void_call(f1) )
+	<< std::endl ;
+
+	std::cout << std::endl <<
+	std::get<0>( possible_void_call(f2) )
+	<< std::endl ;
+	*/
+		template<typename F, typename  ...Args >
+		inline auto
+			possible_void_call(F fun, Args ... args)
+		{
+			if constexpr (std::is_void<
+				std::invoke_result_t<F, Args...>
+			>::value)
+			{
+				return std::make_tuple("void");
+			}
+			else {
+				return std::make_tuple(fun(args...));
+			}
+		}
+
 	//-----------------------------------------------------------------------------
 	// rac == Range and Container
 	// I prefer it to std::array

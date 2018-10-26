@@ -19,7 +19,7 @@ DBJ_TEST_UNIT(dbjutilunitrangecontainertest)
 
 	DBJ_TEST_UNIT(dbjutilmathfloat_to_integertest) {
 
-		using namespace dbj::math::float_to_integer;
+		using namespace dbj::util::math::float_to_integer;
 
 		auto test = [](float val_) {
 			dbj::console::print("\n\nInput:\t");

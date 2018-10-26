@@ -15,7 +15,7 @@ namespace dbj {
 		typedef typename dbj::console::painter_command CMD;
 		using dbj::console::print;
 
-		inline std::string_view hyphens_line_ = dbj::c_line();
+		inline std::string_view hyphens_line_ = dbj::util::c_line();
 
 
 		template< typename ... Args >
