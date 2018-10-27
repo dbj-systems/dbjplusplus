@@ -88,11 +88,11 @@ namespace dbj {
 #pragma warning( disable: 4190 )
 
 	inline dbj::string itos(long l_) {
-		std::array<char, 64> str;
+		std::array<char, 64> str{ {0} };
 
 		auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), l_);
 		_ASSERTE(ec != std::errc::value_too_large);
-			return { p };
+			return { str.data() };
 	}
 	/*
 	transform path to filename

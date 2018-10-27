@@ -51,15 +51,13 @@ No exceptions are thrown outside. They are reported to console.
 namespace dbj {
 	namespace testing {
 
-		inline const char * TITLE  { "dbj++ Testing Framework [" __DATE__ "]" };
-		inline const char * ALLDN  { "dbj++ Testing Framework -- ALL TESTS DONE" };
+		using namespace std::string_view_literals;
 
-		// if not false on command line it will be compiled into existence
-
-		//		constexpr bool DBJ_TEST_RUNING = true;
+		constexpr inline auto TITLE = "dbj++ Testing Framework [" __DATE__ "]"sv ;
+		constexpr inline auto ALLDN = "dbj++ Testing Framework -- ALL TESTS DONE"sv ;
 
 		using testunittype = void(*)();
-		static __forceinline void __stdcall null_unit() {}
+		inline void __stdcall null_unit() {}
 
 		namespace internal {
 
@@ -129,7 +127,7 @@ namespace dbj {
 					   next_test_id() + description_;
 
 				   /* the same test unit ? do not insert twice */
-				   auto rez [[maybe_unused]] = 
+				   auto rez = 
 					   dbj_tests_map_.try_emplace( tunit_ ,final_description_ );
 
 				   // NOTE: rez.second is false if no insertion ocured
