@@ -69,13 +69,31 @@ __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE?
 				);
 				throw dbj::Exception(lems);
 			}
+#ifdef _DEBUG
+			DWORD lpMode{};
+			if (0 == GetConsoleMode(output_handle_, &lpMode)) {
+				auto lems = dbj::win32::getLastErrorMessage(
+					__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID HANDLE? -- "
+				);
+				throw dbj::Exception(lems);
+			}
+#endif
 				return this->output_handle_;
 		}
     	// from --> to, must be a sequence
 		// this is the *fastest* method
 		void out( const wchar_t * from,  const wchar_t * to) const override
 		{
-			static const HANDLE & output_h_ = this->output_handle_;
+#ifndef _DEBUG
+			static
+#endif // !_DEBUG
+				const HANDLE output_h_ = 
+#if 1
+				this->handle();
+#else
+			::GetStdHandle(STD_OUTPUT_HANDLE);
+			_ASSERTE(output_h_ != INVALID_HANDLE_VALUE);
+#endif
 
 			_ASSERTE(from != nullptr);
 			_ASSERTE(to != nullptr);
@@ -83,27 +101,40 @@ __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE?
 
 			std::size_t size = std::distance(from, to);
 			_ASSERTE( size > 0 );
-
+#if 1
+			// this is *crucial*
+			// otherwise ::WriteConsoleW will fail
+			// in a debug builds on unpredicatble
+			// and rare ocasions
+			// effectively set the last error to 0
+			(void)dbj::win32::last_error();
+#endif
 			auto retval = ::WriteConsoleW
 			(
 				output_h_,
 				from,
 				static_cast<DWORD>(size), NULL, NULL
 			);
-			_ASSERTE(retval != 0);
+			if (retval != 0) {
+				int last_win32_err = dbj::win32::last_error();
+				if (last_win32_err > 0) {
+					auto lems = dbj::win32::getLastErrorMessage(
+						__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- "
+						, last_win32_err
+					);
+#ifndef _DEBUG
+					throw dbj::Exception(lems);
+#else
+					dbj::TRACE("\n%s\n", lems.c_str());
+#endif
+				}
+			}
 		}
 
 		/* as dictated by the interface implemented */
 		inline void out(const std::wstring_view wp_) const override
 		{
-			const HANDLE & output_h_ = this->output_handle_;
-			auto retval = ::WriteConsoleW
-			(
-				output_h_,
-				wp_.data(),
-				static_cast<DWORD>(wp_.size()),	NULL, NULL
-			);
-			_ASSERTE(retval != 0);
+			out(wp_.data(), wp_.data() + wp_.size());
 		}
 
 		/*

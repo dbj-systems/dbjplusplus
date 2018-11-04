@@ -58,7 +58,7 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 	{
 		using namespace dbj;
 
-		static const auto L80 = dbj::util::c_line('+');
+		static const auto L80 = dbj::util::char_line('+');
 
 		console::print(
 			console::nl, console::painter_command::nop, "NOP", L80,

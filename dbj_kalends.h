@@ -54,7 +54,7 @@ namespace dbj::kalends {
 	/// we use the UnitDuration to transform tick to
 	/// different time units
 	/// reminder: Time Unit is std chrono duration
-	/// for example 1 second is a duration that has takend 1 second.
+	/// for example 1 second is a duration that has taken 1 second.
 	/// </summary>
 	template< typename Unit >
 	inline typename Unit to_desired_unit(time_ticks_type ticks_) {
@@ -277,6 +277,65 @@ namespace dbj::kalends {
 			ITimer::pointer{ new internal::modern_timer{} }
 		};
 	}
+
+	// for comfortable measurements
+
+	template<typename T>
+	inline auto unit_str(time_ticks_type t_) = delete;
+	//{ return  std::to_string( to_desired_unit<T>(t_ ).count() ) + " nanoseconds"; }
+
+	template<> inline auto unit_str< dbj::kalends::time_ticks_type >(time_ticks_type t_)
+	{
+		return std::to_string(t_) + " nanoseconds";
+	}
+
+	template<> inline auto unit_str< dbj::kalends::MilliSeconds >(time_ticks_type t_)
+	{
+		return std::to_string(to_desired_unit<dbj::kalends::MilliSeconds>(t_).count()) + " miliseconds";
+	}
+
+	template<> inline auto unit_str< dbj::kalends::Microseconds>(time_ticks_type t_)
+	{
+		return std::to_string(to_desired_unit<dbj::kalends::Microseconds>(t_).count()) + " microseconds";
+	}
+
+	template<> inline auto unit_str< dbj::kalends::Seconds >(time_ticks_type t_)
+	{
+		return std::to_string(to_desired_unit<dbj::kalends::Seconds>(t_).count()) + " seconds";
+	}
+
+	template<typename F,
+		/* default unit is nanoseconds */
+		typename U = dbj::kalends::time_ticks_type,
+		timer_kind which_ = timer_kind::modern
+	>
+	inline auto measure(F fun_to_test)
+	{
+		using namespace dbj::kalends;
+		auto timer_ = create_timer(which_);
+		timer_.start();
+		fun_to_test();
+		time_ticks_type esd = timer_.elapsed();
+		return unit_str<U>(esd);
+	};
+
+	template<typename F	>
+	inline  auto miliseconds_measure(F fun_to_test)
+	{
+		return measure<F, dbj::kalends::MilliSeconds>(fun_to_test);
+	};
+
+	template<typename F	>
+	inline  auto microseconds_measure(F fun_to_test)
+	{
+		return measure<F, dbj::kalends::Microseconds>(fun_to_test);
+	};
+
+	template<typename F	>
+	inline auto seconds_measure(F fun_to_test)
+	{
+		return measure<F, dbj::kalends::Seconds>(fun_to_test);
+	};
 
 } // dbj::kalends
 

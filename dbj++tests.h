@@ -15,3 +15,5 @@
 #include "test\dbj_traits_testing.h"
 #include "test\dbj_util_test.h"
 #include "test\dbj_win32_tests.h"
+#include <test\dbj_kalends_test.h>
+#include <test\dbj_string_util_test.h>

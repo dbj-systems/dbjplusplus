@@ -1,36 +1,63 @@
 #pragma once
 
+#include "../dbj++.h"
+
+namespace quick_dirty
+{
+	// to check the validity of dbj timers
+	struct Timer final
+	{
+		typedef std::chrono::high_resolution_clock clock_;
+		typedef std::chrono::seconds		seconds_;
+		typedef std::chrono::milliseconds	miliseconds_;
+		typedef std::chrono::microseconds	microseconds_;
+		std::chrono::time_point<clock_> beg_;
+
+		Timer() : beg_(clock_::now()) {}
+
+		void start() { beg_ = clock_::now(); }
+
+		template<typename U = Timer::miliseconds_ >
+		auto elapsed() const {
+			return std::chrono::duration_cast<U>
+				(clock_::now() - beg_).count();
+		}
+	};
+
+	template<typename F,
+		typename U = Timer::miliseconds_
+	>
+		auto measure(F fun_to_test)
+	{
+		using namespace dbj::kalends;
+		Timer timer_;
+		fun_to_test();
+		return timer_.elapsed<U>();
+	};
+}
+
+
 // #include "dbj_kalends.h"
-DBJ_TEST_SPACE_OPEN( dbj_kalends )
+DBJ_TEST_SPACE_OPEN( dbj_kalends_testing )
 
 DBJ_TEST_UNIT(dbj_timers_) {
 
 	using namespace dbj::kalends;
 
-	auto test = [&](timer_kind which_) -> time_ticks_type {
-		using namespace dbj::kalends;
-		auto timer_ = create_timer(which_);
-		DBJ_TEST_ATOM(timer_.start());
-		dbj_sleep_seconds(1);
-		time_ticks_type esd = DBJ_TEST_ATOM(timer_.elapsed());
-		return esd;
-	};
+	auto worker = [& ]() { dbj_sleep_seconds(1); };
+	using worker_type = decltype(worker);
 
-	MilliSeconds elaps_1 = to_desired_unit<MilliSeconds>(test(timer_kind::win32));
-	MilliSeconds elaps_2 = to_desired_unit<MilliSeconds>(test(timer_kind::modern));
+	auto t1 = measure< worker_type, dbj::kalends::MilliSeconds, timer_kind::win32>
+		(worker);
 
-	// this means the difference can be max 10
-	time_ticks_type tolerance{ 10 };
+	auto t2 = measure< worker_type, dbj::kalends::MilliSeconds, timer_kind::modern>
+		(worker);
 
-	bool is_inside_tolerance = ((tolerance + 1) >
-		static_cast<time_ticks_type>(std::llabs(elaps_1.count() - elaps_2.count()))
-		);
+	auto t3 = quick_dirty::measure([&] { dbj_sleep_seconds(1); });
 
 	dbj::console::print(
-		"\n\nWIN32  timer has measured ", elaps_1.count(), " milliseconds",
-		"\nModern timer has measured ", elaps_2.count(), " milliseconds",
-		"\nThe difference is ", (is_inside_tolerance ? "" : "not"), " inside tolerance of ", tolerance, " milliseconds"
-	);
+        "\n\nWIN32, Modern, Quick and dirty timer: ",
+		t1,", ",t2,", ", t3, " miliseconds" );
 }
 
 DBJ_TEST_SPACE_CLOSE

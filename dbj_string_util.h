@@ -448,10 +448,15 @@ namespace dbj::str {
 	/// is Lhs prefix to Rhs
 	/// L must be shorter than R
 	/// </summary>
-	template < typename CT, typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-	inline  bool  is_view_prefix_to_view(
+	template < 
+		typename CT, 
+		typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 
+	>
+	constexpr inline  bool  
+		is_view_prefix_to_view
+		(
 		std::basic_string_view<CT> lhs, std::basic_string_view<CT> rhs
-	)
+	    )
 	{
 		_ASSERTE(lhs.size() > 0);
 		_ASSERTE(rhs.size() > 0);
@@ -460,7 +465,7 @@ namespace dbj::str {
 		// opposite is not true
 		if (lhs.size() > rhs.size()) return false;
 
-		return dbj::equal_(
+		return dbj::util::equal_(
 			lhs.begin(),
 			lhs.end(),
 			rhs.begin());
@@ -471,7 +476,9 @@ namespace dbj::str {
 		typename string_type = std::basic_string<CT>,
 		typename string_view_type = std::basic_string_view<CT>,
 		typename std::enable_if_t< dbj::is_std_char_v<CT>, int> = 0 >
-		inline  bool  is_prefix(
+		constexpr inline  bool  
+		is_prefix
+		(
 			CT const * lhs, CT const * rhs
 		)
 	{
@@ -780,7 +787,7 @@ namespace dbj {
 		}
 
 		// replace white spaces and space with underscore to make the input presentable
-		// that is priunatble to the console 
+		// that is: printable to the console 
 		static string_type & presentable(string_type& str, char_type one_ = '_')
 		{
 			return replace_many_one(str, str_util_char::whitespaces_and_space, one_);
@@ -896,8 +903,9 @@ namespace dbj {
 
 		// create text line of 80 chars '-' by default
 		// once called can not be changed ;)
+		// there is also dbj::util::char_line
 		template< size_t N = 80, typename ARF = char(&)[N], typename ARR = char[N] >
-		constexpr auto line(char fill_char = '-') -> ARF
+		const ARF line(char fill_char = '-') 
 		{
 			auto set = [&]() -> ARF {
 				static ARR arr;

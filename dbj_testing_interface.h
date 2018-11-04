@@ -15,8 +15,7 @@ namespace dbj {
 		typedef typename dbj::console::painter_command CMD;
 		using dbj::console::print;
 
-		inline std::string_view hyphens_line_ = dbj::util::c_line();
-
+		inline std::string_view hyphens_line_ = dbj::util::char_line();
 
 		template< typename ... Args >
 		inline void text_line (
@@ -58,6 +57,7 @@ namespace dbj {
 			 */
 			const wchar_t * prog_full_path 
 		) {
+			_ASSERTE(prog_full_path);
 			white_line();
 			white_line( dbj::testing::TITLE, "\n");
 			white_line( DBJ::YEAR(), " by ", DBJ::COMPANY());
@@ -112,7 +112,7 @@ namespace dbj {
 			}
 
 			prefix(argv[0]);
-			for (auto && tunit : internal::dbj_tests_map_ )
+			for (auto /* && */ tunit : internal::dbj_tests_map_ )
 			{
 				unit_prefix(tunit.second.c_str());
 				try {
@@ -120,8 +120,20 @@ namespace dbj {
 					internal::unit_execute(tunit.first);
 					white_line(" ");
 				}
+				catch (const dbj::Exception & x_) {
+					// print("dbj Exception, ", x_.what());
+					print(x_);
+				}
+				catch (const std::system_error & x_) {
+					// print("system error: ", x_.what());
+					print(x_);
+				}
+				catch (const std::exception & x_) {
+					// print("std exception: ", x_.what());
+					print(x_);
+				}
 				catch (...) {
-					throw;
+					print(" Unknown Exception ");
 				}
 				unit_suffix(tunit.second.c_str());
 			}

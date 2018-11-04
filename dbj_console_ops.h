@@ -7,7 +7,7 @@
 
 /// <summary>
 /// out overloads for outputing to IConsole instance
-/// all funamnetal types
+/// all fundamnetal types
 /// all compound types
 /// all ranges that have begin() and end() methods
 /// </summary>
@@ -16,9 +16,7 @@ namespace dbj::console {
 	 // inline Printer PRN{ &console_ };
 	 inline const auto & PRN = printer_instance();
 
-
 	 namespace inner {
-
 		 /*
 		 anything that has begin and end
 		 NOTE: that includes references to native arrays
@@ -441,5 +439,16 @@ with reference or pointer type argument.
 		}
 		return print;
 	};
+
+	/*
+	CAUTION! 
+	MSVC will not be able to warn as it does with printf family 
+	this will simply crash if wrong format string is passed
+	*/
+	template <typename T, typename ... Args>
+	inline void prinf(T const * const format_, Args ... args) noexcept
+	{
+		PRN.printf(format_, args...);
+	}
 
 } // dbj::console

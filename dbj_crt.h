@@ -119,12 +119,12 @@ namespace dbj {
 		// inline std::string FILELINE(const std::string & file_path,
 		inline std::string FILELINE(std::string_view file_path,
 			unsigned line_,
-			const std::string & suffix = "")
+			std::string_view suffix = "")
 		{
 			_ASSERTE(!file_path.empty());
 			return {
 				FILENAME(file_path) + "(" + dbj::itos(line_) + ")"
-				+ (suffix.empty() ? "" : suffix)
+				+ (suffix.empty() ? "" : suffix.data())
 			};
 		}
 
@@ -165,21 +165,6 @@ namespace dbj {
 		::OutputDebugStringA((DBJ::printf_to_buffer
 		(message,
 			(args)...)).c_str());
-	}
-
-	// std::equal has many overloads
-	// it is less error prone to have it here
-	// in a single form
-	// and use this one as we exactly need
-	template<class InputIt1, class InputIt2>
-	bool equal_(InputIt1 first1, InputIt1 last1, InputIt2 first2)
-	{
-		for (; first1 != last1; ++first1, ++first2) {
-			if (!(*first1 == *first2)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/// <summary>
