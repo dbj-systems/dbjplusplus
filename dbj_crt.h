@@ -15,6 +15,17 @@
 #include <system_error>
 #include <array>
 
+/* avoid macros as much as possible */
+#ifdef NOMINMAX
+inline const auto & MIN = [](const auto & a, const auto & b) 
+  constexpr -> bool { return (a < b ? a : b); };
+inline const auto & MAX = [](const auto & a, const auto & b) 
+  constexpr -> bool { return (a > b ? a : b); };
+#else
+#error Be sure you have #define NOMINMAX placed before including windows.h !
+#endif
+
+
 // NOTE: do not have a space after a macro name and before the '(' !!
 #ifndef DBJ_STRINGIFY	
 #define DBJ_STRINGIFY(s) # s
@@ -257,10 +268,6 @@ namespace dbj {
 		return (v > 0) - (v < 0); // -1, 0, or +1
 	 };
 
-	/* avoid macros as much as possible */
-
-	inline const auto & MIN = [](const auto & a, const auto & b) constexpr -> bool { return (a < b ? a : b); };
-	inline const auto & MAX = [](const auto & a, const auto & b) constexpr -> bool { return (a > b ? a : b); };
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 

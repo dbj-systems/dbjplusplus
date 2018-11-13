@@ -10,6 +10,25 @@
 /// </summary>
 DBJ_TEST_SPACE_OPEN(dbj_array)
 
+struct Color final  //this struct can't be modified
+{
+	double grey;
+	double rgb[3];
+};
+
+#define make_color( x, a, b ) Color x { a, b[0], b[1], b[2] }
+
+DBJ_TEST_UNIT( templated_memcpy ) {
+
+	double myRGB[3]{ 2, 6, 9 };
+
+	make_color( c, 10, myRGB ) ; // This line doesn't work
+
+	dbj::arr::array_copy( c.rgb, myRGB );
+}
+
+/*------------------------------------------------------*/
+
 inline auto default_element_output_ =
 [&](size_t j, const auto & element,
 	const char * fmt_str = " %zd:%d ")

@@ -61,9 +61,12 @@ namespace dbj {
 			white_line();
 			white_line( dbj::testing::TITLE, "\n");
 			white_line( DBJ::YEAR(), " by ", DBJ::COMPANY());
+			white_line( "MSVC version: ", _MSC_FULL_VER );
 			white_line();
 			white_line("[", internal::dbj_tests_map_.size(), "] tests registered");
-			white_line("Application: ", DBJ::FILENAME(dbj::range_to_string(prog_full_path)));
+			white_line("Application: ", 
+				DBJ::FILENAME(dbj::range_to_string(prog_full_path))
+			);
 			white_line();
 		}
 

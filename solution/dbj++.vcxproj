@@ -114,6 +114,7 @@
     <ClInclude Include="..\dbj_defval.h" />
     <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\dbj_key_value_store.h" />
+    <ClInclude Include="..\dbj_main.h" />
     <ClInclude Include="..\dbj_micro_log.h" />
     <ClInclude Include="..\dbj_micro_log_fwd.h" />
     <ClInclude Include="..\dbj_micro_log_ops.h" />

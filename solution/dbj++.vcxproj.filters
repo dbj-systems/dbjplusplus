@@ -70,6 +70,7 @@
     <ClInclude Include="..\test\dbj_array_testing.h">
       <Filter>test</Filter>
     </ClInclude>
+    <ClInclude Include="..\dbj_main.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
