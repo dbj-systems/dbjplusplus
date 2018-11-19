@@ -164,18 +164,25 @@ namespace dbj::app_env {
 			env_vars(env_vars_)
 		{}
 
-	public:
-		static structure instance() {
-			auto once = []() {
-				auto[argc, warg, envc, env_map] = inner::app_env_initor();
-				return structure{ argc, warg, envc, env_map };
-			};
-			static structure app_env_single_instance_ = once();
-			return app_env_single_instance_;
-		}
+	// public:
+		friend structure instance();
 	};
 
+	inline structure instance() {
+		auto once = []() {
+			auto[argc, warg, envc, env_map] = inner::app_env_initor();
+			return structure{ argc, warg, envc, env_map };
+		};
+		static structure app_env_single_instance_ = once();
+		return app_env_single_instance_;
+	}
+
 } // dbj::app_env
+
+namespace dbj {
+	inline auto application_environment_data 
+		= app_env::instance();
+}; // dbj
 
 // caught! why?
 #if 0

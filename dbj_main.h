@@ -61,7 +61,11 @@ namespace dbj
 } // dbj
 
 
-extern "C" void dbj_program_start(int argc, const wchar_t * argv[], const wchar_t *envp[]);
+extern void dbj_program_start(
+	int , /* argc */
+	const wchar_t * [], /* argv */
+	const wchar_t *[] /* envp */
+);
 
 #if defined(UNICODE) || defined(_UNICODE)
 int wmain(const int argc, const wchar_t *argv[], const wchar_t *envp[])

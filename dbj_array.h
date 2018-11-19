@@ -22,7 +22,7 @@ namespace dbj::arr {
 
 	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
 	template <class T, size_t ROW, size_t COL>
-	using Matrix = typename array<array<T, COL>, ROW>;
+	using Matrix = typename std::array<std::array<T, COL>, ROW>;
 	// usage: Matrix<float, 3, 4> mat;
 
 	template <class T, size_t ROW, size_t COL>

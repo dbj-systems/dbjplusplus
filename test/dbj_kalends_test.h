@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../dbj++.h"
+#include <cstdlib>
+#include <chrono>
+#include <type_traits>
 
 namespace quick_dirty
 {
@@ -59,5 +62,135 @@ DBJ_TEST_UNIT(dbj_timers_) {
         "\n\nWIN32, Modern, Quick and dirty timer: ",
 		t1,", ",t2,", ", t3, " miliseconds" );
 }
+#pragma region more chrono testing
+// dbj.org 2018 NOV 19
+/*
+non template, recursive fibonacci aka "the worst"
 
+int fib(int x) {
+	if (x == 0)
+		return 0;
+
+	if (x == 1)
+		return 1;
+
+	return fib(x-1)+fib(x-2);
+}
+*/
+// iterative, fast and faster Fibonacci
+
+namespace iterative {
+	/*
+	this is the best runtime fibonacci
+	non recursive
+	compiler is free to optimize this in the best possible way
+	on i5 CPU / 8GB ram x64 WIN10 this was the fastest for N=40
+	*/
+	int fib(unsigned int n)
+	{
+		unsigned int c, a = 1, b = 1;
+		for (unsigned int i = 3; i <= n; i++) {
+			c = a + b;
+			a = b;
+			b = c;
+		}
+		return b;
+	}
+}
+
+namespace slowest {
+	/*
+	recursive and template but very bad implementation
+	this is ridiculously slow. why?
+	because this creates at compile time N deep call stack
+	to be executed at runtime
+	*/
+	template<size_t  N>
+	constexpr size_t fibonacci() { return fibonacci<N - 1>() + fibonacci<N - 2>(); }
+	template<>
+	constexpr size_t fibonacci<1>() { return 1; }
+	template<>
+	constexpr size_t fibonacci<0>() { return 0; }
+}
+
+namespace fast {
+	using namespace std;
+	template<size_t N>
+	struct fibonacci 
+		: integral_constant < 
+		size_t, 
+		fibonacci<N - 1>{} + fibonacci<N - 2>{} > 
+	{};
+
+	template<> struct fibonacci<1> : integral_constant<size_t, 1> {};
+	template<> struct fibonacci<0> : integral_constant<size_t, 0> {};
+}
+
+#define ST(x) #x
+#define TT(x)   ::dbj::console::print("\n", ST(x) ,"\n\t-> ", (x))
+
+struct ya_timer final {
+	mutable 
+		::std::chrono::time_point<::std::chrono::system_clock> 
+		startP{}, endP{};
+
+	auto start() const noexcept {
+		return startP = ::std::chrono::system_clock::now();
+	}
+
+	auto stop() const noexcept {
+		return endP = ::std::chrono::system_clock::now();
+	}
+
+	auto report() const noexcept 
+	{
+		using namespace std;
+		__int64 nano = chrono::duration_cast
+			<chrono::nanoseconds>(endP - startP).count();
+		using the_type = decltype(nano);
+
+		struct timings_as_floats final 
+		{
+			__int64 nano_seconds;
+			double seconds = (nano_seconds / 1.0E9);
+			double micro_seconds = (nano_seconds / 1.0E3);
+			double milli_seconds = (nano_seconds / 1.0E6);
+		};
+		return timings_as_floats{ nano };
+	}
+};
+
+template<typename F>
+static void test(F fun_) {
+	using namespace std;
+	ya_timer timer_;
+	timer_.start();
+	fun_();
+	timer_.stop();
+	auto rez = timer_.report() ;
+	dbj::console::print("\n\tMeasurement:\n"
+		, "\t", rez.seconds, " sec,"
+		, "\t", rez.micro_seconds, " micro sec,"
+		, "\t", rez.milli_seconds, " mili sec,"
+		, "\t", rez.nano_seconds, " nano sec");
+}
+
+DBJ_TEST_UNIT(more_chrono_testing)
+{
+	test(
+		[&]() { TT(iterative::fib(40)); }
+	);
+
+	test(
+		[&]() { TT(slowest::fibonacci<40>()); }
+	);
+	test(
+		[&]() { TT(fast::fibonacci<40>{}()); }
+	);
+}
+
+#undef ST
+#undef TT
+
+#pragma endregion
 DBJ_TEST_SPACE_CLOSE

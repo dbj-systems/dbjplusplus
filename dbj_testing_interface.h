@@ -114,9 +114,23 @@ namespace dbj {
 				return;
 			}
 
+			auto handle_eptr = [](std::exception_ptr eptr) 
+				// passing by value is ok
+			{
+				try {
+					if (eptr) {
+						std::rethrow_exception(eptr);
+					}
+				}
+				catch (const std::exception & x_) {
+					::dbj::console::print(x_);
+				}
+			};
+
 			prefix(argv[0]);
 			for (auto /* && */ tunit : internal::dbj_tests_map_ )
 			{
+				std::exception_ptr eptr;
 				unit_prefix(tunit.second.c_str());
 				try {
 					white_line(" ");
@@ -136,8 +150,9 @@ namespace dbj {
 					print(x_);
 				}
 				catch (...) {
-					print(" Unknown Exception ");
+					eptr = std::current_exception(); // capture
 				}
+					handle_eptr(eptr);
 				unit_suffix(tunit.second.c_str());
 			}
 			suffix();

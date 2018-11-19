@@ -8,9 +8,9 @@ DBJ_TEST_UNIT(_application_environment) {
 	using dbj::console::print;
 
 	auto application_rt_environment
-		= DBJ_TEST_ATOM(dbj::app_env::structure::instance());
+		= DBJ_TEST_ATOM(dbj::application_environment_data);
 
-	auto DBJ_MAYBE(rez) = DBJ_TEST_ATOM(application_rt_environment.cli_data);
+	DBJ_TEST_ATOM(application_rt_environment.cli_data);
 	print("\nEnv vars found");
 	int counter = 0;
 	std::wstring key, val;
