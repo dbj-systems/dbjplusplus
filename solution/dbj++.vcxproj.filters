@@ -71,6 +71,7 @@
       <Filter>test</Filter>
     </ClInclude>
     <ClInclude Include="..\dbj_main.h" />
+    <ClInclude Include="..\dbj_error_concept.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

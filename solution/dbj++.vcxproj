@@ -112,6 +112,7 @@
     <ClInclude Include="..\dbj_constexpr.h" />
     <ClInclude Include="..\dbj_crt.h" />
     <ClInclude Include="..\dbj_defval.h" />
+    <ClInclude Include="..\dbj_error_concept.h" />
     <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\dbj_key_value_store.h" />
     <ClInclude Include="..\dbj_main.h" />

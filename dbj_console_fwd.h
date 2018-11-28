@@ -124,7 +124,7 @@ namespace dbj::console {
 	{
 		static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
 		char buffer[buff_siz_]{};
-		auto R = _snprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+		auto DBJ_MAYBE(R) = _snprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R );
 		char_to_console(buffer );
 	}

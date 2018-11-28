@@ -52,7 +52,7 @@ namespace dbj::console {
 
 		~WideOut()
 		{
-			auto rezult = ::SetConsoleOutputCP(previous_code_page_);
+			auto DBJ_MAYBE(rezult) = ::SetConsoleOutputCP(previous_code_page_);
 			// apparently for a good measure one has to do this too ...
 			::SetConsoleCP(previous_code_page_);
 			_ASSERTE(0 != rezult);
@@ -65,17 +65,17 @@ namespace dbj::console {
 
 			if (output_handle_ == INVALID_HANDLE_VALUE) {
 				auto lems = dbj::win32::getLastErrorMessage(
-__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE? -- "
+					DBJ_ERR_PROMPT("INVALID_HANDLE_VALUE?")
 				);
-				throw dbj::Exception(lems);
+				throw dbj::exception(lems);
 			}
 #ifdef _DEBUG
 			DWORD lpMode{};
 			if (0 == GetConsoleMode(output_handle_, &lpMode)) {
 				auto lems = dbj::win32::getLastErrorMessage(
-					__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID HANDLE? -- "
+					DBJ_ERR_PROMPT("INVALID_HANDLE?")
 				);
-				throw dbj::Exception(lems);
+				throw dbj::exception(lems);
 			}
 #endif
 				return this->output_handle_;
@@ -123,7 +123,7 @@ __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE?
 						, last_win32_err
 					);
 #ifndef _DEBUG
-					throw dbj::Exception(lems);
+					throw dbj::exception(lems);
 #else
 					dbj::TRACE("\n%s\n", lems.c_str());
 #endif
@@ -180,7 +180,7 @@ __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- INVALID_HANDLE_VALUE?
 			auto lems = dbj::win32::getLastErrorMessage(
 				__FILE__ "(" DBJ_EXPAND(__LINE__) ") dbj console get_font_name() failed -- "
 			);
-			throw dbj::Exception(lems);
+			throw dbj::exception(lems);
 		}
 		return cfi.FaceName;
 	}
@@ -530,7 +530,7 @@ output the exceptions
 					// so ...
 					dbj::wstring message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
 					DBJ::TRACE(L"\nException %s", message_.data());
-					throw dbj::Exception(message_);
+					throw dbj::exception(message_);
 				}
 				return true;
 			}();

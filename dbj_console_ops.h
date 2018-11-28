@@ -320,7 +320,7 @@ with reference or pointer type argument.
 	}
 
 	/* print exceptions and also color the output red */
-	template<> inline void out<dbj::Exception>(dbj::Exception x_) {
+	template<> inline void out<dbj::exception>(dbj::exception x_) {
 		DBJ_TYPE_REPORT_FUNCSIG;
 		out(painter_command::bright_red);
 		PRN.wchar_to_console(x_.wwhat().c_str());

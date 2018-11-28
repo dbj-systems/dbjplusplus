@@ -84,7 +84,7 @@ long var [[maybe_unused]] {42L} ;
 // standard c++ 
 // works in any space
 // https://godbolt.org/z/jGC98L
-#define DBJ_VANISH(x) static_assert( (noexcept(x),true) );
+#define DBJ_VANISH(...) static_assert( (noexcept(__VA_ARGS__),true) );
 #endif
 
 #ifdef DBJ
@@ -110,6 +110,7 @@ there is another one
 // TODO: not implmented yet
 #include "dbj_synchro.h"
 #include "dbj_constexpr.h"
+#include "dbj_error_concept.h"
 #include "dbj_crt.h"
 #include "dbj_array.h"
 #include "dbj_string_util.h"
@@ -122,7 +123,7 @@ there is another one
 #include "dbj_console_ops.h"
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"
-#include "dbj_com.h"
+// #include "dbj_com.h"
 #include "dbj_defval.h"
 #include "dbj_win32.h"
 #include "dbj_native_arr_ref.h"

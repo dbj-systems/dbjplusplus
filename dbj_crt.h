@@ -28,17 +28,29 @@ inline const auto & MAX = [](const auto & a, const auto & b)
 
 // NOTE: do not have a space after a macro name and before the '(' !!
 #ifndef DBJ_STRINGIFY	
-#define DBJ_STRINGIFY(s) # s
+#define DBJ_STRINGIFY(s) #s
 #define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
+
+#define DBJ_EXP_(s) #s
+#define DBJ_EXP(s) DBJ_EXP_(s)
 #endif
+
+// https://www.boost.org/doc/libs/1_35_0/boost/preprocessor/stringize.hpp
+#    define BOOST_PP_STRINGIZE(text) BOOST_PP_STRINGIZE_A((text))
+#    define BOOST_PP_STRINGIZE_A(arg) BOOST_PP_STRINGIZE_I arg
+#    define BOOST_PP_STRINGIZE_I(text) #text
+//
 
 #ifndef DBJ_COMPANY	
 #define DBJ_COMPANY "DBJ.Systems Ltd."
-#define DBJ_YEAR ( __DATE__ + 7 ) 
+#define DBJ_YEAR (__DATE__ + 7)
 #define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
 #endif
+#define DBJ_ERR_PROMPT(x) \
+__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- " x " -- "
+
 // 
 #define DBJ_CHECK_IF static_assert
 
@@ -60,17 +72,17 @@ inline const auto & MAX = [](const auto & a, const auto & b)
 DBJ preffered concept to code standard C++ string constants
 is to use string_view
 
-using namespace std::literals;
+#include <string_view>
+using namespace
+::std::literals::string_view_literals;
 
-namespace dbj::strings {
-	constexpr inline auto which_time() {
-		return "compile time"sv;
-	}
-};
+	constexpr inline auto
+	   compiletime_string_view_constant
+		= "compile time"sv ;
 
-this even works at compile time
+as evident this also works at compile time
 
-static_assert(dbj::strings::which_time() == "compile time" );
+static_assert(compiletime_string_view_constant == "compile time" );
 
 */
 
@@ -101,7 +113,8 @@ namespace dbj {
 	inline dbj::string itos(long l_) {
 		std::array<char, 64> str{ {0} };
 
-		auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), l_);
+		[[maybe_unused]] auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), l_);
+		DBJ_VANISH(p);
 		_ASSERTE(ec != std::errc::value_too_large);
 			return { str.data() };
 	}
@@ -146,7 +159,7 @@ namespace dbj {
 	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[BUFSIZ_]{};
-		auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+		auto DBJ_MAYBE(R) = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
 		return {buffer};
 	}
@@ -155,7 +168,7 @@ namespace dbj {
 	inline std::string printf_to_buffer(const char * const message, Args ... args) noexcept
 	{
 		char buffer[BUFSIZ_]{};
-		auto R = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
+		auto DBJ_MAYBE(R) = _snprintf_s(buffer, sizeof(buffer), sizeof(buffer), message, (args) ...);
 		_ASSERTE(-1 != R);
 		return { buffer };
 	}
@@ -220,44 +233,6 @@ namespace dbj {
 #endif // DBJ_WIN
 
 	}
-
-#pragma region dbj exceptions
-
-	struct Exception : public std::runtime_error 
-	{
-
-	public:
-		typedef std::runtime_error _Mybase;
-
-		Exception(std::string_view _Message)
-			: _Mybase(_Message.data())
-		{	// construct from message string
-		}
-
-		Exception( std::wstring_view _WMessage)
-			: _Mybase(
-				std::string(_WMessage.begin(), _WMessage.end() ).c_str()
-			)
-		{	// construct from message unicode std string
-		}
-
-
-		Exception(const char *_Message)
-			: _Mybase(_Message)
-		{	// construct from message string
-		}
-
-		// wide what()
-		// note: be sure to copy the result
-		std::wstring wwhat() const
-		{
-			std::string s_{ this->what() };
-			return { std::begin(s_), std::end(s_) };
-		}
-	};
-
-#pragma endregion 
-
 	/*
 	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
 

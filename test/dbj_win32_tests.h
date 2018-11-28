@@ -30,7 +30,7 @@ DBJ_TEST_UNIT(_GetGeoInfoEx_)
 			);
 		}
 		catch (...) {
-			dbj::console::print( dbj::Exception("Uknown Exception?") );
+			dbj::console::print( ::dbj::exception("Uknown Exception?") );
 		}
 	};
 	/*
