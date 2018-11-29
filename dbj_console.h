@@ -1,12 +1,18 @@
 ﻿#pragma once
 #include "dbj_console_fwd.h"
-/*
-#include "dbj_console_painter.h"
-*/
+#include <io.h>
+#include <fcntl.h>
+
 namespace dbj::console {
 
 #pragma region WideOut
 	/*
+	The "core of the trick"
+
+	SetConsoleOutputCP(CP_UTF8);
+	_setmode(_fileno(stdout), _O_U8TEXT);
+	wprintf(L"UTF-8 display: %s\r\n", uname);   //uname is a wchar_t*
+
 	Windows "native" unicode is UTF-16
 	Be warned than proper implementation of UTF-8 related code page did not happen
 	before W7 and just *perhaps* it is full on W10
@@ -42,6 +48,10 @@ namespace dbj::console {
 			/*			TODO: GetLastError()			*/
 			// apparently for a good measure one has to do this too ...
 			::SetConsoleCP(code_page_);
+			// we do NOT use file handlers but
+			// this is REALLY important to do
+			_setmode(_fileno(stdout), _O_U8TEXT);
+			// after this guess the right font and you are ok ;)
 		}
 		// no copying
 		WideOut(const WideOut & other) = delete;

@@ -249,7 +249,7 @@ namespace dbj {
 					if (err == ERROR_INVALID_FLAGS)
 						return { L"The values supplied for flags were not valid" };
 				}
-				DBJ_ASSERT(rezult != 0);
+				_ASSERTE(rezult != 0);
 					return geoData;
 #else
 				return std::wstring{ L"GetGeoInfoEx requires systems above REDSTONE 3" };

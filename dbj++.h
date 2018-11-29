@@ -55,9 +55,9 @@ so we can not do this:
 */
 // #ifdef _MSC_VER
 #ifdef __cpp_coroutines
-#pragma message ("coroutines available")
+#pragma message ( __FILE__ " -- coroutines available in this build")
 #else
-#pragma message ("no coroutines")
+#pragma message (__FILE__ " -- no coroutines in this build ...")
 #endif
 
 #ifdef __cpp_lib_is_final
@@ -79,12 +79,16 @@ long var [[maybe_unused]] {42L} ;
 
 #ifndef DBJ_VANISH
 // for variables and expressions
-// guranteed no evaluation
+// guaranteed no evaluation
 // guaranteed zero bytes overhead
 // standard c++ 
 // works in any space
 // https://godbolt.org/z/jGC98L
 #define DBJ_VANISH(...) static_assert( (noexcept(__VA_ARGS__),true) );
+//
+// limited inferior macro but also works with C projects
+#define DBJ_NOUSE(x) static void * dummy___COUNTER__ = (void*)sizeof(x)
+//
 #endif
 
 #ifdef DBJ

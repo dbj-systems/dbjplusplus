@@ -54,20 +54,6 @@ __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- " x " -- "
 // 
 #define DBJ_CHECK_IF static_assert
 
-#pragma region DBJ debug things
-#ifdef _DEBUG
-#define DBJ_ASSERT _ASSERTE
-#define DBJ_VERIFY(result, expression) DBJ_ASSERT((result) == (expression))
-#else
-// release code dissapears some things, not all
-// be carefull with DBJ::TRACE as it might _ASSERTE in release builds
-// 
-#define DBJ_ASSERT __noop
-// release code for DBJ_VERIFY_ stays but with no checks
-#define DBJ_VERIFY(result, expression) (void)(expression)
-#endif
-#pragma endregion 
-
 /*
 DBJ preffered concept to code standard C++ string constants
 is to use string_view

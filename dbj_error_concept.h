@@ -1,5 +1,6 @@
 #pragma once
 #include <exception>
+#include <cassert>
 #include <string>
 #include <string_view>
 /*
@@ -19,6 +20,23 @@ Note: ::std::runtime_error is legacy artefact. From past times when inheritance
 and deep inheritance have been considered a fashion statement.
 */
 #pragma region error codes and messages
+// first a good decades old VERIFY macro
+namespace dbj {
+	[[noreturn]]
+	inline void terror
+		(const char * msg_, const char * file_, const int line_)
+	{
+		assert(msg_);
+		assert(file_);
+		assert(line_);
+		::fprintf(stderr, "\n\ndbj++ ERROR:%s\n%s (%d)", msg_, file_, line_);
+		exit(EXIT_FAILURE);
+	}
+
+#define DBJ_VERIFY_(x, file, line ) if (false == (x) ) ::dbj::terror( #x ", failed", file, line )
+
+#define DBJ_VERIFY(x) DBJ_VERIFY_(x,__FILE__,__LINE__)
+} // dbj
 namespace dbj::err {
 
 	using namespace ::std::literals::string_view_literals;
