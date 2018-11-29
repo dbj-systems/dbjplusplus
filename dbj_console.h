@@ -524,19 +524,25 @@ output the exceptions
 			static auto configure_once_ = []() -> bool
 			{
 				auto font_name_ = L"Lucida Console";
-				auto code_page_ = dbj::console::WideOut::instance().code_page();
+				auto code_page_ = ::dbj::console::WideOut::instance().code_page();
 				try {
 					// TODO: switch code page on a single running instance
 					// auto new_console[[maybe_unused]] = con::switch_console(code_page_);
 
-					dbj::console::set_font(font_name_);
+					::dbj::console::set_font(font_name_);
 					DBJ::TRACE(L"\nConsole code page set to %d and font to: %s\n"
 						, code_page_, font_name_
 					);
+
+					// and now the really crazy and important measure 
+					// for Windows console
+					::system("chcp 65001");
+					DBJ::TRACE(L"\nConsole chcp 65001 done\n");
+
 				}
 				catch (...) {
 					// can happen before main()
-					// and user can have no terminators and abort set up
+					// and user can have no terminators set up
 					// so ...
 					dbj::wstring message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
 					DBJ::TRACE(L"\nException %s", message_.data());
