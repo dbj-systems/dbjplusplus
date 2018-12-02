@@ -72,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="..\dbj_main.h" />
     <ClInclude Include="..\dbj_error_concept.h" />
+    <ClInclude Include="old_console,h.h">
+      <Filter>unused</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
