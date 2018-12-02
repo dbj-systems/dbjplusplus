@@ -143,7 +143,6 @@ namespace dbj::console {
 	https://stackoverflow.com/a/33672503/5560811
 
 	*/
-
 	constexpr static const wchar_t * const SafeFontNames[]{
 		L"Lucida Console",
 		L"Arial", L"Calibri", L"Cambria", L"Cambria Math", L"Comic Sans MS", L"Courier New",
@@ -161,7 +160,6 @@ namespace dbj::console {
 		L"Trebuchet MS", L"Verdana", L"Webdings", L"Wingdings", L"Yu Gothic",
 		L"Yu Gothic UI"
 	};
-
 //
 // choice of console font is critical
 // on my machine this font produces 
@@ -174,9 +172,7 @@ namespace dbj::console {
 // on the console
 //
 	constexpr inline const wchar_t * const extended_chars_good_font{ L"SimSun-ExtB" };
-
 	constexpr inline const wchar_t * const default_font{ SafeFontNames[0] };
-
 	inline bool set_font(const wchar_t * font_name = default_font, short height_ = 20) {
 		CONSOLE_FONT_INFOEX cfi;
 		cfi.cbSize = sizeof cfi;
@@ -194,10 +190,37 @@ namespace dbj::console {
 		const wchar_t * font_name = extended_chars_good_font, short height_ = 20
 	)
 	{
-		return set_font(font_name, height_);
+		auto retval = set_font(font_name, height_);
+		DBJ_VERIFY(retval);
+		return retval;
 	}
 
+	inline CONSOLE_FONT_INFOEX get_current_font_(HANDLE console_handle_)
+	{
+		static HANDLE handle_ = console_handle_; // console_engine_.handle();
+		static CONSOLE_FONT_INFOEX cfi;
+		cfi.cbSize = sizeof cfi;
+		cfi.nFont = 0;
+		cfi.dwFontSize.X = 0;
+		cfi.dwFontSize.Y = 0;
+		cfi.FontFamily = FF_DONTCARE;
+		cfi.FontWeight = FW_NORMAL;
+		auto DBJ_MAYBE(wmemset_rez) = std::wmemset(cfi.FaceName, '?', LF_FACESIZE);
 
+		BOOL rez = ::GetCurrentConsoleFontEx(
+			handle_,
+			FALSE,
+			&cfi
+		);
+
+		if (rez == 0) {
+			auto lems = dbj::win32::getLastErrorMessage(
+				__FILE__ "(" DBJ_EXPAND(__LINE__) ") dbj console get_font_name() failed -- "
+			);
+			throw dbj::exception(lems);
+		}
+		return cfi;
+	}
 #pragma endregion
 
 	typedef enum class CODE : UINT {

@@ -232,7 +232,10 @@ namespace dbj {
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 
-		countof(T const (&array)[N]) { return N; }
+		countof(T const (&array_)[N]) { 
+		  DBJ_VANISH(array_);
+		  return N; 
+	  }
 } // dbj
 
 /*

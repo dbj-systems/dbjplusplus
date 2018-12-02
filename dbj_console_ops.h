@@ -7,7 +7,7 @@
 
 /// <summary>
 /// out overloads for outputing to IConsole instance
-/// all fundamnetal types
+/// all fundamental types
 /// all compound types
 /// all ranges that have begin() and end() methods
 /// </summary>
@@ -79,8 +79,6 @@ namespace dbj::console {
 		 };
 
 	 } // inner nspace
-
-
 
 #ifdef DBJ_TYPE_INSTRUMENTS
 #define DBJ_TYPE_REPORT_FUNCSIG	dbj::console::PRN.printf("\n\n%-20s : %s\n%-20s :-> ", "Function", __FUNCSIG__, " ")
@@ -443,7 +441,9 @@ with reference or pointer type argument.
 	/*
 	CAUTION! 
 	MSVC will not be able to warn as it does with printf family 
-	this will simply crash if wrong format string is passed
+	this will simply crash if (very) wrong format string is passed
+	NOTE: 
+	As ever on WIN32 this is faster if called with wide format string
 	*/
 	template <typename T, typename ... Args>
 	inline void prinf(T const * const format_, Args ... args) noexcept

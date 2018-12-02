@@ -477,7 +477,7 @@ namespace dbj {
 
 	// type aliases and value aliases
 	template<typename T>
-	constexpr inline bool is_range_v = inner::is_range<T>::value;
+	constexpr inline bool is_range_v = ::dbj::inner::is_range<T>::value;
 
 	template<typename T>
 	using is_range_t = typename inner::is_range<T>::type;
