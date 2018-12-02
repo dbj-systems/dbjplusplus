@@ -3,6 +3,10 @@
 #include <io.h>
 #include <fcntl.h>
 
+namespace dbj {
+	extern inline bool console_is_initialized() ;
+}
+
 namespace dbj::console {
 
 #pragma region WideOut
@@ -146,10 +150,10 @@ namespace dbj::console {
 		{
 			out(wp_.data(), wp_.data() + wp_.size());
 		}
-
+		private:
 		/*
 		here we hide the single application wide 
-		IConsole implementation instance
+		IConsole instance maker
 		*/
 		static WideOut & instance( 
 			CODE_PAGE const & code_page = default_code_page
@@ -163,32 +167,31 @@ namespace dbj::console {
 			return single_instance;
 		};
 
+		friend const Printer & printer_instance();
+
 	}; // WideOut
 
-
-	inline WideOut & console_engine_ = WideOut::instance();
+	/* this is Printer's    friend*/
+	/* this is also WideOut friend*/
+	inline const Printer & printer_instance()
+	{
+		static Printer single_instance
+			= [&]() -> Printer 
+		{
+			// we can do this only because from inside config we do not 
+			// use WideOut or Printer
+			auto DBJ_MAYBE(is_it_) = console_is_initialized();
+			static WideOut & console_engine_ = WideOut::instance();
+			return { &console_engine_ };
+		}(); // call immediately but only once!
+		return single_instance;
+	}
 
 	inline std::wstring get_font_name()
 	{
-		HANDLE handle_ = console_engine_.handle();
+		HANDLE handle_ = printer_instance().cons().handle();
 		CONSOLE_FONT_INFOEX cfi = get_current_font_(handle_);
 		return { cfi.FaceName };
-	}
-
-	/* 
-	do we need this?
-	inline HANDLE  HANDLE_{ console_.handle() };
-	*/
-
-	/* this is Printer's friend*/
-	inline const Printer & printer_instance() 
-	{
-		static Printer single_instance
-			= [&]() -> Printer {
-			// this is anonymous lambda called only once
-			return { &console_engine_ };
-		}(); // call immediately
-		return single_instance;
 	}
 
 #pragma endregion 
@@ -206,16 +209,11 @@ namespace dbj::console {
 		{
 			static auto configure_once_ = []() -> bool
 			{
-				auto font_name_ = L"Lucida Console";
-				auto code_page_ = ::dbj::console::WideOut::instance().code_page();
 				try {
-					// TODO: switch code page on a single running instance
-					// auto new_console[[maybe_unused]] = con::switch_console(code_page_);
-
-					::dbj::console::set_font(font_name_);
-					DBJ::TRACE(L"\nConsole code page set to %d and font to: %s\n"
-						, code_page_, font_name_
+					::dbj::console::set_font(
+						::dbj::console::default_font
 					);
+					DBJ::TRACE(L"\nConsole font set to: %s\n", ::dbj::console::default_font);
 
 					// and now the really crazy and important measure 
 					// for Windows console
@@ -227,20 +225,29 @@ namespace dbj::console {
 					// can happen before main()
 					// and user can have no terminators set up
 					// so ...
-					dbj::wstring message_ = dbj::win32::getLastErrorMessage(__FUNCSIG__);
-					DBJ::TRACE(L"\nException %s", message_.data());
-					throw dbj::exception(message_);
+					dbj::wstring message_ = dbj::win32::getLastErrorMessage("dbj console configuration has failed");
+					DBJ::TRACE(L"\nERROR %s", message_.data());
+					// throw dbj::exception(message_);
+					DBJ_VERIFY(false);
 				}
+				//
 				return true;
 			}();
 			return configure_once_;
 		} // instance()
 
-		inline const bool & single_start = instance();
+		// inline const bool & single_start = instance();
 
 	} // config
 
 } // dbj::console
+
+namespace dbj {
+	inline bool console_is_initialized() {
+		static bool is_it_ = ::dbj::console::config::instance();
+		return is_it_;
+	}
+}
 
 /*
   Copyright 2017,2018 by dbj@dbj.org

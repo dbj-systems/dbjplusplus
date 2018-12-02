@@ -250,7 +250,7 @@ with reference or pointer type argument.
 	template<> inline void out< std::string >( std::string  str) 
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (! str.empty()) PRN.char_to_console(str.c_str()); }
 	template<> inline void out< std::wstring >( std::wstring  str)
-	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons()->out(str.data(), str.data() + str.size()); }
+	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons().out(str.data(), str.data() + str.size()); }
 	template<> inline void out< std::u16string >( std::u16string  str)
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.wchar_to_console(dbj::range_to_wstring(str).c_str()); }
 	template<> inline void out< std::u32string >( std::u32string  str)
@@ -263,7 +263,7 @@ with reference or pointer type argument.
 	}
 	template<> inline void out< std::wstring_view >(std::wstring_view  str)
 	{
-		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons()->out(str.data(), str.data() + str.size());
+		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons().out(str.data(), str.data() + str.size());
 	}
 	template<> inline void out< std::u16string_view >(std::u16string_view  str)
 	{
@@ -428,6 +428,8 @@ with reference or pointer type argument.
 
 	inline auto print = [](const auto & first_param, auto && ... params)
 	{
+		_ASSERTE(::dbj::console_is_initialized());
+
 		out(first_param);
 
 		// if there are  more params
@@ -448,6 +450,7 @@ with reference or pointer type argument.
 	template <typename T, typename ... Args>
 	inline void prinf(T const * const format_, Args ... args) noexcept
 	{
+		_ASSERTE(::dbj::console_is_initialized());
 		PRN.printf(format_, args...);
 	}
 
