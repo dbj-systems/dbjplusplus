@@ -7,7 +7,7 @@
 
 /// <summary>
 /// out overloads for outputing to IConsole instance
-/// all fundamnetal types
+/// all fundamental types
 /// all compound types
 /// all ranges that have begin() and end() methods
 /// </summary>
@@ -79,8 +79,6 @@ namespace dbj::console {
 		 };
 
 	 } // inner nspace
-
-
 
 #ifdef DBJ_TYPE_INSTRUMENTS
 #define DBJ_TYPE_REPORT_FUNCSIG	dbj::console::PRN.printf("\n\n%-20s : %s\n%-20s :-> ", "Function", __FUNCSIG__, " ")
@@ -252,7 +250,7 @@ with reference or pointer type argument.
 	template<> inline void out< std::string >( std::string  str) 
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (! str.empty()) PRN.char_to_console(str.c_str()); }
 	template<> inline void out< std::wstring >( std::wstring  str)
-	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons()->out(str.data(), str.data() + str.size()); }
+	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons().out(str.data(), str.data() + str.size()); }
 	template<> inline void out< std::u16string >( std::u16string  str)
 	{ DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.wchar_to_console(dbj::range_to_wstring(str).c_str()); }
 	template<> inline void out< std::u32string >( std::u32string  str)
@@ -265,7 +263,7 @@ with reference or pointer type argument.
 	}
 	template<> inline void out< std::wstring_view >(std::wstring_view  str)
 	{
-		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons()->out(str.data(), str.data() + str.size());
+		DBJ_TYPE_REPORT_FUNCSIG; if (!str.empty()) PRN.cons().out(str.data(), str.data() + str.size());
 	}
 	template<> inline void out< std::u16string_view >(std::u16string_view  str)
 	{
@@ -320,7 +318,7 @@ with reference or pointer type argument.
 	}
 
 	/* print exceptions and also color the output red */
-	template<> inline void out<dbj::Exception>(dbj::Exception x_) {
+	template<> inline void out<dbj::exception>(dbj::exception x_) {
 		DBJ_TYPE_REPORT_FUNCSIG;
 		out(painter_command::bright_red);
 		PRN.wchar_to_console(x_.wwhat().c_str());
@@ -430,6 +428,8 @@ with reference or pointer type argument.
 
 	inline auto print = [](const auto & first_param, auto && ... params)
 	{
+		_ASSERTE(::dbj::console_is_initialized());
+
 		out(first_param);
 
 		// if there are  more params
@@ -443,11 +443,14 @@ with reference or pointer type argument.
 	/*
 	CAUTION! 
 	MSVC will not be able to warn as it does with printf family 
-	this will simply crash if wrong format string is passed
+	this will simply crash if (very) wrong format string is passed
+	NOTE: 
+	As ever on WIN32 this is faster if called with wide format string
 	*/
 	template <typename T, typename ... Args>
 	inline void prinf(T const * const format_, Args ... args) noexcept
 	{
+		_ASSERTE(::dbj::console_is_initialized());
 		PRN.printf(format_, args...);
 	}
 

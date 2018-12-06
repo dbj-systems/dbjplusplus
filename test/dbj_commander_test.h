@@ -35,7 +35,7 @@ DBJ_TEST_SPACE_OPEN(dbj_cmd_testing )
 					commander_.reg(CMD::red, paint_it_red);
 					bool r = commander_.execute(CMD::red);
 				}
-				catch (dbj::Exception & x) {
+				catch (dbj::exception & x) {
 					dbj::console::print(x);
 				}
 			}

@@ -112,6 +112,7 @@
     <ClInclude Include="..\dbj_constexpr.h" />
     <ClInclude Include="..\dbj_crt.h" />
     <ClInclude Include="..\dbj_defval.h" />
+    <ClInclude Include="..\dbj_error_concept.h" />
     <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\dbj_key_value_store.h" />
     <ClInclude Include="..\dbj_main.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
+    <ClInclude Include="old_console,h.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />

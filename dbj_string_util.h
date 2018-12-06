@@ -26,7 +26,7 @@ namespace dbj::str {
 
 	inline void reverse(char * str, size_t N)
 	{
-		int start = 0;
+		size_t start = 0;
 		size_t end = N - 1;
 		while (start < end)
 		{

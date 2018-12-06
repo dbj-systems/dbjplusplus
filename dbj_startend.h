@@ -14,7 +14,7 @@ static inline auto gbe =  dbj::entry_exit_singleton<f1,f2>() ;
 
 namespace dbj {
 	    
-	    auto vvl = []() -> void {};
+	    inline auto vvl = []() -> void {};
 		using  voidvoidfun = void(*) ();
 		using  vv_lambda = decltype( vvl );
 
@@ -65,7 +65,7 @@ namespace dbj {
 #pragma endregion
 
 /* standard suffix for every other header here */
-#pragma comment( user, __FILE__ "(c) 2017,2018 by dbj@dbj.org | Version: " __DATE__ __TIME__ ) 
+#pragma comment( user, DBJ_BUILD_STAMP ) 
 /*
 Copyright 2018 by dbj@dbj.org
 

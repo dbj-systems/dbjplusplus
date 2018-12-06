@@ -137,4 +137,16 @@ DBJ_TEST_UNIT(clasical_string_utils)
 	);
 }
 
+DBJ_TEST_UNIT(std_to_chars)
+{
+	std::array<char, 10> str;
+
+	if (
+		auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), 42);
+		ec == std::errc()
+		) {
+		DBJ_TEST_ATOM( std::string_view(str.data(), p - str.data()) );
+	}
+}
+
 DBJ_TEST_SPACE_CLOSE

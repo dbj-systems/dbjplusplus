@@ -242,7 +242,7 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 
 	extern "C" void compound_types_to_console()
 	{
-		using namespace dbj::console;
+		using namespace ::dbj::console;
 		using namespace std;
 		// array of fundamental types
 		arh_test(1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -257,7 +257,7 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 		print("\ninit list:\t", init_list);
 		//
 		print(
-			dbj::Exception{ "\n\tdbj::Exception" },
+			::dbj::exception{ "\n\tdbj::Exception" },
 			std::exception{ "\n\tstd::exception" },
 			std::runtime_error{ "\n\tstd::runtime_error" },
 			"\nstd::vector<int>{1,2,3}:\t", std::vector<int>{1, 2, 3},

@@ -137,7 +137,7 @@ namespace dbj {
 					internal::unit_execute(tunit.first);
 					white_line(" ");
 				}
-				catch (const dbj::Exception & x_) {
+				catch (const dbj::exception & x_) {
 					// print("dbj Exception, ", x_.what());
 					print(x_);
 				}

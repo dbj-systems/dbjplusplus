@@ -150,13 +150,14 @@ namespace dbj {
 			namespace {
 				DWORD	INFO_BUFFER_SIZE = 1024;
 
-				static wstring  infoBuf(INFO_BUFFER_SIZE, (char)0);
+				static wstring  infoBuf(INFO_BUFFER_SIZE, (wchar_t)0);
 				//
 				template<class F, class... Pack>
 				constexpr inline auto
 					call
 					(F&& fun, Pack&&... args) {
 					infoBuf.clear();
+					infoBuf.resize(INFO_BUFFER_SIZE);
 					if (0 == std::invoke(fun, (args)...))
 						throw getLastErrorMessage(typeid(F).name());
 					return (infoBuf);
@@ -248,7 +249,7 @@ namespace dbj {
 					if (err == ERROR_INVALID_FLAGS)
 						return { L"The values supplied for flags were not valid" };
 				}
-				DBJ_ASSERT(rezult != 0);
+				_ASSERTE(rezult != 0);
 					return geoData;
 #else
 				return std::wstring{ L"GetGeoInfoEx requires systems above REDSTONE 3" };

@@ -25,6 +25,8 @@ namespace dbj::util {
 			return 10000 * hour + 100 * min + sec;
 		}
 
+#pragma warning( push )  
+#pragma warning( disable : 4706 ) 
 		// as an example, one can call bellow like this
 		// constexpr inline unsigned long hash_code =
 		//	dbj::util::hash(__FILE__);
@@ -36,6 +38,8 @@ namespace dbj::util {
 				hash = ((hash << 5) + hash) + c; // hash * 33 + c 
 			return hash;
 		}
+#pragma warning( pop )  
+
 	} // extern "C" linkage
 	
 	template<typename T, size_t N>
