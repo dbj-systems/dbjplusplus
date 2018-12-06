@@ -105,6 +105,11 @@ there is another one
 
 #define DBJ_COMAUTOINIT
 */
+/*
+https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warning-c4244-for-stdvector-copy-or-assign-with-i
+*/
+#pragma warning( push )
+#pragma warning( disable : 4244 )
 
 // #define DBJ_MT
 // Multi Threaded Build
@@ -138,6 +143,7 @@ there is another one
 #include "dbj_key_value_store.h"
 #include "dbj_main.h"
 
+#pragma warning( pop )
 
 /* 
 standard suffix for every dbj header 
