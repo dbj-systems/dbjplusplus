@@ -77,7 +77,8 @@ int fib(int x) {
 	return fib(x-1)+fib(x-2);
 }
 */
-// iterative, fast and faster Fibonacci
+
+using fibo_type = int64_t;
 
 namespace iterative {
 	/*
@@ -86,10 +87,10 @@ namespace iterative {
 	compiler is free to optimize this in the best possible way
 	on i5 CPU / 8GB ram x64 WIN10 this was the fastest for N=40
 	*/
-	int fib(unsigned int n)
+	fibo_type fib(fibo_type n)
 	{
-		unsigned int c, a = 1, b = 1;
-		for (unsigned int i = 3; i <= n; i++) {
+		fibo_type c, a = 1, b = 1;
+		for (fibo_type i = 3; i <= n; i++) {
 			c = a + b;
 			a = b;
 			b = c;
@@ -105,25 +106,25 @@ namespace slowest {
 	because this creates at compile time N deep call stack
 	to be executed at runtime
 	*/
-	template<size_t  N>
-	constexpr size_t fibonacci() { return fibonacci<N - 1>() + fibonacci<N - 2>(); }
+	template<fibo_type  N>
+	constexpr fibo_type fibonacci() { return fibonacci<N - 1>() + fibonacci<N - 2>(); }
 	template<>
-	constexpr size_t fibonacci<1>() { return 1; }
+	constexpr fibo_type fibonacci<1>() { return 1; }
 	template<>
-	constexpr size_t fibonacci<0>() { return 0; }
+	constexpr fibo_type fibonacci<0>() { return 0; }
 }
 
 namespace fast {
 	using namespace std;
-	template<size_t N>
+	template<fibo_type N>
 	struct fibonacci 
 		: integral_constant < 
-		size_t, 
+		fibo_type,
 		fibonacci<N - 1>{} + fibonacci<N - 2>{} > 
 	{};
 
-	template<> struct fibonacci<1> : integral_constant<size_t, 1> {};
-	template<> struct fibonacci<0> : integral_constant<size_t, 0> {};
+	template<> struct fibonacci<1> : integral_constant<fibo_type, 1> {};
+	template<> struct fibonacci<0> : integral_constant<fibo_type, 0> {};
 }
 
 #define ST(x) #x
@@ -177,15 +178,16 @@ static void test(F fun_) {
 
 DBJ_TEST_UNIT(more_chrono_testing)
 {
+	constexpr static const fibo_type N = 40;
 	test(
-		[&]() { TT(iterative::fib(40)); }
+		[&]() { TT(iterative::fib(N)); }
 	);
 
 	test(
-		[&]() { TT(slowest::fibonacci<40>()); }
+		[&]() { TT(slowest::fibonacci<N>()); }
 	);
 	test(
-		[&]() { TT(fast::fibonacci<40>{}()); }
+		[&]() { TT(fast::fibonacci<N>{}()); }
 	);
 }
 
