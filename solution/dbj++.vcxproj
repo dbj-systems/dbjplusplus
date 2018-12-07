@@ -120,6 +120,7 @@
     <ClInclude Include="..\dbj_micro_log_fwd.h" />
     <ClInclude Include="..\dbj_micro_log_ops.h" />
     <ClInclude Include="..\dbj_native_arr_ref.h" />
+    <ClInclude Include="..\dbj_optional_handler.h" />
     <ClInclude Include="..\dbj_startend.h" />
     <ClInclude Include="..\dbj_string_compare.h" />
     <ClInclude Include="..\dbj_string_util.h" />

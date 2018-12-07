@@ -44,9 +44,16 @@ inline const auto & MAX = [](const auto & a, const auto & b)
 //
 
 #ifndef DBJ_COMPANY	
+
+#ifdef _DEBUG
+#define DBJ_BUILD "Debug"
+#else
+#define DBJ_BUILD "Release"
+#endif 
+
 #define DBJ_COMPANY "DBJ.Systems Ltd."
 #define DBJ_YEAR (__DATE__ + 7)
-#define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| Version: [" __DATE__ "][" __TIME__ "]" 
+#define DBJ_BUILD_STAMP "(c) " __DATE__ " by " DBJ_COMPANY "| " DBJ_BUILD ": [" __DATE__ "][" __TIME__ "]" 
 #endif
 #define DBJ_ERR_PROMPT(x) \
 __FILE__ "(" DBJ_EXPAND(__LINE__) ") -- " __FUNCSIG__ " -- " x " -- "

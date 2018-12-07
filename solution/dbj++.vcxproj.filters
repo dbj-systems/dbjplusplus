@@ -75,6 +75,7 @@
     <ClInclude Include="old_console,h.h">
       <Filter>unused</Filter>
     </ClInclude>
+    <ClInclude Include="..\dbj_optional_handler.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

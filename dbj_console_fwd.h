@@ -210,7 +210,7 @@ printer is console single user
 		{
 			static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
 			wchar_t buffer[buff_siz_]{};
-			auto R = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+			auto DBJ_MAYBE(R) = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
 			_ASSERTE(-1 != R);
 			wchar_to_console(buffer);
 		}

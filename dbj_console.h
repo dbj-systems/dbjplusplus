@@ -228,7 +228,10 @@ namespace dbj::console {
 					dbj::wstring message_ = dbj::win32::getLastErrorMessage("dbj console configuration has failed");
 					DBJ::TRACE(L"\nERROR %s", message_.data());
 					// throw dbj::exception(message_);
+#pragma warning(push)
+#pragma warning(disable: 4127 )
 					DBJ_VERIFY(false);
+#pragma warning(pop)
 				}
 				//
 				return true;

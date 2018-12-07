@@ -66,18 +66,17 @@ so we can not do this:
 #define DBJ_FINAL
 #endif
 
-#ifndef DBJ_MAYBE
+//
+#ifdef __cplusplus
 /*
 this is for variables only
-example 
+example
 long DBJ_MAYBE(var) {42L} ;
 after expansion:
 long var [[maybe_unused]] {42L} ;
 */
 #define DBJ_MAYBE(x) x [[maybe_unused]]
-#endif
-
-#ifndef DBJ_VANISH
+#define DBJ_NOUSE(...) (void)noexcept(ST(__VA_ARGS__))
 // for variables and expressions
 // guaranteed no evaluation
 // guaranteed zero bytes overhead
@@ -85,10 +84,9 @@ long var [[maybe_unused]] {42L} ;
 // works in any space
 // https://godbolt.org/z/jGC98L
 #define DBJ_VANISH(...) static_assert( (noexcept(__VA_ARGS__),true) );
-//
-// limited inferior macro but also works with C projects
+#else
+// inferior macro but also works with C projects
 #define DBJ_NOUSE(x) static void * dummy___COUNTER__ = (void*)sizeof(x)
-//
 #endif
 
 #ifdef DBJ
@@ -137,6 +135,7 @@ there is another one
 #include "dbj_tokenizer.h"
 #include "dbj_key_value_store.h"
 #include "dbj_main.h"
+#include "dbj_optional_handler.h"
 
 
 /* 
