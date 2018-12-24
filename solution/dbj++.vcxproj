@@ -113,12 +113,10 @@
     <ClInclude Include="..\dbj_crt.h" />
     <ClInclude Include="..\dbj_defval.h" />
     <ClInclude Include="..\dbj_error_concept.h" />
+    <ClInclude Include="..\dbj_gpl_license.h" />
     <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\dbj_key_value_store.h" />
     <ClInclude Include="..\dbj_main.h" />
-    <ClInclude Include="..\dbj_micro_log.h" />
-    <ClInclude Include="..\dbj_micro_log_fwd.h" />
-    <ClInclude Include="..\dbj_micro_log_ops.h" />
     <ClInclude Include="..\dbj_native_arr_ref.h" />
     <ClInclude Include="..\dbj_optional_handler.h" />
     <ClInclude Include="..\dbj_startend.h" />
@@ -132,6 +130,9 @@
     <ClInclude Include="..\dbj_util.h" />
     <ClInclude Include="..\dbj_uuid.h" />
     <ClInclude Include="..\dbj_win32.h" />
+    <ClInclude Include="..\microlog\dbj_micro_log.h" />
+    <ClInclude Include="..\microlog\dbj_micro_log_fwd.h" />
+    <ClInclude Include="..\microlog\dbj_micro_log_ops.h" />
     <ClInclude Include="..\test\dbj_ap_env_test.h" />
     <ClInclude Include="..\test\dbj_commander_test.h" />
     <ClInclude Include="..\test\dbj_console_test.h" />
@@ -145,12 +146,13 @@
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
-    <ClInclude Include="old_console,h.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />
     <None Include="..\.gitignore" />
     <None Include="..\cpp.hint" />
+    <None Include="..\LICENSE" />
+    <None Include="..\microlog\readme.md" />
     <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

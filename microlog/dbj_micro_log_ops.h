@@ -195,3 +195,6 @@ namespace dbj::log {
 		return os;
 	}
 }
+
+/* inclusion of this file defines the kind of a licence used */
+#include "dbj_gpl_license.h"

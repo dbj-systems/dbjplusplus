@@ -1,5 +1,8 @@
 #pragma once
 
+/* inclusion of this file defines the kind of a licence used */
+#include "dbj_gpl_license.h"
+
 // so windows.h it is
 // for the time being
 #define DBJ_WIN 
@@ -130,12 +133,10 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_console_ops.h"
 #include "dbj_testing_interface.h"
 #include "dbj_startend.h"
-// #include "dbj_com.h"
 #include "dbj_defval.h"
 #include "dbj_win32.h"
 #include "dbj_native_arr_ref.h"
 #include "dbj_app_env.h"
-#include "dbj_micro_log.h"
 #include "dbj_kalends.h"
 #include "dbj_tokenizer.h"
 #include "dbj_key_value_store.h"
@@ -148,28 +149,14 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 standard suffix for every dbj header 
 */
 #pragma comment( user, DBJ_BUILD_STAMP ) 
-/*
-Copyright 2017,2018 by dbj@dbj.org
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http ://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
+#if 0
 /*
 2018 MAY 31
 Bellow is a solution for call once mechanism in MSVC
-*/
-#if 0
-/*
+this is here as it was not certain how to achieve this using
+the current version of MSCV compiler
+
 - anonymous namespace implies default static linkage for variables inside
 - worth repeating: this is safe in presence of multiple threads (MT) 
 and is supported as a such by all major compilers

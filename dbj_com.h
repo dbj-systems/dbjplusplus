@@ -19,7 +19,7 @@ namespace dbj::com {
 	namespace internal {
 		/*
 		In internal namespace we hide the auto-initializer
-		This ensures that COM is initialized “as soon as possible”
+		This ensures that COM is initialized ï¿½as soon as possibleï¿½
 		This mechanism really works. Convince yourself once through the
 		debugger, and then just forget about COM init/uninit.
 
@@ -45,7 +45,7 @@ namespace dbj::com {
 
 			If you call ::CoInitialize(NULL), after this method is used
 			most likely the HRESULT will be :
-			hRes = 0×80010106 — Cannot change thread mode after it is set.
+			hRes = 0ï¿½80010106 ï¿½ Cannot change thread mode after it is set.
 			*/
 			COMAUTOINIT() noexcept
 			{
@@ -85,19 +85,8 @@ namespace dbj::com {
 	} // anonspace
 } // dbj::com
 
+
+/* inclusion of this file defines the kind of a licence used */
+#include "dbj_gpl_license.h"
+
 #endif
-/*
-Copyright 2017 by dbj@dbj.org
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http ://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
