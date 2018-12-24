@@ -80,6 +80,12 @@
       <Filter>micro_log</Filter>
     </ClInclude>
     <ClInclude Include="..\dbj_gpl_license.h" />
+    <ClInclude Include="..\testfwork\dbj_testing.h">
+      <Filter>testfwork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\testfwork\dbj_testing_interface.h">
+      <Filter>testfwork</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
@@ -90,6 +96,9 @@
     </Filter>
     <Filter Include="micro_log">
       <UniqueIdentifier>{650a555b-c5bb-42f2-a8e9-25589045361a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="testfwork">
+      <UniqueIdentifier>{6639c60d-3671-48bf-8ef5-1f86ac903b04}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

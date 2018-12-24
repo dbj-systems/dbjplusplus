@@ -117,7 +117,7 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 // used in dbj_synchro to 
 // conditionaly def/undef
 // DBJ_AUTO_LOCK
-// TODO: not implmented yet
+// TODO: not implemented yet
 #include "dbj_synchro.h"
 #include "dbj_constexpr.h"
 #include "dbj_error_concept.h"
@@ -128,10 +128,10 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_uuid.h"
 #include "dbj_string_compare.h"
 #include "dbj_commander.h"
-#include "dbj_console_painter.h"
-#include "dbj_console.h"
-#include "dbj_console_ops.h"
-#include "dbj_testing_interface.h"
+// #include "dbj_console_painter.h"
+#include "./console/dbj_console.h"
+#include "./console/dbj_console_ops.h"
+#include "./testfwork/dbj_testing_interface.h"
 #include "dbj_startend.h"
 #include "dbj_defval.h"
 #include "dbj_win32.h"

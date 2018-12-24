@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "dbj_console_fwd.h"
+#include "dbj_console_painter.h"
 #include <io.h>
 #include <fcntl.h>
 

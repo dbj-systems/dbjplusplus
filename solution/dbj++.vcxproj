@@ -133,6 +133,8 @@
     <ClInclude Include="..\microlog\dbj_micro_log.h" />
     <ClInclude Include="..\microlog\dbj_micro_log_fwd.h" />
     <ClInclude Include="..\microlog\dbj_micro_log_ops.h" />
+    <ClInclude Include="..\testfwork\dbj_testing.h" />
+    <ClInclude Include="..\testfwork\dbj_testing_interface.h" />
     <ClInclude Include="..\test\dbj_ap_env_test.h" />
     <ClInclude Include="..\test\dbj_commander_test.h" />
     <ClInclude Include="..\test\dbj_console_test.h" />

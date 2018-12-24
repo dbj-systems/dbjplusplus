@@ -1,8 +1,8 @@
 #pragma once
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"
 
-#include "dbj_traits.h"
+#include "../dbj_traits.h"
 #include "dbj_console_fwd.h"
 
 // #define DBJ_TYPE_INSTRUMENTS

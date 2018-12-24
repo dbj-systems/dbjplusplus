@@ -1,8 +1,8 @@
 #pragma once
 
 #include "dbj_testing.h"
-#include "dbj_console.h"
-#include "dbj_console_painter.h"
+#include "../console/dbj_console.h"
+// #include "../dbj_console_painter.h"
 
 /*
    testing interface depends on the dbj::console
