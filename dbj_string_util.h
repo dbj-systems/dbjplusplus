@@ -856,7 +856,7 @@ namespace dbj {
 			wchar_t buffer[BUFSIZ_]{};
 			auto R = _snwprintf_s(
 				buffer,
-				dbj_countof(buffer),
+				BUFSIZ_,
 				_TRUNCATE /*_countof(buffer)*/
 				, message, (args) ...);
 			_ASSERTE(-1 != R);
@@ -870,7 +870,7 @@ namespace dbj {
 			char buffer[BUFSIZ_]{};
 			auto R = _snprintf_s(
 				buffer,
-				dbj_countof(buffer),
+				_countof(buffer),
 				_TRUNCATE /*_countof(buffer)*/
 				, message, (args) ...);
 			_ASSERTE(-1 != R);

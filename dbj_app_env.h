@@ -120,7 +120,7 @@ namespace dbj::app_env {
 			}
 
 			return make_tuple(argc, warg_data, evc, wenvp_map);
-		};
+		}; // app_env_initor()
 	}
 
 	// client code gets the instance of this
@@ -164,9 +164,17 @@ namespace dbj::app_env {
 			env_vars(env_vars_)
 		{}
 
+		friend void out(const structure & cli_struct) 
+		{
+			::dbj::console::PRN.printf
+			(
+				L"\ndbj::app_env::structure\n%d CLI arguments and %d env vars collected \n", 
+				cli_struct.cli_args_count, 
+				cli_struct.env_vars_count)	;
+		}
 	// public:
 		friend structure instance();
-	};
+	}; // structure
 
 	inline structure instance() {
 		auto once = []() {
@@ -184,14 +192,6 @@ namespace dbj {
 		= app_env::instance();
 }; // dbj
 
-// caught! why?
-#if 0
-namespace dbj::console {
-	inline void out(const dbj::app_env::structure & cli_struct) {
-		dbj::console::out("\ndbj::cli::structure\n");
-	}
-}
-#endif
   /* standard suffix for every dbj.org header */
   /*
   Copyright 2017,2018 by dbj@dbj.org

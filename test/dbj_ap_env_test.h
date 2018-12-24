@@ -13,12 +13,11 @@ DBJ_TEST_UNIT(_application_environment) {
 	DBJ_TEST_ATOM(application_rt_environment.cli_data);
 	print("\nEnv vars found");
 	int counter = 0;
-	std::wstring key, val;
-	for (auto && kv : application_rt_environment.env_vars)
+	for (auto [ key,val] : application_rt_environment.env_vars)
 	{
-		key = kv.first.data();
-		val = kv.second.data();
-		print("\n[", counter++, "] Key: ", key, "\t = \tValue: ", val);
+		::dbj::console::prinf(
+			L"\n[%3d] Key: %-12s\t = \tValue: %-22s", counter++, key, val
+     	);
 	}
 }
 

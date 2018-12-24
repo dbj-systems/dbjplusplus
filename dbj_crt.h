@@ -152,7 +152,7 @@ namespace dbj {
 	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[BUFSIZ_]{};
-		auto DBJ_MAYBE(R) = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+		auto DBJ_MAYBE(R) = _snwprintf_s(buffer, BUFSIZ_, _TRUNCATE, message, (args) ...);
 		_ASSERTE(-1 != R);
 		return {buffer};
 	}
