@@ -1,7 +1,7 @@
 # dbjplusplus
-## An Modern & Standard C++ lib 
+## A Modern & Standard C++ lib 
 
-Disclaimer: Various working and usable Proofs Of Concepts (POC). Unless stated otherwise.
+### Disclaimer: Various working and usable Proofs Of Concepts (POC). Unless stated otherwise.
 
 <hr/>
 Copyright 2017,2018 by dbj@dbj.org
