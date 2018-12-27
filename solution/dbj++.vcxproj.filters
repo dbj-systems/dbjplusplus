@@ -86,16 +86,16 @@
     <ClInclude Include="..\test\dbj_static_matrix_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_console.h">
+    <ClInclude Include="..\console\dbj_console.h">
       <Filter>console</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_console_fwd.h">
+    <ClInclude Include="..\console\dbj_console_fwd.h">
       <Filter>console</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_console_ops.h">
+    <ClInclude Include="..\console\dbj_console_ops.h">
       <Filter>console</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_console_painter.h">
+    <ClInclude Include="..\console\dbj_console_painter.h">
       <Filter>console</Filter>
     </ClInclude>
   </ItemGroup>
