@@ -52,11 +52,8 @@
     <ClInclude Include="..\test\dbj_win32_tests.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_micro_log_fwd.h" />
-    <ClInclude Include="..\dbj_micro_log_ops.h" />
     <ClInclude Include="..\dbj_console_fwd.h" />
     <ClInclude Include="..\dbj_console_ops.h" />
-    <ClInclude Include="..\dbj_micro_log.h" />
     <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\test\dbj_kalends_test.h">
       <Filter>test</Filter>
@@ -72,20 +69,36 @@
     </ClInclude>
     <ClInclude Include="..\dbj_main.h" />
     <ClInclude Include="..\dbj_error_concept.h" />
-    <ClInclude Include="old_console,h.h">
-      <Filter>unused</Filter>
-    </ClInclude>
     <ClInclude Include="..\dbj_optional_handler.h" />
+    <ClInclude Include="..\microlog\dbj_micro_log.h">
+      <Filter>micro_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\microlog\dbj_micro_log_fwd.h">
+      <Filter>micro_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\microlog\dbj_micro_log_ops.h">
+      <Filter>micro_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dbj_gpl_license.h" />
+    <ClInclude Include="..\testfwork\dbj_testing.h">
+      <Filter>testfwork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\testfwork\dbj_testing_interface.h">
+      <Filter>testfwork</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
       <UniqueIdentifier>{5cf073c1-eefc-4dd4-8747-f07195152b21}</UniqueIdentifier>
     </Filter>
-    <Filter Include="unused">
-      <UniqueIdentifier>{ca4763c4-71c5-4741-8210-6a14182c826a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="media">
       <UniqueIdentifier>{1e0b5f3e-edd4-4b7e-a459-1a6df305242b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="micro_log">
+      <UniqueIdentifier>{650a555b-c5bb-42f2-a8e9-25589045361a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="testfwork">
+      <UniqueIdentifier>{6639c60d-3671-48bf-8ef5-1f86ac903b04}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,5 +106,9 @@
     <None Include="..\.gitignore" />
     <None Include="..\cpp.hint" />
     <None Include="..\README.md" />
+    <None Include="..\LICENSE" />
+    <None Include="..\microlog\readme.md">
+      <Filter>micro_log</Filter>
+    </None>
   </ItemGroup>
 </Project>

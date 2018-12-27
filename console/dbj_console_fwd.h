@@ -1,5 +1,10 @@
 #pragma once
 
+/* inclusion of this file defines the kind of a licence used */
+#include "../dbj_gpl_license.h"
+
+#include "../dbj_commander.h"
+
 #ifndef  UNICODE
 #error __FILE__  requires unicode
 #endif // ! UNICODE
@@ -210,7 +215,7 @@ printer is console single user
 		{
 			static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
 			wchar_t buffer[buff_siz_]{};
-			auto DBJ_MAYBE(R) = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+			auto DBJ_MAYBE(R) = _snwprintf_s(buffer, buff_siz_, _TRUNCATE, message, (args) ...);
 			_ASSERTE(-1 != R);
 			wchar_to_console(buffer);
 		}
@@ -220,7 +225,7 @@ printer is console single user
 		{
 			static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
 			char buffer[buff_siz_]{};
-			auto DBJ_MAYBE(R) = _snprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+			auto DBJ_MAYBE(R) = _snprintf_s(buffer, buff_siz_, _TRUNCATE, message, (args) ...);
 			_ASSERTE(-1 != R);
 			char_to_console(buffer);
 		}

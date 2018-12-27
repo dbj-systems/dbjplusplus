@@ -152,7 +152,7 @@ namespace dbj {
 	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[BUFSIZ_]{};
-		auto DBJ_MAYBE(R) = _snwprintf_s(buffer, _countof(buffer), _countof(buffer), message, (args) ...);
+		auto DBJ_MAYBE(R) = _snwprintf_s(buffer, BUFSIZ_, _TRUNCATE, message, (args) ...);
 		_ASSERTE(-1 != R);
 		return {buffer};
 	}
@@ -245,18 +245,5 @@ namespace dbj {
 	  }
 } // dbj
 
-/*
-Copyright 2017, 2018 by dbj@dbj.org
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http ://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+/* inclusion of this file defines the kind of a licence used */
+#include "dbj_gpl_license.h"

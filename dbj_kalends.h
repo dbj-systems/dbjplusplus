@@ -339,3 +339,5 @@ namespace dbj::kalends {
 
 } // dbj::kalends
 
+/* inclusion of this file defines the kind of a licence used */
+#include "dbj_gpl_license.h"

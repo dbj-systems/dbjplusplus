@@ -120,7 +120,7 @@ namespace dbj::app_env {
 			}
 
 			return make_tuple(argc, warg_data, evc, wenvp_map);
-		};
+		}; // app_env_initor()
 	}
 
 	// client code gets the instance of this
@@ -164,9 +164,17 @@ namespace dbj::app_env {
 			env_vars(env_vars_)
 		{}
 
+		friend void out(const structure & cli_struct) 
+		{
+			::dbj::console::PRN.printf
+			(
+				L"\ndbj::app_env::structure\n%d CLI arguments and %d env vars collected \n", 
+				cli_struct.cli_args_count, 
+				cli_struct.env_vars_count)	;
+		}
 	// public:
 		friend structure instance();
-	};
+	}; // structure
 
 	inline structure instance() {
 		auto once = []() {
@@ -184,27 +192,6 @@ namespace dbj {
 		= app_env::instance();
 }; // dbj
 
-// caught! why?
-#if 0
-namespace dbj::console {
-	inline void out(const dbj::app_env::structure & cli_struct) {
-		dbj::console::out("\ndbj::cli::structure\n");
-	}
-}
-#endif
-  /* standard suffix for every dbj.org header */
-  /*
-  Copyright 2017,2018 by dbj@dbj.org
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-  http ://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  */
+/* inclusion of this file defines the kind of a licence used */
+#include "dbj_gpl_license.h"
