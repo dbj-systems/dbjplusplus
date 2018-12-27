@@ -143,11 +143,13 @@
     <ClInclude Include="..\test\dbj_kalends_test.h" />
     <ClInclude Include="..\test\dbj_kv_store_test.h" />
     <ClInclude Include="..\test\dbj_array_testing.h" />
+    <ClInclude Include="..\test\dbj_static_matrix_test.h" />
     <ClInclude Include="..\test\dbj_string_tests.h" />
     <ClInclude Include="..\test\dbj_string_util_test.h" />
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
+    <ClInclude Include="dbj_stack_matrix.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />

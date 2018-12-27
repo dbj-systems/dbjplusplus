@@ -176,10 +176,6 @@ DBJ_TEST_UNIT(dbj_array_handler_ARH)
 	A16::ARF arf2 = A16::to_arf(arr);
 	A16::ARV rdr1[[maybe_unused]] = DBJ_TEST_ATOM(A16::to_vector(arf2));
 
-	//auto arf3 = DBJ_TEST_ATOM( 
-		//arf2
-	//);
-	// A16::ARV rdr2 [[maybe_unused]] = ( A16::to_vector(arf3));
 }
 
 DBJ_TEST_UNIT(a_bit_more_arh_narf_dancing) {

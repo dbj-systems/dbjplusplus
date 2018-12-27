@@ -118,7 +118,7 @@ namespace dbj::arr {
 		/*
 		native ARray Helper
 
-		(c) 2018 by dbj.org
+		GPLv3 (c) 2018 by dbj.org
 		*/
 		template< typename T, size_t N >
 		struct ARH
@@ -135,8 +135,6 @@ namespace dbj::arr {
 			typedef ARH::ART& ARF;
 			// pointer to ART
 			typedef ARH::ART* ARP;
-
-
 			/*
 			return pointer to the underlying array
 			of an instance of array<T,N>

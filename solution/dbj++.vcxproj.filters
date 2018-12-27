@@ -86,6 +86,10 @@
     <ClInclude Include="..\testfwork\dbj_testing_interface.h">
       <Filter>testfwork</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_stack_matrix.h" />
+    <ClInclude Include="..\test\dbj_static_matrix_test.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
