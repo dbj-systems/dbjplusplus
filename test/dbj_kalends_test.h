@@ -127,8 +127,8 @@ namespace fast {
 	template<> struct fibonacci<0> : integral_constant<fibo_type, 0> {};
 }
 
-#define ST(x) #x
-#define TT(x)   ::dbj::console::print("\n", ST(x) ,"\n\t-> ", (x))
+#define ST_2_(x) #x
+#define TT(x)   ::dbj::console::print("\n", ST_2_(x) ,"\n\t-> ", (x))
 
 struct ya_timer final {
 	mutable 

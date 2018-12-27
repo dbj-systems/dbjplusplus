@@ -125,7 +125,7 @@ DBJ_TEST_UNIT(dbjstringutils) {
 ///  the string meta converter testing
 /// </summary>
 template<typename converter_type>
-void test_conversion(converter_type && the_converter)
+inline void test_conversion(converter_type && the_converter)
 {
 	using namespace std::string_literals;
 	auto arf = std::ref(L"Hello!");

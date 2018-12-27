@@ -94,7 +94,7 @@ few_creation_examples() {
 // this is how we get the reference
 // to the contained native array
 template< typename T>
-auto different_ways_to_obtain_reference(T arf)
+inline auto different_ways_to_obtain_reference(T arf)
 {
 	decltype(auto) not_elegant = dbj::narf::data(arf);
 	auto & standard = dbj::narf::data(arf);
@@ -110,7 +110,7 @@ auto different_ways_to_obtain_reference(T arf)
 }
 
 template< typename T>
-auto calling_native_array_consumer
+inline auto calling_native_array_consumer
 (T arf)
 {
 	// example of calling a function 

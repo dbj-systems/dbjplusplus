@@ -62,13 +62,13 @@ so we can not do this:
 #else
 #pragma message (__FILE__ " -- no coroutines in this build ...")
 #endif
-
+/*
 #ifdef __cpp_lib_is_final
 #define DBJ_FINAL final
 #else
 #define DBJ_FINAL
 #endif
-
+*/
 //
 #ifdef __cplusplus
 /*

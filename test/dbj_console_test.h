@@ -54,7 +54,8 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 	}
 #endif
 
-	extern "C"  void console_painting()
+	extern "C"  
+		inline void console_painting()
 	{
 		using namespace dbj;
 
@@ -76,7 +77,8 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 	/// <summary>
 	/// https://en.cppreference.com/w/cpp/language/types
 	/// </summary>
-	extern "C"  void fundamental_types_to_console()
+	extern "C" 
+		inline void fundamental_types_to_console()
 	{
 		using dbj::console::out;
 		using dbj::console::PRN;
@@ -134,7 +136,7 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 	}
 
 	template< typename T>
-	void string_tester(T * init_str_literal)
+	inline void string_tester(T * init_str_literal)
 	{
 		using namespace std;
 
@@ -199,7 +201,8 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 	/// C++ has inhertied from C the special status of strings
 	/// which is unfortunate
 	/// </summary>
-	extern "C"  void strings_to_console()
+	extern "C" 
+		inline void strings_to_console()
 	{
 		string_tester("narrow string");
 		string_tester(L"wide string");
@@ -210,7 +213,7 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 
 	// **********************************************************************************************
 	template< typename ... Args >
-	void arh_test(Args ... args)
+	inline void arh_test(Args ... args)
 	{
 		using dbj::console::out;
 		using dbj::console::PRN;
@@ -240,7 +243,7 @@ http://stackoverflow.com/questions/2492077/output-unicode-strings-in-windows-con
 		}
 	};
 
-	extern "C" void compound_types_to_console()
+	extern "C" inline void compound_types_to_console()
 	{
 		using namespace ::dbj::console;
 		using namespace std;
