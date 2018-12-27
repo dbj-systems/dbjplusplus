@@ -150,6 +150,7 @@
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
     <ClInclude Include="dbj_stack_matrix.h" />
+    <ClInclude Include="dbj_win_inc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />

@@ -98,6 +98,7 @@
     <ClInclude Include="..\console\dbj_console_painter.h">
       <Filter>console</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_win_inc.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
