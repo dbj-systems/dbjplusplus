@@ -94,7 +94,7 @@ few_creation_examples() {
 // this is how we get the reference
 // to the contained native array
 template< typename T>
-auto different_ways_to_obtain_reference(T arf)
+inline auto different_ways_to_obtain_reference(T arf)
 {
 	decltype(auto) not_elegant = dbj::narf::data(arf);
 	auto & standard = dbj::narf::data(arf);
@@ -110,7 +110,7 @@ auto different_ways_to_obtain_reference(T arf)
 }
 
 template< typename T>
-auto calling_native_array_consumer
+inline auto calling_native_array_consumer
 (T arf)
 {
 	// example of calling a function 
@@ -176,10 +176,6 @@ DBJ_TEST_UNIT(dbj_array_handler_ARH)
 	A16::ARF arf2 = A16::to_arf(arr);
 	A16::ARV rdr1[[maybe_unused]] = DBJ_TEST_ATOM(A16::to_vector(arf2));
 
-	//auto arf3 = DBJ_TEST_ATOM( 
-		//arf2
-	//);
-	// A16::ARV rdr2 [[maybe_unused]] = ( A16::to_vector(arf3));
 }
 
 DBJ_TEST_UNIT(a_bit_more_arh_narf_dancing) {

@@ -99,16 +99,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\console\dbj_console.h" />
+    <ClInclude Include="..\console\dbj_console_fwd.h" />
+    <ClInclude Include="..\console\dbj_console_ops.h" />
+    <ClInclude Include="..\console\dbj_console_painter.h" />
     <ClInclude Include="..\dbj++.h" />
     <ClInclude Include="..\dbj++tests.h" />
     <ClInclude Include="..\dbj_app_env.h" />
     <ClInclude Include="..\dbj_array.h" />
     <ClInclude Include="..\dbj_com.h" />
     <ClInclude Include="..\dbj_commander.h" />
-    <ClInclude Include="..\dbj_console.h" />
-    <ClInclude Include="..\dbj_console_fwd.h" />
-    <ClInclude Include="..\dbj_console_ops.h" />
-    <ClInclude Include="..\dbj_console_painter.h" />
     <ClInclude Include="..\dbj_constexpr.h" />
     <ClInclude Include="..\dbj_crt.h" />
     <ClInclude Include="..\dbj_defval.h" />
@@ -143,11 +143,14 @@
     <ClInclude Include="..\test\dbj_kalends_test.h" />
     <ClInclude Include="..\test\dbj_kv_store_test.h" />
     <ClInclude Include="..\test\dbj_array_testing.h" />
+    <ClInclude Include="..\test\dbj_static_matrix_test.h" />
     <ClInclude Include="..\test\dbj_string_tests.h" />
     <ClInclude Include="..\test\dbj_string_util_test.h" />
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
+    <ClInclude Include="dbj_stack_matrix.h" />
+    <ClInclude Include="dbj_win_inc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />

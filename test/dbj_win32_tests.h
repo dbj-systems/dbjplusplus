@@ -2,6 +2,7 @@
 
 DBJ_TEST_SPACE_OPEN(dbj_win32)
 
+#ifdef DBJ_GEO_INFO
 DBJ_TEST_UNIT(_GetGeoInfoEx_)
 {
 	using namespace std::literals;
@@ -15,7 +16,7 @@ DBJ_TEST_UNIT(_GetGeoInfoEx_)
 	dbj::console::print(us_data);
 	dbj::console::print(rs_data);
 }
-	
+#endif // DBJ_GEO_INFO	
 	// using namespace  dbj::win::con;
 	// typedef typename dbj::console::painter_command CMD;
 	using namespace  dbj::win32::sysinfo;
@@ -61,62 +62,6 @@ DBJ_TEST_UNIT(_GetGeoInfoEx_)
 		return(hwndFound);
 	}
 
-#ifdef	DBJ_GDI_LINE
-	inline void test_line(HDC hDC, int sx, int sy, int ex, int ey, Gdiplus::ARGB colr, Gdiplus::REAL wdth)
-	{
-		/*
-		Gdiplus::Graphics g(hDC);
-		g.SetSmoothingMode(Gdiplus::SmoothingMode::SmoothingModeAntiAlias);
-		auto calculated_color = Gdiplus::Color::Color(clr);
-		Gdiplus::Pen p(calculated_color, w);
-		p.SetEndCap(Gdiplus::LineCap::LineCapRound);
-		g.DrawLine(&p, sx, sy, ex, ey);
-		*/
-		dbj::win32::LINE liner_(hDC, colr, wdth);
-		liner_(sx, sy, ex, ey);
-	}
-
-	DBJ_TEST_UNIT(dbj_win32_gdi_line ) {
-
-		// Initialize GDI+.
-		GdiplusStartupInput gdiplusStartupInput;
-		ULONG_PTR           gdiplusToken;
-
-		try {
-			HWND this_window = get_console_hwnd();
-			DBJ_ASSERT(this_window);
-			// Initialize GDI+.
-			GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-
-			Gdiplus::Graphics grfx(this_window);
-
-			HDC this_hdc = grfx.GetHDC();
-			DBJ_ASSERT(this_hdc);
-
-			// Set the clipping region.
-			grfx.SetClip(Rect(100, 100, 200, 100));
-
-			Gdiplus::Rect rect{};
-			grfx.GetVisibleClipBounds(&rect);
-
-			if ( (rect.Width > 1) && (rect.Height > 1)) {
-
-				// Declare and initialize color #8080FF
-				BYTE a = 0xFF, r = 0x80, g = 0x80, b = 0xFF;
-
-				// Create an ARGB value from the four component values.
-				ARGB argb = Color::MakeARGB(a, r, g, b);
-
-				test_line(this_hdc,
-					rect.GetLeft(), rect.GetTop(), rect.GetRight(), rect.GetBottom(),
-					argb, 20);
-			}
-		} catch (...) {
-			dbj::console::print(dbj::Exception("Exception in " __FUNCSIG__));
-		}
-		::GdiplusShutdown(gdiplusToken);
-	}
-#endif
 DBJ_TEST_SPACE_CLOSE
 
 

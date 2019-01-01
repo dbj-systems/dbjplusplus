@@ -2,9 +2,6 @@
 /*
 used through dbj++.h
 thus dbj_crt.h is included before this
-
-#include <vector>
-#include <ctime>
 */
 
 #include <array>
@@ -262,5 +259,4 @@ namespace dbj::narf {
 
 } // dbj::narf
 
-/* inclusion of this file defines the kind of a licence used */
 #include "dbj_gpl_license.h"

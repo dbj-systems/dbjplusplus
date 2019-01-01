@@ -5,8 +5,6 @@
     <ClInclude Include="..\dbj_array.h" />
     <ClInclude Include="..\dbj_com.h" />
     <ClInclude Include="..\dbj_commander.h" />
-    <ClInclude Include="..\dbj_console.h" />
-    <ClInclude Include="..\dbj_console_painter.h" />
     <ClInclude Include="..\dbj_crt.h" />
     <ClInclude Include="..\dbj_defval.h" />
     <ClInclude Include="..\dbj_key_value_store.h" />
@@ -52,8 +50,6 @@
     <ClInclude Include="..\test\dbj_win32_tests.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_console_fwd.h" />
-    <ClInclude Include="..\dbj_console_ops.h" />
     <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\test\dbj_kalends_test.h">
       <Filter>test</Filter>
@@ -86,6 +82,23 @@
     <ClInclude Include="..\testfwork\dbj_testing_interface.h">
       <Filter>testfwork</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_stack_matrix.h" />
+    <ClInclude Include="..\test\dbj_static_matrix_test.h">
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\console\dbj_console.h">
+      <Filter>console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\console\dbj_console_fwd.h">
+      <Filter>console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\console\dbj_console_ops.h">
+      <Filter>console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\console\dbj_console_painter.h">
+      <Filter>console</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj_win_inc.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
@@ -99,6 +112,9 @@
     </Filter>
     <Filter Include="testfwork">
       <UniqueIdentifier>{6639c60d-3671-48bf-8ef5-1f86ac903b04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="console">
+      <UniqueIdentifier>{55f3830b-01fd-48f7-82e2-e0e2c03c267d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

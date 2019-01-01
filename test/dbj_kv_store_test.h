@@ -12,7 +12,7 @@ using KVS =  ::dbj::storage::keyvalue_storage<int, std::string>;
 inline dbj::sync::guardian<KVS> guarded_kvs_;
 
 // https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
-const int random_int ( int max_ ) {
+inline const int random_int ( int max_ ) {
 	dbj::sync::lock_unlock __dbj_auto_lock__;
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
 	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -20,7 +20,7 @@ const int random_int ( int max_ ) {
 	return dis(gen);
 }
 
-size_t producer_( ) 
+inline size_t producer_( ) 
 {
 	dbj::sync::lock_unlock __dbj_auto_lock__;
 	static const std::string key_base_ = "K";
