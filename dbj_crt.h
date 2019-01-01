@@ -15,6 +15,11 @@
 #include <system_error>
 #include <array>
 
+// if the argument of the DBJ_ARR_LEN macro is a pointer, 
+// code won't compile 
+#define DBJ_ARR_LEN(str) (::dbj::array_size_helper(str)) 
+
+
 /* avoid macros as much as possible */
 #ifdef NOMINMAX
 inline const auto & MIN = [](const auto & a, const auto & b) 
@@ -111,6 +116,12 @@ namespace dbj {
 		_ASSERTE(ec != std::errc::value_too_large);
 			return { str.data() };
 	}
+
+	template <typename T, size_t N>
+	constexpr inline size_t
+		array_size_helper(const T(&)[N]) { return N; }
+
+
 	/*
 	transform path to filename
 	delimeter is '\\'

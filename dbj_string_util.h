@@ -552,6 +552,15 @@ namespace dbj::str {
 		template < typename return_type >
 		struct meta_converter final
 		{
+			/*
+			Optimization: if two types are the same 
+			just return a copy, sorry: move a copy out
+			*/
+			return_type operator () (return_type arg)
+			{
+				return arg;
+			}
+
 			template<typename T>
 			return_type operator () (T arg)
 			{
@@ -691,12 +700,12 @@ namespace dbj::str {
 } // dbj::str
 
 namespace dbj {
-	/*
-		A bit more classical approach, in a struct that dictates behaviour
-
-		How? It has no data but types which must be used and functions operating
-		on them types only
-	*/
+/*
+NOTE: bellow is some repetition of functionality from above
+A bit more classical approach, in a struct that dictates behaviour
+How? It has no data but types which must be used and functions operating
+on them types only
+*/
 	template<typename C = char>
 	struct str_util {
 

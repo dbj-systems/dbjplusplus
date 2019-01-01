@@ -95,7 +95,7 @@ DBJ_TEST_UNIT(dbjstroptimal) {
 DBJ_TEST_UNIT(dbjstringutils) {
 	//auto rez =
 		DBJ_TEST_ATOM(
-			0 == dbj_ordinal_string_compareW(L"A", L"A", true));
+			0 == ::dbj::dbj_ordinal_string_compareW(L"A", L"A", true));
 	//auto zer =
 		DBJ_TEST_ATOM(
 			dbj::str::ui_string_compare(L"abra babra dabra", L"ABRA babra DABRA", true));
