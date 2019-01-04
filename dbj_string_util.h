@@ -211,7 +211,7 @@ namespace dbj::str {
 		}
 
 		template<size_t N>
-		constexpr size_t operator () (const C(&arr)[N]) const noexcept
+		constexpr size_t operator () (const C(&)[N]) const noexcept
 		{
 			return N;
 		}
@@ -909,6 +909,25 @@ on them types only
 			return string_pad(std::to_string(number_), padchar, maxlen);
 		};
 
+		/*
+		text line of chars, usage
+		constexpr auto line_ = c_line();
+		constexpr auto line_2 = c_line<60>('=');
+		*/
+		template<size_t size = 80>
+		constexpr inline std::string_view  char_line(const char filler = '-')
+		{
+			static std::string_view the_line_(
+				[&]
+			{
+				static std::array< char, size + 1 > array_{};
+				array_.fill(filler);
+				array_[size] = '\0';
+				return array_.data();
+			}()
+				);
+			return the_line_;
+		};
 
 		// create text line of 80 chars '-' by default
 		// once called can not be changed ;)
@@ -926,6 +945,21 @@ on them types only
 			static ARF arr_ = set();
 			return arr_;
 		}
+
+
+		/*
+		bellow works for all the std:: string types and string view types
+		but it also works for char pointers and wchar_t pointers
+		*/
+		template< typename C >
+			inline auto starts_with(
+				std::basic_string_view<C> val_,
+				std::basic_string_view<C> mat_
+			)
+		{
+			return 0 == val_.compare(0, mat_.size(), mat_);
+		}
+
 	} // str
 } // dbj
 

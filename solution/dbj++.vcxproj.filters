@@ -99,6 +99,9 @@
       <Filter>console</Filter>
     </ClInclude>
     <ClInclude Include="dbj_win_inc.h" />
+    <ClInclude Include="..\numeric\dbj_numeric.h">
+      <Filter>numeric</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
@@ -115,6 +118,9 @@
     </Filter>
     <Filter Include="console">
       <UniqueIdentifier>{55f3830b-01fd-48f7-82e2-e0e2c03c267d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="numeric">
+      <UniqueIdentifier>{592343d5-b86d-40d7-9f65-e6977a78de19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

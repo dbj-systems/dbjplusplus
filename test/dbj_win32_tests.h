@@ -2,6 +2,9 @@
 
 DBJ_TEST_SPACE_OPEN(dbj_win32)
 
+using namespace ::std;
+using namespace ::std::string_view_literals;
+
 #ifdef DBJ_GEO_INFO
 DBJ_TEST_UNIT(_GetGeoInfoEx_)
 {
@@ -31,7 +34,7 @@ DBJ_TEST_UNIT(_GetGeoInfoEx_)
 			);
 		}
 		catch (...) {
-			dbj::console::print( ::dbj::exception("Uknown Exception?") );
+			dbj::console::print( ::dbj::exception("Uknown Exception?"sv) );
 		}
 	};
 	/*

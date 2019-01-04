@@ -5,38 +5,7 @@ namespace dbj {
 /*
 2018-04-30	dbj@dbj.org	 -- created	basically as a C code 
 */
-
 extern "C" {
-
-/*
-bellow is WIN32 API 
-for standard C++ use 
-dbj::str::ui_string_compare()
-*/
-#ifdef DBJ_WIN
-/// <summary>
-/// This is to be used for "UI string comparisons" or sorting and a such
-/// </summary>
-inline int dbj_win32_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
-{
-	int rez = CompareStringEx(
-		/* locale name  */ LOCALE_NAME_USER_DEFAULT,
-		/* _In_ DWORD   */ ignore_case == 1 ? LINGUISTIC_IGNORECASE : NORM_LINGUISTIC_CASING,
-		/* _In_ LPCTSTR */ str1,
-		/* _In_ int     */ -1,
-		/* _In_ LPCTSTR */ str2,
-		/* _In_ int     */ -1,
-		NULL, NULL, 0
-	);
-	switch (rez) {
-	case CSTR_LESS_THAN: rez = -1; break;
-	case CSTR_EQUAL: rez = 0; break;
-	case CSTR_GREATER_THAN: rez = 1; break;
-	}
-	return rez;
-}
-#endif // DBJ_WIN
-
 	/*
 	*Entry:
 	*       const char *_string1 = pointer to beginning of the first string
@@ -55,11 +24,11 @@ inline int dbj_win32_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ig
 		const char *_string2,
 		const char *_end2)
 	{
-		int n1 = (int)((_end1 - _string1));
-		int n2 = (int)((_end2 - _string2));
+		const int n1 = (int)((_end1 - _string1));
+		const int n2 = (int)((_end2 - _string2));
 
-		int ans = memcmp(_string1, _string2, n1 < n2 ? n1 : n2);
-		int ret = (ans != 0 || n1 == n2 ? ans : n1 < n2 ? -1 : +1);
+		const int ans = memcmp(_string1, _string2, n1 < n2 ? n1 : n2);
+		const int ret = (ans != 0 || n1 == n2 ? ans : n1 < n2 ? -1 : +1);
 
 		return ret;
 	}
@@ -70,11 +39,11 @@ inline int dbj_win32_string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ig
 		const wchar_t *_string2,
 		const wchar_t *_end2)
 	{
-		int n1 = (int)((_end1 - _string1));
-		int n2 = (int)((_end2 - _string2));
+		const int n1 = (int)((_end1 - _string1));
+		const int n2 = (int)((_end2 - _string2));
 
-		int ans = wmemcmp(_string1, _string2, n1 < n2 ? n1 : n2);
-		int ret = (ans != 0 || n1 == n2 ? ans : n1 < n2 ? -1 : +1);
+		const int ans = wmemcmp(_string1, _string2, n1 < n2 ? n1 : n2);
+		const int ret = (ans != 0 || n1 == n2 ? ans : n1 < n2 ? -1 : +1);
 
 		return ret;
 	}

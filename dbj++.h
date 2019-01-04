@@ -142,6 +142,7 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_key_value_store.h"
 #include "dbj_main.h"
 #include "dbj_optional_handler.h"
+#include "./numeric/dbj_numeric.h"
 
 #pragma warning( pop )
 

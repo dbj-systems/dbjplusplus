@@ -21,47 +21,50 @@ namespace dbj {
 			};
 		}
 
-		inline int last_error()
+		inline int last_error() noexcept
 		{
 			return inner::last{}.error;
 		};
 
-		//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
-		// NOTE: MSVC STL does this already
-		inline auto getLastErrorMessage(
-			const STRING & prompt = STRING{}, DWORD errorMessageID = last_error()
+// return instance of std::system_error
+// which for MSVC STL delivers win32 last error message
+// by calling what() on it
+//
+// auto last_err_msg = error_instance().what() ;
+//
+		inline auto system_error_instance()
+			->  system_error
+		{
+#ifdef _MSC_VER
+			return std::system_error(error_code(last_error(), _System_error_category()));
+#else
+			return std::system_error(error_code(last_error(), system_category()));
+#endif
+		}
+
+		// Returns the last Win32 error message
+		// with optional prefix
+		inline std::string 
+		get_last_error_message(
+			std::string_view prompt = std::string_view{}
 		)
 		{
-			//Get the error message, if any.
-			if (errorMessageID == 0)
-				return STRING{}; //No error message has been recorded
-
-			long_string_pointer messageBuffer = nullptr;
-
-			size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-				NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (long_string_pointer)&messageBuffer, 0, NULL);
-
-			STRING message(messageBuffer, size);
-
-			//Free the buffer.
-			::LocalFree(messageBuffer);
+			//Get the error 
+			const char * sys_err_msg = system_error_instance().what();
 
 			if (!prompt.empty())
-				return STRING(prompt).append(message);
+				return std::string(prompt).append(sys_err_msg);
 
-			return message;
+			return { sys_err_msg };
 		}
 
-		inline auto getLastErrorMessage(
-			const char * prompt, DWORD errorMessageID = last_error())
+		// no pointer please, use ""sv literals instead
+		// template<typename C> inline auto get_last_error_message( const C * const prompt) = delete;
+
+		namespace sysinfo 
 		{
-			STRING wprompt = dbj::range_to_wstring(prompt);
-			return getLastErrorMessage(wprompt, errorMessageID);
-		}
-
-		namespace sysinfo {
 			using std::wstring;
-			namespace {
+			namespace inner {
 				DWORD	INFO_BUFFER_SIZE = 1024;
 
 				static wstring  infoBuf(INFO_BUFFER_SIZE, (wchar_t)0);
@@ -72,34 +75,33 @@ namespace dbj {
 					(F&& fun, Pack&&... args) {
 					infoBuf.clear();
 					infoBuf.resize(INFO_BUFFER_SIZE);
-					if (0 == std::invoke(fun, (args)...))
-						throw getLastErrorMessage(typeid(F).name());
+					DBJ_VERIFY(0 != std::invoke(fun, (args)...));
 					return (infoBuf);
 				}
 			}
 			// 
 			inline STRING computer_name() {
 				static STRING computer_name_ =
-					call(GetComputerName, infoBuf.data(), &INFO_BUFFER_SIZE);
+					inner::call(GetComputerName, inner::infoBuf.data(), &inner::INFO_BUFFER_SIZE);
 				return computer_name_;
 			}
 
 			inline STRING user_name() {
 				static STRING user_name_ =
-					call(GetUserName, infoBuf.data(), &INFO_BUFFER_SIZE);
+					inner::call(GetUserName, inner::infoBuf.data(), &inner::INFO_BUFFER_SIZE);
 				return user_name_;
 			}
 
 			inline STRING system_directory() {
 				static STRING system_directory_ =
-					call(GetSystemDirectory, infoBuf.data(), INFO_BUFFER_SIZE);
+					inner::call(GetSystemDirectory, inner::infoBuf.data(), inner::INFO_BUFFER_SIZE);
 				return system_directory_;
 			}
 
 			// return e.g. L"C:\windows\"
 			inline STRING windows_directory() {
 				static STRING windows_directory_ =
-					call(GetWindowsDirectory, infoBuf.data(), INFO_BUFFER_SIZE);
+					inner::call(GetWindowsDirectory, inner::infoBuf.data(), inner::INFO_BUFFER_SIZE);
 				return windows_directory_;
 			}
 
@@ -181,6 +183,31 @@ inline auto geo_info = [](PWSTR location) {
 	}; // geo_info
 #endif // DBJ_GEO_INFO
 
+/*
+Bellow is WIN32 API, adjusted for standard C++ use
+dbj::win32::string_compare()
+locale sensitive so to be used for "UI string comparisons",
+ui sorting, and a such
+retval is standard -1,0,1 triplet
+*/
+inline int string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
+{
+	int rez = CompareStringEx(
+		LOCALE_NAME_USER_DEFAULT,
+		ignore_case == 1 ? LINGUISTIC_IGNORECASE : NORM_LINGUISTIC_CASING,
+		str1,
+		-1,
+		str2,
+		-1,
+		NULL, NULL, 0
+	);
+	switch (rez) {
+	case CSTR_LESS_THAN: rez = -1; break;
+	case CSTR_EQUAL: rez = 0; break;
+	case CSTR_GREATER_THAN: rez = 1; break;
+	}
+	return rez;
+}
 } // win32
 } // dbj
 

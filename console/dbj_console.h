@@ -78,20 +78,10 @@ namespace dbj::console {
 		/* out__ is based on HANDLE and std::wstring */
 		HANDLE handle() const override  { 
 
-			if (output_handle_ == INVALID_HANDLE_VALUE) {
-				auto lems = dbj::win32::getLastErrorMessage(
-					DBJ_ERR_PROMPT("INVALID_HANDLE_VALUE?")
-				);
-				throw dbj::exception(lems);
-			}
+			DBJ_VERIFY(output_handle_ != INVALID_HANDLE_VALUE);
 #ifdef _DEBUG
 			DWORD lpMode{};
-			if (0 == GetConsoleMode(output_handle_, &lpMode)) {
-				auto lems = dbj::win32::getLastErrorMessage(
-					DBJ_ERR_PROMPT("INVALID_HANDLE?")
-				);
-				throw dbj::exception(lems);
-			}
+			DBJ_VERIFY(0 != GetConsoleMode(output_handle_, &lpMode));
 #endif
 				return this->output_handle_;
 		}
@@ -102,55 +92,39 @@ namespace dbj::console {
 #ifndef _DEBUG
 			static
 #endif // !_DEBUG
-				const HANDLE output_h_ = 
-#if 1
-				this->handle();
-#else
-			::GetStdHandle(STD_OUTPUT_HANDLE);
-			_ASSERTE(output_h_ != INVALID_HANDLE_VALUE);
-#endif
+			const HANDLE output_h_ =  this->handle();
 
+			_ASSERTE(output_h_ != INVALID_HANDLE_VALUE);
 			_ASSERTE(from != nullptr);
 			_ASSERTE(to != nullptr);
 			_ASSERTE(from != to);
 
 			std::size_t size = std::distance(from, to);
 			_ASSERTE( size > 0 );
-#if 1
+
 			// this is *crucial*
 			// otherwise ::WriteConsoleW will fail
 			// in a debug builds on unpredicatble
 			// and rare ocasions
+			// the solution appers to be to
 			// effectively set the last error to 0
 			(void)dbj::win32::last_error();
-#endif
+
 			auto retval = ::WriteConsoleW
 			(
 				output_h_,
 				from,
 				static_cast<DWORD>(size), NULL, NULL
 			);
-			if (retval != 0) {
-				int last_win32_err = dbj::win32::last_error();
-				if (last_win32_err > 0) {
-					auto lems = dbj::win32::getLastErrorMessage(
-						__FILE__ "(" DBJ_EXPAND(__LINE__) ") -- "
-						, last_win32_err
-					);
-#ifndef _DEBUG
-					throw dbj::exception(lems);
-#else
-					dbj::TRACE("\n%s\n", lems.c_str());
-#endif
-				}
-			}
-		}
+			DBJ_VERIFY(retval != 0);
+	} // out
 
-		/* as dictated by the interface implemented */
-		inline void out(const std::wstring_view wp_) const override
-		{
-			out(wp_.data(), wp_.data() + wp_.size());
-		}
+	/* as dictated by the interface implemented */
+	void out(const std::wstring_view wp_) const override
+	{
+		this->out(wp_.data(), wp_.data() + wp_.size());
+	}
+
 		private:
 		/*
 		here we hide the single application wide 
@@ -203,6 +177,9 @@ namespace dbj::console {
 
 	namespace config {
 
+		using namespace ::std;
+		using namespace ::std::string_view_literals;
+
 		/*
 		TODO: usable interface for users to define this
 		*/
@@ -226,7 +203,10 @@ namespace dbj::console {
 					// can happen before main()
 					// and user can have no terminators set up
 					// so ...
-					dbj::wstring message_ = dbj::win32::getLastErrorMessage("dbj console configuration has failed");
+					std::string message_ 
+						= ::dbj::win32::get_last_error_message(
+							"dbj console configuration has failed"sv
+						);
 					DBJ::TRACE(L"\nERROR %s", message_.data());
 					// throw dbj::exception(message_);
 #pragma warning(push)

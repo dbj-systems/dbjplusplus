@@ -3,6 +3,60 @@
 
 DBJ_TEST_SPACE_OPEN( dbj_util )
 
+using namespace std::string_view_literals;
+
+enum class engine_tag { diesel, petrol };
+// We are talking 100% encapsulation, here
+auto car_maker(engine_tag engine_tag_ ) {
+
+	// this ABC can be outside of the factory method
+	struct engine  {
+		virtual char const * const name() = 0 ; 
+	};
+
+	struct diesel final : engine {
+		char const * const name() override { return "DIESEL"; }
+	};
+
+	struct petrol final : engine {
+		char const * const name() override { return "PETROL"; }
+	};
+
+	// this can inherit from the interface that would be
+	// outside od the factory method
+	struct front final {
+		front( engine * const engine_ ) 
+			: impl_( engine_)
+		{		}
+
+		auto engine_kind() const noexcept {
+			return impl_->name();
+		}
+	private:
+		// PIMPL;
+		mutable ::std::unique_ptr<engine> impl_;
+	};
+
+	if (engine_tag_ == engine_tag::diesel) {
+		return front(new diesel{});
+	}
+	else { // petrol
+		return front(new petrol{});
+	}
+
+}
+
+DBJ_TEST_UNIT( test_pimpl_with_improved_reference_wrapper )
+{
+	auto diesel_ = car_maker(engine_tag::diesel);
+	auto petrol_ = car_maker(engine_tag::petrol);
+
+	::dbj::console::print(
+		"\n1-st car is: ", diesel_.engine_kind(),
+		"\n2-nd car is: ", petrol_.engine_kind()
+	);
+}
+
 DBJ_TEST_UNIT(dbjutilunitrangecontainertest) 
 {
 	using RCI10 = dbj::util::rac<int, 10>;
@@ -19,7 +73,7 @@ DBJ_TEST_UNIT(dbjutilunitrangecontainertest)
 
 	DBJ_TEST_UNIT(dbjutilmathfloat_to_integertest) {
 
-		using namespace dbj::util::math::float_to_integer;
+		using namespace dbj::num::float_to_integer;
 
 		auto test = [](float val_) {
 			dbj::console::print("\n\nInput:\t");
@@ -56,8 +110,8 @@ DBJ_TEST_UNIT(dbjutilunitrangecontainertest)
 
 		using namespace std::string_view_literals;
 
-		DBJ_TEST_ATOM( dbj::util::starts_with("abra ka dabra"sv, "abra"sv) );
-		DBJ_TEST_ATOM( dbj::util::starts_with(L"abra ka dabra"sv, L"abra"sv) );
+		DBJ_TEST_ATOM( dbj::str::starts_with("abra ka dabra"sv, "abra"sv) );
+		DBJ_TEST_ATOM( dbj::str::starts_with(L"abra ka dabra"sv, L"abra"sv) );
 	};
 
 

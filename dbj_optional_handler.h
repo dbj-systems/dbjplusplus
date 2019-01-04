@@ -46,34 +46,33 @@ namespace dbj {
 			);
 
 		using	type = optional_handle;
-		using	value_type = optional<T>;
-		mutable value_type	val_;
-		using   inner_type = T;
+		using	value_type = T ;
+		mutable optional<T>	val_{};
+		// using   inner_type = T;
 
 		// notice the nullopt usage
 		// it signals the 'uninitialized state'
 		// of optional
 		optional_handle() noexcept : val_(nullopt) {}
 
-		// we also allow for literals
-		// but not native string literals
-		// as they are char arrays 
-		optional_handle(T && opt_)noexcept : val_(move(opt_)) {}
-		explicit optional_handle(const T & opt_) noexcept : val_(opt_) {}
+		// allowed conversion constructors
+		optional_handle( T const & opt_) noexcept : val_(opt_) {}
+		optional_handle(T && opt_) noexcept : val_(move(opt_)) {}
+		// explicit optional_handle(const T & opt_) noexcept : val_(opt_) {}
 
 		bool has_value() const noexcept { return val_.has_value(); }
-		// set the value
+		// set the value through the reference
 		operator T & () {
 			if (val_.has_value())
 				return val_.value();
-			throw  runtime_error("optional_handle not initialized");
+			throw  dbj::exception("optional_handle not initialized");
 		}
 
 		// get the copy of the value
 		operator T () const {
 			if (val_.has_value())
 				return val_.value();
-			throw  runtime_error("optional_handle not initialized");
+			throw  dbj::exception("optional_handle not initialized");
 		}
 
 		// for containers mebership we need this operator

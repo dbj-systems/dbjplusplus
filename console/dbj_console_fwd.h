@@ -130,13 +130,7 @@ namespace dbj::console {
 			FALSE,
 			&cfi
 		);
-
-		if (rez == 0) {
-			auto lems = dbj::win32::getLastErrorMessage(
-				__FILE__ "(" DBJ_EXPAND(__LINE__) ") dbj console get_font_name() failed -- "
-			);
-			throw dbj::exception(lems);
-		}
+				DBJ_VERIFY(rez != 0);
 		return cfi;
 	}
 #pragma endregion

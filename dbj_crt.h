@@ -51,9 +51,9 @@ inline const auto & MAX = [](const auto & a, const auto & b)
 #ifndef DBJ_COMPANY	
 
 #ifdef _DEBUG
-#define DBJ_BUILD "Debug"
+#define DBJ_BUILD "DBJ*Debug"
 #else
-#define DBJ_BUILD "Release"
+#define DBJ_BUILD "DBJ*Release"
 #endif 
 
 #define DBJ_COMPANY "DBJ.Systems Ltd."
@@ -86,24 +86,50 @@ static_assert(compiletime_string_view_constant == "compile time" );
 
 namespace dbj {
 
+	using namespace ::std;
+	using namespace ::std::string_view_literals;
+
 	// probably the most used types
-	using wstring = std::wstring;
 	using wstring_vector = std::vector<std::wstring>;
-	using string = std::string;
 	using string_vector = std::vector<std::string>;
 
-	using namespace std::string_view_literals;
+	using ::std::string;
+	using ::std::wstring;
+
 
 	constexpr inline auto LINE    (){ return "--------------------------------------------------------------------------------"sv; };
 	constexpr inline auto COMPANY (){ return "DBJ.Systems Ltd."sv; };
 	constexpr inline auto YEAR    (){ return std::string_view{ (__DATE__ + 7) }; };
+
+	namespace nano
+	{
+		template<typename T, typename F>
+		inline T
+			transform_to(F str) noexcept
+		{
+			if constexpr (!is_same_v<T, F>) {
+				if (str.empty()) return {};
+				return { std::begin(str), std::end(str) };
+			}
+			else {
+				// T and F are the same type
+				// thus just move a copy
+				return str;
+			}
+		};
+		// no native pointers please
+		// use literals
+		template<typename T, typename F>
+		inline T transform_to(F *) = delete;
+
+	} // nano
 
 	/* 512 happpens to be the POSIX BUFSIZ? */
 #ifndef BUFSIZ
 #define BUFSIZ 512
 #endif
 
-	constexpr inline const size_t BUFSIZ_ = BUFSIZ * 2 * 4; // 4096
+	constexpr inline size_t BUFSIZ_ = BUFSIZ * 2 * 4; // 4096
 
 #pragma warning( push )
 #pragma warning( disable: 4190 )
@@ -111,7 +137,8 @@ namespace dbj {
 	inline dbj::string itos(long l_) {
 		std::array<char, 64> str{ {0} };
 
-		[[maybe_unused]] auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), l_);
+		[[maybe_unused]] auto [p, ec] 
+			= std::to_chars(str.data(), str.data() + str.size(), l_);
 		DBJ_VANISH(p);
 		_ASSERTE(ec != std::errc::value_too_large);
 			return { str.data() };
