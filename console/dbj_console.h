@@ -108,7 +108,7 @@ namespace dbj::console {
 			// and rare ocasions
 			// the solution appers to be to
 			// effectively set the last error to 0
-			(void)dbj::win32::last_error();
+			(void)::SetLastError(0);
 
 			auto retval = ::WriteConsoleW
 			(

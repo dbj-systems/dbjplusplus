@@ -12,34 +12,28 @@ namespace dbj {
 		using long_string_pointer = CHAR_T *; // LPWSTR;
 #pragma endregion
 
-		namespace inner {
+		inline int last_win32_error() noexcept
+		{
 			struct last final
 			{
-				mutable int error{};
-				last() noexcept : error(::GetLastError()) {}
+				last() noexcept : error_(::GetLastError()) {}
 				~last() { ::SetLastError(0); }
+				int operator() () const noexcept { return error_; }
+			private:
+				mutable int error_{};
 			};
-		}
 
-		inline int last_error() noexcept
-		{
-			return inner::last{}.error;
+			int last_error_ = (last{})();
+			return last_error_;
 		};
 
 // return instance of std::system_error
 // which for MSVC STL delivers win32 last error message
 // by calling what() on it
-//
-// auto last_err_msg = error_instance().what() ;
-//
 		inline auto system_error_instance()
 			->  system_error
 		{
-#ifdef _MSC_VER
-			return std::system_error(error_code(last_error(), _System_error_category()));
-#else
-			return std::system_error(error_code(last_error(), system_category()));
-#endif
+		return std::system_error(error_code(last_win32_error(), system_category()));
 		}
 
 		// Returns the last Win32 error message
@@ -50,7 +44,8 @@ namespace dbj {
 		)
 		{
 			//Get the error 
-			const char * sys_err_msg = system_error_instance().what();
+			auto syserr = system_error_instance();
+			const char * sys_err_msg = syserr.what();
 
 			if (!prompt.empty())
 				return std::string(prompt).append(sys_err_msg);

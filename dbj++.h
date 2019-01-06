@@ -79,7 +79,7 @@ after expansion:
 long var [[maybe_unused]] {42L} ;
 */
 #define DBJ_MAYBE(x) x [[maybe_unused]]
-#define DBJ_NOUSE(...) (void)noexcept(ST(__VA_ARGS__))
+#define DBJ_NOUSE(...) (void)noexcept(__VA_ARGS__)
 // for variables and expressions
 // guaranteed no evaluation
 // guaranteed zero bytes overhead
