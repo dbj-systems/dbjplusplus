@@ -41,3 +41,12 @@ using namespace Gdiplus;
 #endif // _GDIPLUS_H
 #endif
 
+
+namespace dbj {
+	namespace win32 {
+		using CHAR_T = wchar_t;
+		using STRING = std::wstring;
+		// LPWSTR;
+		using LONG_STRING_POINTER = CHAR_T * ;
+	}
+}

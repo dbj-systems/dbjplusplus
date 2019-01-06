@@ -6,12 +6,6 @@
 namespace dbj {
 	namespace win32 {
 
-#pragma region dbj win32 string types
-		using CHAR_T = wchar_t;
-		using STRING = std::wstring;
-		using long_string_pointer = CHAR_T *; // LPWSTR;
-#pragma endregion
-
 		inline int last_win32_error() noexcept
 		{
 			struct last final
@@ -58,7 +52,8 @@ namespace dbj {
 
 		namespace sysinfo 
 		{
-			using std::wstring;
+			using dbj::win32::STRING;
+
 			namespace inner {
 				DWORD	INFO_BUFFER_SIZE = 1024;
 
