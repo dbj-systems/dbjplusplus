@@ -1,25 +1,18 @@
 #pragma once
+#include <string_view>
 
 /* inclusion of this file defines the kind of a licence used */
 #include "../dbj_gpl_license.h"
 
-#include "../dbj_commander.h"
+#include "dbj_commander.h"
+#include "dbj_crt.h"
+#include "dbj_traits.h"
+#include "dbj_win32.h"
+#include "dbj_string_util.h"
 
 #ifndef  UNICODE
 #error __FILE__  requires unicode
 #endif // ! UNICODE
-
-#ifndef _INC_WINDOWS
-#ifndef WIN32_LEAN_AND_MEAN
-# define WIN32_LEAN_AND_MEAN 1
-#endif
-#define STRICT
-#define NOSERVICE
-// avoid min/max macros 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
 
 #if !defined(_CONSOLE)
 #pragma message ( "#############################################################" )
@@ -29,17 +22,7 @@
 #pragma message ( "#############################################################" )
 #endif
 
-
-#include <string_view>
-#include "dbj_crt.h"
-#include "dbj_traits.h"
-#include "dbj_win32.h"
-#include "dbj_string_util.h"
-
-
 namespace dbj::console {
-
-
 
 	constexpr inline char    space = ' ', prefix = '{', suffix = '}', delim = ',' , nl = '\n' ;
 	constexpr inline wchar_t wspace = L' ', wprefix = L'{', wsuffix = L'}', wdelim = L',', wnl = L'\n';
@@ -207,26 +190,26 @@ printer is console single user
 		template <typename ... Args>
 		void printf(wchar_t const * const message, Args ... args) const noexcept
 		{
-			static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
-			wchar_t buffer[buff_siz_]{};
-			auto DBJ_MAYBE(R) = _snwprintf_s(buffer, buff_siz_, _TRUNCATE, message, (args) ...);
+			static constexpr size_t buff_siz_ = ::dbj::BUFSIZ_;
+			wchar_t buffer_[buff_siz_]{};
+			auto DBJ_MAYBE(R) = 
+				_snwprintf_s(buffer_, (buff_siz_ - 1), _TRUNCATE, message, (args) ...);
 			_ASSERTE(-1 != R);
-			wchar_to_console(buffer);
+			wchar_to_console(buffer_);
 		}
 
 		template <typename ... Args>
 		void printf(const char * const message, Args ... args) const noexcept
 		{
-			static constexpr size_t buff_siz_ = DBJ::BUFSIZ_;
-			char buffer[buff_siz_]{};
-			auto DBJ_MAYBE(R) = _snprintf_s(buffer, buff_siz_, _TRUNCATE, message, (args) ...);
+			static constexpr size_t buff_siz_ = ::dbj::BUFSIZ_;
+			char buffer_[buff_siz_]{};
+			auto DBJ_MAYBE(R) = 
+				_snprintf_s(buffer_, (buff_siz_ - 1), _TRUNCATE, message, (args) ...);
 			_ASSERTE(-1 != R);
-			char_to_console(buffer);
+			char_to_console(buffer_);
 		}
 
 	}; // Printer
-
-
 
 	typedef enum class CODE : UINT {
 		page_1252 = 1252,   // western european windows

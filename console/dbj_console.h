@@ -191,12 +191,12 @@ namespace dbj::console {
 					::dbj::console::set_font(
 						::dbj::console::default_font
 					);
-					DBJ::TRACE(L"\nConsole font set to: %s\n", ::dbj::console::default_font);
+					::dbj::TRACE(L"\nConsole font set to: %s\n", ::dbj::console::default_font);
 
 					// and now the really crazy and important measure 
 					// for Windows console
 					::system("chcp 65001");
-					DBJ::TRACE(L"\nConsole chcp 65001 done\n");
+					::dbj::TRACE(L"\nConsole chcp 65001 done\n");
 
 				}
 				catch (...) {
@@ -207,7 +207,7 @@ namespace dbj::console {
 						= ::dbj::win32::get_last_error_message(
 							"dbj console configuration has failed"sv
 						);
-					DBJ::TRACE(L"\nERROR %s", message_.data());
+					::dbj::TRACE(L"\nERROR %s", message_.data());
 					// throw dbj::exception(message_);
 #pragma warning(push)
 #pragma warning(disable: 4127 )

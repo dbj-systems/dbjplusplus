@@ -79,7 +79,7 @@ after expansion:
 long var [[maybe_unused]] {42L} ;
 */
 #define DBJ_MAYBE(x) x [[maybe_unused]]
-#define DBJ_NOUSE(...) (void)noexcept(__VA_ARGS__)
+// #define DBJ_NOUSE(...) (void)noexcept(__VA_ARGS__)
 // for variables and expressions
 // guaranteed no evaluation
 // guaranteed zero bytes overhead
@@ -87,17 +87,16 @@ long var [[maybe_unused]] {42L} ;
 // works in any space
 // https://godbolt.org/z/jGC98L
 #define DBJ_VANISH(...) static_assert( (noexcept(__VA_ARGS__),true) );
+#define DBJ_NOUSE DBJ_VANISH
 #else
 // inferior macro but also works with C projects
 #define DBJ_NOUSE(x) static void * dummy___COUNTER__ = (void*)sizeof(x)
 #endif
-
-#ifdef DBJ
-#error "#define DBJ ::dbj already defined"
-#else
+/*
+#ifndef DBJ
 #define DBJ ::dbj
 #endif
-
+*/
 /*
 in case you need/want COM init 
 but beware: there should be only one per app
@@ -120,14 +119,14 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 // TODO: not implemented yet
 #include "dbj_synchro.h"
 #include "dbj_constexpr.h"
-#include "dbj_error_concept.h"
 #include "dbj_crt.h"
+#include "./error_handling/dbj_exception.h"
 #include "dbj_array.h"
 #include "dbj_string_util.h"
 #include "dbj_util.h"
 #include "dbj_uuid.h"
 #include "dbj_string_compare.h"
-#include "dbj_commander.h"
+// #include "dbj_commander.h"
 // #include "dbj_console_painter.h"
 #include "./console/dbj_console.h"
 #include "./console/dbj_console_ops.h"

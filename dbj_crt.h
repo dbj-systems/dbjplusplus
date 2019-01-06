@@ -10,6 +10,7 @@
 // #include <map>
 // #include <algorithm>
 
+#include <cassert>
 #include <string_view>
 #include <charconv>
 #include <system_error>
@@ -122,9 +123,25 @@ namespace dbj {
 		template<typename T, typename F>
 		inline T transform_to(F *) = delete;
 
+		[[noreturn]]
+		inline void terror
+		(char const * msg_, char const * file_, const unsigned line_)
+		{
+			assert(msg_ != nullptr);
+			assert(file_ != nullptr);
+			assert(line_ > 0);
+			::fprintf(stderr, "\n\ndbj++ Terminating ERROR:%s\n%s (%d)", msg_, file_, line_);
+			exit(EXIT_FAILURE);
+		}
+
 	} // nano
 
-	/* 512 happpens to be the POSIX BUFSIZ? */
+// Good decades old VERIFY macro
+#define DBJ_VERIFY_(x, file, line ) if (false == (x) ) ::dbj::nano::terror( #x ", failed", file, line )
+#define DBJ_VERIFY(x) DBJ_VERIFY_(x,__FILE__,__LINE__)
+
+
+	/* 512 happpens to be the POSIX BUFSIZ */
 #ifndef BUFSIZ
 #define BUFSIZ 512
 #endif
@@ -186,7 +203,7 @@ namespace dbj {
 	} // extern "C"
 #pragma warning( pop )
 
-	template <size_t BUFSIZ_ = DBJ::BUFSIZ_, typename ... Args>
+	template <size_t BUFSIZ_ = dbj::BUFSIZ_, typename ... Args>
 	inline std::wstring printf_to_buffer(wchar_t const * const message, Args ... args) noexcept
 	{
 		wchar_t buffer[BUFSIZ_]{};
@@ -195,7 +212,7 @@ namespace dbj {
 		return {buffer};
 	}
 
-	template <size_t BUFSIZ_ = DBJ::BUFSIZ_, typename ... Args>
+	template <size_t BUFSIZ_ = dbj::BUFSIZ_, typename ... Args>
 	inline std::string printf_to_buffer(const char * const message, Args ... args) noexcept
 	{
 		char buffer[BUFSIZ_]{};
@@ -209,17 +226,15 @@ namespace dbj {
 	inline void TRACE(wchar_t const * const message, Args ... args) noexcept
 	{
 		::OutputDebugStringW(
-			(DBJ::printf_to_buffer
-			( message, 
-				(args)... )).c_str()
+			(printf_to_buffer( message, (args)... )).c_str()
 		);
 	}
 	template <typename ... Args>
 	inline void TRACE(const char * const message, Args ... args) noexcept
 	{
-		::OutputDebugStringA((DBJ::printf_to_buffer
-		(message,
-			(args)...)).c_str());
+		::OutputDebugStringA(
+			(printf_to_buffer(message,(args)...)).c_str()
+		);
 	}
 
 	/// <summary>

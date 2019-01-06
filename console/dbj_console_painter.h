@@ -7,42 +7,10 @@
 #error dbj++ requires UNICODE
 #endif // ! UNICODE
 
-#ifndef _INC_WINDOWS
-#ifndef WIN32_LEAN_AND_MEAN
-# define WIN32_LEAN_AND_MEAN 1
-#endif
-#define STRICT
-#define NOSERVICE
-// avoid min/max macros 
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-
 #include <algorithm>
 #include <variant>
-#include "../dbj_commander.h"
+#include "dbj_commander.h"
 
-/*
-
-#ifndef _WINCON_
-#ifndef _INC_WINDOWS
-#endif
-
-#ifndef _GDIPLUS_H
-#include <algorithm>
-namespace Gdiplus
-{
-	using std::min;
-	using std::max;
-}
-#include <objidl.h>
-#include <gdiplus.h>
-using namespace Gdiplus;
-#pragma comment(lib, "Gdiplus.lib")
-#endif // _GDIPLUS_H
-#endif
-*/
 namespace dbj::console {
 #pragma region "colors and painter"
 namespace inner {

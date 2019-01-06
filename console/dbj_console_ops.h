@@ -3,7 +3,7 @@
 #include "../dbj_gpl_license.h"
 
 #include "../dbj_traits.h"
-#include "dbj_console_fwd.h"
+#include "dbj_console.h"
 
 // #define DBJ_TYPE_INSTRUMENTS
 
@@ -319,14 +319,6 @@ with reference or pointer type argument.
 		dbj::console::painter_commander_instance.execute(cmd_);
 	}
 
-	/* print exceptions and also color the output red */
-	template<> inline void out<dbj::exception>(dbj::exception x_) {
-		DBJ_TYPE_REPORT_FUNCSIG;
-		out(painter_command::bright_red);
-		PRN.wchar_to_console(x_.wwhat().c_str());
-		out(painter_command::text_color_reset);
-	}
-
 	///////////////////////////////////////////////////////////////////////////
 	// std classes
 	///////////////////////////////////////////////////////////////////////////
@@ -343,17 +335,6 @@ with reference or pointer type argument.
 		out(painter_command::bright_red);
 		PRN.char_to_console(x_.what());
 		paint(painter_command::text_color_reset);
-	}
-
-	// vs others std::system_error has code memeber of type std:error_code
-	template<> inline void out<class std::error_code>(class std::error_code ec_)
-	{
-		::dbj::console::PRN.printf(
-			"value:%d, category:'%s', message:'%s'",
-			ec_.value(),
-			ec_.category().name(),
-			ec_.message().c_str()
-		);
 	}
 
 	template<typename T, typename A	>
@@ -420,7 +401,32 @@ with reference or pointer type argument.
 			inner::print_range((nativarref)wrp.get());
 		}
 	}
+#pragma region error codes and options
+	// we can not place a friend inside std::error_code, so...
+	// using namespace dbj::console;
+	inline void out
+	(class std::error_code ec_)
+	{
+		::dbj::console::PRN.printf(
+			"Error code category:'%s', value:%d, message:'%s'",
+			ec_.category().name(),
+			ec_.value(),
+			ec_.message().c_str()
+		);
+	}
 
+	inline void out
+	(class std::error_condition ecn_)
+	{
+		::dbj::console::PRN.printf(
+			"Error condition category:'%s', value:%d, message:'%s'",
+			ecn_.category().name(),
+			ecn_.value(),
+			ecn_.message().c_str()
+		);
+	}
+
+#pragma endregion
 	/*
 	template <unsigned Size, char filler = ' '>
 	void out__(const dbj::c_line<Size, filler> & cline_) {
