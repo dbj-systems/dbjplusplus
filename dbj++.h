@@ -2,27 +2,7 @@
 
 /* inclusion of this file defines the kind of a licence used */
 #include "dbj_gpl_license.h"
-
-// so windows.h it is
-// for the time being
-#define DBJ_WIN 
-
-#ifdef DBJ_WIN
-#ifndef _INC_WINDOWS
-#ifndef WIN32_LEAN_AND_MEAN
-# define WIN32_LEAN_AND_MEAN 1
-#endif
-#define STRICT
-#define NOSERVICE
-// avoid min/max macros 
-#define NOMINMAX
-#include <windows.h>
-#endif
-#endif DBJ_WIN
-
-/*
- see the licence blurb at eof
-*/
+#include "dbj_win_inc.h"
 
 #ifndef __clang__
 #ifndef _MSC_VER
@@ -38,7 +18,7 @@
 #error dbj++ requires Windows builds above REDSTONE 3 or above
 #endif
 
-#ifndef UNICODE
+#if (!defined(UNICODE)) || (! defined(_UNICODE))
 #error dbj++ requires UNICODE builds
 #endif
 
@@ -62,15 +42,7 @@ so we can not do this:
 #else
 #pragma message (__FILE__ " -- no coroutines in this build ...")
 #endif
-/*
-#ifdef __cpp_lib_is_final
-#define DBJ_FINAL final
-#else
-#define DBJ_FINAL
-#endif
-*/
-//
-#ifdef __cplusplus
+
 /*
 this is for variables only
 example
@@ -79,24 +51,19 @@ after expansion:
 long var [[maybe_unused]] {42L} ;
 */
 #define DBJ_MAYBE(x) x [[maybe_unused]]
-// #define DBJ_NOUSE(...) (void)noexcept(__VA_ARGS__)
-// for variables and expressions
-// guaranteed no evaluation
-// guaranteed zero bytes overhead
-// standard c++ 
-// works in any space
-// https://godbolt.org/z/jGC98L
-#define DBJ_VANISH(...) static_assert( (noexcept(__VA_ARGS__),true) );
-#define DBJ_NOUSE DBJ_VANISH
-#else
-// inferior macro but also works with C projects
-#define DBJ_NOUSE(x) static void * dummy___COUNTER__ = (void*)sizeof(x)
-#endif
+
 /*
-#ifndef DBJ
-#define DBJ ::dbj
-#endif
+for variables and expressions
+guaranteed no evaluation
+guaranteed zero bytes overhead
+standard c++ 
+works in any space
+https://godbolt.org/z/jGC98L
 */
+#define DBJ_NOUSE(...) static_assert( (noexcept(__VA_ARGS__),true) );
+
+// #define DBJ_VANISH(...)
+
 /*
 in case you need/want COM init 
 but beware: there should be only one per app

@@ -156,7 +156,7 @@ namespace dbj {
 
 		[[maybe_unused]] auto [p, ec] 
 			= std::to_chars(str.data(), str.data() + str.size(), l_);
-		DBJ_VANISH(p);
+		DBJ_NOUSE(p);
 		_ASSERTE(ec != std::errc::value_too_large);
 			return { str.data() };
 	}
@@ -292,8 +292,7 @@ namespace dbj {
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 
-		countof(T const (&array_)[N]) { 
-		  DBJ_VANISH(array_);
+		countof(T const (&)[N]) { 
 		  return N; 
 	  }
 } // dbj

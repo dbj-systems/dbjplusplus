@@ -3,7 +3,7 @@
 
 /*
 include windows only from one place
-and do it accoridng to windows lore
+and do it according to ancient windows lore
 */
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -13,6 +13,9 @@ and do it accoridng to windows lore
 #include <windows.h>
 #endif
 
+/*
+rudimentary runtime version checks
+*/
 // https://docs.microsoft.com/en-us/windows/desktop/sysinfo/getting-the-system-version
 #include <VersionHelpers.h>
 
