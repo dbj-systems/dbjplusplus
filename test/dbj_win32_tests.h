@@ -25,17 +25,9 @@ DBJ_TEST_UNIT(_GetGeoInfoEx_)
 	using namespace  dbj::win32::sysinfo;
 
 	DBJ_TEST_UNIT(dbjvarioustests) {
-		try {
-			dbj::console::print(
-				"\n\t\t", DBJ_NV(computer_name()),
-				"\n\t\t", DBJ_NV(user_name()),
-				"\n\t\t", DBJ_NV(system_directory()),
-				"\n\t\t", DBJ_NV(windows_directory())
-			);
-		}
-		catch (...) {
-			dbj::console::print( ::dbj::exception("Uknown Exception?"sv) );
-		}
+			DBJ_TEST_ATOM(user_name());
+			DBJ_TEST_ATOM(system_directory());
+			DBJ_TEST_ATOM(windows_directory());
 	};
 	/*
 	inspired by

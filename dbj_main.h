@@ -42,14 +42,11 @@ namespace dbj
 		try {
 			throw;
 		}
-		catch (::dbj::exception & x_) {
-			print("dbj Exception, ", x_.what());
-		}
 		catch (std::system_error & x_) {
 			print("system error: ", x_.code());
 		}
-		catch (std::exception & x_) {
-			print("std exception: ", x_.what());
+		catch (::std::exception & x_) {
+			print("dbj Exception, ", x_.what());
 		}
 		catch (...) {
 			eptr = std::current_exception(); // final capture

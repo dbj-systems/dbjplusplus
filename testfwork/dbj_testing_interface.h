@@ -137,16 +137,12 @@ namespace dbj {
 					internal::unit_execute(tunit.first);
 					white_line(" ");
 				}
-				catch (const dbj::exception & x_) {
-					// print("dbj Exception, ", x_.what());
-					print(x_);
-				}
 				catch (const std::system_error & x_) {
 					// print("system error: ", x_.what());
 					print(x_);
 				}
 				catch (const std::exception & x_) {
-					// print("std exception: ", x_.what());
+					// print("dbj Exception, ", x_.what());
 					print(x_);
 				}
 				catch (...) {

@@ -87,7 +87,10 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_synchro.h"
 #include "dbj_constexpr.h"
 #include "dbj_crt.h"
-#include "./error_handling/dbj_exception.h"
+//
+// moved out until finalized
+// #include "./error_handling/dbj_exception.h"
+//
 #include "dbj_array.h"
 #include "dbj_string_util.h"
 #include "dbj_util.h"
@@ -106,9 +109,12 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_kalends.h"
 #include "dbj_tokenizer.h"
 #include "dbj_key_value_store.h"
-#include "dbj_main.h"
 #include "dbj_optional_handler.h"
 #include "./numeric/dbj_numeric.h"
+
+#ifdef DBJ_WMAIN_USED
+#include "dbj_main.h"
+#endif
 
 #pragma warning( pop )
 
