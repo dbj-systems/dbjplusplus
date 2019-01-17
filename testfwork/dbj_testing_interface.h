@@ -114,6 +114,9 @@ namespace dbj {
 				return;
 			}
 
+			// here we catch only what was declared as 
+			// part of std::exception hierarchy
+			// everything else will go up the stack
 			auto handle_eptr = [](std::exception_ptr eptr) 
 				// passing by value is ok
 			{
@@ -130,7 +133,6 @@ namespace dbj {
 			prefix(argv[0]);
 			for (auto /* && */ tunit : internal::dbj_tests_map_ )
 			{
-				std::exception_ptr eptr;
 				unit_prefix(tunit.second.c_str());
 				try {
 					white_line(" ");
@@ -146,9 +148,11 @@ namespace dbj {
 					print(x_);
 				}
 				catch (...) {
-					eptr = std::current_exception(); // capture
-				}
+					std::exception_ptr eptr{
+						std::current_exception()
+					}; // capture
 					handle_eptr(eptr);
+				}
 				unit_suffix(tunit.second.c_str());
 			}
 			suffix();
