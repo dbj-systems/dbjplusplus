@@ -88,8 +88,7 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_constexpr.h"
 #include "dbj_crt.h"
 //
-// moved out until finalized
-// #include "./error_handling/dbj_exception.h"
+#include "./err/dbj_err.h"
 //
 #include "dbj_array.h"
 #include "dbj_string_util.h"
