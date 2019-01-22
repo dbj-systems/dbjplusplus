@@ -3,7 +3,7 @@
 
 
 /*
-		dbjdbj: "The future is bright", one just needs to wait for it
+		dbjdbj: "The future is bright", one just needs to wait for it"
 
 		P1095
 		http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2289.pdf

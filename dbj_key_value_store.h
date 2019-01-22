@@ -10,7 +10,7 @@
 
 /// <summary>
 /// k/v storage using std unordered_map
-/// key type is wstring (this is for speed)
+/// key type is wstring (this is for speed on MSVC platforms)
 /// one key can "hold" multiple values
 /// </summary>
 namespace dbj::storage {
