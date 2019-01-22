@@ -141,7 +141,7 @@ namespace dbj {
 				}
 				catch (const std::system_error & x_) {
 					// print("system error: ", x_.what());
-					print(x_);
+					print("\nstd::system_error\n\t",x_.what(), "\n\t", x_.code() );
 				}
 				catch (const std::exception & x_) {
 					// print("dbj Exception, ", x_.what());

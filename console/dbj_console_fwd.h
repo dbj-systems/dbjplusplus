@@ -88,7 +88,7 @@ namespace dbj::console {
 	}
 
 	inline bool set_extended_chars_font(
-		const wchar_t * font_name = extended_chars_good_font, short height_ = 20
+		const wchar_t * font_name = default_font, short height_ = 20
 	)
 	{
 		auto retval = set_font(font_name, height_);

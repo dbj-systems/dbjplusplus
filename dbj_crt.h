@@ -91,16 +91,25 @@ namespace dbj {
 	using namespace ::std::string_view_literals;
 
 	// probably the most used types
-	using wstring_vector = std::vector<std::wstring>;
-	using string_vector = std::vector<std::string>;
-
-	using ::std::string;
-	using ::std::wstring;
-
+	using wstring_vector = vector<wstring>;
+	using string_vector  = vector<string>;
 
 	constexpr inline auto LINE    (){ return "--------------------------------------------------------------------------------"sv; };
 	constexpr inline auto COMPANY (){ return "DBJ.Systems Ltd."sv; };
 	constexpr inline auto YEAR    (){ return std::string_view{ (__DATE__ + 7) }; };
+
+	inline wchar_t const * app_base_name() noexcept {
+		auto initor = []() {
+			std::wstring base_name(__wargv[0]);
+			base_name.erase(0,
+				1 + base_name.find_last_of(L"\\")
+			);
+			return base_name;
+		};
+		static auto basename_ = initor();
+		return basename_.c_str();
+	}
+
 
 	namespace nano
 	{
