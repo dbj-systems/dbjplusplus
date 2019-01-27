@@ -34,7 +34,8 @@ inline const auto & MAX = [](const auto & a, const auto & b)
 
 // NOTE: do not have a space after a macro name and before the '(' !!
 #ifndef DBJ_STRINGIFY	
-#define DBJ_STRINGIFY(s) #s
+#define DBJ_STRINGIFY_(s) #s
+#define DBJ_STRINGIFY(s) DBJ_STRINGIFY_(s)
 #define DBJ_EXPAND(s) DBJ_STRINGIFY(s)
 #define DBJ_CONCAT_IMPL( x, y ) x##y
 #define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
