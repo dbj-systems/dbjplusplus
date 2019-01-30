@@ -173,19 +173,24 @@ namespace dbj {
 		template<typename return_type>
 		// inline decltype(auto)
 		inline return_type &
-			test_lambada(const char * expression, const return_type & anything)
+			test_lambada(const char * expression, const return_type & anything, bool show_type = true )
 		{
-			using namespace dbj::console;
-			dbj::console::print(
+			using namespace ::dbj::console;
+			::dbj::console::print(
 				painter_command::green, "\n", hyphens_line_,
 				"\n- expression -> ", painter_command::text_color_reset, expression,
-				painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name(),
-				painter_command::green, "\n\t\t- value -> ", painter_command::text_color_reset, anything);
-			// return std::move(anything) ;
+				(show_type ? 
+					painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name()
+					: " "
+				),
+				painter_command::green, "\n\t- value -> ", painter_command::text_color_reset, anything
+			);
 			return const_cast<return_type &>( anything ) ;
 		};
 
 #define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
+// same as above but does not show type
+#define DBJ_ATOM_TEST(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}(), false ) 
 #endif // DBJ_TEST_ATOM
 
 	} // testing
