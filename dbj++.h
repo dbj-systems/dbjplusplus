@@ -87,6 +87,7 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 #include "dbj_synchro.h"
 #include "dbj_constexpr.h"
 #include "dbj_crt.h"
+#include "dbj_buffer.h"
 //
 #include "./err/dbj_err.h"
 //

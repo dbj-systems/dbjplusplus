@@ -4,6 +4,7 @@
 // are not included in dbj++.h
 // for using this include it after dbj++.h
 
+#include "test\dbj_buffer_testing.h"
 #include "test\dbj_ap_env_test.h"
 #include "test\dbj_commander_test.h"
 #include "test\dbj_console_test.h"

@@ -107,6 +107,7 @@
     <ClInclude Include="..\dbj++tests.h" />
     <ClInclude Include="..\dbj_app_env.h" />
     <ClInclude Include="..\dbj_array.h" />
+    <ClInclude Include="..\dbj_buffer.h" />
     <ClInclude Include="..\dbj_com.h" />
     <ClInclude Include="..\dbj_commander.h" />
     <ClInclude Include="..\dbj_constexpr.h" />
@@ -123,8 +124,6 @@
     <ClInclude Include="..\dbj_string_compare.h" />
     <ClInclude Include="..\dbj_string_util.h" />
     <ClInclude Include="..\dbj_synchro.h" />
-    <ClInclude Include="..\dbj_testing.h" />
-    <ClInclude Include="..\dbj_testing_interface.h" />
     <ClInclude Include="..\dbj_tokenizer.h" />
     <ClInclude Include="..\dbj_traits.h" />
     <ClInclude Include="..\dbj_util.h" />
@@ -137,6 +136,7 @@
     <ClInclude Include="..\testfwork\dbj_testing.h" />
     <ClInclude Include="..\testfwork\dbj_testing_interface.h" />
     <ClInclude Include="..\test\dbj_ap_env_test.h" />
+    <ClInclude Include="..\test\dbj_buffer_testing.h" />
     <ClInclude Include="..\test\dbj_commander_test.h" />
     <ClInclude Include="..\test\dbj_console_test.h" />
     <ClInclude Include="..\test\dbj_crt_testing.h" />
