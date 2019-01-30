@@ -55,7 +55,8 @@ namespace dbj {
 			using dbj::win32::STRING;
 
 			namespace inner {
-				DWORD	INFO_BUFFER_SIZE = 1024;
+				
+				inline DWORD INFO_BUFFER_SIZE = 1024;
 
 				static wstring  infoBuf(INFO_BUFFER_SIZE, (wchar_t)0);
 				//
