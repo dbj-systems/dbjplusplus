@@ -46,7 +46,7 @@ namespace dbj
 				print("system error: ", x_.code());
 			}
 			catch (::std::exception & x_) {
-				print("dbj Exception, ", x_.what());
+				print("std Exception, ", x_.what());
 			}
 			catch (...) {
 				eptr = std::current_exception(); // final capture
@@ -72,14 +72,23 @@ int wmain(const int argc, const wchar_t *argv[], const wchar_t *envp[])
 int main(int argc, char* argv[], char *envp[])
 #endif
 {
+	using namespace ::dbj::console;
 	namespace  ffm = ::dbj::final_for_main;
 	try {
 		dbj_program_start(argc, argv, envp);
 	}
+	catch (std::error_code ec) {
+		print("\n\nAn error_code caught in " __FUNCSIG__ "\n\t",
+			painter_command::bright_red, 
+			ec,
+			painter_command::text_color_reset
+		);
+	}
 	catch (...) {
 		ffm::final_exceptions_processor();
 	}
-	exit(0);
+
+	exit(EXIT_SUCCESS);
 }
 
 #endif // DBJ_WMAIN_USED
