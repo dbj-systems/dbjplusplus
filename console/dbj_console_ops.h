@@ -5,6 +5,9 @@
 #include "../core/dbj_traits.h"
 #include "dbj_console.h"
 
+// for out-putting std::path and friends
+#include <filesystem>
+
 // #define DBJ_TYPE_INSTRUMENTS
 
 /// <summary>
@@ -401,6 +404,18 @@ with reference or pointer type argument.
 			inner::print_range((nativarref)wrp.get());
 		}
 	}
+
+#pragma region filesystem
+
+	inline void out
+	( ::std::filesystem::path const & path_)
+	{
+		// MSVC STL filesystem uses wchar_t by default
+		::dbj::console::PRN.printf(	L"%s", path_.c_str() );
+	}
+
+#pragma endregion 
+
 #pragma region error codes and options
 	// we can not place a friend inside std::error_code, so...
 	// using namespace dbj::console;

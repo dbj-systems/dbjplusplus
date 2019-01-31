@@ -13,15 +13,44 @@
 
 namespace dbj{ 
 	namespace buf {
+		/*	primary buffer type is char bound by design */
+		namespace narrow
+		{
+			// type alias
+			using pointer_type = std::unique_ptr<char[]>;
+			// this is runtime instance
+			inline pointer_type make(size_t S_) {
+				return std::make_unique<char[]>(S_ + 1);
+			};
+			// reference type 
+			// use it for passing (to functions) as arguments
+			// since narrow pointer can not be copied
+			using ref_type = std::reference_wrapper<pointer_type>;
+		} // narrow
+
+		/*	WIN32 is natively unicode, ditto ... */
+		namespace wide 
+		{
+			// type alias
+			using pointer_type = std::unique_ptr<wchar_t[]> ;
+			// this is runtime instance
+			inline pointer_type make(size_t S_) {
+				return std::make_unique<wchar_t[]>(S_ + 1);
+			};
+			// reference type 
+			// use it for passing (to functions) as arguments
+			// since narrow pointer can not be copied
+			using ref_type = std::reference_wrapper<pointer_type>;
+		} // wide
 	/*
 	This is a runtime buffer. Just like std::vector, but better because it
 	is lighter and faster.
 	I knew it is a good practice to have and use one's own char buffer class
 	instead of using std::vector<char>
-	Here are the measurements too, in case you are hotly against.
+	Bellow are the measurements too, in case you are hotly against.
 	Generaly the smaller the buffer the faster this is.
 	For normal buffer sizes (posix BUFSIZ or multiplies of it)
-	using this has a lot of in favour.
+	using this type has a lot  in favour.
 	Also this class works in code where no exceptions are used
 	please do let me know if problems there
 	*/
@@ -30,7 +59,7 @@ namespace dbj{
 		using type = char_buffer;
 		using value_type = char;
 		using iterator = value_type * ;
-		using pointer = std::unique_ptr<value_type[]>;
+		using pointer = typename narrow::pointer_type ;
 		/*
 		one can "copy" the unique_ptr by moving, example:
 		char_buffer<char> buf2 = std::move(buf1) ;
@@ -44,7 +73,7 @@ namespace dbj{
 		// normal and simple calling
 		whatever(bf);
 		*/
-		using reference_type = std::reference_wrapper<char_buffer>;
+		using reference_type = typename std::reference_wrapper<type> ;
 
 		explicit char_buffer(size_t size)
 			// reference counted pointer to auto-delete the buffer
@@ -124,7 +153,7 @@ namespace dbj{
 		}
 	#ifdef _WIN32
 	public:
-		using wide_pointer = std::unique_ptr<wchar_t[]>;
+		using wide_pointer = typename wide::pointer_type ;
 		/* in order not to loose the size info we will return this structure */
 		struct wide_copy_result {
 			std::error_code ec{};
@@ -144,7 +173,8 @@ namespace dbj{
 			auto const & source_size_ = source_.size_;
 			auto & source_pointer_ = source_.data_;
 
-			wide_pointer wp = std::make_unique<wchar_t[]>(source_size_ + 1);
+			wide_pointer wp = wide::make(source_size_);
+
 			size_t rezult_size;
 			auto mbstowcs_errno = ::mbstowcs_s(
 				&rezult_size,
@@ -156,9 +186,9 @@ namespace dbj{
 			}
 			return { ec, source_size_ , std::move(wp) };
 		}
-	#endif 
+	#endif // _WIN32
 	#pragma endregion // char_buffer friend utilities
-	};
+	}; // char_buffer
 
 	} // buf
 } // dbj

@@ -52,7 +52,7 @@ namespace dbj {
 
 		namespace sysinfo 
 		{
-			using dbj::win32::STRING;
+			using STRING = std::wstring;
 
 			namespace inner {
 				

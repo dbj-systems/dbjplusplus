@@ -8,7 +8,8 @@
 // #define dbj_ap_env_test   
 // #define dbj_commander_test   
 // #define dbj_console_test   
-#define dbj_crt_testing   
+#define dbj_crt_testing 
+#define dbj_core_tests
 // #define dbj_defval_testing   
 // #define dbj_kv_store_test   
 // #define dbj_array_testing   
@@ -61,6 +62,10 @@
 #endif
 #ifdef dbj_static_matrix_test   
 #include "test\dbj_static_matrix_test.h  
+#endif
+
+#ifdef dbj_core_tests   
+#include "test\dbj_core_tests.h"
 #endif
 
 /* inclusion of this file defines the kind of a licence used */

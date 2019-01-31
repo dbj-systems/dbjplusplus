@@ -1,4 +1,5 @@
 #pragma once
+
 // #include <sysinfoapi.h>
 // #include <strsafe.h>
 // #include <algorithm>
@@ -16,20 +17,57 @@
 #include <system_error>
 #include <array>
 
-// if the argument of the DBJ_ARR_LEN macro is a pointer, 
-// code won't compile 
-#define DBJ_ARR_LEN(str) (::dbj::array_size_helper(str)) 
+#ifndef __clang__
+#ifndef _MSC_VER
+#error dbj++  requires Visual C++ 
+#endif // !_MSC_VER
+#if _MSC_VER < 1911
+#error dbj++ requires Visual C++ 14.1 or better
+#endif
+#endif
 
+#if (!defined(UNICODE)) || (! defined(_UNICODE))
+#error dbj++ requires UNICODE builds
+#endif
+
+#ifdef _SCL_SECURE_NO_WARNINGS
+#error dbj++ can not be used with  _SCL_SECURE_NO_WARNINGS defined
+#endif
+
+#ifdef __cpp_coroutines
+#pragma message ( __FILE__ " -- coroutines available in this build")
+#else
+#pragma message (__FILE__ " -- no coroutines in this build ...")
+#endif
+
+/*
+this is for variables only
+example
+long DBJ_MAYBE(var) {42L} ;
+after expansion:
+long var [[maybe_unused]] {42L} ;
+*/
+#define DBJ_MAYBE(x) x [[maybe_unused]]
+
+/*
+for variables and expressions
+guaranteed no evaluation
+guaranteed zero bytes overhead
+standard c++
+works in any space, example here
+https://godbolt.org/z/jGC98L
+*/
+#define DBJ_NOUSE(...) static_assert( (noexcept(__VA_ARGS__),true) );
 
 /* avoid macros as much as possible */
-#ifdef NOMINMAX
+// #ifdef NOMINMAX
 inline const auto & MIN = [](const auto & a, const auto & b) 
   constexpr -> bool { return (a < b ? a : b); };
 inline const auto & MAX = [](const auto & a, const auto & b) 
   constexpr -> bool { return (a > b ? a : b); };
-#else
-#error Be sure you have #define NOMINMAX placed before including windows.h !
-#endif
+// #else
+// #error Be sure you have #define NOMINMAX placed before including windows.h !
+// #endif
 
 
 // NOTE: do not have a space after a macro name and before the '(' !!
@@ -172,11 +210,6 @@ namespace dbj {
 			return { str.data() };
 	}
 
-	template <typename T, size_t N>
-	constexpr inline size_t
-		array_size_helper(const T(&)[N]) { return N; }
-
-
 	/*
 	transform path to filename
 	delimiter is '\\'
@@ -298,10 +331,15 @@ namespace dbj {
 	return value is trigraph -1,0,+1
 	result will be constexpr on POD types
 	*/
-	 inline auto  sign = [] (const auto & v) constexpr -> int {
+	template<typename T>
+	 inline constexpr auto  sign ( T const & v) 
+	 {
 		return (v > 0) - (v < 0); // -1, 0, or +1
 	 };
 
+// if the argument of the DBJ_ARR_LEN macro is a pointer, 
+// code won't compile 
+#define DBJ_ARR_LEN(str) (::dbj::countof(str)) 
 
 	template < typename T, size_t N > 
 	  inline constexpr size_t 
@@ -312,3 +350,6 @@ namespace dbj {
 
 /* inclusion of this file defines the kind of a licence used */
 #include "../dbj_gpl_license.h"
+
+/* standard suffix for every dbj header */
+#pragma comment( user, DBJ_BUILD_STAMP ) 

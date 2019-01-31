@@ -13,18 +13,26 @@ and do it according to ancient windows lore
 #include <windows.h>
 #endif
 
+
+#if (WINVER < NTDDI_WIN10_RS3)
+#else
+#error dbj++ requires Windows builds above REDSTONE 3 or above
+#endif
+
 /*
 rudimentary runtime version checks
-*/
-// https://docs.microsoft.com/en-us/windows/desktop/sysinfo/getting-the-system-version
+https://docs.microsoft.com/en-us/windows/desktop/sysinfo/getting-the-system-version
+
 #include <VersionHelpers.h>
+
+*/
+
 
 
 /*
-and here do the same for gdi+
+GDI+
 if required that is
-note: the plan is to move any gdi+
-related utils out of dbj++
+note: the plan is to move any gdi+ related utils out of dbj++
 */
 #ifdef DBJ_GDI_LINE
 #ifndef _GDIPLUS_H
@@ -45,11 +53,3 @@ using namespace Gdiplus;
 #endif
 
 
-namespace dbj {
-	namespace win32 {
-		using CHAR_T = wchar_t;
-		using STRING = std::wstring;
-		// LPWSTR;
-		using LONG_STRING_POINTER = CHAR_T * ;
-	}
-}

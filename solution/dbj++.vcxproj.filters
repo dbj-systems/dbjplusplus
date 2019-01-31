@@ -164,6 +164,9 @@
     <ClInclude Include="dbj++win.h">
       <Filter>win32</Filter>
     </ClInclude>
+    <ClInclude Include="dbj_core_utils.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">
