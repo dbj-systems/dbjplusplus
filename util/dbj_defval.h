@@ -1,11 +1,12 @@
 #pragma once
 
-#include "dbj_synchro.h"
+#include "../core/dbj_synchro.h"
 
-#define VERSION_TWO
+// #define VERSION_TWO
 #ifdef VERSION_TWO 
 #include <optional>
 #endif
+
 namespace dbj {
 
 	/*
@@ -176,4 +177,4 @@ namespace dbj {
 } // namespace dbj
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

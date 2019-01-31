@@ -8,6 +8,8 @@ in a standard way
 
 #ifdef DBJ_WMAIN_USED
 
+#include "../console/dbj++con.h"
+
 #if defined(_WIN32) || defined (_WIN64)
 
 #endif

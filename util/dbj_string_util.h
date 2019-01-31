@@ -6,8 +6,8 @@ IN ASCI locale unaware situations
 
 */
 
-#include "dbj_crt.h"
-#include "dbj_traits.h"
+#include "../core/dbj_crt.h"
+#include "../core/dbj_traits.h"
 
 // #include <type_traits>
 #include <locale>
@@ -964,4 +964,4 @@ on them types only
 } // dbj
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

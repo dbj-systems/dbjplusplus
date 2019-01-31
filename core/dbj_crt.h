@@ -146,7 +146,7 @@ namespace dbj {
 
 	} // nano
 
-// Good decades old VERIFY macro
+// decades old VERIFY macro
 #define DBJ_VERIFY_(x, file, line ) if (false == (x) ) ::dbj::nano::terror( #x ", failed", file, line )
 #define DBJ_VERIFY(x) DBJ_VERIFY_(x,__FILE__,__LINE__)
 
@@ -161,7 +161,8 @@ namespace dbj {
 #pragma warning( push )
 #pragma warning( disable: 4190 )
 
-	inline dbj::string itos(long l_) {
+	inline dbj::string itos(long l_) 
+	{
 		std::array<char, 64> str{ {0} };
 
 		[[maybe_unused]] auto [p, ec] 
@@ -178,7 +179,7 @@ namespace dbj {
 
 	/*
 	transform path to filename
-	delimeter is '\\'
+	delimiter is '\\'
 	*/
 	extern "C" {
 
@@ -292,8 +293,10 @@ namespace dbj {
 	/*
 	Core algo from http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
 
-	standard c++ will "do" the bellow for any T, that 
+	standard c++ will compile this, for any T, that 
 	is applicable to required operators
+	return value is trigraph -1,0,+1
+	result will be constexpr on POD types
 	*/
 	 inline auto  sign = [] (const auto & v) constexpr -> int {
 		return (v > 0) - (v < 0); // -1, 0, or +1
@@ -308,4 +311,4 @@ namespace dbj {
 } // dbj
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

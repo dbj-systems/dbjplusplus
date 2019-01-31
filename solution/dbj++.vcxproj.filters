@@ -1,21 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="..\dbj_app_env.h" />
-    <ClInclude Include="..\dbj_array.h" />
-    <ClInclude Include="..\dbj_com.h" />
     <ClInclude Include="..\dbj_commander.h" />
-    <ClInclude Include="..\dbj_crt.h" />
-    <ClInclude Include="..\dbj_defval.h" />
-    <ClInclude Include="..\dbj_key_value_store.h" />
-    <ClInclude Include="..\dbj_native_arr_ref.h" />
-    <ClInclude Include="..\dbj_startend.h" />
-    <ClInclude Include="..\dbj_string_compare.h" />
-    <ClInclude Include="..\dbj_string_util.h" />
-    <ClInclude Include="..\dbj_synchro.h" />
-    <ClInclude Include="..\dbj_traits.h" />
-    <ClInclude Include="..\dbj_util.h" />
-    <ClInclude Include="..\dbj_win32.h" />
     <ClInclude Include="..\dbj++.h" />
     <ClInclude Include="..\dbj++tests.h" />
     <ClInclude Include="..\test\dbj_ap_env_test.h">
@@ -48,22 +34,16 @@
     <ClInclude Include="..\test\dbj_win32_tests.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_kalends.h" />
     <ClInclude Include="..\test\dbj_kalends_test.h">
       <Filter>test</Filter>
     </ClInclude>
     <ClInclude Include="..\test\dbj_string_util_test.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_tokenizer.h" />
-    <ClInclude Include="..\dbj_constexpr.h" />
-    <ClInclude Include="..\dbj_uuid.h" />
     <ClInclude Include="..\test\dbj_array_testing.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_main.h" />
     <ClInclude Include="..\dbj_error_concept.h" />
-    <ClInclude Include="..\dbj_optional_handler.h" />
     <ClInclude Include="..\microlog\dbj_micro_log.h">
       <Filter>micro_log</Filter>
     </ClInclude>
@@ -100,9 +80,89 @@
     <ClInclude Include="..\numeric\dbj_numeric.h">
       <Filter>numeric</Filter>
     </ClInclude>
-    <ClInclude Include="..\dbj_buffer.h" />
     <ClInclude Include="..\test\dbj_buffer_testing.h">
       <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_buffer.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_constexpr.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_crt.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_format.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_main.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_synchro.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_traits.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj++core.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_arh.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_defval.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_kalends.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_key_value_store.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_narf.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_optional_handler.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_stack_matrix.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_startend.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_string_compare.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_string_util.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_tokenizer.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_util.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj++util.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\dbj_app_env.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\dbj_com.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\dbj_uuid.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\dbj_win_inc.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\win32\dbj_win32.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="dbj++win.h">
+      <Filter>win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +183,15 @@
     </Filter>
     <Filter Include="numeric">
       <UniqueIdentifier>{592343d5-b86d-40d7-9f65-e6977a78de19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{ad8d6681-78b3-4320-8bcb-25d614229810}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win32">
+      <UniqueIdentifier>{b8205c38-55c3-495a-a00c-3fbdfb9a9d5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{b7bfe2f2-ea39-4ccf-9146-ade360b4165a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

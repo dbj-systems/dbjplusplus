@@ -1,7 +1,7 @@
 #pragma once
 //
 #include "dbj_win_inc.h"
-#include "dbj_defval.h"
+#include "../util/dbj_defval.h"
 //
 namespace dbj {
 	namespace win32 {
@@ -203,4 +203,4 @@ inline int string_compare(LPCTSTR str1, LPCTSTR str2, unsigned char ignore_case)
 } // dbj
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

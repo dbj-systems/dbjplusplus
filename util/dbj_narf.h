@@ -8,6 +8,12 @@ thus dbj_crt.h is included before this
 
 /// <summary>
 /// NARF == Native ARray reFerence
+///
+/// 2019 01 31 -- dbj --  all of this kind of a works but in a fragile manner
+///                       this it is complicated to use and has to be refactored
+///                       todo: make it into struct intead of namespace
+///                       use std::unique_ptr<T[N]> wherever necessary
+///                       same is for std::reference_wrapper<std::unique_ptr<T[N]>>
 /// </summary>
 namespace dbj::narf {
 
@@ -259,4 +265,4 @@ namespace dbj::narf {
 
 } // dbj::narf
 
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

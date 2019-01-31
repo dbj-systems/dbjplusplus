@@ -5,10 +5,10 @@
 #include "../dbj_gpl_license.h"
 
 #include "dbj_commander.h"
-#include "dbj_crt.h"
-#include "dbj_traits.h"
-#include "dbj_win32.h"
-#include "dbj_string_util.h"
+#include "../core/dbj_crt.h"
+#include "../core/dbj_traits.h"
+#include "../win/dbj_win_inc.h"
+#include "../util/dbj_string_util.h"
 
 #ifndef  UNICODE
 #error __FILE__  requires unicode

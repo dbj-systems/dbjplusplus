@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../win/dbj_win32.h"
 #include "dbj_console_fwd.h"
 #include "dbj_console_painter.h"
 #include <io.h>

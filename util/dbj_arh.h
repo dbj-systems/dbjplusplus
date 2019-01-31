@@ -1,5 +1,5 @@
 #pragma once
-#include "dbj_traits.h"
+#include "../core/dbj_traits.h"
 
 namespace dbj::arr {
 
@@ -212,4 +212,4 @@ namespace dbj::arr {
 
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

@@ -1,6 +1,6 @@
 #pragma once
-
-#include "dbj_synchro.h"
+#include <map>
+#include "../core/dbj_synchro.h"
 #include "dbj_string_util.h"
 
 #if _HAS_CXX17
@@ -207,4 +207,4 @@ namespace dbj::storage {
 } //  namespace
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

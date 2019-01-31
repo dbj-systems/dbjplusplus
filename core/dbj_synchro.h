@@ -21,6 +21,8 @@ namespace dbj {
 		/// <code>
 		/// void safe_fun ( ) {
 		/// dbj::sync::lock_unlock auto_lock_ ;
+		/// or
+		/// DBJ_AUTO_LOCK
 		/// }
 		/// </code>
 		/// </summary>
@@ -70,4 +72,4 @@ namespace dbj {
 } // dbj
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

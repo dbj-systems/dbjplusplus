@@ -44,9 +44,9 @@ No exceptions are thrown outside. They are reported to console.
 
 */
 
-#include "dbj_synchro.h"
+#include "../core/dbj_synchro.h"
 // #include "dbj_micro_log.h"
-#include "dbj_string_util.h"
+#include "../util/dbj_string_util.h"
 
 namespace dbj {
 	namespace testing {

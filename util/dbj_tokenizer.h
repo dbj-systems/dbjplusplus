@@ -25,7 +25,7 @@ This is how my original code was old today.
 //  $Revision: $
 //*****************************************************************************/
 
-#include "dbj_traits.h"
+#include "../core/dbj_traits.h"
 #include <string>
 #include <vector>
 
@@ -326,4 +326,4 @@ namespace dbj {
 } // dbj
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"

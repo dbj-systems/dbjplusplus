@@ -1,4 +1,13 @@
 #pragma once
+/*
+in case you need/want COM init
+but beware: there should be only one per app
+and thread model must be always the same if
+there is another one
+
+#define DBJ_COMAUTOINIT
+*/
+
 #ifdef DBJ_COMAUTOINIT
 
 #ifndef _INC_WINDOWS

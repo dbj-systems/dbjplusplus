@@ -9,8 +9,9 @@
 #include <functional>
 #include <ratio>
 */
-#include "dbj_traits.h"
+#include "../core/dbj_traits.h"
 #include <set>
+#include <unordered_set>
 
 // basically forget about init lists passing
 // https://stackoverflow.com/questions/20059061/having-trouble-passing-multiple-initializer-lists-to-variadic-function-template/47159747#47159747
@@ -22,56 +23,56 @@ namespace dbj {
 	namespace util {
 
 #if (__cplusplus <= 201703L)
-/*
-http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0357r2.html
+		/*
+		http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0357r2.html
 
-Usage example:
+		Usage example:
 
-template<typename T, typename U>
-auto my_tie(T& t, U & u)
-{
-// new predefined macro for C++20 reference_wrapper
-// that allows for incomplete types to be used
-#if __cpp_lib_reference_wrapper >= 20YYMM
-  return std::make_pair(std::ref(t), std::ref(u));
-#else
-  return std::pair<T&, U&>(t, u);
-#endif
-}
+		template<typename T, typename U>
+		auto my_tie(T& t, U & u)
+		{
+		// new predefined macro for C++20 reference_wrapper
+		// that allows for incomplete types to be used
+		#if __cpp_lib_reference_wrapper >= 20YYMM
+		  return std::make_pair(std::ref(t), std::ref(u));
+		#else
+		  return std::pair<T&, U&>(t, u);
+		#endif
+		}
 
-*/
+		*/
 
-template<typename T>
-class reference_wrapper
-{
-	T* ptr;
+		template<typename T>
+		class reference_wrapper
+		{
+			T* ptr;
 
-public:
-	using type = T;
+		public:
+			using type = T;
 
-	reference_wrapper(T& val) noexcept
-		: ptr(std::addressof(val))
-	{}
+			reference_wrapper(T& val) noexcept
+				: ptr(std::addressof(val))
+			{}
 
-	reference_wrapper(T&&) = delete;
+			reference_wrapper(T&&) = delete;
 
-	T& get() const noexcept { return *ptr; }
-	operator T&() const noexcept { return *ptr; }
+			T& get() const noexcept { return *ptr; }
+			operator T&() const noexcept { return *ptr; }
 
-	template<typename... Args>
-	auto operator()(Args&&... args) const
-		-> std::invoke_result_t<T&(Args...)>
-	{
-		return std::invoke(*ptr, std::forward<Args>(args)...);
-	}
-};
+			template<typename... Args>
+			auto operator()(Args&&... args) const
+				-> std::invoke_result_t<T&(Args...)>
+			{
+				return std::invoke(*ptr, std::forward<Args>(args)...);
+			}
+		};
 
 #endif // __cplusplus <= 201703L
 
-// std::equal has many overloads
-// it is less error prone to have it here
-// in a single form
-// and use this one as we exactly need
+		// std::equal has many overloads
+		// it is less error prone to have it here
+		// in a single form
+		// and use this one as we exactly need
 		template<class InputIt1, class InputIt2>
 		constexpr bool equal_(InputIt1 first1, InputIt1 last1, InputIt2 first2)
 		{
@@ -120,7 +121,7 @@ public:
 		// rac == Range and Container
 		// I prefer it to std::array
 		template< typename T, std::size_t N	>
-			struct rac final
+		struct rac final
 		{
 			using type = T;
 			// using data_ref = std::reference_wrapper<T[N]>;
@@ -128,6 +129,7 @@ public:
 			T * begin() const { return value; }
 			T * end() const { return value + N; }
 			size_t size() const { return N; }
+			// note: returning ref to array, not pointer
 			data_ref data() const { return data_ref{ value }; }
 			// yes data is public
 			// if you need a foot gun
@@ -145,7 +147,7 @@ public:
 		/*
 		does not compile *if* it has no begind and no end
 		*/
-		inline auto dbj_count = [](auto && range) constexpr->size_t
+		inline auto dbj_range_count = [](auto && range) constexpr->size_t
 		{
 			static_assert(::dbj::is_range_v< decltype(range) >)
 				return std::distance(std::begin(range), std::end(range));
@@ -153,7 +155,7 @@ public:
 
 		/*
 		this is good idea: call F(), N times
-		to create a tuple
+		to create a tuple of N elements
 		*/
 		template <typename F, size_t... Is>
 		inline auto gen_tuple_impl(F func, std::index_sequence<Is...>) {
@@ -167,7 +169,7 @@ public:
 
 		// dbj added -- for std sequences
 		// sequence into the tuple
-		// sequence is anything that has a indexing operator
+		// sequence is anything that has an indexing operator
 		template<typename T, size_t N>
 		inline auto seq_tup(const T & sequence) {
 			// call lambda N times
@@ -198,22 +200,19 @@ public:
 		}
 #else
 		/*applicator generic lambda*/
-		inline auto applicator = [](auto  callback, auto... args) -> void {
-			// todo: use std::is_callable on the callback 
-			if constexpr (sizeof...(args) > 0) {
-				// since initializer lists guarantee sequencing, this can be used to
-				// call a function on each element of a pack, in order:
-				// also with the help of a comma operator
-				// which will populate 'dummy' with 0's
-				char dummy[sizeof...(args)] = { (callback(args), 0)... };
-			}
+		inline auto applicator = [](auto  callback, auto... args)
+			-> decltype(callback(args...))
+		{
+			return callback(args...);
 		};
 #endif
 
 		/*
 		find an item in anything that has begin and end iterators
 		*/
-		inline auto find = [](auto sequence, auto item) constexpr -> bool {
+		inline auto find = [](auto sequence, auto item)
+			constexpr -> bool
+		{
 			return std::find(std::begin(sequence), std::end(sequence), item) != std::end(sequence);
 		};
 
@@ -226,19 +225,16 @@ public:
 		{
 			if constexpr (sort) {
 				/*
+				return it sorted and with no duplicates
 				this is apparently also faster for very large data sets
 				*/
 				const std::set<Type> s(vec.begin(), vec.end());
 				return std::vector<Type>{ s.begin(), s.end() };
 			}
 			else {
-				std::vector<Type> unique_chunks{};
-				for (auto x : vec) {
-					if (!dbj::util::find(unique_chunks, x)) {
-						unique_chunks.push_back(x);
-					}
-				}
-				return unique_chunks;
+				/* just remove the duplicates */
+				const std::unordered_set<Type> s(vec.begin(), vec.end());
+				return std::vector<Type>{ s.begin(), s.end() };
 			}
 		}
 
@@ -269,4 +265,4 @@ public:
 
 
 /* inclusion of this file defines the kind of a licence used */
-#include "dbj_gpl_license.h"
+#include "..\dbj_gpl_license.h"

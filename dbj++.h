@@ -2,7 +2,7 @@
 
 /* inclusion of this file defines the kind of a licence used */
 #include "dbj_gpl_license.h"
-#include "dbj_win_inc.h"
+#include "./win/dbj_win_inc.h"
 
 #ifndef __clang__
 #ifndef _MSC_VER
@@ -65,14 +65,6 @@ https://godbolt.org/z/jGC98L
 // #define DBJ_VANISH(...)
 
 /*
-in case you need/want COM init 
-but beware: there should be only one per app
-and thread model must be always the same if 
-there is another one
-
-#define DBJ_COMAUTOINIT
-*/
-/*
 https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warning-c4244-for-stdvector-copy-or-assign-with-i
 */
 #pragma warning( push )
@@ -84,43 +76,19 @@ https://stackoverflow.com/questions/46891586/how-to-disable-visual-studio-warnin
 // conditionaly def/undef
 // DBJ_AUTO_LOCK
 // TODO: not implemented yet
-#include "dbj_synchro.h"
-#include "dbj_constexpr.h"
-#include "dbj_crt.h"
-#include "dbj_buffer.h"
+#include "./core/dbj++core.h"
 //
 #include "./err/dbj_err.h"
 //
-#include "dbj_array.h"
-#include "dbj_string_util.h"
-#include "dbj_util.h"
-#include "dbj_uuid.h"
-#include "dbj_string_compare.h"
-// #include "dbj_commander.h"
-// #include "dbj_console_painter.h"
-#include "./console/dbj_console.h"
-#include "./console/dbj_console_ops.h"
+#include "./util/dbj++util.h"
+#include "./console/dbj++con.h"
 #include "./testfwork/dbj_testing_interface.h"
-#include "dbj_startend.h"
-#include "dbj_defval.h"
-#include "dbj_win32.h"
-#include "dbj_native_arr_ref.h"
-#include "dbj_app_env.h"
-#include "dbj_kalends.h"
-#include "dbj_tokenizer.h"
-#include "dbj_key_value_store.h"
-#include "dbj_optional_handler.h"
 #include "./numeric/dbj_numeric.h"
-
-#ifdef DBJ_WMAIN_USED
-#include "dbj_main.h"
-#endif
+#include "./win/dbj++win.h"
 
 #pragma warning( pop )
 
-/* 
-standard suffix for every dbj header 
-*/
+/* standard suffix for every dbj header */
 #pragma comment( user, DBJ_BUILD_STAMP ) 
 
 #if 0
