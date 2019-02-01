@@ -8,8 +8,8 @@
 // the dependancies on other parts of dbj++, and thus we will sometimes
 // reimplement things here which perhaps exist in other part of the dbj++ 
 
+#ifndef DBJ_LIGHT_BUFFER
 #define  DBJ_LIGHT_BUFFER
-#ifdef DBJ_LIGHT_BUFFER
 
 namespace dbj{ 
 	namespace buf {
@@ -76,13 +76,24 @@ namespace dbj{
 		using reference_type = typename std::reference_wrapper<type> ;
 
 		explicit char_buffer(size_t size)
-			// reference counted pointer to auto-delete the buffer
-			: data_(std::make_unique<value_type[]>(size + 1)), size_(size)
 		{
+			this->reset(size);
 		}
 
-		// result of this operator is also
-		// to change the single char
+		template<typename T, size_t N>
+		char_buffer(T(&charr)[N])
+		{
+			this->reset(N);
+			(void)::memcpy(data_.get(), charr, N );
+		}
+
+		void reset(size_t new_size_) const {
+			_ASSERTE(new_size_ > 0);
+			data_.release();
+			size_ = new_size_;
+			data_.reset(new char[size_ + 1]{ 0 });
+		}
+
 		char & operator [] (size_t idx_)
 		{
 			if (idx_ > size())
@@ -93,11 +104,7 @@ namespace dbj{
 		iterator data() const { return data_.get(); }
 
 		size_t const & size() const { return size_; }
-
-		void reset() const {
-			data_.reset('\0');
-			data_ = std::make_unique<char[]>(size_ + 1);
-		}
+		DWORD const & dword() const { return static_cast<DWORD>(size_); }
 
 		value_type ** const address() const noexcept {
 			auto p = std::addressof(data_.get()[0]);
@@ -115,7 +122,7 @@ namespace dbj{
 		void  operator delete[](void* ptr, std::size_t sz) = delete;
 	private:
 		mutable size_t  size_;
-		mutable	pointer data_{};
+		mutable	pointer data_{}; // size == 0
 	#pragma region char_buffer friends
 
 		friend std::string to_string(const reference_type from_) noexcept {

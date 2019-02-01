@@ -3,7 +3,6 @@
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <filesystem>
 #include <chrono>
 
 namespace dbj {
@@ -11,10 +10,15 @@ namespace dbj {
 	namespace core {
 		namespace util {
 
-			// no can do, intelissense goes beserk  --> using namespace::std ;
+			// notice how we replaced the use of 
+			// std::string with buffer_type
+			// everywhere in this file
+		using buffer_type = ::dbj::buf::narrow::pointer_type;
+		using ::dbj::buf::narrow::make ;
+
+			// no can do, intelisense goes berserk  --> using namespace::std ;
 			using namespace  ::std::literals::string_view_literals;
 			namespace h = ::std::chrono;
-			namespace fs = ::std::filesystem;
 
 			constexpr inline char const * TIME_STAMP_FULL_MASK
 				= "%Y-%m-%d %H:%M:%S";
@@ -23,17 +27,17 @@ namespace dbj {
 				= "%H:%M:%S";
 
 			// time stamp size is max 22 + '\0'
-			// updates ref to  std::error_code argument accordingly
+			// updates the ref to std::error_code argument accordingly
 			[[nodiscard]]
-			inline std::string
+			inline buffer_type
 				make_time_stamp(
 					std::error_code & ec_,
 					char const * timestamp_mask_ = TIME_STAMP_SIMPLE_MASK
 				) noexcept
 			{
-				std::array<char, 32U> buf_arr{ {0} };
-				char * buf = buf_arr.data();
-				const size_t buf_len = buf_arr.size();
+				const size_t buf_len = 32U;
+				buffer_type buffer_	= make(buf_len);
+				char * buf = buffer_.get();
 
 				ec_.clear();
 
@@ -56,33 +60,33 @@ namespace dbj {
 				const auto strlen_buf = std::strlen(buf);
 				(void)::sprintf_s(buf + strlen_buf, buf_len - strlen_buf, ".%03d", millis);
 
-				return { buf };
+				return buffer_;
 				// ec_ stays clear
 			};
 
-			/*
-			returns {V, std::std::error_code},	caller must check
-			*/
-			[[nodiscard]] inline auto dbj_get_envvar(std::string_view varname_) noexcept
+			/*	returns {V, E},	caller must check	*/
+			[[nodiscard]] inline 
+				auto 
+				dbj_get_envvar(std::string_view varname_) noexcept
+				-> std::pair< buffer_type, std::error_code>
 			{
 				_ASSERTE(!varname_.empty());
-				std::array<char, 256>	bar{ {0} };
-				std::error_code			ec_; // contains 0 as the OK val
+				buffer_type	bar = make(256);
+				std::error_code			ec_; // the OK 
 				::SetLastError(0);
-				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.data(), (DWORD)bar.size()))
+				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.get(), (DWORD)256))
 				{
 					ec_ = std::error_code(::GetLastError(), std::system_category());
 				}
-				return std::pair(std::string(bar.data()), ec_);
+				return { std::move(bar), ec_ };
 			}
 
-			/*
-			returns {fs::path, std::error_code},	
-			caller must check for the error
-			*/
-			[[nodiscard]] inline 
-				std::pair<fs::path, std::error_code>
-				program_data_path() noexcept {
+			/*	returns {V, E},	caller must check	*/
+			[[nodiscard]] inline
+				auto
+				program_data_path() noexcept 
+				-> std::pair< buffer_type, std::error_code>
+			{
 					return dbj_get_envvar("ProgramData");
 			}
 		} // util

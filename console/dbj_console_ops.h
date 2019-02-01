@@ -405,6 +405,36 @@ with reference or pointer type argument.
 		}
 	}
 
+#pragma region smart pointers of char arrays
+
+	// unique_ptr copy is forbiden so it can not
+	// act as pass by value argument
+	inline void out
+	(::std::unique_ptr<char[]> const & smart_charr_)
+	{
+		::dbj::console::PRN.printf(L"%S", smart_charr_.get());
+	}
+
+	inline void out
+	(::std::unique_ptr<wchar_t[]> const & smart_wcharr_)
+	{
+		::dbj::console::PRN.printf(L"%s", smart_wcharr_.get());
+	}
+
+	inline void out
+	(::std::shared_ptr<char[]> const & smart_charr_)
+	{
+		::dbj::console::PRN.printf(L"%S", smart_charr_.get());
+	}
+
+	inline void out
+	(::std::shared_ptr<wchar_t[]> const & smart_wcharr_)
+	{
+		::dbj::console::PRN.printf(L"%s", smart_wcharr_.get());
+	}
+
+#pragma endregion 
+
 #pragma region filesystem
 
 	inline void out

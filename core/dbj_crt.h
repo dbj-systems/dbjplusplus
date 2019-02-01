@@ -346,6 +346,22 @@ namespace dbj {
 		countof(T const (&)[N]) { 
 		  return N; 
 	  }
+
+	  template<typename T, size_t N>
+	  inline void array_copy(
+		  T(&dst)[N], const T(&src)[N]
+	  ) noexcept
+	  {
+		  static_assert(
+			  is_trivially_copy_assignable_v<T>,
+			  " dbj::arr::array_copy() -- trivial copy-assignment is required of T"
+			  );
+#ifdef _DEBUG
+		  void * rez =
+#endif 
+			  memcpy(dst, src, N * sizeof(T));
+		  _ASSERTE(rez);
+	  }
 } // dbj
 
 /* inclusion of this file defines the kind of a licence used */

@@ -4,7 +4,7 @@
 namespace dbj::arr {
 
 	using namespace std;
-
+#if 0
 	template<typename T, size_t N>
 	inline void array_copy(
 		T(&dst)[N], const T(&src)[N]
@@ -19,7 +19,7 @@ namespace dbj::arr {
 	    memcpy(dst, src, N * sizeof(T));
 		_ASSERTE( rez );
 	}
-
+#endif
 	// http://cpptruths.blogspot.rs/2011/10/multi-dimensional-arrays-in-c11.html
 	template <class T, size_t ROW, size_t COL>
 	using Matrix = typename std::array<std::array<T, COL>, ROW>;

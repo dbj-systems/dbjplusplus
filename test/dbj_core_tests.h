@@ -21,6 +21,9 @@ DBJ_TEST_UNIT(core_utils)
 	// programdata path
 	DBJ_ATOM_TEST(u::program_data_path());
 
+	char hello[]{ "hello!" };
+
+	::dbj::buf::char_buffer cb("hello!");
 
 }
 
