@@ -126,6 +126,7 @@
     <ClInclude Include="..\test\dbj_buffer_testing.h" />
     <ClInclude Include="..\test\dbj_commander_test.h" />
     <ClInclude Include="..\test\dbj_console_test.h" />
+    <ClInclude Include="..\test\dbj_core_tests.h" />
     <ClInclude Include="..\test\dbj_crt_testing.h" />
     <ClInclude Include="..\test\dbj_defval_testing.h" />
     <ClInclude Include="..\test\dbj_kalends_test.h" />

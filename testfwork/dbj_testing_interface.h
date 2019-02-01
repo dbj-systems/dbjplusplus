@@ -65,7 +65,7 @@ namespace dbj {
 			white_line();
 			white_line("[", internal::dbj_tests_map_.size(), "] tests registered");
 			white_line("Application: ",
-				::dbj::FILENAME(dbj::range_to_string(prog_full_path))
+				::dbj::core::filename(dbj::range_to_string(prog_full_path))
 			);
 			white_line();
 		}

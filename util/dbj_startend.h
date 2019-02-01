@@ -56,7 +56,7 @@ namespace dbj {
 					}
 					catch (...) {
 						// must not throw from destructor
-						::dbj::TRACE("Calling ATEND() failed in %s", __FUNCSIG__);
+						::dbj::core::trace("Calling ATEND() failed in %s", __FUNCSIG__);
 					}
 			}
 		};

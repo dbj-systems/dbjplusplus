@@ -167,6 +167,9 @@
     <ClInclude Include="dbj_core_utils.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="..\test\dbj_core_tests.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

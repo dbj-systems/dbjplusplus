@@ -132,10 +132,10 @@ namespace dbj {
 
 				   // NOTE: rez.second is false if no insertion ocured
 				   if (rez.second == false) {
-					   ::dbj::TRACE("\nNot inserted %s, because found already", final_description_.c_str());
+					   ::dbj::core::trace("\nNot inserted %s, because found already", final_description_.c_str());
 				   }
 				   else {
-					   ::dbj::TRACE("\nInserted test unit: %s", final_description_.c_str());
+					   ::dbj::core::trace("\nInserted test unit: %s", final_description_.c_str());
 				   }
 				   return rez.first;
 			   }
@@ -159,7 +159,7 @@ namespace dbj {
 
 				 adder ( )  noexcept
 				{	
-					 ::dbj::TRACE("%s", __func__);
+					 ::dbj::core::trace("%s", __func__);
 				}
 
 			};
@@ -225,7 +225,7 @@ inline void name()
 #define DBJ_TEST_CASE( description, x ) \
 DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ) )
 
-#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( ::dbj::FILELINE(__FILE__, __LINE__) , x )
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( ::dbj::core::fileline(__FILE__, __LINE__) , x )
 
 #endif
 

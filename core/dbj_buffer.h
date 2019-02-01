@@ -55,7 +55,28 @@ namespace dbj{
 			_ASSERTE(rez_);
 			return sp_; // the move
 		}
-	/*
+
+		/*
+		assign array to instance of unique_ptr 
+		from the array of same element type
+		*/
+		template<typename C, size_t N>
+		inline auto 
+			assign
+		(
+			std::unique_ptr<C[]> & sp_,
+			const C(& arr)[N]
+		) noexcept
+			-> std::unique_ptr<C[]> &
+		{
+			static_assert(std::is_trivially_copyable_v<C>);
+			sp_.release();
+			sp_ = std::make_unique<C[]>(N + 1);
+			void * rez_ = ::memcpy(sp_.get(), arr, N);
+			_ASSERTE(rez_);
+			return sp_;
+		}
+		/*
 	This is a runtime buffer. Just like std::vector<char>, but lighter and faster.
 	I knew it is a good practice to have and use one's own char buffer class
 	instead of using std::vector<char>
@@ -233,5 +254,6 @@ namespace dbj{
 
 	} // buf
 } // dbj
+
 
 #endif // DBJ_LIGHT_BUFFER
