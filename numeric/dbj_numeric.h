@@ -23,7 +23,7 @@ namespace dbj::num {
 		};
 
 /*
-This is supposed to be the fastes itoa() impleentation
+This is supposed to be the "fastest" itoa() implementation
 Taken from http://fmtlib.net/latest/index.html
 Author: "vitaut"
 */
@@ -43,7 +43,7 @@ Author: "vitaut"
 	/*
 	you send the buf, so make it 'big enough'
 	*/
-inline char *itoa_vitaut_1(char *buf, uint32_t val)
+inline char * itoa_vitaut_1(char *buf, uint32_t val) noexcept
 {
     char *p = &buf[10];
 
@@ -55,13 +55,24 @@ inline char *itoa_vitaut_1(char *buf, uint32_t val)
 
         p -= 2;
         val /= 100;
-        memcpy(p, &str100p[old - (val * 100)], sizeof(uint16_t));
+        ::memcpy(p, &str100p[old - (val * 100)], sizeof(uint16_t));
     }
 
     p -= 2;
-    memcpy(p, &str100p[val], sizeof(uint16_t));
+    ::memcpy(p, &str100p[val], sizeof(uint16_t));
 
     return &p[val < 10];
+}
+
+inline std::array<char, 64> itos(long l_) noexcept
+{
+	std::array<char, 64> str{ {0} };
+
+	[[maybe_unused]] auto[p, ec]
+		= std::to_chars(str.data(), str.data() + str.size(), l_);
+	DBJ_NOUSE(p);
+	_ASSERTE(ec != std::errc::value_too_large);
+	return str ;
 }
 
 } // dbj::num

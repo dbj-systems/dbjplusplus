@@ -13,7 +13,7 @@ namespace dbj {
 			// notice how we replaced the use of 
 			// std::string with buffer_type
 			// everywhere in this file
-		using buffer_type =  ::dbj::buf::narrow::pointer_type;
+		using buffer_type =  ::dbj::buf::smart_arr;
 
 			// no can do, intelisense goes berserk  --> using namespace::std ;
 			using namespace  ::std::literals::string_view_literals;

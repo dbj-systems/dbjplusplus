@@ -116,15 +116,17 @@ namespace dbj {
 			   /// </summary>
 			   /// <param name="tunit_"></param>
 			   /// <param name="description_"></param>
-			   inline  auto append(testunittype tunit_, const std::string & description_) {
+			   inline  auto append(testunittype tunit_, 
+				       std::unique_ptr<char[]> const & description_) 
+			   {
 
 				   auto next_test_id = []() -> std::string {
 					   static int tid{ 0 };
 					   return   "[TID:" + dbj::str::string_pad(tid++, '0', 3) + "]";
 				   };
 
-				   const std::string final_description_ = 
-					   next_test_id() + description_;
+				   std::string final_description_(next_test_id()); 
+				   final_description_.append(description_.get());
 
 				   /* the same test unit ? do not insert twice */
 				   auto rez = 
@@ -148,7 +150,7 @@ namespace dbj {
 
 			struct adder final {
 				inline auto operator ()(
-					std::string msg_, 
+					std::unique_ptr<char[]> const & msg_, 
 					testunittype tunit_ 
 					) const noexcept
 				{
