@@ -83,6 +83,8 @@ namespace dbj{
 		template<typename T, size_t N>
 		char_buffer(T(&charr)[N])
 		{
+			static_assert(::dbj::is_char_v< std::remove_cv_t<T> >);
+
 			this->reset(N);
 			(void)::memcpy(data_.get(), charr, N );
 		}
