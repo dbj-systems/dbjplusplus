@@ -11,31 +11,31 @@
 */
 namespace dbj {
 	namespace testing {
-		
+
 		typedef typename dbj::console::painter_command CMD;
 		using dbj::console::print;
 
 		inline std::string_view hyphens_line_ = dbj::str::char_line();
 
 		template< typename ... Args >
-		inline void text_line (
-			CMD && cmd_ , 
-			Args && ... args 
+		inline void text_line(
+			CMD && cmd_,
+			Args && ... args
 		) {
-			paint(cmd_); 
-			print( "\n" );
-			if constexpr (sizeof...(args) < 1 ) {
+			paint(cmd_);
+			print("\n");
+			if constexpr (sizeof...(args) < 1) {
 				print(::dbj::LINE());
 			}
 			else {
-				print( args... );
+				print(args...);
 			}
 			paint(CMD::text_color_reset);
 
 		};
 
-		inline auto white_line = [&]( auto && ... args ) {
-				text_line( CMD::white, args... );
+		inline auto white_line = [&](auto && ... args) {
+			text_line(CMD::white, args...);
 		};
 
 		inline auto blue_line = [&](auto && ... args) {
@@ -43,28 +43,28 @@ namespace dbj {
 		};
 
 		inline auto green_line = [&](auto && ... args) {
-			text_line(CMD::green, args... );
+			text_line(CMD::green, args...);
 		};
 
 		inline auto red_line = [&](auto && ... args) {
-			text_line(CMD::bright_red, args ... );
+			text_line(CMD::bright_red, args ...);
 		};
 
-		inline auto prefix (
-			/* 
+		inline auto prefix(
+			/*
 			   since we do only unicode builds
 			   argv[0] is wchar_t *
 			 */
-			const wchar_t * prog_full_path 
+			const wchar_t * prog_full_path
 		) {
 			_ASSERTE(prog_full_path);
 			white_line();
-			white_line( dbj::testing::TITLE, "\n");
-			white_line( ::dbj::YEAR(), " by ", ::dbj::COMPANY());
-			white_line( "MSVC version: ", _MSC_FULL_VER );
+			white_line(dbj::testing::TITLE, "\n");
+			white_line(::dbj::YEAR(), " by ", ::dbj::COMPANY());
+			white_line("MSVC version: ", _MSC_FULL_VER);
 			white_line();
 			white_line("[", internal::dbj_tests_map_.size(), "] tests registered");
-			white_line("Application: ", 
+			white_line("Application: ",
 				::dbj::FILENAME(dbj::range_to_string(prog_full_path))
 			);
 			white_line();
@@ -79,7 +79,7 @@ namespace dbj {
 
 		inline auto unit_prefix(const char * name_) {
 			blue_line();
-			blue_line("BEGIN TEST UNIT ", name_ , " ");
+			blue_line("BEGIN TEST UNIT ", name_, " ");
 			blue_line();
 		}
 
@@ -90,24 +90,24 @@ namespace dbj {
 
 		inline auto space_prefix(const char * name_) {
 			white_line();
-			white_line("Runtime started", name_ );
+			white_line("Runtime started", name_);
 			white_line();
 		}
 
 		inline auto space_suffix(const char * name_) {
 			white_line();
-			white_line("\nRuntime finished", name_ );
+			white_line("\nRuntime finished", name_);
 			white_line();
 		}
 
 		/*  execute all the tests collected  */
 		inline void execute(
 			const int		DBJ_MAYBE(argc),
-			const wchar_t * DBJ_MAYBE(argv) [],
-			const wchar_t * DBJ_MAYBE(envp) []
-		)  
+			const wchar_t * DBJ_MAYBE(argv)[],
+			const wchar_t * DBJ_MAYBE(envp)[]
+		)
 		{
-			if ( internal::dbj_tests_map_.size() < 1) {
+			if (internal::dbj_tests_map_.size() < 1) {
 				white_line();
 				white_line("No tests registered");
 				white_line();
@@ -117,7 +117,7 @@ namespace dbj {
 			// here we catch only what was declared as 
 			// part of std::exception hierarchy
 			// everything else will go up the stack
-			auto handle_eptr = [](std::exception_ptr eptr) 
+			auto handle_eptr = [](std::exception_ptr eptr)
 				// passing by value is ok
 			{
 				try {
@@ -131,7 +131,7 @@ namespace dbj {
 			};
 
 			prefix(argv[0]);
-			for (auto /* && */ tunit : internal::dbj_tests_map_ )
+			for (auto /* && */ tunit : internal::dbj_tests_map_)
 			{
 				unit_prefix(tunit.second.c_str());
 				try {
@@ -141,7 +141,7 @@ namespace dbj {
 				}
 				catch (const std::system_error & x_) {
 					// print("system error: ", x_.what());
-					print("\nstd::system_error\n\t",x_.what(), "\n\t", x_.code() );
+					print("\nstd::system_error\n\t", x_.what(), "\n\t", x_.code());
 				}
 				catch (const std::exception & x_) {
 					// print("dbj Exception, ", x_.what());
@@ -172,25 +172,31 @@ namespace dbj {
 		/// </summary>
 		template<typename return_type>
 		// inline decltype(auto)
-		inline return_type &
-			test_lambada(const char * expression, const return_type & anything, bool show_type = true )
+		inline return_type const &
+			test_lambada(
+				const char * expression,
+				return_type const & anything,
+				bool show_type = true) noexcept
 		{
-			using namespace ::dbj::console;
-			::dbj::console::print(
+			using ::dbj::console::print;
+			using ::dbj::console::painter_command;
+			print(
 				painter_command::green, "\n", hyphens_line_,
-				"\n- expression -> ", painter_command::text_color_reset, expression,
-				(show_type ? 
-					painter_command::green, "\n\t- rezult type-> ", painter_command::text_color_reset, typeid(anything).name()
-					: " "
-				),
+				"\n- expression -> ", painter_command::text_color_reset, expression);
+			if (show_type)
+				print(
+					painter_command::green, "\n\t- type-> ", painter_command::text_color_reset, typeid(anything).name()
+				);
+			print(
 				painter_command::green, "\n\t- value -> ", painter_command::text_color_reset, anything
 			);
-			return const_cast<return_type &>( anything ) ;
+			return static_cast<return_type const &>(anything);
 		};
 
-#define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
+		// #define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
+#define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), (x) ) 
 // same as above but does not show type
-#define DBJ_ATOM_TEST(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}(), false ) 
+#define DBJ_ATOM_TEST(x) dbj::testing::test_lambada( DBJ_EXPAND(x), (x), false ) 
 #endif // DBJ_TEST_ATOM
 
 	} // testing

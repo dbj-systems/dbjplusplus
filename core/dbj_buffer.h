@@ -18,10 +18,6 @@ namespace dbj{
 		{
 			// type alias
 			using pointer_type = std::unique_ptr<char[]>;
-			// this is runtime instance
-			inline pointer_type make(size_t S_) {
-				return std::make_unique<char[]>(S_ + 1);
-			};
 			// reference type 
 			// use it for passing (to functions) as arguments
 			// since narrow pointer can not be copied
@@ -33,18 +29,34 @@ namespace dbj{
 		{
 			// type alias
 			using pointer_type = std::unique_ptr<wchar_t[]> ;
-			// this is runtime instance
-			inline pointer_type make(size_t S_) {
-				return std::make_unique<wchar_t[]>(S_ + 1);
-			};
 			// reference type 
 			// use it for passing (to functions) as arguments
 			// since narrow pointer can not be copied
 			using ref_type = std::reference_wrapper<pointer_type>;
 		} // wide
+
+		template<typename C>
+		[[nodiscard]] inline auto smart ( size_t S_) noexcept
+		-> std::unique_ptr<C[]>
+		{
+			static_assert(
+				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C > ,
+				"just char or wchar_t please, also non ref, non const and not unsigned"
+				);
+			return std::make_unique<C[]>(S_ + 1);
+		}
+
+		template<typename C, size_t N>
+		[[nodiscard]] inline auto smart (const C(& charr)[N] ) noexcept
+		-> std::unique_ptr<C[]>
+		{
+			std::unique_ptr<C[]> sp_ = std::make_unique<C[]>(N + 1);
+			void * rez_ = ::memcpy(sp_.get(), charr, N);
+			_ASSERTE(rez_);
+			return sp_; // the move
+		}
 	/*
-	This is a runtime buffer. Just like std::vector, but better because it
-	is lighter and faster.
+	This is a runtime buffer. Just like std::vector<char>, but lighter and faster.
 	I knew it is a good practice to have and use one's own char buffer class
 	instead of using std::vector<char>
 	Bellow are the measurements too, in case you are hotly against.
@@ -66,34 +78,45 @@ namespace dbj{
 		this leaves the buf1 "destroyed" ... no good this is
 		so how to pass them to functions?
 		instead, for passing instances of this class as function arg's
-		use this reference_type
-
+		use the reference_type. example:
 		extern void whatever ( char_buffer<char>::reference_type br ) ;
 		char_buffer<char> bf(BUFSIZ) ;
-		// normal and simple calling
+		and then, normal and simple calling. example:
 		whatever(bf);
 		*/
-		using reference_type = typename std::reference_wrapper<type> ;
+		using reference_type = typename type & ;
 
 		explicit char_buffer(size_t size)
 		{
 			this->reset(size);
 		}
 
+		char_buffer(const char_buffer & another_)
+		{
+			this->reset(another_.size_);
+			(void)::memcpy(data(), another_.data() , this->size() );
+		}
+		char_buffer & operator =(const char_buffer & another_)
+		{
+			this->reset(another_.size_);
+			(void)::memcpy(data(), another_.data() , this->size() );
+		}
+
 		template<typename T, size_t N>
 		char_buffer(T(&charr)[N])
 		{
-			static_assert(::dbj::is_char_v< std::remove_cv_t<T> >);
+			static_assert( dbj::is_char_v< std::remove_cv_t<T> >, 
+				"\n\n" __FUNCSIG__ "\nonly char's please!\n");
 
-			this->reset(N);
-			(void)::memcpy(data_.get(), charr, N );
+			this->size_ = N;
+			this->data_ = smart<char>(charr);
 		}
 
 		void reset(size_t new_size_) const {
 			_ASSERTE(new_size_ > 0);
 			data_.release();
-			size_ = new_size_;
-			data_.reset(new char[size_ + 1]{ 0 });
+			this->size_ = new_size_ ;
+			this->data_ = smart<char>(new_size_);
 		}
 
 		char & operator [] (size_t idx_)
@@ -127,16 +150,29 @@ namespace dbj{
 		mutable	pointer data_{}; // size == 0
 	#pragma region char_buffer friends
 
+// obviously this here will not work 
+// since ::dbj::console is not included 
+// before
+#ifdef DBJ_CONSOLE_SYTEM
+		void out(
+			::dbj::buf::char_buffer const & cb_
+		)
+		{
+			using namespace ::dbj::console;
+			prinf(L"%S", cb_.data());
+		}
+#endif
+
 		friend std::string to_string(const reference_type from_) noexcept {
-			return { from_.get().data() };
+			return { from_.data() };
 		}
 
 		friend std::wstring to_wstring(const reference_type from_) noexcept {
-			return { from_.get().begin(), from_.get().end() };
+			return { from_.begin(), from_.end() };
 		}
 
 		friend std::vector<char> to_vector(const reference_type from_) noexcept {
-			return { from_.get().begin(), from_.get().end() };
+			return { from_.begin(), from_.end() };
 		}
 
 		/*
@@ -149,16 +185,13 @@ namespace dbj{
 			std::error_code copy(const reference_type from_, reference_type target_)
 			noexcept /* beware: std::copy may throw bad_alloc! */
 		{
-			auto const & frm_ = from_.get();
-			auto & to_ = target_.get();
-
-			if (frm_.size() != to_.size())
+			if (from_.size() != target_.size())
 				return std::make_error_code(std::errc::invalid_argument);
 
-			std::copy(frm_.data_.get(), frm_.data_.get() + frm_.size(),
-				to_.data_.get());
+			std::copy(from_.data_.get(), from_.data_.get() + from_.size(),
+				target_.data_.get());
 
-			return std::error_code{};
+			return std::error_code{}; // OK
 		}
 	#ifdef _WIN32
 	public:
@@ -176,13 +209,12 @@ namespace dbj{
 		transformed and inside the unique_ptr inside the wide_copy_result
 		as ever we do not use exceptions
 		*/
-		friend wide_copy_result wide_copy(reference_type cb) noexcept
+		friend wide_copy_result wide_copy(reference_type source_) noexcept
 		{
-			auto const & source_ = cb.get();
 			auto const & source_size_ = source_.size_;
 			auto & source_pointer_ = source_.data_;
 
-			wide_pointer wp = wide::make(source_size_);
+			wide_pointer wp = ::dbj::buf::smart<wchar_t>(source_size_);
 
 			size_t rezult_size;
 			auto mbstowcs_errno = ::mbstowcs_s(

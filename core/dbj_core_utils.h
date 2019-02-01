@@ -13,8 +13,7 @@ namespace dbj {
 			// notice how we replaced the use of 
 			// std::string with buffer_type
 			// everywhere in this file
-		using buffer_type = ::dbj::buf::narrow::pointer_type;
-		using ::dbj::buf::narrow::make ;
+		using buffer_type =  ::dbj::buf::narrow::pointer_type;
 
 			// no can do, intelisense goes berserk  --> using namespace::std ;
 			using namespace  ::std::literals::string_view_literals;
@@ -36,7 +35,7 @@ namespace dbj {
 				) noexcept
 			{
 				const size_t buf_len = 32U;
-				buffer_type buffer_	= make(buf_len);
+				auto buffer_	= ::dbj::buf::smart<char>(buf_len);
 				char * buf = buffer_.get();
 
 				ec_.clear();
@@ -48,7 +47,7 @@ namespace dbj {
 				struct tm  local_time_ {};
 
 				errno_t posix_err_code = ::localtime_s(&local_time_, &now_tm_t);
-				// leave the result empty if error
+				// return empty buffer if error
 				if (posix_err_code > 0) {
 					ec_ = std::make_error_code((std::errc)posix_err_code); return {};
 				}
@@ -64,30 +63,30 @@ namespace dbj {
 				// ec_ stays clear
 			};
 
-			/*	returns {V, E},	caller must check	*/
+			/*	caller must check std::error_code ref arg	*/
 			[[nodiscard]] inline 
 				auto 
-				dbj_get_envvar(std::string_view varname_) noexcept
-				-> std::pair< buffer_type, std::error_code>
+				dbj_get_envvar(std::string_view varname_, std::error_code & ec_ ) noexcept
+				-> buffer_type
 			{
 				_ASSERTE(!varname_.empty());
-				buffer_type	bar = make(256);
-				std::error_code			ec_; // the OK 
+				size_t buflen_ = 256U;
+				auto	bar = ::dbj::buf::smart<char>(buflen_);
+				ec_.clear(); // the OK 
 				::SetLastError(0);
-				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.get(), (DWORD)256))
+				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.get(), (DWORD)buflen_))
 				{
 					ec_ = std::error_code(::GetLastError(), std::system_category());
 				}
-				return { std::move(bar), ec_ };
+					return bar ;
 			}
 
-			/*	returns {V, E},	caller must check	*/
-			[[nodiscard]] inline
-				auto
-				program_data_path() noexcept 
-				-> std::pair< buffer_type, std::error_code>
+			/*	caller must check the ec_	*/
+			[[nodiscard]] inline auto
+				program_data_path( std::error_code & ec_ ) noexcept
+				-> buffer_type
 			{
-					return dbj_get_envvar("ProgramData");
+					return dbj_get_envvar("ProgramData", ec_ );
 			}
 		} // util
 	}// core

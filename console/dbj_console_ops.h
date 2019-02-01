@@ -479,7 +479,7 @@ with reference or pointer type argument.
 	}
 	*/
 
-	inline auto print = [](const auto & first_param, auto && ... params)
+	inline auto print = []( auto const & first_param, auto const & ... params)
 	{
 		_ASSERTE(::dbj::console_is_initialized());
 
@@ -508,3 +508,27 @@ with reference or pointer type argument.
 	}
 
 } // dbj::console
+
+
+#ifndef DBJ_CONSOLE_SYTEM
+#define DBJ_CONSOLE_SYSTEM
+/* 
+why do we need the above?
+to be able to use dbj::console::print on UDT's
+example:
+
+   struct X  {
+      cont char * name = "X" ;
+#ifdef DBJ_CONSOLE_SYTEM
+       friend void out ( cosnt X & x_ ) {
+	      ::dbj::console::out::(x.name) ;
+		  // or shortcut solution
+		  // ::dbj::console::PRN::printf("%s",x.name)
+	   }
+#endif
+   };
+
+   ::dbj::console::print(X{}) ; // works
+
+*/
+#endif // !DBJ_CONSOLE_SYTEM

@@ -31,7 +31,7 @@ DBJ_TEST_UNIT(dbj_light_buffer)
 		std::string       s26{}; s26.resize(bufsiz_);
 		std::array<char, 26> a26{ {0} };
 
-		auto retval = DBJ_ATOM_TEST(cbr.get().size());
+		auto retval = DBJ_ATOM_TEST(cbr.size());
 		DBJ_ATOM_TEST(sizeof(a26));
 		DBJ_ATOM_TEST(sizeof(v26));
 		DBJ_ATOM_TEST(sizeof(s26));
