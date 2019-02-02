@@ -17,12 +17,12 @@ namespace dbj {
 		template<typename C>
 		using smarty = std::unique_ptr<C[]>;
 
-		using smart_arr  = smarty<char> ;
+		using smart_carr  = smarty<char> ;
 		using smart_warr = smarty<wchar_t>;
 
 		// use it for passing (to functions) as arguments
 		// since narrow pointer can not be copied
-		using smart_arr_ref = std::reference_wrapper<smart_arr>;
+		using smart_arr_ref = std::reference_wrapper<smart_carr>;
 		using smart_warr_ref = std::reference_wrapper<smart_warr>;
 
 		// always use this function to make fresh smarty-es!
@@ -32,7 +32,7 @@ namespace dbj {
 		{
 			static_assert(
 				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
-				"just char or wchar_t please, also non ref, non const and not unsigned"
+				"\n\n" __FUNCSIG__ "\njust char or wchar_t please, also non ref, non const and not unsigned\n"
 				);
 			return std::make_unique<C[]>(S_ + 1);
 		}
@@ -130,7 +130,7 @@ namespace dbj {
 			using type = char_buffer;
 			using value_type = char;
 			using iterator = value_type * ;
-			using pointer = smart_arr ;
+			using pointer = smart_carr ;
 			/*
 			one can "copy" the unique_ptr by moving, example:
 			char_buffer<char> buf2 = std::move(buf1) ;

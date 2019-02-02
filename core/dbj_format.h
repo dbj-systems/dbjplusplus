@@ -52,7 +52,7 @@ namespace dbj {
 		https://stackoverflow.com/a/39972671/10870835
 		*/
 		template<typename ... Args>
-		inline dbj::buf::smart_arr
+		inline dbj::buf::smart_carr
 			to_buff(std::string_view format_, Args const & ... args)
 			noexcept
 		{
@@ -133,7 +133,7 @@ namespace dbj {
 #pragma warning( push )
 #pragma warning( disable: 4190 )
 
-		using smart_buf_type = typename dbj::buf::smart_arr;
+		using smart_buf_type = typename dbj::buf::smart_carr;
 
 		extern "C" {
 

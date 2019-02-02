@@ -52,12 +52,12 @@ namespace dbj {
 			{
 				size_t ID;
 				testunittype TU;
-				dbj::buf::smart_arr  description;
+				dbj::buf::smart_carr  description;
 
 				TUNODE(
 					size_t id_, 
 					testunittype test_unit_, 
-					dbj::buf::smart_arr & desc_
+					dbj::buf::smart_carr & desc_
 				) noexcept
 					: ID(id_)
 					, TU(test_unit_)
@@ -111,11 +111,11 @@ namespace dbj {
 		   {
 			   struct retval final {
 				   size_t id;
-				   dbj::buf::smart_arr sid;
+				   dbj::buf::smart_carr sid;
 			   };
 
 			   static size_t tid{ 0 };
-			   dbj::buf::smart_arr id_str =
+			   dbj::buf::smart_carr id_str =
 				   dbj::fmt::to_buff("[TID:%03d]", tid++ );
 
 			   return retval{ tid, std::move(id_str) };
@@ -124,12 +124,12 @@ namespace dbj {
 				/// the actiual test unit function registration 
 				/// happens here
 			   inline  auto append
-			   (testunittype tunit_, dbj::buf::smart_arr const & description_) 
+			   (testunittype tunit_, dbj::buf::smart_carr const & description_) 
 				   noexcept -> testunittype
 			   {
 				   auto next_ = next_test_id();
 
-				   dbj::buf::smart_arr full_desc{
+				   dbj::buf::smart_carr full_desc{
 					   dbj::fmt::to_buff("%s%s", next_.sid, description_)
 				   };
 				   // careful! description_ is moved above so it is in an undefined state
