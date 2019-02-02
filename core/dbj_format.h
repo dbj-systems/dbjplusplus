@@ -59,7 +59,7 @@ namespace dbj {
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
 			// 1: what is he size required
-			const size_t size = std::snprintf(nullptr, 0, fmt, frm_arg(args) ...);
+			const size_t size = 1 + std::snprintf(nullptr, 0, fmt, frm_arg(args) ...);
 			// 2: use it at runtime
 			auto buf = std::make_unique<char[]>(size+1);
 			// each arg becomes arg to the frm_arg() overload found
@@ -76,7 +76,7 @@ namespace dbj {
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
 			// 1: what is he size required
-			const size_t size = std::swprintf(nullptr, 0, fmt, frm_arg(args) ...);
+			const size_t size = 1 + std::swprintf(nullptr, 0, fmt, frm_arg(args) ...);
 			// 2: use it at runtime
 			auto buf = std::make_unique<wchar_t[]>(size + 1);
 			// each arg becomes arg to the frm_arg() overload found

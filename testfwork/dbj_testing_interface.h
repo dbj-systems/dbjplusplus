@@ -15,8 +15,6 @@ namespace dbj {
 		typedef typename dbj::console::painter_command CMD;
 		using dbj::console::print;
 
-		inline std::string_view hyphens_line_ = dbj::str::char_line();
-
 		template< typename ... Args >
 		inline void text_line(
 			CMD && cmd_,
@@ -58,64 +56,78 @@ namespace dbj {
 			const wchar_t * prog_full_path
 		) {
 			_ASSERTE(prog_full_path);
+
+			auto narrow_path = dbj::fmt::to_buff("%S", prog_full_path);
 			
 			auto buff_ = dbj::fmt::to_buff(
+			"\n%s"
 			"\n%s"
 			"\n%s by %s"
 			"\nMSVC version: %d"
 			"\n[%d] tests registered"
-			"\nRunning: %S",
+			"\nRunning: %s",
+				::dbj::LINE(),
 				::dbj::testing::TITLE,
 				::dbj::YEAR(), ::dbj::COMPANY(),
 				_MSC_FULL_VER,
 				internal::tuset_instance().size(),
-				prog_full_path);
+				narrow_path.get()
+				);
 
 			_ASSERTE(buff_);
 
 			white_line(buff_.get());
-			/*
-			white_line();
-			white_line(dbj::testing::TITLE, "\n");
-			white_line(::dbj::YEAR(), " by ", ::dbj::COMPANY());
-			white_line("MSVC version: ", _MSC_FULL_VER);
-			white_line();
-			white_line("[", internal::tuset_instance().size(), "] tests registered");
-			white_line("Application: ",
-				::dbj::core::filename(dbj::range_to_string(prog_full_path))
-			);
-			white_line();
-			*/
 		}
 
 		inline auto suffix() {
-			white_line();
-			white_line("\n", dbj::testing::ALLDN);
-			white_line();
+			auto buff_ = dbj::fmt::to_buff(
+				"\n%s"
+				"\n%s\n",
+				::dbj::LINE() , dbj::testing::ALLDN
+			);
+			_ASSERTE(buff_);
+			white_line(buff_.get());
 			// no needed --> print(CMD::text_color_reset);
 		}
 
 		inline auto unit_prefix(const char * name_) {
-			blue_line();
-			blue_line("BEGIN TEST UNIT ", name_, " ");
-			blue_line();
+			auto buff_ = dbj::fmt::to_buff(
+				"\n%s"
+				"\nBegin test unit %s\n",
+				::dbj::LINE(), name_
+			);
+			_ASSERTE(buff_);
+			blue_line(buff_.get());
 		}
 
 		inline auto unit_suffix(const char * name_) {
-			blue_line();
-			blue_line("\nEND TEST UNIT ", name_, " \n");
+			auto buff_ = dbj::fmt::to_buff(
+				"\n%s"
+				"\nEnd test unit %s\n",
+				::dbj::LINE(), name_
+			);
+			_ASSERTE(buff_);
+			blue_line(buff_.get());
 		}
 
 		inline auto space_prefix(const char * name_) {
-			white_line();
-			white_line("Runtime started", name_);
-			white_line();
+			auto buff_ = dbj::fmt::to_buff(
+				"\n%s"
+				"\nRuntime started %s\n",
+				::dbj::LINE(), name_
+			);
+			_ASSERTE(buff_);
+			white_line(buff_.get());
 		}
 
 		inline auto space_suffix(const char * name_) {
-			white_line();
-			white_line("\nRuntime finished", name_);
-			white_line();
+			auto buff_ = dbj::fmt::to_buff(
+				"\n%s"
+				"\nRuntime finished %s\n",
+				::dbj::LINE(), name_
+			);
+			_ASSERTE(buff_);
+			white_line(buff_.get());
 		}
 
 		/*  execute all the tests collected  */
@@ -204,7 +216,7 @@ namespace dbj {
 			using ::dbj::console::print;
 			using ::dbj::console::painter_command;
 			print(
-				painter_command::green, "\n", hyphens_line_,
+				painter_command::green, "\n", ::dbj::LINE(),
 				"\n- expression -> ", painter_command::text_color_reset, expression);
 			if (show_type)
 				print(
