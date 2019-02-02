@@ -61,7 +61,7 @@ namespace dbj {
 				) noexcept
 					: ID(id_)
 					, TU(test_unit_)
-					, description( std::move( desc_ ) )
+					, description( dbj::buf::smart( desc_ ) /* copy is made */)
 				{
 				}
 
@@ -132,13 +132,13 @@ namespace dbj {
 				   dbj::buf::smart_carr full_desc{
 					   dbj::fmt::to_buff("%s%s", next_.sid, description_)
 				   };
-				   // careful! description_ is moved above so it is in an undefined state
-				   
+	   
 				   /* vs insert(), std::set emplace() returns a rezult */
-				   auto rez = 
-					   tuset_instance().emplace( 
+				   auto rez = tuset_instance().emplace( 
 						   TUNODE( next_.id, tunit_ , full_desc )
 					   );
+
+				   _ASSERTE(full_desc);
 
 				   // NOTE: rez.second is false if no insertion ocured
 				   if (rez.second == false) {

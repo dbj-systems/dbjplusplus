@@ -58,6 +58,23 @@ namespace dbj {
 			const wchar_t * prog_full_path
 		) {
 			_ASSERTE(prog_full_path);
+			
+			auto buff_ = dbj::fmt::to_buff(
+			"\n%s"
+			"\n%s by %s"
+			"\nMSVC version: %d"
+			"\n[%d] tests registered"
+			"\nRunning: %S",
+				::dbj::testing::TITLE,
+				::dbj::YEAR(), ::dbj::COMPANY(),
+				_MSC_FULL_VER,
+				internal::tuset_instance().size(),
+				prog_full_path);
+
+			_ASSERTE(buff_);
+
+			white_line(buff_.get());
+			/*
 			white_line();
 			white_line(dbj::testing::TITLE, "\n");
 			white_line(::dbj::YEAR(), " by ", ::dbj::COMPANY());
@@ -68,6 +85,7 @@ namespace dbj {
 				::dbj::core::filename(dbj::range_to_string(prog_full_path))
 			);
 			white_line();
+			*/
 		}
 
 		inline auto suffix() {

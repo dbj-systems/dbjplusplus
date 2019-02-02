@@ -53,15 +53,15 @@ namespace dbj {
 		*/
 		template<typename ... Args>
 		inline dbj::buf::smart_carr
-			to_buff(std::string_view format_, Args const & ... args)
+			to_buff(std::string_view format_, Args const & ...args)
 			noexcept
 		{
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
 			// 1: what is he size required
-			const size_t size = std::snprintf(nullptr, 0, fmt, frm_arg(args) ...) + 1;
+			const size_t size = std::snprintf(nullptr, 0, fmt, frm_arg(args) ...);
 			// 2: use it at runtime
-			auto buf = std::make_unique<char[]>(size);
+			auto buf = std::make_unique<char[]>(size+1);
 			// each arg becomes arg to the frm_arg() overload found
 			std::snprintf(buf.get(), size, fmt, frm_arg(args) ...);
 
@@ -70,15 +70,15 @@ namespace dbj {
 		// wide version
 		template<typename ... Args>
 		inline dbj::buf::smart_warr
-			to_buff(std::wstring_view format_, Args const & ... args)
+			to_buff(std::wstring_view format_, Args const & ...args)
 			noexcept
 		{
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
 			// 1: what is he size required
-			const size_t size = std::swprintf(nullptr, 0, fmt, frm_arg(args) ...) + 1;
+			const size_t size = std::swprintf(nullptr, 0, fmt, frm_arg(args) ...);
 			// 2: use it at runtime
-			auto buf = std::make_unique<wchar_t[]>(size);
+			auto buf = std::make_unique<wchar_t[]>(size + 1);
 			// each arg becomes arg to the frm_arg() overload found
 			std::swprintf(buf.get(), size, fmt, frm_arg(args) ...);
 
