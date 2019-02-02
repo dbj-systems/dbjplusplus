@@ -25,6 +25,7 @@ namespace dbj {
 		using smart_arr_ref = std::reference_wrapper<smart_arr>;
 		using smart_warr_ref = std::reference_wrapper<smart_warr>;
 
+		// always use this function to make fresh smarty-es!
 		template<typename C>
 		[[nodiscard]] inline auto smart(size_t S_) noexcept
 			-> smarty<C>
@@ -40,15 +41,61 @@ namespace dbj {
 		[[nodiscard]] inline auto smart(const C(&charr)[N]) noexcept
 			-> smarty<C>
 		{
-			std::unique_ptr<C[]> sp_ = std::make_unique<C[]>(N + 1);
+			smarty<C> sp_ = smart<C>(N);
 			void * rez_ = ::memcpy(sp_.get(), charr, N);
 			_ASSERTE(rez_);
 			return sp_; // the move
 		}
 
+		/* make smarty<C> from basic_string_view<C> */
+		template<typename C>
+		[[nodiscard]] inline auto
+			smart
+			(
+				std::basic_string_view<C> sv_
+			) noexcept
+			-> smarty<C> 
+		{
+			smarty<C> sp_;
+			// is this naive?
+			// should I use strnlen() ?
+			const size_t N = sv_.size();
+			static_assert(std::is_trivially_copyable_v<C>);
+			sp_.release();
+			sp_ = smart<C>(N);
+			void * rez_ = ::memcpy(sp_.get(), sv_.data(), N);
+			_ASSERTE(rez_);
+			return sp_;
+		}
+
+		/* 
+		make smarty<C> from smarty<C> 
+		this is clever since we do not pass C*
+		but... can we rely on the the caller 
+		making a properly zero terminated string in there
+		so that strlen will work?
+		*/
+		template<typename C>
+		[[nodiscard]] inline auto
+			smart
+			(
+				smarty<C> const & sv_
+			) noexcept
+			-> smarty<C> 
+		{
+			smarty<C> sp_;
+			// is this naive? should I use strnlen() ?
+			const size_t N =  ::strlen( sv_.get() ) ;
+			static_assert(std::is_trivially_copyable_v<C>);
+			sp_.release();
+			sp_ = smart<C>(N);
+			void * rez_ = ::memcpy(sp_.get(), sv_.get(), N);
+			_ASSERTE(rez_);
+			return sp_;
+		}
+
 		/*
-		assign array to instance of unique_ptr
-		from the array of same element type
+		assign array to instance of unique_ptr<T[]>
 		*/
 		template<typename C, size_t N>
 		inline auto
@@ -57,15 +104,16 @@ namespace dbj {
 				smarty<C> & sp_,
 				const C(&arr)[N]
 			) noexcept
-			-> std::unique_ptr<C[]> &
+			-> smarty<C> &
 		{
 			static_assert(std::is_trivially_copyable_v<C>);
 			sp_.release();
-			sp_ = std::make_unique<C[]>(N + 1);
+			sp_ = smart<C>(N);
 			void * rez_ = ::memcpy(sp_.get(), arr, N);
 			_ASSERTE(rez_);
 			return sp_;
 		}
+
 		/*
 	This is a runtime buffer. Just like std::vector<char>, but lighter and faster.
 	I knew it is a good practice to have and use one's own char buffer class

@@ -133,7 +133,7 @@ namespace dbj {
 			prefix(argv[0]);
 			for (auto & tunode_ : internal::tuset_instance())
 			{
-				unit_prefix( tunode_.description.c_str() );
+				unit_prefix( tunode_.description.get() );
 				try {
 					white_line(" ");
 					internal::unit_execute( tunode_.TU );
@@ -158,7 +158,7 @@ namespace dbj {
 					}; // capture
 					handle_eptr(eptr);
 				}
-				unit_suffix(tunode_.description.c_str());
+				unit_suffix(tunode_.description.get());
 			}
 			suffix();
 		}

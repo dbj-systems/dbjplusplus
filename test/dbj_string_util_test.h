@@ -10,19 +10,19 @@ DBJ_TEST_UNIT(dbj_string_util_replace_inplace) {
 
 	const  std::string
 		new_string
-		= DBJ_TEST_ATOM(dbj::str::replace_inplace("abra ka dabra"sv, "ka"sv, "malaga"sv));
+		= DBJ_ATOM_TEST(dbj::str::replace_inplace("abra ka dabra"sv, "ka"sv, "malaga"sv));
 
 	const  std::wstring
 		new_wstring
-		= DBJ_TEST_ATOM(dbj::str::replace_inplace(L"abra ka dabra"sv, L"ka"sv, L"malaga"sv));
+		= DBJ_ATOM_TEST(dbj::str::replace_inplace(L"abra ka dabra"sv, L"ka"sv, L"malaga"sv));
 
 	const  std::u16string
 		new_u16string
-		= DBJ_TEST_ATOM(dbj::str::replace_inplace(u"abra ka dabra"sv, u"ka"sv, u"malaga"sv));
+		= DBJ_ATOM_TEST(dbj::str::replace_inplace(u"abra ka dabra"sv, u"ka"sv, u"malaga"sv));
 
 	const  std::u32string
 		new_u32string
-		= DBJ_TEST_ATOM(dbj::str::replace_inplace(U"abra ka dabra"sv, U"ka"sv, U"malaga"sv));
+		= DBJ_ATOM_TEST(dbj::str::replace_inplace(U"abra ka dabra"sv, U"ka"sv, U"malaga"sv));
 }
 
 DBJ_TEST_UNIT(dbj_string_util_remove_first_sub) {
@@ -31,19 +31,19 @@ DBJ_TEST_UNIT(dbj_string_util_remove_first_sub) {
 
 	const  std::string
 		new_string
-		=  DBJ_TEST_ATOM( dbj::str::remove_first_sub("abra ka dabra"sv, "ka"sv) );
+		=  DBJ_ATOM_TEST( dbj::str::remove_first_sub("abra ka dabra"sv, "ka"sv) );
 
 	const  std::wstring
 		new_wstring
-		= DBJ_TEST_ATOM( dbj::str::remove_first_sub(L"abra ka dabra"sv, L"ka"sv) );
+		= DBJ_ATOM_TEST( dbj::str::remove_first_sub(L"abra ka dabra"sv, L"ka"sv) );
 
 	const  std::u16string
 		new_u16string
-		= DBJ_TEST_ATOM( dbj::str::remove_first_sub(u"abra ka dabra"sv, u"ka"sv) );
+		= DBJ_ATOM_TEST( dbj::str::remove_first_sub(u"abra ka dabra"sv, u"ka"sv) );
 
 	const  std::u32string
 		new_u32string
-		= DBJ_TEST_ATOM( dbj::str::remove_first_sub(U"abra ka dabra"sv, U"ka"sv) );
+		= DBJ_ATOM_TEST( dbj::str::remove_first_sub(U"abra ka dabra"sv, U"ka"sv) );
 }
 
 DBJ_TEST_UNIT(dbj_string_util_remove_all_subs) {
@@ -52,19 +52,19 @@ DBJ_TEST_UNIT(dbj_string_util_remove_all_subs) {
 
 	const  std::string
 		new_string
-		= DBJ_TEST_ATOM(dbj::str::remove_all_subs("abra ka dabra"sv, "ab"sv));
+		= DBJ_ATOM_TEST(dbj::str::remove_all_subs("abra ka dabra"sv, "ab"sv));
 
 	const  std::wstring
 		new_wstring
-		= DBJ_TEST_ATOM(dbj::str::remove_all_subs(L"abra ka dabra"sv, L"ab"sv));
+		= DBJ_ATOM_TEST(dbj::str::remove_all_subs(L"abra ka dabra"sv, L"ab"sv));
 
 	const  std::u16string
 		new_u16string
-		= DBJ_TEST_ATOM(dbj::str::remove_all_subs(u"abra ka dabra"sv, u"ab"sv));
+		= DBJ_ATOM_TEST(dbj::str::remove_all_subs(u"abra ka dabra"sv, u"ab"sv));
 
 	const  std::u32string
 		new_u32string
-		= DBJ_TEST_ATOM(dbj::str::remove_all_subs(U"abra ka dabra"sv, U"ab"sv));
+		= DBJ_ATOM_TEST(dbj::str::remove_all_subs(U"abra ka dabra"sv, U"ab"sv));
 }
 
 DBJ_TEST_UNIT(dbj_string_util_lowerize) {
@@ -72,13 +72,13 @@ DBJ_TEST_UNIT(dbj_string_util_lowerize) {
 	using namespace std::literals;
 
 	// optimal defualt length is
-	DBJ_TEST_ATOM( dbj::str::small_string_optimal_size ) ;
-	auto optimal_str = DBJ_TEST_ATOM( dbj::str::optimal<char>() );
+	DBJ_ATOM_TEST( dbj::str::small_string_optimal_size ) ;
+	auto optimal_str = DBJ_ATOM_TEST( dbj::str::optimal<char>() );
 	optimal_str = "ABRA KA DABRA";
 
-	DBJ_TEST_ATOM(dbj::str::lowerize(optimal_str.data(), optimal_str.data() + optimal_str.size()));
+	DBJ_ATOM_TEST(dbj::str::lowerize(optimal_str.data(), optimal_str.data() + optimal_str.size()));
 
-	DBJ_TEST_ATOM(dbj::str::lowerize(L"ABRA KA DABRA"sv));
+	DBJ_ATOM_TEST(dbj::str::lowerize(L"ABRA KA DABRA"sv));
 }
 
 DBJ_TEST_UNIT(dbj_string_util_ui_string_compare) {
@@ -92,10 +92,10 @@ DBJ_TEST_UNIT(dbj_string_util_ui_string_compare) {
 			(0 == dbj::str::ui_string_compare(s1.data(), s2.data(),false));
 	};
 
-    DBJ_TEST_ATOM(test( "ABRA"sv,  "ABRA"sv));
-    DBJ_TEST_ATOM(test(L"AbrA"sv, L"ABRA"sv));
-    //auto r3 = DBJ_TEST_ATOM(test(u"ABRA"sv, u"AbrA"sv));
-    // auto r4 = DBJ_TEST_ATOM(test(U"abra"sv, U"abra"sv));
+    DBJ_ATOM_TEST(test( "ABRA"sv,  "ABRA"sv));
+    DBJ_ATOM_TEST(test(L"AbrA"sv, L"ABRA"sv));
+    //auto r3 = DBJ_ATOM_TEST(test(u"ABRA"sv, u"AbrA"sv));
+    // auto r4 = DBJ_ATOM_TEST(test(U"abra"sv, U"abra"sv));
 }
 
 
@@ -108,10 +108,10 @@ DBJ_TEST_UNIT(dbj_string_util_ui_is_prefix) {
 			dbj::str::is_view_prefix_to_view(s1, s2);
 	};
 
-	DBJ_TEST_ATOM(test("ABRA"sv, "ABRA KA DABRA"sv));
-	DBJ_TEST_ATOM(test(L"AbrA"sv, L"ABRA ka dabra"sv));
-	DBJ_TEST_ATOM(test(u"ABRA"sv, u"AbrA ka DABRA"sv));
-	DBJ_TEST_ATOM(test(U"abra"sv, U"abra ka dabra"sv));
+	DBJ_ATOM_TEST(test("ABRA"sv, "ABRA KA DABRA"sv));
+	DBJ_ATOM_TEST(test(L"AbrA"sv, L"ABRA ka dabra"sv));
+	DBJ_ATOM_TEST(test(u"ABRA"sv, u"AbrA ka DABRA"sv));
+	DBJ_ATOM_TEST(test(U"abra"sv, U"abra ka dabra"sv));
 }
 
 DBJ_TEST_UNIT(clasical_string_utils)
@@ -145,7 +145,7 @@ DBJ_TEST_UNIT(std_to_chars)
 		auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), 42);
 		ec == std::errc()
 		) {
-		DBJ_TEST_ATOM( std::string_view(str.data(), p - str.data()) );
+		DBJ_ATOM_TEST( std::string_view(str.data(), p - str.data()) );
 	}
 }
 

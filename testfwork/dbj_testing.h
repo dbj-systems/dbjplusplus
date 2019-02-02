@@ -2,8 +2,12 @@
 /*
 (c) dbj.org, see the license at file bottom
 
-An C++17 micro standalone testing framework
+Wellcome. An C++17 micro standalone testing framework
 No exceptions are thrown out. They are reported.
+
+TU == Test Unit
+TUNODE == TU node in the set where we keep them
+TUSET  == set of TUNODE's
 
 API
 
@@ -34,15 +38,9 @@ namespace dbj {
 
 		constexpr inline auto TITLE = "dbj++ Testing Framework [" __DATE__ "]"sv ;
 		constexpr inline auto ALLDN = "dbj++ Testing Framework -- ALL TESTS DONE"sv ;
-
-		/*
-		Wellcome
-
-		TU == Test Unit
-		TUNODE == TU node in the set where we keep them
-		TUSET  == set of TUNODE's
-
-		*/
+		// hard coded constants -- not good
+		// what should we do :)
+		constexpr inline auto DBJ_MAX_ALLOWED_TEST_UNITS = 1000U;
 
 		// testunit is void function (void)
 		using testunittype = void(*)();
@@ -52,18 +50,24 @@ namespace dbj {
 
 			struct TUNODE final 
 			{
-				// todo: size_t ID + sort by ID, 0 .. N
+				size_t ID;
 				testunittype TU;
-				std::string  description;
+				dbj::buf::smart_arr  description;
 
-				TUNODE(testunittype test_unit_, std::string_view desc_) noexcept
-					: TU(test_unit_), description(desc_)
-				{}
+				TUNODE(
+					size_t id_, 
+					testunittype test_unit_, 
+					dbj::buf::smart_arr & desc_
+				) noexcept
+					: ID(id_)
+					, TU(test_unit_)
+					, description( std::move( desc_ ) )
+				{
+				}
 
-				// test unit function pointer is the key of the tests set
 				constexpr bool operator < (const TUNODE & other_ ) const noexcept
 				{
-					return std::addressof(TU) < std::addressof(other_.TU);
+					return ID < other_.ID;
 				}
 			}; // TUNODE
 
@@ -81,9 +85,7 @@ namespace dbj {
 				return single_instance;
 			};
 
-			// C++17 inline vars
-			// inline TUSET & dbj_tests_map_ = tuset_instance();
-
+#if 0
 			// in da set value and key are the same type
 			// all is in da "node"
 			inline  bool operator == (
@@ -102,44 +104,54 @@ namespace dbj {
 					tuset_instance().end() != find(tunode_)
 					);
 			}
+#endif
+		   // return next_id and string presentation of it
+		   // in an struct { id,sid }
+		   auto next_test_id () noexcept 
+		   {
+			   struct retval final {
+				   size_t id;
+				   dbj::buf::smart_arr sid;
+			   };
 
-			   /// <summary>
-			   /// we could have called append straight from client code 
-			   /// technicaly the adder struct bellow is not necessary 
-			   /// but it is here for chage resilience of this design 
-			   /// </summary>
-			   /// <param name="tunit_"></param>
-			   /// <param name="description_"></param>
-			   inline  auto append(testunittype tunit_, 
-				       std::unique_ptr<char[]> const & description_) 
+			   static size_t tid{ 0 };
+			   dbj::buf::smart_arr id_str =
+				   dbj::fmt::to_buff("[TID:%03d]", tid++ );
+
+			   return retval{ tid, std::move(id_str) };
+		   }
+
+				/// the actiual test unit function registration 
+				/// happens here
+			   inline  auto append
+			   (testunittype tunit_, dbj::buf::smart_arr const & description_) 
+				   noexcept -> testunittype
 			   {
+				   auto next_ = next_test_id();
 
-				   auto next_test_id = []() -> std::string {
-					   static int tid{ 0 };
-					   return   "[TID:" + dbj::str::string_pad(tid++, '0', 3) + "]";
+				   dbj::buf::smart_arr full_desc{
+					   dbj::fmt::to_buff("%s%s", next_.sid, description_)
 				   };
-
-				   std::string final_description_(next_test_id()); 
-				   final_description_.append(description_.get());
+				   // careful! description_ is moved above so it is in an undefined state
 				   
-				   /* the same test unit ? do not insert twice */
+				   /* vs insert(), std::set emplace() returns a rezult */
 				   auto rez = 
-					   tuset_instance().emplace( tunit_ ,final_description_ );
+					   tuset_instance().emplace( 
+						   TUNODE( next_.id, tunit_ , full_desc )
+					   );
 
 				   // NOTE: rez.second is false if no insertion ocured
 				   if (rez.second == false) {
-					   ::dbj::core::trace("\nNot inserted %s, because found already", final_description_.c_str());
+					   ::dbj::core::trace("\nNot inserted %s, because found already", full_desc.get());
 				   }
 				   else {
-					   ::dbj::core::trace("\nInserted test unit: %s", final_description_.c_str());
+					   ::dbj::core::trace("\nInserted test unit: %s", full_desc.get());
 				   }
 				   return tunit_; 
 			   }
 
 				inline  void unit_execute(testunittype tunit_) {
-
 					tunit_();
-
 				}
 
 			struct adder final {
@@ -153,13 +165,12 @@ namespace dbj {
 					return internal::append(tunit_, msg_);
 				}
 #ifdef _DEBUG
-				 adder ( )  noexcept
-				{	
-				 ::dbj::core::trace("\n\n%s\n%s(%d)", __func__, __FILE__, __LINE__);
+				 adder ( )  noexcept {	
+				 ::dbj::core::trace("\n\n%s\n%s(%d)\n", __func__, __FILE__, __LINE__);
 				}
 #endif // _DEBUG
 
-			};
+			}; //  adder
 
 			// https://dbj.org/c-play-it-only-once-sam/
 			inline  const adder & 
@@ -171,11 +182,6 @@ namespace dbj {
 			}
 
 		   } // internal  
-
-		// C++17 inline vars
-		// inline const internal::adder & 
-		//	add = internal::adder_instance() ;
-
 	} // testing
 } // dbj
 
