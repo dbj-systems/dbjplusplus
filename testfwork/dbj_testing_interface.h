@@ -63,7 +63,7 @@ namespace dbj {
 			white_line(::dbj::YEAR(), " by ", ::dbj::COMPANY());
 			white_line("MSVC version: ", _MSC_FULL_VER);
 			white_line();
-			white_line("[", internal::dbj_tests_map_.size(), "] tests registered");
+			white_line("[", internal::tuset_instance().size(), "] tests registered");
 			white_line("Application: ",
 				::dbj::core::filename(dbj::range_to_string(prog_full_path))
 			);
@@ -107,7 +107,7 @@ namespace dbj {
 			const wchar_t * DBJ_MAYBE(envp)[]
 		)
 		{
-			if (internal::dbj_tests_map_.size() < 1) {
+			if (internal::tuset_instance().size() < 1) {
 				white_line();
 				white_line("No tests registered");
 				white_line();
@@ -131,20 +131,25 @@ namespace dbj {
 			};
 
 			prefix(argv[0]);
-			for (auto /* && */ tunit : internal::dbj_tests_map_)
+			for (auto & tunode_ : internal::tuset_instance())
 			{
-				unit_prefix(tunit.second.c_str());
+				unit_prefix( tunode_.description.c_str() );
 				try {
 					white_line(" ");
-					internal::unit_execute(tunit.first);
+					internal::unit_execute( tunode_.TU );
 					white_line(" ");
 				}
+				catch (const std::error_code ec_) {
+					// yes we are crazy like that
+					// we throw std::error_code and then
+					// we catch it by value
+					// dbj@dbj.org 2019-02-02
+					print("\nstd::error_code\n\t", ec_ );
+				}
 				catch (const std::system_error & x_) {
-					// print("system error: ", x_.what());
 					print("\nstd::system_error\n\t", x_.what(), "\n\t", x_.code());
 				}
 				catch (const std::exception & x_) {
-					// print("dbj Exception, ", x_.what());
 					print(x_);
 				}
 				catch (...) {
@@ -153,7 +158,7 @@ namespace dbj {
 					}; // capture
 					handle_eptr(eptr);
 				}
-				unit_suffix(tunit.second.c_str());
+				unit_suffix(tunode_.description.c_str());
 			}
 			suffix();
 		}
