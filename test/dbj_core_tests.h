@@ -11,6 +11,8 @@ void out(
 }
 #endif
 
+#define DBJ_NO_TESTING
+
 DBJ_TEST_SPACE_OPEN(core_tests)
 
 namespace u = ::dbj::core::util;
@@ -67,3 +69,5 @@ DBJ_TEST_UNIT(core_utils)
 }
 
 DBJ_TEST_SPACE_CLOSE
+
+#undef DBJ_NO_TESTING

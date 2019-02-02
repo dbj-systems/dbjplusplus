@@ -3,45 +3,24 @@
 (c) dbj.org, see the license at file bottom
 
 An C++17 micro standalone testing framework
+No exceptions are thrown out. They are reported.
 
-if DBJ_TESTING_ONAIR is undefined test are not compiled and not executed.
-dbj::testing::RUNING is also true or false constexpr, depending on it
+API
 
-// C++17 
-if constexpr(dbj::testing::RUNING) {
-// testing code will be compiled into existence
-// or not
+DBJ_TEST_SPACE_OPEN ( legal_cpp_name )
+// above is optional
+
+DBJ_TEST_UNIT( legal_cpp_name ) {
+
+   // display expression, result type name and result value
+   DBJ_TEST_ATOM( 4 * 256 ) ;
+
+   // display expression and result value
+   DBJ_ATOM_TEST( 'A' + 'B' ) ;
 }
 
-How to add test unit, with no macros:
-
-#if DBJ_TESTING_ONAIR
- namespace {
-   static auto dummy = dbj::testing::add( " Critical Test" , [](){ std::cout << "Test" ;}
-  ) ;
- }
-#endif
-
-instead of in line lambda one can add function name or lambda name
-and anonymous namespace is optional but good practice.
-Here is the mandatory macro for certified pain lovers:
-
-DBJ_TEST_CASE( "Critical Test" )
-{
-std::cout << "Test" ;
-}
-
-All tests are collected as declared and then executed from main() like so:
-
-int main(int argc, char* argv[])
-{
-// will do nothing if DBJ_TESTING_ONAIR is undefined
-dbj::testing::execute();
-return 0;
-}
-
-No exceptions are thrown outside. They are reported to console.
-
+DBJ_TEST_SPACE_CLOSE
+// has to pair the  DBJ_TEST_SPACE_OPEN
 */
 
 #include "../core/dbj_synchro.h"
@@ -203,31 +182,9 @@ namespace dbj {
 #ifdef DBJ_TEST_UNIT
 #error "DBJ_TEST_UNIT Already defined?"
 #else
-/*
-moved to dbj_crt.h
-#define DBJ_STR_IMPL(x) #x
-#define DBJ_STR(x) DBJ_STR_IMPL(x)
-#define DBJ_CONCAT_IMPL( x, y ) x##y
-#define DBJ_CONCAT( x, y ) DBJ_CONCAT_IMPL( x, y )
-*/
 
-// #define DBJ_TEST_SPACE_OPEN(x) namespace DBJ_CONCAT(dbj_test_namespace_, x) {  \
-//constexpr const char * dbj_test_namespace_name_ = DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)); \
-//__pragma(message("\n" __FILE__  "(" DBJ_STR(__LINE__) ")\nCompiling : " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x))));
-
-//#define DBJ_TEST_SPACE_CLOSE \
-//__pragma(message("\n" __FILE__ "(" DBJ_STR(__LINE__) ")\nCompiled: " DBJ_STR(DBJ_CONCAT(dbj_test_namespace_, x)) "\n")); \
-//}
-
-#ifndef DBJ_NO_TESTING
 #define DBJ_TEST_SPACE_OPEN(x) namespace _dbj_testing_namespace_ {  
 #define DBJ_TEST_SPACE_CLOSE }
-#else
-#define DBJ_TEST_SPACE_OPEN(x) #if 0 \
-namespace _dbj_testing_namespace_ { 
-#define DBJ_TEST_SPACE_CLOSE } \
-#endif
-#endif
 /*
 remember: anonymous namespace variableas are static by default
 that is they are "internal linkage"
@@ -246,18 +203,6 @@ DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ) )
 
 #define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( ::dbj::core::fileline(__FILE__, __LINE__) , x )
 
-#endif
-
-#ifndef DBJ_NV
-/*
-use dbj print or printex to show the symbol and its value, for example:
-printex ( DBJ_NV( typeid(whatever).name ), DBJ_NV( typeid(xyz).name ) ) ;
-
-WARNING: this is primitive, use with caution
-TODO: if symbol contains comma this is not going to work
-*/
-#define DBJ_NV_DELIMITER " , "
-#define DBJ_NV( symbol) DBJ_EXPAND(symbol)  DBJ_NV_DELIMITER , symbol 
 #endif
 
 /* inclusion of this file defines the kind of a licence used */

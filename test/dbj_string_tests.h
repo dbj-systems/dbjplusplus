@@ -20,10 +20,10 @@ inline void strlen_strnlen_test
 {
 	using ::dbj::console::print;
 	print("\n\nTesting array of type ", typeid(T).name(), " and of length ", N, "\t");
-	print("\n\t", DBJ_NV(dbj::countof(prompt)));
+	DBJ_TEST_ATOM(dbj::countof(prompt));
 	// native char arrays are using dbj.org "zero time" versions     
-	print("\n\t", DBJ_NV(dbj::str::strlen(prompt)));
-	print("\n\t", DBJ_NV(dbj::str::strnlen(prompt, dbj::BUFSIZ_)));
+	DBJ_TEST_ATOM(dbj::str::strlen(prompt));
+	DBJ_TEST_ATOM(dbj::str::strnlen(prompt, dbj::BUFSIZ_));
 
 	// testing for the T * support 
 	auto pointer_tester = [&](auto cptr)
@@ -34,11 +34,10 @@ inline void strlen_strnlen_test
 
 		print("\n\nTesting the support for the ", typeid(pointer_to_array).name(), " pointer to the same array\n");
 		// using UCRT strlen
-		print("\n\t", DBJ_NV(dbj::str::strlen(cptr)));
-		// using UCRT strnlen note: std has no strnlen ...
-		print("\n\t", DBJ_NV(dbj::str::strnlen(cptr, dbj::BUFSIZ_)));
+		DBJ_TEST_ATOM(dbj::str::strlen(cptr));
 
-		::dbj::str::strnlen(cptr, dbj::BUFSIZ_);
+		// using UCRT strnlen note: std has no strnlen ...
+		DBJ_TEST_ATOM(dbj::str::strnlen(cptr, dbj::BUFSIZ_));
 	};
 
 	pointer_tester(prompt);
