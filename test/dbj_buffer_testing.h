@@ -3,14 +3,31 @@
 #define DBJ_LIGHT_BUFFER_TESTING
 #ifdef DBJ_LIGHT_BUFFER_TESTING
 
+#include "../console/dbj_console_ops.h"
+
+
 DBJ_TEST_SPACE_OPEN(dbj_buffer)
 
 using namespace ::dbj::buf;
 
+auto alphabet = [&](char_buffer::reference_type cbr ) {
+	char k = 65; // 'A'
+	for (auto & c_ : cbr )
+	{
+		c_ = char(k++);
+	}
+};
+
+extern "C"	inline void	my_memset(void *s, size_t n, char val_ = 0) noexcept
+{
+	volatile char *p = (char *)s;
+	while (n--) *p++ = val_;
+}
+
 DBJ_TEST_UNIT(dbj_light_buffer)
 {
 	const auto bufsiz_ = BUFSIZ;
-	char_buffer cb1(BUFSIZ), cb2(BUFSIZ);
+	char_buffer cb1(BUFSIZ);
 
 	// test the heap (de)allocation
 	// no can do --> auto p = new char_buff_type(BUFSIZ);
@@ -24,60 +41,45 @@ DBJ_TEST_UNIT(dbj_light_buffer)
 	// no we can not
 	//	auto p = new char_buff_type(BUFSIZ) char_buff_type;
 
-	auto sizeshow = [&](char_buffer::reference_type cbr)
+	auto sizeshow = [&](char_buffer::reference_type cbr) noexcept -> void
 	{
+		auto show = [](auto && obj_, auto filler ) {
+			filler(obj_);
+			dbj::console::prinf("\ntype: %s\n\tsize of type: %zu\n\tsize of instance: %zu",
+				typeid(obj_).name(), sizeof(decltype(obj_)), sizeof(obj_)
+			);
+		};
 
-		std::vector<char> v26{}; v26.resize(bufsiz_);
-		std::string       s26{}; s26.resize(bufsiz_);
-		std::array<char, 26> a26{ {0} };
-
-		auto retval = DBJ_ATOM_TEST(cbr.size());
-		DBJ_ATOM_TEST(sizeof(a26));
-		DBJ_ATOM_TEST(sizeof(v26));
-		DBJ_ATOM_TEST(sizeof(s26));
-		return retval;
+		show(std::vector<char>(BUFSIZ), [](auto & obj_) { std::fill(obj_.begin(), obj_.end(), '\0'); });
+		show( std::string(BUFSIZ,'\0'), [](auto & obj_) { std::fill(obj_.begin(), obj_.end(), '\0'); });
+		show(cbr, [](auto & obj_) { obj_.fill(); });
 	};
 
-	// auto j = cb.size();
-	auto a1 = cb1.address();
+	DBJ_TEST_ATOM(cb1.address());
 
-	auto alphabet = [&](char_buffer & cb) {
-		char k = 65; // 'A'
-		for (auto & c_ : cb)
-		{
-			c_ = char(k++);
-		}
-	};
-
-	alphabet(cb1);
-	DBJ_TEST_ATOM(sizeshow(cb1));
-
-	auto ec_ = copy(cb1, cb2);
-
-	if (ec_)
-		DBJ_ATOM_TEST(ec_); // error
-	else
-		DBJ_ATOM_TEST(cb2.data()); // no error
-
+	alphabet(cb1);	sizeshow(cb1);
+	
+	// show the copying
+	{
+		char_buffer cb2(BUFSIZ);
+		DBJ_ATOM_TEST(copy_to(cb1, cb2)); // error_code display
+		DBJ_ATOM_TEST(cb2); //rezult
+		DBJ_TEST_ATOM(cb1 = cb2); // assignment
+	}
 // tranformations to string, wstring and vector
 	{
-		DBJ_TEST_ATOM(to_string(cb2));
-		DBJ_TEST_ATOM(to_wstring(cb2));
-		DBJ_TEST_ATOM(to_vector(cb2));
+		cb1.fill('X'); // assignment
+		DBJ_ATOM_TEST(cb1);
+		DBJ_ATOM_TEST(to_string(cb1));
+		DBJ_ATOM_TEST(to_wstring(cb1));
+		DBJ_ATOM_TEST(to_vector(cb1));
 	}
 
-	/* std::unique_ptr<wchar_t[]> */
 	{
-		auto[err_code, wsize, wbuf] = wide_copy(cb2);
-		DBJ_ATOM_TEST(cb2.size());
+		auto[err_code, wsize, smart_wide_charr] = wide_copy(cb1);
+		DBJ_ATOM_TEST(err_code);
 		DBJ_ATOM_TEST(wsize);
-		// 
-		// show what is the real wbuf type
-		typename char_buffer::wide_pointer & wide_buffer = wbuf;
-		if (!err_code)
-			DBJ_ATOM_TEST(wide_buffer.get());
-		else
-			::dbj::console::print("\nerror code returned: ", err_code);
+		DBJ_ATOM_TEST(smart_wide_charr);
 	}
 }
 
@@ -132,9 +134,7 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	*/
 	using ::dbj::console::print;
 	using namespace inner;
-	system("@echo.");
-	system("@echo.");
-	print("\n will allocate and measure three types of buffers. Buffer size will be ",
+	print("\nWill allocate and measure three types of buffers. Buffer size will be ",
 		buffer_size, " chars each\n\tEach allocation/deallocation will happen 1000 times");
 
 	print("\n\nMeasuring unique_ptr<char[]> ");
@@ -144,10 +144,7 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	print("\n\nMeasuring std::vector ");
 	print("\n\nstd::vector = ", measure(vector_buffer, buffer_size), " ms.\n\n");
 
-	system("@echo.");
-	system("@echo.");
 	system("@pause");
-	system("@echo.");
 	system("@echo.");
 }
 

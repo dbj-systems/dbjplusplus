@@ -61,7 +61,7 @@ namespace dbj {
 				) noexcept
 					: ID(id_)
 					, TU(test_unit_)
-					, description( dbj::buf::smart( desc_ ) /* copy is made */)
+					, description( dbj::buf::smart<char>( desc_ ) /* copy is made */)
 				{
 				}
 

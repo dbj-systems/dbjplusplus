@@ -14,33 +14,64 @@
 namespace dbj {
 	namespace buf {
 
-		template<typename C>
+		// plenty of space -- 65535
+		// in posix terms BUFSIZ * 2 * 64 aka 64KB
+		constexpr inline std::uintmax_t max_length = UINT16_MAX;
+		/*
+		template<
+			typename C,
+			std::enable_if_t<::dbj::is_char_v<C> || ::dbj::is_wchar_v<C>, int> = 0
+		>
 		using smarty = std::unique_ptr<C[]>;
+		*/
+		template<typename C > struct smartarr final
+		{
+			static_assert(
+				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
+				"\n\njust char or wchar_t please, also: non ref, non const and not unsigned\n"
+				);
+			using value_type = C;
+			using type = std::unique_ptr<C[]>;
+			using ref_type = std::reference_wrapper< type >;
+			using carr = smartarr<char>;
+			using warr = smartarr<wchar_t>;
+		};
 
-		using smart_carr  = smarty<char> ;
-		using smart_warr = smarty<wchar_t>;
+		template< typename C >
+		using smarty = typename smartarr< ::dbj::tt::remove_cvref_t<C> >::type;
+
+		template< typename C >
+		using smarty_ref = typename smartarr< ::dbj::tt::remove_cvref_t<C> >::ref_type;
+
+		using smart_carr = smartarr<char>::type;
+		using smart_warr = smartarr<wchar_t>::type;
 
 		// use it for passing (to functions) as arguments
 		// since narrow pointer can not be copied
-		using smart_arr_ref = std::reference_wrapper<smart_carr>;
-		using smart_warr_ref = std::reference_wrapper<smart_warr>;
+		using smart_carr_ref = smartarr<char>::ref_type;
+		using smart_warr_ref = smartarr<wchar_t>::ref_type;
 
 		// always use this function to make fresh smarty-es!
 		template<typename C>
 		[[nodiscard]] inline auto smart(size_t S_) noexcept
-			-> smarty<C>
+			-> typename smartarr<C>::type
 		{
-			static_assert(
-				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
-				"\n\n" __FUNCSIG__ "\njust char or wchar_t please, also non ref, non const and not unsigned\n"
-				);
+			DBJ_VERIFY(S_ < dbj::buf::max_length);
 			return std::make_unique<C[]>(S_ + 1);
 		}
 
-		template<typename C, size_t N>
-		[[nodiscard]] inline auto smart(const C(&charr)[N]) noexcept
-			-> smarty<C>
+		template<typename C>
+		[[nodiscard]] inline auto len(smarty_ref<C> buf_ref_)
+			noexcept -> size_t
 		{
+			return std::strlen((buf_ref_.get()).get());
+		}
+
+		template<typename C, size_t N>
+		[[nodiscard]] inline auto smart(const C(&charr)[N])
+			noexcept -> smarty<C>
+		{
+			_ASSERTE(N > 0);
 			smarty<C> sp_ = smart<C>(N);
 			void * rez_ = ::memcpy(sp_.get(), charr, N);
 			_ASSERTE(rez_);
@@ -49,18 +80,19 @@ namespace dbj {
 
 		/* make smarty<C> from basic_string_view<C> */
 		template<typename C>
-		[[nodiscard]] inline auto
-			smart
-			(
-				std::basic_string_view<C> sv_
-			) noexcept
-			-> smarty<C> 
+		[[nodiscard]] inline auto	smart
+		(std::basic_string_view<C> sv_) noexcept
+			-> smarty<C>
 		{
+			_ASSERTE(!sv_.empty());
+			static_assert(
+				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
+				"\n\n" __FUNCSIG__ "\njust char or wchar_t please\n"
+				);
 			smarty<C> sp_;
 			// is this naive?
 			// should I use strnlen() ?
 			const size_t N = sv_.size();
-			static_assert(std::is_trivially_copyable_v<C>);
 			sp_.release();
 			sp_ = smart<C>(N);
 			void * rez_ = ::memcpy(sp_.get(), sv_.data(), N);
@@ -68,28 +100,24 @@ namespace dbj {
 			return sp_;
 		}
 
-		/* 
-		make smarty<C> from smarty<C> 
+		/*
+		make smarty<C> from smarty<C>
 		this is clever since we do not pass C*
-		but... can we rely on the the caller 
+		but... can we rely on the the caller
 		making a properly zero terminated string in there
 		so that strlen will work?
 		*/
 		template<typename C>
 		[[nodiscard]] inline auto
-			smart
-			(
-				smarty<C> const & sv_
-			) noexcept
-			-> smarty<C> 
+			smart ( smarty_ref<C> buf_ref_ ) noexcept -> smarty<C>
 		{
-			smarty<C> sp_;
-			// is this naive? should I use strnlen() ?
-			const size_t N =  ::strlen( sv_.get() ) ;
-			static_assert(std::is_trivially_copyable_v<C>);
-			sp_.release();
-			sp_ = smart<C>(N);
-			void * rez_ = ::memcpy(sp_.get(), sv_.get(), N);
+			smarty<C> & from_ = buf_ref_ ;
+			_ASSERTE(from_);
+			const size_t N = ::dbj::buf::len<C>(buf_ref_);
+			_ASSERTE( N > 1 );
+			smarty<C> sp_ = ::dbj::buf::smart<C>(N);
+			_ASSERTE(sp_);
+			void * rez_ = ::memcpy(sp_.get(), buf_ref_.get().get(), N);
 			_ASSERTE(rez_);
 			return sp_;
 		}
@@ -106,63 +134,74 @@ namespace dbj {
 			) noexcept
 			-> smarty<C> &
 		{
-			static_assert(std::is_trivially_copyable_v<C>);
 			sp_.release();
 			sp_ = smart<C>(N);
+			_ASSERTE(sp_);
 			void * rez_ = ::memcpy(sp_.get(), arr, N);
 			_ASSERTE(rez_);
 			return sp_;
 		}
 
-		/*
-	This is a runtime buffer. Just like std::vector<char>, but lighter and faster.
-	I knew it is a good practice to have and use one's own char buffer class
-	instead of using std::vector<char>
-	Bellow are the measurements too, in case you are hotly against.
-	Generaly the smaller the buffer the faster this is.
-	For normal buffer sizes (posix BUFSIZ or multiplies of it)
-	using this type has a lot  in favour.
-	Also this class works in code where no exceptions are used
-	please do let me know if problems there
-	*/
+		// do not try this at home. ever.
+		extern "C"	inline void	secure_reset(void *s, size_t n) noexcept
+		{
+			volatile char *p = (char *)s;
+			while (n--) *p++ = 0;
+		}
+
+		// dangerously low, bit it works
+		template<typename C>
+		inline void	
+			fill(smarty_ref<C> bref_, size_t N = 0,C val_ = C{}) noexcept
+		{
+			smarty<C> & buff_ = bref_;
+			if (!N) N = ::dbj::buf::len<C>(bref_); 
+			void *p = (void *)buff_.get();
+			if constexpr (::dbj::is_char_v<C>)
+			{
+				::std::memset(p, val_, N);
+			}
+			else {
+				::std::wmemset(p, val_, N);
+			}
+		}
+/*
+Above is for fast-and-dangerous code and bellow is a comfortable runtime char buffer. 
+Slower but still approx 2x to 3x faster vs vector<char>
+I have the code for measuring the difference, 
+in case you are hotly against not using vector<char>.
+Generaly the smaller the buffer the faster it is vs vector<char>.
+For *normal* buffer sizes (posix BUFSIZ or multiplies of it)
+using this type has a lot in favour.
+Also this class works in code where no exceptions are used
+please do let me know if problems there
+*/
 		struct char_buffer final {
 
 			using type = char_buffer;
+			using pointer = smarty<char>;
 			using value_type = char;
 			using iterator = value_type * ;
-			using pointer = smart_carr ;
-			/*
-			one can "copy" the unique_ptr by moving, example:
-			char_buffer<char> buf2 = std::move(buf1) ;
-			this leaves the buf1 "destroyed" ... no good this is
-			so how to pass them to functions?
-			instead, for passing instances of this class as function arg's
-			use the reference_type. example:
-			extern void whatever ( char_buffer<char>::reference_type br ) ;
-			char_buffer<char> bf(BUFSIZ) ;
-			and then, normal and simple calling. example:
-			whatever(bf);
-			*/
-			using reference_type = typename type &;
+			using reference_type = type &;
 
-			explicit char_buffer(size_t size)
-			{
-				this->reset(size);
-			}
+			explicit char_buffer(size_t size) noexcept {	this->reset(size); }
 
-			char_buffer(const char_buffer & another_)
+			char_buffer(const char_buffer & another_) noexcept 
 			{
 				this->reset(another_.size_);
 				(void)::memcpy(data(), another_.data(), this->size());
 			}
-			char_buffer & operator =(const char_buffer & another_)
+			char_buffer & operator =(const char_buffer & another_) noexcept 
 			{
-				this->reset(another_.size_);
-				(void)::memcpy(data(), another_.data(), this->size());
+				if (&another_ != this) {
+					this->reset(another_.size_);
+					(void)::memcpy(data(), another_.data(), this->size());
+				}
+				return *this;
 			}
 
 			template<typename T, size_t N>
-			char_buffer(T(&charr)[N])
+			char_buffer(T(&charr)[N]) noexcept
 			{
 				static_assert(dbj::is_char_v< std::remove_cv_t<T> >,
 					"\n\n" __FUNCSIG__ "\nonly char's please!\n");
@@ -173,6 +212,7 @@ namespace dbj {
 
 			void reset(size_t new_size_) const {
 				_ASSERTE(new_size_ > 0);
+				_ASSERTE(new_size_ < ::dbj::buf::max_length);
 				data_.release();
 				this->size_ = new_size_;
 				this->data_ = smart<char>(new_size_);
@@ -182,21 +222,36 @@ namespace dbj {
 			{
 				if (idx_ > size())
 					throw std::make_error_code(std::errc::invalid_argument);
-				return data_.get()[idx_];
+				if (idx_ < ::dbj::buf::max_length)
+					throw std::make_error_code(std::errc::invalid_argument);
+				return data_[idx_]; //  std::unique_ptr<T[]> has this operator
 			}
 
-			iterator data() const { return data_.get(); }
+			iterator data() const noexcept { return data_.get(); }
 
-			size_t const & size() const { return size_; }
-			DWORD const & dword() const { return static_cast<DWORD>(size_); }
+			size_t const & size() const noexcept { return size_; }
+			DWORD const & dword() const noexcept { return static_cast<DWORD>(size_); }
 
 			value_type ** const address() const noexcept {
-				auto p = std::addressof(data_.get()[0]);
+				auto p = std::addressof(data_[0]);
 				return std::addressof(p);
 			}
+#pragma region std lib conformance
 
-			iterator begin() { return data_.get(); }
-			iterator end() { return data_.get() + size_; }
+			iterator begin() noexcept { return data_.get(); }
+			iterator end()   noexcept { return data_.get() + size_; }
+			const iterator begin() const noexcept { return data_.get(); }
+			const iterator end()   const noexcept { return data_.get() + size_; }
+
+			void fill(char val_ = char{}) const noexcept
+			{
+				::dbj::buf::fill(
+					std::reference_wrapper<pointer>(data_),
+					size(),
+					val_
+				);
+			}
+#pragma endregion 
 
 			// to avoid "never releasing smart pointer" syndrome
 			// we wil ban creation of this class on the heap
@@ -209,29 +264,35 @@ namespace dbj {
 			mutable	pointer data_{}; // size == 0
 #pragma region char_buffer friends
 
+#ifdef DBJ_CONSOLE_SYSTEM
 // obviously this here will not work 
-// since ::dbj::console is not included 
-// before
-#ifdef DBJ_CONSOLE_SYTEM
+// if ::dbj::console is not included 
+// *before*
 			void out(
-				::dbj::buf::char_buffer const & cb_
+				const type & cb_
 			)
 			{
 				using namespace ::dbj::console;
-				prinf(L"%S", cb_.data());
+				prinf(L"{ size: %d, data: '%s' }", cb_.size(), cb_.data());
 			}
 #endif
 
 			friend std::string to_string(const reference_type from_) noexcept {
+				// this will not copy the whole buffer
 				return { from_.data() };
 			}
 
 			friend std::wstring to_wstring(const reference_type from_) noexcept {
-				return { from_.begin(), from_.end() };
+				// this will not copy the whole buffer
+				std::string str_(from_.data());
+				// cast to wide ... but locale free!
+				return { str_.begin(), str_.end() };
 			}
 
 			friend std::vector<char> to_vector(const reference_type from_) noexcept {
-				return { from_.begin(), from_.end() };
+				// this will not copy the whole buffer
+				std::string str_(from_.data());
+				return { str_.begin(), str_.end() };
 			}
 
 			/*
@@ -241,7 +302,7 @@ namespace dbj {
 			return OK error_code on no error
 			*/
 			[[nodiscard]] friend
-				std::error_code copy(const reference_type from_, reference_type target_)
+				std::error_code copy_to(const reference_type from_, reference_type target_)
 				noexcept /* beware: std::copy may throw bad_alloc! */
 			{
 				if (from_.size() != target_.size())
@@ -254,12 +315,10 @@ namespace dbj {
 			}
 #ifdef _WIN32
 		public:
-			using wide_pointer = smart_warr;
-			/* in order not to loose the size info we will return this structure */
 			struct wide_copy_result {
 				std::error_code ec{};
 				size_t size{};
-				wide_pointer pointer{};
+				smart_warr pointer{};
 			};
 		private:
 			/*
@@ -273,7 +332,7 @@ namespace dbj {
 				auto const & source_size_ = source_.size_;
 				auto & source_pointer_ = source_.data_;
 
-				wide_pointer wp = ::dbj::buf::smart<wchar_t>(source_size_);
+				smart_warr wp = ::dbj::buf::smart<wchar_t>(source_size_);
 
 				size_t rezult_size;
 				auto mbstowcs_errno = ::mbstowcs_s(

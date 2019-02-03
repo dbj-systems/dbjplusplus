@@ -241,6 +241,18 @@ with reference or pointer type argument.
 		out<T, N>(*native_array);
 	}
 
+	// 2019-02-03 DBJ
+	// if someone says print(pp) and pp is a pointer-pointer
+	// we assume address display is required
+	template <typename T>
+	inline void out(T ** specimen)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG;
+		_ASSERTE(specimen);
+		_ASSERTE(*specimen);
+		PRN.printf("%p, %p", specimen, *specimen);
+	}
+
 	// stings and string literals are different by design ***********************************************
 	template<> inline void out< char     *>( char     * str) { DBJ_TYPE_REPORT_FUNCSIG;  _ASSERTE(str != nullptr); PRN.char_to_console(str); }
 	template<> inline void out< wchar_t  *>( wchar_t  * str) { DBJ_TYPE_REPORT_FUNCSIG; _ASSERTE(str != nullptr); PRN.wchar_to_console(str); }
@@ -446,6 +458,13 @@ with reference or pointer type argument.
 
 #pragma endregion 
 
+	inline void out(::dbj::buf::char_buffer const & cb_)
+	{
+		PRN.printf(
+			L"{ size: %d, data: '%s' }", cb_.size(), cb_.data()
+		);
+	}
+
 #pragma region error codes and options
 	// we can not place a friend inside std::error_code, so...
 	// using namespace dbj::console;
@@ -495,34 +514,35 @@ with reference or pointer type argument.
 
 	/*
 	CAUTION! 
-	MSVC will not be able to warn as it does with printf family 
-	this will simply crash if (very) wrong format string is passed
-	NOTE: 
+	on using wrong format specifier bellow
+	MSVC will *not* be able to warn as it does with printf family 
+	UCRT dll will simply crash if wrong format specifier is passed
+	NOTE! 
 	As ever on WIN32 this is faster if called with wide format string
 	*/
 	template <typename T, typename ... Args>
-	inline void prinf(T const * const format_, Args ... args) noexcept
+	inline void prinf(T const * format_, Args ... args) noexcept
 	{
 		_ASSERTE(::dbj::console_is_initialized());
+		_ASSERTE(format_);
 		PRN.printf(format_, args...);
 	}
 
 } // dbj::console
 
 
-#ifndef DBJ_CONSOLE_SYTEM
+#ifndef DBJ_CONSOLE_SYSTEM
 #define DBJ_CONSOLE_SYSTEM
 /* 
-why do we need the above?
-to be able to use dbj::console::print on UDT's
-example:
+to use dbj::console::print on UDT's
+you do it like this:
 
    struct X  {
       cont char * name = "X" ;
 #ifdef DBJ_CONSOLE_SYTEM
-       friend void out ( cosnt X & x_ ) {
+       friend void out ( const X & x_ ) {
 	      ::dbj::console::out::(x.name) ;
-		  // or shortcut solution
+		  // or the shortcut solution
 		  // ::dbj::console::PRN::printf("%s",x.name)
 	   }
 #endif
