@@ -238,9 +238,29 @@ namespace dbj {
 			}
 		}
 
-		template <typename Type, size_t N >
-		inline std::vector<Type> remove_duplicates(const Type(&arr_)[N]) {
-			return remove_duplicates(std::vector<Type>{arr_, arr_ + N});
+		template <typename Type, size_t N >	
+			inline std::vector<Type>
+				remove_duplicates
+					(Type(&arr_)[N], bool sort = false ) 
+						noexcept
+		{
+			// Type has to be copyable and movable
+			static_assert( ! std::is_class_v<Type>,"\n\n" __FUNCSIG__ ", No classes please\n" );
+			static_assert( ! std::is_union_v<Type>,"\n\n" __FUNCSIG__ ", No unions please\n" );
+
+			if (sort) {
+				/*
+				return it sorted and with no duplicates
+				this is apparently also faster for very large data sets
+				*/
+				const std::set<Type> set_(std::begin(arr_), std::end(arr_));
+				return { set_.begin(), set_.end() };
+			}
+			else {
+				/* just remove the duplicates */
+				const std::unordered_set<Type> set_(std::begin(arr_), std::end(arr_));
+				return { set_.begin(), set_.end() };
+			}
 		}
 
 		// The memset function call could be optimized 
