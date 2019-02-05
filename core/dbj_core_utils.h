@@ -6,11 +6,12 @@
 #include <chrono>
 
 namespace dbj {
-	// the first time dbj::core namespace was introduced
+	// the first time dbj::core namespace was introduced was here
 	namespace core {
 		namespace util {
 
-			// notice how we replaced the use of 
+
+			// replaced the use of 
 			// std::string with buffer_type
 			// everywhere in this file
 		using buffer_type =  ::dbj::buf::smart_carr;

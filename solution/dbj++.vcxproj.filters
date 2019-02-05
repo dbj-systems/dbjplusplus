@@ -164,11 +164,14 @@
     <ClInclude Include="dbj++win.h">
       <Filter>win32</Filter>
     </ClInclude>
-    <ClInclude Include="dbj_core_utils.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="..\test\dbj_core_tests.h">
       <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_core_utils.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\core\dbj_insider.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

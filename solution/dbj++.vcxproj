@@ -106,8 +106,10 @@
     <ClInclude Include="..\core\dbj++core.h" />
     <ClInclude Include="..\core\dbj_buffer.h" />
     <ClInclude Include="..\core\dbj_constexpr.h" />
+    <ClInclude Include="..\core\dbj_core_utils.h" />
     <ClInclude Include="..\core\dbj_crt.h" />
     <ClInclude Include="..\core\dbj_format.h" />
+    <ClInclude Include="..\core\dbj_insider.h" />
     <ClInclude Include="..\core\dbj_main.h" />
     <ClInclude Include="..\core\dbj_synchro.h" />
     <ClInclude Include="..\core\dbj_traits.h" />
@@ -157,7 +159,6 @@
     <ClInclude Include="..\win32\dbj_win32.h" />
     <ClInclude Include="..\win32\dbj_win_inc.h" />
     <ClInclude Include="dbj++win.h" />
-    <ClInclude Include="dbj_core_utils.h" />
     <ClInclude Include="dbj_stack_matrix.h" />
     <ClInclude Include="dbj_win_inc.h" />
   </ItemGroup>

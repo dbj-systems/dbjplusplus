@@ -44,14 +44,24 @@ if (error == -2)   return { "not a valid mangled name" };
 
 namespace dbj {
 
+	template< class T >
+	struct ok_to_be_smart : std::integral_constant<
+		bool,
+		! std::is_class_v<T>  && ! std::is_union_v<T>  &&
+		std::is_trivial_v<T>  && std::is_move_constructible_v<T>
+	> {};
+
+	template< class T >
+	constexpr bool ok_to_be_smart_v = ok_to_be_smart<T>::value;
+
+
 	/***********************************************************************************
-	smart pinter of arrays are very usefull
+	smart pointers of arrays are very usefull
 	note 1: always use make_unique
-	note 2: this can use any type whatsoever, unless compiler refuses it
-	note 3: std::move () is the only way out for copying unique_ptr, moving works
-	note 4: consider std::reference_wrapper<> to make unique_ptr as argument possible
+	note 2: std::move () is the only way out for copying unique_ptr, moving works
+	note 3: consider std::reference_wrapper<> to make unique_ptr as argument possible
 	*/
-	template<typename T_>
+	template<typename T_ , std::enable_if_t< ok_to_be_smart_v<T_>, int> = 0	>
 	using unique_arr = std::unique_ptr<T_[]>;
 
 	template<typename T_> 
@@ -63,8 +73,7 @@ namespace dbj {
 	it keeps the count of array
 	*/
 	template<typename T_>
-	using smart_pair =
-		std::pair < size_t, ::dbj::unique_arr<T_> >;
+	using smart_pair =	std::pair < size_t, ::dbj::unique_arr<T_> >;
 
 	template<typename T_>
 	inline smart_pair<T_> make_smart_pair(size_t N_) {

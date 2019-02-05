@@ -70,9 +70,8 @@ namespace dbj {
 #endif // __cplusplus <= 201703L
 
 		// std::equal has many overloads
-		// it is less error prone to have it here
-		// in a single form
-		// and use this one as we exactly need
+		// it is sometimes less error prone to have it here
+		// in a singular form, and use this one as we exactly need
 		template<class InputIt1, class InputIt2>
 		constexpr bool equal_(InputIt1 first1, InputIt1 last1, InputIt2 first2)
 		{
@@ -119,18 +118,22 @@ namespace dbj {
 
 		//-----------------------------------------------------------------------------
 		// rac == Range and Container
-		// I prefer it to std::array
+		// I prefer it to std::array ;)
 		template< typename T, std::size_t N	>
 		struct rac final
 		{
-			using type = T;
+			constexpr static const auto MAX_CAPACITY = BUFSIZ * 2 * 64; // ~64K 
+			static_assert(N > 0);
+			static_assert(N < MAX_CAPACITY );
+			using type = rac;
+			using value_type = T;
 			// using data_ref = std::reference_wrapper<T[N]>;
 			using data_ref = T(&)[N];
-			T * begin() const { return value; }
-			T * end() const { return value + N; }
-			size_t size() const { return N; }
-			// note: returning ref to array, not pointer
-			data_ref data() const { return data_ref{ value }; }
+			constexpr T * begin() const { return value; }
+			constexpr T * end() const { return value + N; }
+			constexpr size_t size() const { return N; }
+			// note: returning ref to array, not a pointer
+			constexpr  data_ref data() const { return data_ref{ value }; }
 			// yes data is public
 			// if you need a foot gun
 			// help yourself
@@ -240,26 +243,20 @@ namespace dbj {
 		}
 
 		// return an dbj::smart_pair with
-		// unique elements from the given array
-		// optionaly sorted
-		template <typename Type, size_t N>
+		// unique elements from the given sequence
+		// and optionaly sorted
+		template <typename Type >
 			inline dbj::smart_pair<Type>
 				remove_duplicates
-					(Type(&arr_)[N], bool sort = false ) 
+					(Type const * left_, Type const *right_, bool sort = false )
 						noexcept
 		{
-			_ASSERT(N > 0);
-			static_assert( ! std::is_class_v<Type>,"\n\n" __FUNCSIG__ ", No classes please\n" );
-			static_assert( ! std::is_union_v<Type>,"\n\n" __FUNCSIG__ ", No unions please\n" );
-			// Type has to be copiable and movable
-			static_assert(std::is_trivial_v<Type>, "\n\n" __FUNCSIG__ ", Type has to be 'trivial'\n");
-			static_assert(std::is_move_constructible_v<Type>, "\n\n" __FUNCSIG__ ", Type has to be move constructible\n");
+			_ASSERT(left_ && right_ );
+			_ASSERT(left_ != right_ );
 
 			auto make_return_value = [](auto a_, auto b_, size_t size_) {
 				auto retval = dbj::make_smart_pair<Type>(size_) ;
 				std::copy(a_, b_, retval.second.get());
-				// notice the move()
-				// unique_ptr can not be copied
 				return retval ;
 			};
 
@@ -268,12 +265,12 @@ namespace dbj {
 				return it sorted and with no duplicates
 				this is apparently also faster for very large data sets
 				*/
-				const std::set<Type> set_(std::begin(arr_), std::end(arr_));
+				const std::set<Type> set_(left_, right_);
 				return make_return_value( set_.begin(), set_.end(), set_.size() );
 			}
 			else {
 				/* just remove the duplicates */
-				const std::unordered_set<Type> set_(std::begin(arr_), std::end(arr_));
+				const std::unordered_set<Type> set_(right_, right_);
 				return make_return_value(set_.begin(), set_.end(), set_.size());
 			}
 		}

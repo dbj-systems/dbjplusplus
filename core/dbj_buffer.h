@@ -1,4 +1,5 @@
 #pragma once
+#include "dbj_insider.h"
 // 2019-01-30	DBJ	Created
 // char buffer type
 // faster and lighter vs the usual suspects: string and vector
@@ -12,19 +13,24 @@
 #define  DBJ_LIGHT_BUFFER
 
 namespace dbj {
+
 	namespace buf {
 
 		// plenty of space -- 65535
 		// in posix terms BUFSIZ * 2 * 64 aka 64KB
 		constexpr inline std::uintmax_t max_length = UINT16_MAX;
-		/*
-		template<
-			typename C,
-			std::enable_if_t<::dbj::is_char_v<C> || ::dbj::is_wchar_v<C>, int> = 0
-		>
-		using smarty = std::unique_ptr<C[]>;
-		*/
-		template<typename C > struct smartarr final
+
+		// namespace with no name and only types inside
+		namespace {
+			using namespace ::dbj::core::util;
+			using inside_1_and_max =
+				insider<size_t, 1 ,
+				::dbj::buf::max_length
+				,insider_error_code_throw_policy 
+				>;
+		}
+        // this is the pure type, no methods in here
+		template<typename C > struct arrbuf final
 		{
 			static_assert(
 				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
@@ -33,36 +39,35 @@ namespace dbj {
 			using value_type = C;
 			using type = std::unique_ptr<C[]>;
 			using ref_type = std::reference_wrapper< type >;
-			using carr = smartarr<char>;
-			using warr = smartarr<wchar_t>;
+			using carr = arrbuf<char>;
+			using warr = arrbuf<wchar_t>;
 		};
 
 		template< typename C >
-		using smarty = typename smartarr< ::dbj::tt::remove_cvref_t<C> >::type;
+		using smarty = typename arrbuf< ::dbj::tt::remove_cvref_t<C> >::type;
 
 		template< typename C >
-		using smarty_ref = typename smartarr< ::dbj::tt::remove_cvref_t<C> >::ref_type;
+		using smarty_ref = typename arrbuf< ::dbj::tt::remove_cvref_t<C> >::ref_type;
 
-		using smart_carr = smartarr<char>::type;
-		using smart_warr = smartarr<wchar_t>::type;
+		using smart_carr = arrbuf<char>::type;
+		using smart_warr = arrbuf<wchar_t>::type;
 
 		// use it for passing (to functions) as arguments
 		// since narrow pointer can not be copied
-		using smart_carr_ref = smartarr<char>::ref_type;
-		using smart_warr_ref = smartarr<wchar_t>::ref_type;
+		using smart_carr_ref = arrbuf<char>::ref_type;
+		using smart_warr_ref = arrbuf<wchar_t>::ref_type;
 
 		// always use this function to make fresh smarty-es!
 		template<typename C>
-		[[nodiscard]] inline auto smart(size_t S_) noexcept
-			-> typename smartarr<C>::type
+		[[nodiscard]] inline auto smart(inside_1_and_max size_ ) noexcept
+			-> typename arrbuf<C>::type
 		{
-			DBJ_VERIFY(S_ < dbj::buf::max_length);
-			return std::make_unique<C[]>(S_ + 1);
+			return std::make_unique<C[]>(size_ + 1);
 		}
 
 		template<typename C>
-		[[nodiscard]] inline auto len(smarty_ref<C> buf_ref_)
-			noexcept -> size_t
+		[[nodiscard]] inline auto length(smarty_ref<C> buf_ref_)
+			noexcept -> inside_1_and_max
 		{
 			return std::strlen((buf_ref_.get()).get());
 		}
@@ -85,14 +90,10 @@ namespace dbj {
 			-> smarty<C>
 		{
 			_ASSERTE(!sv_.empty());
-			static_assert(
-				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
-				"\n\n" __FUNCSIG__ "\njust char or wchar_t please\n"
-				);
 			smarty<C> sp_;
 			// is this naive?
 			// should I use strnlen() ?
-			const size_t N = sv_.size();
+			inside_1_and_max N = sv_.size();
 			sp_.release();
 			sp_ = smart<C>(N);
 			void * rez_ = ::memcpy(sp_.get(), sv_.data(), N);
@@ -113,7 +114,7 @@ namespace dbj {
 		{
 			smarty<C> & from_ = buf_ref_ ;
 			_ASSERTE(from_);
-			const size_t N = ::dbj::buf::len<C>(buf_ref_);
+			inside_1_and_max N = ::dbj::buf::length<C>(buf_ref_);
 			_ASSERTE( N > 1 );
 			smarty<C> sp_ = ::dbj::buf::smart<C>(N);
 			_ASSERTE(sp_);
@@ -155,7 +156,7 @@ namespace dbj {
 			fill(smarty_ref<C> bref_, size_t N = 0,C val_ = C{}) noexcept
 		{
 			smarty<C> & buff_ = bref_;
-			if (!N) N = ::dbj::buf::len<C>(bref_); 
+			if (!N) N = ::dbj::buf::length<C>(bref_); 
 			void *p = (void *)buff_.get();
 			if constexpr (::dbj::is_char_v<C>)
 			{
@@ -184,7 +185,7 @@ please do let me know if problems there
 			using iterator = value_type * ;
 			using reference_type = type &;
 
-			explicit char_buffer(size_t size) noexcept {	this->reset(size); }
+			explicit char_buffer(inside_1_and_max size) noexcept {	this->reset(size); }
 
 			char_buffer(const char_buffer & another_) noexcept 
 			{
@@ -210,20 +211,14 @@ please do let me know if problems there
 				this->data_ = smart<char>(charr);
 			}
 
-			void reset(size_t new_size_) const {
-				_ASSERTE(new_size_ > 0);
-				_ASSERTE(new_size_ < ::dbj::buf::max_length);
+			void reset(inside_1_and_max new_size_) const {
 				data_.release();
 				this->size_ = new_size_;
 				this->data_ = smart<char>(new_size_);
 			}
 
-			char & operator [] (size_t idx_)
+			char & operator [] (inside_1_and_max idx_)
 			{
-				if (idx_ > size())
-					throw std::make_error_code(std::errc::invalid_argument);
-				if (idx_ < ::dbj::buf::max_length)
-					throw std::make_error_code(std::errc::invalid_argument);
 				return data_[idx_]; //  std::unique_ptr<T[]> has this operator
 			}
 
@@ -260,7 +255,7 @@ please do let me know if problems there
 			void  operator delete(void* ptr, std::size_t sz) = delete;
 			void  operator delete[](void* ptr, std::size_t sz) = delete;
 		private:
-			mutable size_t  size_;
+			mutable inside_1_and_max  size_;
 			mutable	pointer data_{}; // size == 0
 #pragma region char_buffer friends
 
