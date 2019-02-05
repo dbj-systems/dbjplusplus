@@ -18,16 +18,50 @@
 /// </summary>
 namespace dbj::console {
 
+	constexpr inline auto MAX_ARGUMENTS = BUFSIZ * 2; // 1024
+	// for compound types
+	constexpr inline auto MAX_ELEMENTS  = BUFSIZ * 2 * 64 ; // 65535
+
 	 // inline Printer PRN{ &console_ };
 	 inline const auto & PRN = printer_instance();
 
 	 namespace inner {
+
+		 /*
+		 print anything between two iterators
+		 note: of the same sequence
+		 */
+		 inline auto print_between = [](auto left_, auto right_) -> void
+		 {
+			 std::size_t argsize =
+				 static_cast<std::size_t>( std::distance( left_, right_  ) );
+
+			 _ASSERTE(argsize);
+			 _ASSERTE(argsize < MAX_ELEMENTS );
+
+			 std::size_t arg_count{ 0 };
+			 auto delimited_out = [&](auto && val_) {
+				 // try to find the required out()
+				 out(val_);
+				 if ((arg_count++) < (argsize - 1)) PRN.wchar_to_console(wdelim_str);
+			 };
+
+			 PRN.wchar_to_console(wprefix_str); PRN.wchar_to_console(wspace_str);
+
+			  do {
+				 delimited_out( *left_++ );
+			 } while (left_ < right_);
+
+			 PRN.wchar_to_console(wspace_str); PRN.wchar_to_console(wsuffix_str);
+		 };
 		 /*
 		 anything that has begin and end
 		 NOTE: that includes references to native arrays
 		 */
 		 inline auto print_range = [](const auto & range) {
 
+			 print_between(std::begin(range), std::end(range));
+#if 0
 			 // not requiring  range.size();
 			 // thus can do native arrays
 			 std::size_t argsize =
@@ -52,6 +86,7 @@ namespace dbj::console {
 				 delimited_out(item);
 			 }
 			 PRN.wchar_to_console(wspace_str); PRN.wchar_to_console(wsuffix_str);
+#endif
 		 };
 
 		 /* also called from void out(...) functions for compound types. e.g. void out(tuple&) */
@@ -417,7 +452,22 @@ with reference or pointer type argument.
 		}
 	}
 
-#pragma region smart pointers of char arrays
+#pragma region smart pointers 
+
+	/*
+	to print the smart pointer of array we need to know the array count
+	_countof(array) will not work since smar ptr arr is made on heap
+	*/
+	template<typename T>
+	inline void out
+	( ::std::pair< size_t,  ::std::unique_ptr<T[]> >const & smart_pair_)
+	{
+		DBJ_TYPE_REPORT_FUNCSIG;
+		auto sz_ = smart_pair_.first ;
+		auto const & sp_ = smart_pair_.second;
+		if (!sp_ ) return;
+		inner::print_between(sp_.get(), sp_.get() + sz_);
+	}
 
 	// unique_ptr copy is forbiden so it can not
 	// act as pass by value argument

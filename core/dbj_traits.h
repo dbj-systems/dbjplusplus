@@ -44,6 +44,34 @@ if (error == -2)   return { "not a valid mangled name" };
 
 namespace dbj {
 
+	/***********************************************************************************
+	smart pinter of arrays are very usefull
+	note 1: always use make_unique
+	note 2: this can use any type whatsoever, unless compiler refuses it
+	note 3: std::move () is the only way out for copying unique_ptr, moving works
+	note 4: consider std::reference_wrapper<> to make unique_ptr as argument possible
+	*/
+	template<typename T_>
+	using unique_arr = std::unique_ptr<T_[]>;
+
+	template<typename T_> 
+	inline unique_arr<T_> make_unique_arr(size_t N_) {
+		return std::make_unique<T_[]>(N_);
+	}
+	/*
+	smart_pair<T> makes smart pointers of arrays even more usefull
+	it keeps the count of array
+	*/
+	template<typename T_>
+	using smart_pair =
+		std::pair < size_t, ::dbj::unique_arr<T_> >;
+
+	template<typename T_>
+	inline smart_pair<T_> make_smart_pair(size_t N_) {
+		return std::make_pair( N_, std::make_unique<T_[]>(N_)) ;
+	}
+
+	/************************************************************************************/
 	namespace tt {
 
 	constexpr inline const char space[]{ " " };

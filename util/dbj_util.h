@@ -223,6 +223,7 @@ namespace dbj {
 		template <typename Type, bool sort = false >
 		inline std::vector<Type> remove_duplicates(const std::vector<Type> & vec)
 		{
+			_ASSERT(vec.size() > 0 );
 			if constexpr (sort) {
 				/*
 				return it sorted and with no duplicates
@@ -238,15 +239,29 @@ namespace dbj {
 			}
 		}
 
-		template <typename Type, size_t N >	
-			inline std::vector<Type>
+		// return an dbj::smart_pair with
+		// unique elements from the given array
+		// optionaly sorted
+		template <typename Type, size_t N>
+			inline dbj::smart_pair<Type>
 				remove_duplicates
 					(Type(&arr_)[N], bool sort = false ) 
 						noexcept
 		{
-			// Type has to be copyable and movable
+			_ASSERT(N > 0);
 			static_assert( ! std::is_class_v<Type>,"\n\n" __FUNCSIG__ ", No classes please\n" );
 			static_assert( ! std::is_union_v<Type>,"\n\n" __FUNCSIG__ ", No unions please\n" );
+			// Type has to be copiable and movable
+			static_assert(std::is_trivial_v<Type>, "\n\n" __FUNCSIG__ ", Type has to be 'trivial'\n");
+			static_assert(std::is_move_constructible_v<Type>, "\n\n" __FUNCSIG__ ", Type has to be move constructible\n");
+
+			auto make_return_value = [](auto a_, auto b_, size_t size_) {
+				auto retval = dbj::make_smart_pair<Type>(size_) ;
+				std::copy(a_, b_, retval.second.get());
+				// notice the move()
+				// unique_ptr can not be copied
+				return retval ;
+			};
 
 			if (sort) {
 				/*
@@ -254,12 +269,12 @@ namespace dbj {
 				this is apparently also faster for very large data sets
 				*/
 				const std::set<Type> set_(std::begin(arr_), std::end(arr_));
-				return { set_.begin(), set_.end() };
+				return make_return_value( set_.begin(), set_.end(), set_.size() );
 			}
 			else {
 				/* just remove the duplicates */
 				const std::unordered_set<Type> set_(std::begin(arr_), std::end(arr_));
-				return { set_.begin(), set_.end() };
+				return make_return_value(set_.begin(), set_.end(), set_.size());
 			}
 		}
 
