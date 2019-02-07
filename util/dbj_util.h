@@ -20,7 +20,31 @@
 #define DBJ_IL(T,...) (std::initializer_list<T>{__VA_ARGS__})
 
 namespace dbj {
+
 	namespace util {
+		// itox = integer to type x
+		namespace itox {
+
+			constexpr inline char itoc(unsigned k) noexcept { return char(k); }
+#pragma region integer to digit char
+			using itod_policy = char(*)(unsigned);
+
+			// fold back to 0..9 if argument is larger than 9
+			inline itod_policy fold_back =
+				 [](unsigned k) constexpr -> char {	return '0' + char(k % 10); };
+
+			inline itod_policy brutal =
+				[](unsigned k) constexpr -> char    { _ASSERTE(k < 10);  return '0' + char(k % 10); };
+
+			/*
+			integer to digit
+			*/
+			constexpr inline char itod(unsigned k, itod_policy policy = fold_back) noexcept {
+				return policy(k);
+			}
+#pragma endregion
+
+		} //itox
 
 #if (__cplusplus <= 201703L)
 		/*
@@ -117,15 +141,14 @@ namespace dbj {
 		}
 
 		//-----------------------------------------------------------------------------
-		// rac == Range and Container
 		// I prefer it to std::array ;)
 		template< typename T, std::size_t N	>
-		struct rac final
+		struct nano_range final
 		{
 			constexpr static const auto MAX_CAPACITY = BUFSIZ * 2 * 64; // ~64K 
 			static_assert(N > 0);
 			static_assert(N < MAX_CAPACITY );
-			using type = rac;
+			using type = nano_range;
 			using value_type = T;
 			// using data_ref = std::reference_wrapper<T[N]>;
 			using data_ref = T(&)[N];
@@ -148,7 +171,7 @@ namespace dbj {
 		};
 
 		/*
-		does not compile *if* it has no begind and no end
+		does not compile *if* 'range' has no begind and no end
 		*/
 		inline auto dbj_range_count = [](auto && range) constexpr->size_t
 		{

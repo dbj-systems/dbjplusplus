@@ -40,25 +40,6 @@
 #pragma message (__FILE__ " -- no coroutines in this build ...")
 #endif
 
-/*
-this is for variables only
-example
-long DBJ_MAYBE(var) {42L} ;
-after expansion:
-long var [[maybe_unused]] {42L} ;
-*/
-#define DBJ_MAYBE(x) x [[maybe_unused]]
-
-/*
-for variables and expressions
-guaranteed no evaluation
-guaranteed zero bytes overhead
-standard c++
-works in any space, example here
-https://godbolt.org/z/jGC98L
-*/
-#define DBJ_NOUSE(...) static_assert( (noexcept(__VA_ARGS__),true) );
-
 /* avoid macros as much as possible */
 // #ifdef NOMINMAX
 inline const auto & MIN = [](const auto & a, const auto & b) 
@@ -81,6 +62,28 @@ inline const auto & MAX = [](const auto & a, const auto & b)
 #define DBJ_EXP_(s) #s
 #define DBJ_EXP(s) DBJ_EXP_(s)
 #endif
+
+/*
+this is for variables only
+example
+long DBJ_MAYBE(var) {42L} ;
+after expansion:
+long var [[maybe_unused]] {42L} ;
+*/
+#define DBJ_MAYBE(x) x [[maybe_unused]]
+/* just an unused variable but used expression */
+#define DBJ_USD(x) auto DBJ_CONCAT( unused_ , __COUNTER__ ) [[maybe_unused]] = (x)
+
+
+/*
+for variables and expressions
+guaranteed no evaluation
+guaranteed zero bytes overhead
+standard c++
+works in any space, example here
+https://godbolt.org/z/jGC98L
+*/
+#define DBJ_NOUSE(...) static_assert( (noexcept(__VA_ARGS__),true) );
 
 // https://www.boost.org/doc/libs/1_35_0/boost/preprocessor/stringize.hpp
 #    define BOOST_PP_STRINGIZE(text) BOOST_PP_STRINGIZE_A((text))

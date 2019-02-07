@@ -310,6 +310,7 @@ namespace dbj::kalends {
 		timer_kind which_ = timer_kind::modern
 	>
 	inline auto measure(F fun_to_test)
+		noexcept -> std::string
 	{
 		using namespace dbj::kalends;
 		auto timer_ = create_timer(which_);
@@ -321,18 +322,21 @@ namespace dbj::kalends {
 
 	template<typename F	>
 	inline  auto miliseconds_measure(F fun_to_test)
+		noexcept -> std::string
 	{
 		return measure<F, dbj::kalends::MilliSeconds>(fun_to_test);
 	};
 
 	template<typename F	>
 	inline  auto microseconds_measure(F fun_to_test)
+		noexcept -> std::string
 	{
 		return measure<F, dbj::kalends::Microseconds>(fun_to_test);
 	};
 
 	template<typename F	>
 	inline auto seconds_measure(F fun_to_test)
+		noexcept -> std::string
 	{
 		return measure<F, dbj::kalends::Seconds>(fun_to_test);
 	};

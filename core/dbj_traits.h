@@ -44,6 +44,70 @@ if (error == -2)   return { "not a valid mangled name" };
 
 namespace dbj {
 
+	/*
+	currently MSVC compiler 2019-07-02 wrongly allows c++
+	type casting from "anything" to function pointer
+	so the bellow will not work untill that is fixed
+	
+	using FP = void (*)(int) ;
+		template <FP fun> call_fp ( int ) { } 
+			// should not compile but it does
+	call_fp< FP(42) >( 0 );
+	
+	*/
+#ifdef DBJ_MSVC_FIXED_FP_CASTING_FROM_ANYTHING
+
+	/*
+	if FP is a function pointer, anything can be cast by it
+	but only some of the results will be callable
+
+	using FP = int (*)() ;
+	auto x = FP(42) ; // X will be of type FP
+	x() ; // crash
+
+	this is the tool to test before calling function pointers
+	of seemingle the right type but of "unknown origin"
+	*/
+	template<typename FP>
+	struct function_pointer final
+	{
+		static_assert(std::is_invocable_v<FP()>, "\n\nFP found not to be invocable\n");
+
+		using value_type = FP;
+		using type = function_pointer;
+		using empty_type = std::invoke_result_t<FP()>;
+
+		/*
+		can not rely on the apparent FP type
+		so let's assume it is the same but let us test
+		for that in here
+		*/
+		template<FP  fun_candidate_, typename ...A>
+		static constexpr bool is_callable (A...args)	
+		{
+			// static_assert does not work here
+			// example
+			// if F is int, int() is c++type cast and is invocable
+			static_assert(sizeof(fun_candidate_(args...)), "\n\nFP found not to be invocable\n");
+			static_assert(std::is_object_v<FP>, "\n\nFP found not to be an object type\n");
+			// but this works
+			// this will not compile if actual_fun_ is not a function
+			// with signature that FP type describes
+			// auto fun = static_cast<FP>(actual_fun_);
+			auto   actual_fun_ = static_cast<FP>(fun_candidate_);
+			return (actual_fun_ != nullptr);
+		}
+
+		/*applicator generic */
+		template<typename ...A>
+		static auto applicator (FP  callback, A... args)
+			-> decltype(callback(args...))
+		{
+			return callback(args...);
+		};
+	};
+#endif // DBJ_MSVC_FIXED_FP_CASTING_FROM_ANYTHING
+
 	template< class T >
 	struct ok_to_be_smart : std::integral_constant<
 		bool,
