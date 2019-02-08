@@ -90,12 +90,10 @@ namespace dbj {
 			-> smarty<C>
 		{
 			_ASSERTE(!sv_.empty());
-			smarty<C> sp_;
 			// is this naive?
 			// should I use strnlen() ?
 			inside_1_and_max N = sv_.size();
-			sp_.release();
-			sp_ = smart<C>(N);
+			smarty<C> sp_ = smart<C>(N);
 			void * rez_ = ::memcpy(sp_.get(), sv_.data(), N);
 			_ASSERTE(rez_);
 			return sp_;
