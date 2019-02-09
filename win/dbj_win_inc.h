@@ -1,5 +1,5 @@
 #pragma once
-#include "dbj_gpl_license.h"
+#include "../dbj_gpl_license.h"
 
 /*
 include windows only from one place
@@ -13,11 +13,13 @@ and do it according to ancient windows lore
 #include <windows.h>
 #endif
 
-
+/*
+Why was this?
 #if (WINVER < NTDDI_WIN10_RS3)
 #else
 #error dbj++ requires Windows builds above REDSTONE 3 or above
 #endif
+*/
 
 /*
 rudimentary runtime version checks
