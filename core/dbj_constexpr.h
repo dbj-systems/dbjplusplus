@@ -17,7 +17,7 @@ namespace dbj::util {
 			return res;
 		}
 
-		constexpr unsigned long dbj_get_seed()
+		constexpr std::uint64_t dbj_get_seed()
 		{
 			int hour = dbj_atoi(__TIME__);
 			int min = dbj_atoi(__TIME__ + 3);
@@ -32,6 +32,7 @@ namespace dbj::util {
 		//	dbj::util::hash(__FILE__);
 		constexpr inline unsigned long hash(const char *str)
 		{
+			// http://www.cse.yorku.ca/~oz/hash.html
 			unsigned long hash = 5381;
 			int c = 0;
 			while ((c = *str++))

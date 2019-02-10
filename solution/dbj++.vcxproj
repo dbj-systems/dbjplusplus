@@ -155,9 +155,9 @@
     <ClInclude Include="..\util\dbj_util.h" />
     <ClInclude Include="..\win32\dbj_app_env.h" />
     <ClInclude Include="..\win32\dbj_com.h" />
-    <ClInclude Include="..\win32\dbj_uuid.h" />
     <ClInclude Include="..\win32\dbj_win32.h" />
     <ClInclude Include="..\win32\dbj_win_inc.h" />
+    <ClInclude Include="..\win\dbj_uuid.h" />
     <ClInclude Include="dbj++win.h" />
     <ClInclude Include="dbj_stack_matrix.h" />
     <ClInclude Include="dbj_win_inc.h" />
