@@ -197,6 +197,21 @@ namespace dbj {
 
 #ifndef DBJ_TEST_ATOM
 
+		// by default if result is bool, show it
+		inline bool atom_show_true_rezult = true;
+
+		struct flip_atom_show_true_rezult final {
+
+			flip_atom_show_true_rezult() {
+				atom_show_true_rezult = false;
+			}
+
+			~flip_atom_show_true_rezult() {
+				atom_show_true_rezult = true;
+			}
+
+		} ;
+
 		///<summary>
 		/// usage example: 
 		/// <code>
@@ -217,16 +232,53 @@ namespace dbj {
 		{
 			using ::dbj::console::print;
 			using ::dbj::console::painter_command;
-			print(
-				painter_command::green, "\n", ::dbj::LINE(),
-				"\n- expression -> ", painter_command::text_color_reset, expression);
-			if (show_type)
+
+			using no_const_no_ref_return_type 
+				= std::remove_const_t< std::decay_t<return_type> > ;
+
+			constexpr bool is_bool_return_type  
+				= std::is_integral_v<return_type> &&
+				std::is_same_v<no_const_no_ref_return_type, bool >;
+
+			if constexpr (is_bool_return_type)
+			{
+				if (anything && (! atom_show_true_rezult) )
+					return anything; 
+
 				print(
-					painter_command::green, "\n\t- type-> ", painter_command::text_color_reset, typeid(anything).name()
+					painter_command::green, "\n", ::dbj::LINE(),
+					"\n- expression -> ", painter_command::text_color_reset, expression);
+				if (show_type)
+					print(
+						painter_command::green, "\n\t- type-> ", painter_command::text_color_reset, typeid(anything).name()
+					);
+
+				if (false == anything) {
+					print(
+						painter_command::green, "\n\t- value -> ", painter_command::bright_red, anything, painter_command::text_color_reset
+					);
+				}
+				else {
+					print(
+						painter_command::green, "\n\t- value -> ", painter_command::text_color_reset, anything
+					);
+				}
+			}
+			else {
+
+				print(
+					painter_command::green, "\n", ::dbj::LINE(),
+					"\n- expression -> ", painter_command::text_color_reset, expression);
+				if (show_type)
+					print(
+						painter_command::green, "\n\t- type-> ", painter_command::text_color_reset, typeid(anything).name()
+					);
+
+				print(
+					painter_command::green, "\n\t- value -> ", painter_command::text_color_reset, anything
 				);
-			print(
-				painter_command::green, "\n\t- value -> ", painter_command::text_color_reset, anything
-			);
+			}
+
 			return static_cast<return_type const &>(anything);
 		};
 
@@ -234,6 +286,10 @@ namespace dbj {
 #define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), (x) ) 
 // same as above but does not show type
 #define DBJ_ATOM_TEST(x) dbj::testing::test_lambada( DBJ_EXPAND(x), (x), false ) 
+
+#define DBJ_ATOM_FLIP [[maybe_unused]] dbj::testing::flip_atom_show_true_rezult \
+   flip_atom_show_true_rezult_instance{} 
+
 #endif // DBJ_TEST_ATOM
 
 	} // testing

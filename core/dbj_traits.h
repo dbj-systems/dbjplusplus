@@ -580,26 +580,32 @@ namespace dbj {
 	template<typename T>
 	constexpr inline bool is_range_v = ::dbj::inner::is_range<T>::value;
 
+	// back to normal
+	// std::decay<T> does not remove constness
+	template <typename T>
+	using no_const_decayed = std::remove_const_t < std::decay_t<T> >;
+
 	template<typename T>
 	using is_range_t = typename inner::is_range<T>::type;
 
 	template< typename T >
-	using is_std_array_t = typename inner::is_std_array< std::decay_t<T> >::type;
+	using is_std_array_t = typename inner::is_std_array< no_const_decayed<T> >::type;
 
 	template< typename T >
-	constexpr inline bool is_std_array_v = inner::is_std_array< std::decay_t<T> >::value;
+	constexpr inline bool is_std_array_v = inner::is_std_array< no_const_decayed<T> >::value;
 
 	template< typename T>
-	using is_std_vector_t = typename inner::is_std_vector< std::decay_t<T> >::type;
+	using is_std_vector_t = typename inner::is_std_vector< no_const_decayed<T> >::type;
 
 	template< typename T>
-	constexpr inline bool is_std_vector_v = inner::is_std_vector< std::decay_t<T> >::value;
+	constexpr inline bool is_std_vector_v = inner::is_std_vector< no_const_decayed<T> >::value;
 
 	//template <typename T>
-	//using is_bool_t = std::is_same<typename std::decay_t<T>, bool>::type ;
+	//using is_bool_t = std::is_same<no_const_decayed<T>, bool>::type ;
 
 	template <typename T>
-	constexpr inline bool is_bool_v = std::is_same_v<typename std::decay_t<T>, bool>;
+	constexpr inline bool is_bool_v 
+		= std::is_same_v< no_const_decayed<T> >, bool>;
 
 } // eof dbj
 #pragma endregion
