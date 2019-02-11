@@ -43,10 +43,19 @@ namespace dbj::util {
 
 	} // extern "C" linkage
 	
-	template<typename T, size_t N>
-	constexpr inline unsigned long hashit(const T(&str)[N]) {
+	// native string to hash
+	template< size_t N>
+	constexpr inline unsigned long arr_to_hash (const char(&str)[N]) {
 		return dbj::util::hash(str);
 	}
+
+	// native array to hash
+	template<typename T, size_t N>
+	constexpr inline unsigned long arr_to_hash(const T(&str)[N]) {
+		return dbj::util::hash(str);
+	}
+
+
 
 	namespace inner
 	{

@@ -71,14 +71,16 @@ DBJ_TEST_UNIT(dbj_string_util_lowerize) {
 
 	using namespace std::literals;
 
-	// optimal defualt length is
-	DBJ_ATOM_TEST( dbj::str::small_string_optimal_size ) ;
-	auto optimal_str = DBJ_ATOM_TEST( dbj::str::optimal<char>() );
-	optimal_str = "ABRA KA DABRA";
-
-	DBJ_ATOM_TEST(dbj::str::lowerize(optimal_str.data(), optimal_str.data() + optimal_str.size()));
-
-	DBJ_ATOM_TEST(dbj::str::lowerize(L"ABRA KA DABRA"sv));
+	// no const allowed since  we lowerize in place
+	{
+		static char specimen[]{ "ABRA KA DABRA" };
+		static const auto specimen_size = _countof(specimen);
+		DBJ_ATOM_TEST(dbj::str::lowerize(&specimen[0], &specimen[specimen_size - 1]));
+	}
+	{
+		static char specimen[]{ "ABRA KA DABRA" };
+		DBJ_ATOM_TEST(dbj::str::lowerize(specimen));
+	}
 }
 
 DBJ_TEST_UNIT(dbj_string_util_ui_string_compare) {
@@ -137,16 +139,23 @@ DBJ_TEST_UNIT(clasical_string_utils)
 	);
 }
 
-DBJ_TEST_UNIT(std_to_chars)
-{
-	std::array<char, 10> str;
+#include "../util/dbj_string_compare.h"
 
-	if (
-		auto[p, ec] = std::to_chars(str.data(), str.data() + str.size(), 42);
-		ec == std::errc()
-		) {
-		DBJ_ATOM_TEST( std::string_view(str.data(), p - str.data()) );
-	}
+DBJ_TEST_UNIT(optimal_buffer)
+{
+	// std::array<char, 10> str;
+
+	DBJ_ATOM_TEST(dbj::str::buffer_optimal_size);
+
+	// returns :std::array<char, dbj::str::buffer_optimal_size >
+	auto buf = ::dbj::str::optimal_buffer();
+
+	// returns :std::array<char, dbj::str::buffer_optimal_size >
+	auto wbuf = ::dbj::str::optimal_wbuffer();
+
+	[[maybe_unused]]  auto[ptr, erc] = std::to_chars(buf.data(), buf.data() + buf.size(), LONG_MAX);
+
+	DBJ_TEST_ATOM(::dbj::dbj_ordinal_string_compareA(buf.data(), "42", true));
 }
 
 DBJ_TEST_SPACE_CLOSE

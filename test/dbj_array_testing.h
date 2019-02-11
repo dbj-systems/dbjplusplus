@@ -213,7 +213,7 @@ using ref_to_arr = std::reference_wrapper<const T[N]>;
 
 /*
 the point we are showing here: c++ smart pointer
-dp handle array but do not jeep them as array  references internaly
+do handle array but do not treat them as array  references internaly
 if smart ptr declared to hold int[],element type is int
 if declared to hold int, element type is int again
 */
@@ -248,4 +248,36 @@ DBJ_TEST_UNIT(dbj_a_bit_more_native_array_fascination)
 	bool DBJ_MAYBE(is_it_then) = dbj::tt::is_array_((int(&)[3])(arr_p));
 }
 #pragma endregion
+
+DBJ_TEST_UNIT(would_you_believe_it_more_native_array_utils)
+{
+
+	using C3 = ::dbj::arr::ARH<char, 3>;
+
+	C3::ARV v_of_c{ 'A','B','C' };
+
+	C3::ARR  DBJ_MAYBE(std_arr) = C3::from_vector(v_of_c);
+
+	{  // manual way
+		constexpr size_t N = 3;
+		auto DBJ_MAYBE(std_arr_) = v_2_a<char, N>(v_of_c);
+	}
+
+	const char(&DBJ_MAYBE(ref_to_arr_of_chars))[3] =
+		*(char(*)[3])v_of_c.data();
+
+	const char(&DBJ_MAYBE(ref_to_arr_of_chars_2))[] =
+		*(char(*)[])v_of_c.data();
+
+	const size_t N = v_of_c.size();
+	char * vla_ = (char*)::std::calloc(N, sizeof(char));
+
+	std::copy(v_of_c.data(), v_of_c.data() + v_of_c.size(), vla_);
+
+	auto DBJ_MAYBE(isit) = std::is_array_v< decltype(vla_)>;
+
+	::std::free(vla_);
+
+	auto DBJ_MAYBE(dummy) = true;
+}
 DBJ_TEST_SPACE_CLOSE

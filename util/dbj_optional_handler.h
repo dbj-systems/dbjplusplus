@@ -61,6 +61,7 @@ namespace dbj {
 		// explicit optional_handle(const T & opt_) noexcept : val_(opt_) {}
 
 		bool has_value() const noexcept { return val_.has_value(); }
+
 		// set the value through the reference
 		operator T & () {
 			if (val_.has_value())

@@ -305,7 +305,7 @@ namespace dbj::str {
 	}
 
 
-	constexpr std::size_t small_string_optimal_size{ 255 };
+	constexpr std::size_t buffer_optimal_size{ 0xFF };
 
 	/*
 	Make a string optimized for small sizes
@@ -326,7 +326,7 @@ namespace dbj::str {
 		std::enable_if_t< dbj::is_std_char_v<CT>, string_type  >
 		optimal
 		(
-			size_type SMALL_SIZE = small_string_optimal_size,
+			size_type SMALL_SIZE = buffer_optimal_size,
 			char_type init_char_
 			= static_cast<char_type>('?')
 		)
@@ -337,77 +337,75 @@ namespace dbj::str {
 		);
 	}
 
-	template <
-		typename CT,
-		typename buffer_type = ::std::array< CT, small_string_optimal_size >
-	>
-		inline buffer_type optimal_buffer(void)
-	{
-		// alow only std char types to be used
-		static_assert(::dbj::is_std_char_v<CT>);
-		return buffer_type{ };
-	}
+	/*
+	basically I recomend do not use std::string, but for text manipulation(s)
+	std::vector<char> use even less, it is crazy slow for simple char buffer-ing
+	my preffered buffer type is std::array<>
+	2019-02-11 dbj.org
+	*/
+	using buffer_type = ::std::array<char, buffer_optimal_size >;
+	using wbuffer_type = ::std::array<wchar_t, buffer_optimal_size >;
 
-	/*-------------------------------------------------------------*/
+	inline constexpr buffer_type optimal_buffer(void)	{ return buffer_type{ {char(0)} }; }
+	inline constexpr wbuffer_type optimal_wbuffer(void) {	return wbuffer_type{ {wchar_t(0)} };	}
+
+	/*
+	-------------------------------------------------------------
+	need to return std::string since the length is unknown
+	at compile time
+	*/
 	template <
 		typename CT,
-		typename string_view_type = basic_string_view<CT>,
-		typename string_type
-		= std::basic_string< std::decay_t<CT> >
+		typename char_type = std::decay_t<CT>,
+		typename return_type = char_type 
 	>
 		inline
 		// alow only char and wchar_t 
-		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
+		std::enable_if_t< dbj::is_char_v<char_type> || dbj::is_wchar_v<char_type>, char_type *  >
 		lowerize(
-			const CT * from_, const CT * last_
+			CT * from_, CT  const * last_
 		)
 	{
-		_ASSERTE(from_ != nullptr);
-		_ASSERTE(last_ != nullptr);
-		_ASSERTE(last_ != from_);
-
-		// safe and simple: copy to string (first!)
-		string_type retval(from_, last_);
-		auto loc = std::locale("");
+		assert((from_ != nullptr) && (last_ != nullptr) && (last_ != from_));
+#ifdef _DEBUG
+		// TODO: how do we know N is really valid?
+		// this? https://stackoverflow.com/a/26403920/10870835
+		static const auto npos = (size_t)(-1);
+		const size_t N = last_ - from_ ;
+		assert(N > 0 );
+		assert(N < npos );
+#endif
+		static auto loc = std::locale("");
 		// facet of user's preferred locale
-		const std::ctype<CT >	& facet_ = std::use_facet<std::ctype<CT>>(loc);
+		static const std::ctype<CT >	& facet_ 
+			= std::use_facet<std::ctype<char_type>>(loc);
 
-		auto the_end_[[maybe_unused]] = facet_.tolower(retval.data(), retval.data() + retval.size());
-		return retval;
+		auto the_end_[[maybe_unused]] 
+			= facet_.tolower( from_,  last_);
+		return from_;
 	}
+	/*-------------------------------------------------------------
+	Can not operate on the view and chage the data 
+    */
+	template <	typename CT	>
+	inline std::basic_string< CT >
+	lowerize(std::basic_string_view<CT> view_) = delete;
+
 	/*-------------------------------------------------------------*/
 	template <
-		typename CT,
-		typename string_view_type = basic_string_view<CT>,
-		typename string_type = std::basic_string< CT >
-	>
-		constexpr inline
-		// alow only char and wchar_t
-		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
-		lowerize(
-			std::basic_string_view<CT> view_
-		)
-	{
-		_ASSERTE(!view_.empty());
-		return lowerize<CT>(
-			view_.data(),
-			view_.data() + ptrdiff_t(view_.size())
-			);
-	}
-	/*-------------------------------------------------------------*/
-	template <
-		typename CT, std::size_t N,
-		typename string_type
-		= std::basic_string< std::decay_t<CT> >
+		typename CT, std::size_t N, typename string_type = std::array<CT,N>
 	>
 		constexpr inline
 		// only char wchar_t
 		std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, string_type  >
 		lowerize(
-			const CT(&view_)[N]
+			CT(&charr_)[N]
 		)
 	{
-		return lowerize(view_, (view_ + N));
+		CT * ptr_to_lowered_ = lowerize(charr_, (charr_ + N));
+		std::array<CT, N> rezult_{ {CT(0)} };
+		std::copy(charr_, (charr_ + N), rezult_.data());
+		return rezult_;
 	}
 
 
@@ -417,33 +415,65 @@ namespace dbj::str {
 	/// char16_t and char32_t
 	/// </summary>
 	template<
+		bool ignore_case,
 		typename CT,
 		typename std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, int > = 0
 	>
 		inline int ui_string_compare
 		(
-			const CT * p1, const CT  * p2, bool ignore_case = true
+			 CT const * p1,  CT  const * p2
 		)
 	{
-		_ASSERTE(p1 != nullptr);
-		_ASSERTE(p2 != nullptr);
-		std::basic_string<CT> s1{ p1 }, s2{ p2 };
-
-		if (ignore_case) {
-			s1 = lowerize<CT>(s1);
-			s2 = lowerize<CT>(s2);
-		}
-		// the "C" locale is default 
-		std::locale loc{};
 		// the collate type 
 		using collate_type = std::collate<CT>;
+		// the "C" locale is default 
+		static std::locale loc{};
 		// get collate facet:
-		const auto & coll = std::use_facet< collate_type >(loc);
-		//
-		return coll.compare(p1, p1 + s1.size(), p2, p2 + s2.size());
+		static const auto & coll = std::use_facet< collate_type >(loc);
+
+		assert(p1 != nullptr);
+		assert(p2 != nullptr);
+		
+		size_t len1, len2;
+
+		if constexpr (dbj::is_char_v<CT>) {
+			len1 = std::strlen(p1);
+			len2 = std::strlen(p2);
+		}
+		else {
+			len1 = std::wcslen(p1);
+			len2 = std::wcslen(p2);
+		}
+
+		if constexpr (ignore_case) {
+			if constexpr (dbj::is_char_v<CT>) {
+				return (::strcmp(p1, p2));
+			}
+			else {
+				return (::wcscmp(p1, p2));
+			}
+		} else {
+			if constexpr (dbj::is_char_v<CT>) {
+				return (::_stricmp(p1, p2));
+			}
+			else {
+				return (::_wcsicmp(p1, p2));
+			}
+		}
 	}
 
-
+	template<
+		typename CT,
+		typename std::enable_if_t< dbj::is_char_v<CT> || dbj::is_wchar_v<CT>, int > = 0
+	>
+		inline int ui_string_compare
+		(
+			CT const * p1, CT  const * p2, bool ignore_case = true
+		) {
+		if (ignore_case)
+			return ui_string_compare<true>(p1,p2);
+		return ui_string_compare<false>(p1,p2);
+	}
 	/// <summary>
 	/// is Lhs prefix to Rhs
 	/// L must be shorter than R

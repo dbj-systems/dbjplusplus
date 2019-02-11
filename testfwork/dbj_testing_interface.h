@@ -180,7 +180,9 @@ namespace dbj {
 					print("\nstd::system_error\n\t", x_.what(), "\n\t", x_.code());
 				}
 				catch (const std::exception & x_) {
-					print(x_);
+					print("\n\nstd::exception caught by dbj testing system\n\t");
+					print( x_ );
+					print("\n\n");
 				}
 				catch (...) {
 					std::exception_ptr eptr{
