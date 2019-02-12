@@ -283,11 +283,11 @@ namespace dbj {
 		};
 
 		// #define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), [&] { return (x);}() ) 
-#define DBJ_TEST_ATOM(x) dbj::testing::test_lambada( DBJ_EXPAND(x), (x) ) 
+#define DBJ_TEST_ATOM(x) ::dbj::testing::test_lambada( DBJ_EXPAND(x), (x) ) 
 // same as above but does not show type
-#define DBJ_ATOM_TEST(x) dbj::testing::test_lambada( DBJ_EXPAND(x), (x), false ) 
+#define DBJ_ATOM_TEST(x) ::dbj::testing::test_lambada( DBJ_EXPAND(x), (x), false ) 
 
-#define DBJ_ATOM_FLIP [[maybe_unused]] dbj::testing::flip_atom_show_true_rezult \
+#define DBJ_ATOM_FLIP [[maybe_unused]] ::dbj::testing::flip_atom_show_true_rezult \
    flip_atom_show_true_rezult_instance{} 
 
 #endif // DBJ_TEST_ATOM
