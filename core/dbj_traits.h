@@ -297,6 +297,7 @@ inline constexpr bool is_array_(
 		using base          = to_base_t<T>;
 	};
 
+/************************************************************************************/
 
 		template< typename T>
 		struct instrument final
@@ -346,6 +347,7 @@ inline constexpr bool is_array_(
 					"\nunderlying type" + under_type{}.to_string() ;
 			}
 		};
+/************************************************************************************/
 #pragma region TUPLE MANIPULATORS
 		template<typename T1, typename T2>
 		struct tuple_concat;
@@ -395,10 +397,8 @@ inline constexpr bool is_array_(
 #pragma endregion
 	} // tt
 } // dbj 
-
-
-
 #pragma region char and string related traits
+/************************************************************************************/
 namespace dbj {
 
 	using namespace std;
@@ -430,7 +430,20 @@ namespace dbj {
 	template<> struct is_char32<char32_t> : std::true_type {	};
 
 	template<typename T> inline constexpr bool  is_char32_v = is_char32<T>::value;
+/************************************************************************************/
+	template<typename T, typename base_t = dbj::tt::to_base_t<T> >
+	struct is_wide_narrow_char :
+		std::integral_constant
+		<
+		bool,
+		is_char< base_t >::value || is_wchar<base_t>::value
+		>
+	{};
 
+	template<typename T >
+	inline constexpr bool  is_wide_narrow_char_v = is_wide_narrow_char<T>::value;
+
+/************************************************************************************/
 	// and one for all
 	template<typename T, typename base_t = dbj::tt::to_base_t<T> >
 	struct is_std_char :
@@ -444,6 +457,7 @@ namespace dbj {
 
 	template<typename T >
 	inline constexpr bool  is_std_char_v = is_std_char<T>::value;
+/************************************************************************************/
 
 	// is T, a standard string
 	template< class T >

@@ -92,9 +92,11 @@ DBJ_TEST_UNIT(dbjutilunitrangecontainertest)
 
 	DBJ_TEST_UNIT(dbjdbj_util_test) {
 
+		using dbj::util::remove_duplicates;
+
 		int intarr[]{ 1,1,2,2,3,4,5,6,6,6,7,8,9,9,0,0 };
 		auto DBJ_MAYBE(ret1)
-			= DBJ_TEST_ATOM ( dbj::util::remove_duplicates(intarr) );
+			= DBJ_TEST_ATOM ( remove_duplicates(intarr) );
 		std::string as2[16]{
 			"abra", "ka", "dabra", "babra",
 			"abra", "ka", "dabra", "babra",
@@ -102,11 +104,14 @@ DBJ_TEST_UNIT(dbjutilunitrangecontainertest)
 			"abra", "ka", "dabra", "babra",
 		};
 
-		auto ad = DBJ_TEST_ATOM( dbj::util::remove_duplicates(as2) );
+		DBJ_TEST_ATOM( remove_duplicates(as2) );
+
 		char carr[] { 'c','a','b','c','c','c','d', 0x0 };
-		auto DBJ_MAYBE(rez) 
-			 = DBJ_TEST_ATOM( dbj::util::remove_duplicates(carr) );
-		auto see_mee_here = carr;
+		DBJ_TEST_ATOM( remove_duplicates(carr) );
+
+		int ia[10]{ 0,8,3,4,6,6,7,8,7,1 };
+
+		DBJ_ATOM_TEST(remove_duplicates(ia, ia + 10, true)); // sorted too
 
 		using namespace std::string_view_literals;
 
