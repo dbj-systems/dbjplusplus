@@ -147,9 +147,6 @@ namespace dbj {
 	/************************************************************************************/
 	namespace tt {
 
-	constexpr inline const char space[]{ " " };
-	// constexpr inline const  char line[]{ "------------------------------------------------------------" };
-
   // usefull and important aliases
   // these make type traits more palatable
 
@@ -304,6 +301,8 @@ inline constexpr bool is_array_(
 		template< typename T>
 		struct instrument final
 		{
+			constexpr inline static const char space[]{ " " };
+
 			template< typename TT>
 			struct descriptor final
 			{

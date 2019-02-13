@@ -18,7 +18,8 @@
 // #define dbj_kalends_test   
 #define dbj_string_util_test   
 #define dbj_string_tests   
-// #define dbj_static_matrix_test   
+// #define dbj_static_matrix_test 
+#define dbj_any_optional_tests
 
 
 #ifdef dbj_buffer_testing
@@ -66,6 +67,10 @@
 
 #ifdef dbj_core_tests   
 #include "test\dbj_core_tests.h"
+#endif
+
+#ifdef dbj_any_optional_tests   
+#include "test\dbj_any_optional_tests.h"
 #endif
 
 /* inclusion of this file defines the kind of a licence used */

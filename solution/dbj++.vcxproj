@@ -146,7 +146,7 @@
     <ClInclude Include="..\util\dbj_kalends.h" />
     <ClInclude Include="..\util\dbj_key_value_store.h" />
     <ClInclude Include="..\util\dbj_narf.h" />
-    <ClInclude Include="..\util\dbj_optional_handler.h" />
+    <ClInclude Include="..\util\dbj_optional_any.h" />
     <ClInclude Include="..\util\dbj_stack_matrix.h" />
     <ClInclude Include="..\util\dbj_startend.h" />
     <ClInclude Include="..\util\dbj_string_compare.h" />

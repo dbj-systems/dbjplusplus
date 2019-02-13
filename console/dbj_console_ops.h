@@ -452,6 +452,15 @@ with reference or pointer type argument.
 		}
 	}
 
+	template< typename T>
+	inline void out(std::optional<T> opt_)
+	{
+		if ( opt_.has_value() )
+			::dbj::console::print("{ value: ", opt_.value(), " }");
+		else
+			::dbj::console::print("{ value: empty }");
+	}
+
 #pragma region smart pointers 
 
 	/*
@@ -522,7 +531,7 @@ with reference or pointer type argument.
 	(class std::error_code ec_)
 	{
 		::dbj::console::PRN.printf(
-			"Error code category:'%s', value:%d, message:'%s'",
+			"Error code { category:'%s', value:%d, message:'%s' }",
 			ec_.category().name(),
 			ec_.value(),
 			ec_.message().c_str()
@@ -533,7 +542,7 @@ with reference or pointer type argument.
 	(class std::error_condition ecn_)
 	{
 		::dbj::console::PRN.printf(
-			"Error condition category:'%s', value:%d, message:'%s'",
+			"Error condition { category:'%s', value:%d, message:'%s' }",
 			ecn_.category().name(),
 			ecn_.value(),
 			ecn_.message().c_str()

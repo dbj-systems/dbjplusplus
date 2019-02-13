@@ -122,9 +122,6 @@
     <ClInclude Include="..\util\dbj_narf.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="..\util\dbj_optional_handler.h">
-      <Filter>util</Filter>
-    </ClInclude>
     <ClInclude Include="..\util\dbj_stack_matrix.h">
       <Filter>util</Filter>
     </ClInclude>
@@ -172,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="..\win\dbj_uuid.h">
       <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\dbj_optional_any.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
