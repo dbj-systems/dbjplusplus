@@ -57,15 +57,20 @@ DBJ_TEST_UNIT(core_utils)
 	::dbj::buf::char_buffer cb("hello!");
 
 	DBJ_TEST_ATOM( cb );
+	{
+		using u8arr = std::uint8_t[];
+		u8arr uar{ 0,1,2 };
+		std::unique_ptr<u8arr> smart_arr_;
 
-	using u8arr = std::uint8_t[];
-	u8arr uar{0,1,2};
-	std::unique_ptr<u8arr> smart_arr_;
-	
-	::dbj::buf::assign(smart_arr_, uar);
+		::dbj::buf::assign(smart_arr_, uar);
 
-	::wprintf(L"\n\n%d\t%d\t%d", smart_arr_[0],smart_arr_[1],smart_arr_[2]);
-
+		::wprintf(L"\n\n%d\t%d\t%d", smart_arr_[0], smart_arr_[1], smart_arr_[2]);
+	}
+	{
+		::dbj::buf::smart_carr smart_buf_;
+		::dbj::buf::assign(smart_buf_, "jupi?");
+		::wprintf(L"\n\n%S\n", smart_buf_.get() );
+	}
 }
 
 DBJ_TEST_SPACE_CLOSE
