@@ -41,6 +41,19 @@ namespace dbj {
 				>;
 		}
 
+		namespace {
+			template<class T,
+				std::enable_if_t<is_array_v<T> && std::extent_v<T> == 0, int> = 0>
+				[[nodiscard]] inline std::unique_ptr<T> 
+				dbj_make_unique(size_t Size_)
+			{	// make a unique_ptr
+				typedef std::remove_extent_t<T> E;
+				return (
+					  std::unique_ptr<T>( new E[Size_]() )
+					);
+			}
+		}
+
 		template<typename CHAR> struct smart_buf final
 		{
 			using type = smart_buf;

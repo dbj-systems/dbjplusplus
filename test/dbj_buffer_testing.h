@@ -137,7 +137,7 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	*/
 	using ::dbj::console::print;
 	using namespace inner;
-	print("\nWill allocate and measure FOUR types of buffers. Buffer size will be ",
+	print("\nWill make/destroy on the stack, and measure FOUR types of buffers. Buffer size will be ",
 		buffer_size, " chars each\n\tEach allocation/deallocation will happen ",
 		max_iterations, " times");
 
