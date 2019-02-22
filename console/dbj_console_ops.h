@@ -3,6 +3,8 @@
 #include "../dbj_gpl_license.h"
 
 #include "../core/dbj_traits.h"
+#include "../core/dbj_buf.h"
+#include "../core/dbj_buffer.h"
 #include "dbj_console.h"
 
 // for out-putting std::path and friends
@@ -517,7 +519,7 @@ with reference or pointer type argument.
 
 #pragma endregion 
 
-	inline void out(::dbj::buf::char_buffer const & cb_)
+	inline void out(::dbj::buf::buffer const & cb_)
 	{
 		PRN.printf(
 			L"{ size: %d, data: '%s' }", cb_.size(), cb_.data()

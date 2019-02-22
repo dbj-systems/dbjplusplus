@@ -48,20 +48,23 @@ namespace dbj {
 
 		namespace internal {
 
+			using buffer = typename ::dbj::buf::smart_buf<char>;
+
 			struct TUNODE final 
 			{
 				size_t ID;
 				testunittype TU;
-				dbj::buf::smart_carr  description;
+				buffer::pointer description;
 
 				TUNODE(
 					size_t id_, 
 					testunittype test_unit_, 
-					dbj::buf::smart_carr & desc_
+					buffer::pointer & desc_
 				) noexcept
 					: ID(id_)
 					, TU(test_unit_)
-					, description( dbj::buf::smart<char>( desc_ ) /* copy is made */)
+					, description( 
+						buffer::make( desc_ ) /* copy is made */)
 				{
 				}
 
@@ -111,11 +114,11 @@ namespace dbj {
 		   {
 			   struct retval final {
 				   size_t id;
-				   dbj::buf::smart_carr sid;
+				   buffer::pointer sid;
 			   };
 
 			   static size_t tid{ 0 };
-			   dbj::buf::smart_carr id_str =
+			   buffer::pointer id_str =
 				   dbj::fmt::to_buff("[TID:%03d]", tid++ );
 
 			   return retval{ tid, std::move(id_str) };
@@ -124,12 +127,12 @@ namespace dbj {
 				/// the actiual test unit function registration 
 				/// happens here
 			   inline  auto append
-			   (testunittype tunit_, dbj::buf::smart_carr const & description_) 
+			   (testunittype tunit_, buffer::pointer  const & description_)
 				   noexcept -> testunittype
 			   {
 				   auto next_ = next_test_id();
 
-				   dbj::buf::smart_carr full_desc{
+				   buffer::pointer full_desc{
 					   dbj::fmt::to_buff("%s%s", next_.sid, description_)
 				   };
 	   

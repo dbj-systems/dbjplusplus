@@ -29,7 +29,7 @@ namespace dbj {
 			return value.get() ;
 		}
 
-		inline char * frm_arg(  ::dbj::buf::char_buffer const & value) noexcept
+		inline char * frm_arg(  ::dbj::buf::buffer const & value) noexcept
 		{
 			return value.data() ;
 		}
@@ -52,7 +52,7 @@ namespace dbj {
 		https://stackoverflow.com/a/39972671/10870835
 		*/
 		template<typename ... Args>
-		inline dbj::buf::smart_carr
+		inline dbj::buf::buff_pointer
 			to_buff(std::string_view format_, Args const & ...args)
 			noexcept
 		{
@@ -69,7 +69,7 @@ namespace dbj {
 		}
 		// wide version
 		template<typename ... Args>
-		inline dbj::buf::smart_warr
+		inline dbj::buf::wbuff_pointer
 			to_buff(std::wstring_view format_, Args const & ...args)
 			noexcept
 		{
@@ -133,12 +133,12 @@ namespace dbj {
 #pragma warning( push )
 #pragma warning( disable: 4190 )
 
-		using smart_buf_type = typename dbj::buf::smart_carr;
+		using smart_buf_type = typename dbj::buf::buff_type;
 
 		extern "C" {
 
 			/*	transform path to filename,	delimiter is '\\' */
-			inline	smart_buf_type
+			inline	smart_buf_type::pointer
 				filename(std::string_view file_path, const char delimiter_ = '\\')
 				noexcept
 			{
@@ -158,7 +158,7 @@ namespace dbj {
 			*/
 			// inline std::string FILELINE(const std::string & file_path,
 			inline 
-				smart_buf_type
+				smart_buf_type::pointer
 				fileline (std::string_view file_path,
 				          unsigned line_,
 				          std::string_view suffix = "")

@@ -11,6 +11,7 @@
 #include "dbj_constexpr.h"
 #include "dbj_traits.h"
 #include "dbj_insider.h"
+#include "dbj_buf.h"
 #include "dbj_buffer.h"
 #include "dbj_format.h"
 #include "dbj_core_utils.h"

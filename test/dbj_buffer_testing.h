@@ -10,7 +10,7 @@ DBJ_TEST_SPACE_OPEN(dbj_buffer)
 
 using namespace ::dbj::buf;
 
-auto alphabet = [&](char_buffer::reference_type cbr ) {
+auto alphabet = [&]( buffer::reference_type cbr ) {
 	char k = 65; // 'A'
 	for (auto & c_ : cbr )
 	{
@@ -27,7 +27,7 @@ extern "C"	inline void	my_memset(void *s, size_t n, char val_ = 0) noexcept
 DBJ_TEST_UNIT(dbj_light_buffer)
 {
 	const auto bufsiz_ = BUFSIZ;
-	char_buffer cb1(BUFSIZ);
+	buffer cb1(BUFSIZ);
 
 	// test the heap (de)allocation
 	// no can do --> auto p = new char_buff_type(BUFSIZ);
@@ -41,7 +41,7 @@ DBJ_TEST_UNIT(dbj_light_buffer)
 	// no we can not
 	//	auto p = new char_buff_type(BUFSIZ) char_buff_type;
 
-	auto sizeshow = [&](char_buffer::reference_type cbr) noexcept -> void
+	auto sizeshow = [&](buffer::reference_type cbr) noexcept -> void
 	{
 		auto show = [](auto && obj_, auto filler ) {
 			filler(obj_);
@@ -52,7 +52,7 @@ DBJ_TEST_UNIT(dbj_light_buffer)
 
 		show(std::vector<char>(BUFSIZ), [](auto & obj_) { std::fill(obj_.begin(), obj_.end(), '\0'); });
 		show( std::string(BUFSIZ,'\0'), [](auto & obj_) { std::fill(obj_.begin(), obj_.end(), '\0'); });
-		show(cbr, [](auto & obj_) { obj_.fill(); });
+		show(cbr, [](auto & obj_) { obj_.fill('*'); });
 	};
 
 	DBJ_TEST_ATOM(cb1.address());
@@ -61,17 +61,21 @@ DBJ_TEST_UNIT(dbj_light_buffer)
 	
 	// show the copying
 	{
-		char_buffer cb2(BUFSIZ);
-		DBJ_ATOM_TEST(copy_to(cb1, cb2)); // error_code display
+		buffer cb2(BUFSIZ);
 		DBJ_ATOM_TEST(cb2); //rezult
 		DBJ_TEST_ATOM(cb1 = cb2); // assignment
+
+		
+		assert(cb1.data());
+		assert(cb2.data());
+
+		assert(cb1.size() == cb2.size());
 	}
 // tranformations to string, wstring and vector
 	{
 		cb1.fill('X'); // assignment
 		DBJ_ATOM_TEST(cb1);
 		DBJ_ATOM_TEST(to_string(cb1));
-		DBJ_ATOM_TEST(to_wstring(cb1));
 		DBJ_ATOM_TEST(to_vector(cb1));
 	}
 
@@ -86,44 +90,43 @@ DBJ_TEST_UNIT(dbj_light_buffer)
 namespace inner {
 
 	//deliberately not constexpr
-	inline auto const & buffer_size = BUFSIZ;
+	inline auto const & buffer_size = ::dbj::buf::max_length ;
+	inline auto const & max_iterations = 0xFFFF;
 
-	inline void naked_unique_ptr(size_t count_) {
-		auto alloc_return = [&]() {
+	inline std::unique_ptr<char[]> naked_unique_ptr(size_t count_) {
 			return std::make_unique<char[]>(count_);
-		};
-		auto dumsy = alloc_return();
-		dumsy.get()[count_ - 1] = '?';
 	}
 
-	inline void dbj_buffer(size_t count_) {
-		auto alloc_return = [&]() {
-			return char_buffer(count_);
-		};
-		auto dumsy[[maybe_unused]] = alloc_return();
-		dumsy[count_ - 1] = '?';
+	inline buffer dbj_buffer(size_t count_) {
+			return buffer(count_);
 	}
 
-	inline auto vector_buffer(size_t count_) {
-		auto alloc_return = [&]() {
+	inline std::vector<unsigned char> vector_buffer(size_t count_) {
 			return std::vector<unsigned char>(count_);
-		};
-		auto dumsy[[maybe_unused]] = alloc_return();
-		dumsy[count_ - 1] = '?';
 	}
 
-	inline auto measure(
-		void(*fp)(size_t),
-		size_t buffer_count,
-		size_t max_iteration = 1000)
+	inline std::string string_buffer(size_t count_) {
+			return std::string( size_t(count_), char(0) );
+	}
+
+	/*
+	measure the perofrmance of making/destroying three kinds of buffers
+	dbj buf, dbj buffer and vector<char>
+	size of the buffers is user defined 
+	*/
+	auto measure = [] (
+		auto fp ,
+		::dbj::buf::inside_1_and_max buffer_count,
+		size_t max_iteration = max_iterations )
 	{
 		auto start_ = std::chrono::system_clock::now();
 		for (long i = 0; i < max_iteration; i++) {
-			fp(buffer_count);
+			auto dumsy = fp(buffer_count);
+			dumsy[buffer_count - 1] = '?';
 		}
 		auto end_ = std::chrono::system_clock::now();
 		return (end_ - start_).count() / 1000.0;
-	}
+	};
 } // inner
 
 DBJ_TEST_UNIT(dbj_light_buffer_measure) {
@@ -134,8 +137,9 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	*/
 	using ::dbj::console::print;
 	using namespace inner;
-	print("\nWill allocate and measure three types of buffers. Buffer size will be ",
-		buffer_size, " chars each\n\tEach allocation/deallocation will happen 1000 times");
+	print("\nWill allocate and measure FOUR types of buffers. Buffer size will be ",
+		buffer_size, " chars each\n\tEach allocation/deallocation will happen ",
+		max_iterations, " times");
 
 	print("\n\nMeasuring unique_ptr<char[]> ");
 	print("\n\nunique_ptr<char[]> = ", measure(naked_unique_ptr, buffer_size), " ms.\n");
@@ -143,7 +147,9 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	print("\n\ndbj char buffer = ", measure(dbj_buffer, buffer_size), " ms.\n");
 	print("\n\nMeasuring std::vector ");
 	print("\n\nstd::vector = ", measure(vector_buffer, buffer_size), " ms.\n\n");
-
+	print("\n\nMeasuring std::string ");
+	print("\n\nstd::vector = ", measure(string_buffer, buffer_size), " ms.\n\n");
+	
 	system("@pause");
 	system("@echo.");
 }

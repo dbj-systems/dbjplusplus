@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dbj_buf.h"
+
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -10,11 +12,10 @@ namespace dbj {
 	namespace core {
 		namespace util {
 
-
 			// replaced the use of 
-			// std::string with buffer_type
+			// std::string with buf_type
 			// everywhere in this file
-		using buffer_type =  ::dbj::buf::smart_carr;
+			using buf_type = ::dbj::buf::buff_type;
 
 			// no can do, intelisense goes berserk  --> using namespace::std ;
 			using namespace  ::std::literals::string_view_literals;
@@ -29,14 +30,14 @@ namespace dbj {
 			// time stamp size is max 22 + '\0'
 			// updates the ref to std::error_code argument accordingly
 			[[nodiscard]]
-			inline buffer_type
+			inline buf_type::pointer
 				make_time_stamp(
 					std::error_code & ec_,
 					char const * timestamp_mask_ = TIME_STAMP_SIMPLE_MASK
 				) noexcept
 			{
 				const size_t buf_len = 32U;
-				auto buffer_	= ::dbj::buf::smart<char>(buf_len);
+				auto buffer_	= buf_type::make(buf_len);
 				char * buf = buffer_.get();
 
 				ec_.clear();
@@ -66,13 +67,12 @@ namespace dbj {
 
 			/*	caller must check std::error_code ref arg	*/
 			[[nodiscard]] inline 
-				auto 
+				buf_type::pointer
 				dbj_get_envvar(std::string_view varname_, std::error_code & ec_ ) noexcept
-				-> buffer_type
 			{
 				_ASSERTE(!varname_.empty());
 				size_t buflen_ = 256U;
-				auto	bar = ::dbj::buf::smart<char>(buflen_);
+				auto	bar = buf_type::make(buflen_);
 				ec_.clear(); // the OK 
 				::SetLastError(0);
 				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.get(), (DWORD)buflen_))
@@ -83,9 +83,8 @@ namespace dbj {
 			}
 
 			/*	caller must check the ec_	*/
-			[[nodiscard]] inline auto
+			[[nodiscard]] inline buf_type::pointer
 				program_data_path( std::error_code & ec_ ) noexcept
-				-> buffer_type
 			{
 					return dbj_get_envvar("ProgramData", ec_ );
 			}

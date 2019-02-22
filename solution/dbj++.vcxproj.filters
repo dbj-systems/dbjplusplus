@@ -173,6 +173,7 @@
     <ClInclude Include="..\util\dbj_optional_any.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="..\test\zAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="test">

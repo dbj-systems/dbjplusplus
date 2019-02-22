@@ -1,285 +1,173 @@
 #pragma once
+
+// #define DBJ_BUFFER_TESTING
+
+#include "../dbj_gpl_license.h"
 #include "dbj_insider.h"
-// 2019-01-30	DBJ	Created
-// char buffer type
-// faster and lighter vs the usual suspects: string and vector
-// look into the friend's region for a lot of utilities
+#include "dbj_buf.h"
 
-// note: this is part of the core , thus we will try and absolutely minimise
-// the dependancies on other parts of dbj++, and thus we will sometimes
-// reimplement things here which perhaps exist in other part of the dbj++ 
+#include <system_error>
+#include <cassert>
+#include <memory>
+#include <string_view>
+#include <type_traits>
+#include <cstdint>
+#include <cstddef>
+#include <cstring>
 
-#ifndef DBJ_LIGHT_BUFFER
-#define  DBJ_LIGHT_BUFFER
+/*
+	--------------------------------------------------------------------------------
+
+	2019 FEB	dbj@dbj.org
+
+	dbj::buf is for fast-and-dangerous code and bellow is a bit more
+	comfortable api for	dynamic	char buffer.
+	Slower than naked uniq_ptr<char[]> but still approx 2x to 3x faster vs vector<char>
+
+	btw: I have the code for measuring the difference,in case you are hotly
+	against *not* using vector<char>.
+
+	Generaly the smaller the buffer the faster it is vs vector<char>.
+	For *normal* buffer sizes (posix BUFSIZ or multiplies of it)
+	using this type has a lot in favour.
+*/
 
 namespace dbj {
-
 	namespace buf {
 
-		// plenty of space -- 65535
-		// in posix terms BUFSIZ * 2 * 64 aka 64KB
-		constexpr inline std::uintmax_t max_length = UINT16_MAX;
+		struct buffer final {
 
-		// namespace with no name and only types inside
-		namespace {
-			using namespace ::dbj::core::util;
-			using inside_1_and_max =
-				insider<size_t, 1 ,
-				::dbj::buf::max_length
-				,insider_error_code_throw_policy 
-				>;
-		}
-        // this is the pure type, no methods in here
-		template<typename C > struct arrbuf final
-		{
-			static_assert(
-				::dbj::is_char_v< C > || ::dbj::is_wchar_v< C >,
-				"\n\njust char or wchar_t please, also: non ref, non const and not unsigned\n"
-				);
-			using value_type = C;
-			using type = std::unique_ptr<C[]>;
-			using ref_type = std::reference_wrapper< type >;
-			using carr = arrbuf<char>;
-			using warr = arrbuf<wchar_t>;
-		};
+			using smart_buf = typename ::dbj::buf::smart_buf<char>;
 
-		template< typename C >
-		using smarty = typename arrbuf< ::dbj::tt::remove_cvref_t<C> >::type;
+			using type = buffer;
+			using reference_type = type & ;
 
-		template< typename C >
-		using smarty_ref = typename arrbuf< ::dbj::tt::remove_cvref_t<C> >::ref_type;
+			// alias for std::unique_ptr<char[]>
+			using pointer = typename smart_buf::pointer ;
 
-		using smart_carr = arrbuf<char>::type;
-		using smart_warr = arrbuf<wchar_t>::type;
-
-		// use it for passing (to functions) as arguments
-		// since narrow pointer can not be copied
-		using smart_carr_ref = arrbuf<char>::ref_type;
-		using smart_warr_ref = arrbuf<wchar_t>::ref_type;
-
-		// always use this function to make fresh smarty-es!
-		template<typename C>
-		[[nodiscard]] inline auto smart(inside_1_and_max size_ ) noexcept
-			-> typename arrbuf<C>::type
-		{
-			return std::make_unique<C[]>(size_ + 1);
-		}
-
-		template<typename C>
-		[[nodiscard]] inline auto length(smarty_ref<C> buf_ref_)
-			noexcept -> inside_1_and_max
-		{
-			return std::strlen((buf_ref_.get()).get());
-		}
-
-		template<typename C, size_t N>
-		[[nodiscard]] inline auto smart(const C(&charr)[N])
-			noexcept -> smarty<C>
-		{
-			_ASSERTE(N > 0);
-			smarty<C> sp_ = smart<C>(N);
-			void * rez_ = ::memcpy(sp_.get(), charr, N);
-			_ASSERTE(rez_);
-			return sp_; // the move
-		}
-
-		/* make smarty<C> from basic_string_view<C> */
-		template<typename C>
-		[[nodiscard]] inline auto	smart
-		(std::basic_string_view<C> sv_) noexcept
-			-> smarty<C>
-		{
-			_ASSERTE(!sv_.empty());
-			// is this naive?
-			// should I use strnlen() ?
-			inside_1_and_max N = sv_.size();
-			smarty<C> sp_ = smart<C>(N);
-			void * rez_ = ::memcpy(sp_.get(), sv_.data(), N);
-			_ASSERTE(rez_);
-			return sp_;
-		}
-
-		/*
-		make smarty<C> from smarty<C>
-		this is clever since we do not pass C*
-		but... can we rely on the the caller
-		making a properly zero terminated string in there
-		so that strlen will work?
-		*/
-		template<typename C>
-		[[nodiscard]] inline auto
-			smart ( smarty_ref<C> buf_ref_ ) noexcept -> smarty<C>
-		{
-			smarty<C> & from_ = buf_ref_ ;
-			_ASSERTE(from_);
-			inside_1_and_max N = ::dbj::buf::length<C>(buf_ref_);
-			_ASSERTE( N > 1 );
-			smarty<C> sp_ = ::dbj::buf::smart<C>(N);
-			_ASSERTE(sp_);
-			void * rez_ = ::memcpy(sp_.get(), buf_ref_.get().get(), N);
-			_ASSERTE(rez_);
-			return sp_;
-		}
-
-		/*
-		assign array to instance of unique_ptr<T[]>
-		*/
-		template<typename C, size_t N>
-		inline auto
-			assign
-			(
-				smarty<C> & sp_,
-				const C(&arr)[N]
-			) noexcept
-			-> smarty<C> &
-		{
-			sp_.release();
-			sp_ = smart<C>(N);
-			_ASSERTE(sp_);
-			void * rez_ = ::memcpy(sp_.get(), arr, N);
-			_ASSERTE(rez_);
-			return sp_;
-		}
-
-		// do not try this at home. ever.
-		extern "C"	inline void	secure_reset(void *s, size_t n) noexcept
-		{
-			volatile char *p = (char *)s;
-			while (n--) *p++ = 0;
-		}
-
-		// dangerously low, bit it works
-		template<typename C>
-		inline void	
-			fill(smarty_ref<C> bref_, size_t N = 0,C val_ = C{}) noexcept
-		{
-			smarty<C> & buff_ = bref_;
-			if (!N) N = ::dbj::buf::length<C>(bref_); 
-			void *p = (void *)buff_.get();
-			if constexpr (::dbj::is_char_v<C>)
-			{
-				::std::memset(p, val_, N);
-			}
-			else {
-				::std::wmemset(p, val_, N);
-			}
-		}
-/*
-Above is for fast-and-dangerous code and bellow is a comfortable runtime char buffer. 
-Slower but still approx 2x to 3x faster vs vector<char>
-I have the code for measuring the difference, 
-in case you are hotly against not using vector<char>.
-Generaly the smaller the buffer the faster it is vs vector<char>.
-For *normal* buffer sizes (posix BUFSIZ or multiplies of it)
-using this type has a lot in favour.
-Also this class works in code where no exceptions are used
-please do let me know if problems there
-*/
-		struct char_buffer final {
-
-			using type = char_buffer;
-			using pointer = smarty<char>;
-			using value_type = char;
+			using value_type = typename smart_buf::value_type ;
 			using iterator = value_type * ;
-			using reference_type = type &;
 
-			explicit char_buffer(inside_1_and_max size) noexcept {	this->reset(size); }
+			// this is important
+			// default unique_ptr ctor leaves it made but in invalid state
+			bool valid() const noexcept { return this->data_.operator bool(); }
 
-			char_buffer(const char_buffer & another_) noexcept 
-			{
-				this->reset(another_.size_);
-				(void)::memcpy(data(), another_.data(), this->size());
+			// allocated but empty yields true
+			bool empty() const noexcept  {
+				return (valid() && this->data_[0] != '\0');
 			}
-			char_buffer & operator =(const char_buffer & another_) noexcept 
+
+			iterator data() const noexcept { 
+					return data_.get();
+			}
+
+			size_t const & size() const noexcept { 
+					return this->size_;
+			}
+
+			// default 
+			buffer() : size_(0) { /* see the valid() comment above */ }
+
+			// sized but empty buffer
+			explicit buffer(inside_1_and_max new_size) noexcept
+			{
+				this->reset(new_size);
+			}
+
+			// copy
+			buffer(const buffer & another_) noexcept
+			{
+				this->assign(another_);
+			}
+
+			buffer & operator =(const buffer & another_) noexcept
 			{
 				if (&another_ != this) {
-					this->reset(another_.size_);
-					(void)::memcpy(data(), another_.data(), this->size());
+					this->assign(another_);
 				}
 				return *this;
 			}
 
-			template<typename T, size_t N>
-			char_buffer(T(&charr)[N]) noexcept
+			// construct from native charr array
+			// i.e. the string literal
+			template < typename T, size_t N,
+				std::enable_if_t< std::is_same_v<T, char>, int> = 0
+			>
+				buffer(const T(&charr)[N]) noexcept
 			{
-				static_assert(dbj::is_char_v< std::remove_cv_t<T> >,
-					"\n\n" __FUNCSIG__ "\nonly char's please!\n");
+				assign(charr, charr + N);
+			}
 
-				this->size_ = N;
-				this->data_ = smart<char>(charr);
+			void assign(const buffer & another_) const noexcept
+			{
+				this->reset(another_.size_);
+				std::copy(another_.begin(), another_.end(), this->begin());
+			}
+
+			void assign(char const * from_, char const * to_) const noexcept
+			{
+				assert(from_ && to_);
+				this->reset(std::distance(from_, to_));
+				std::copy(from_, to_, this->begin());
 			}
 
 			void reset(inside_1_and_max new_size_) const {
-				data_.release();
+				// (void)data_.release();
+				this->data_ = smart_buf::make(new_size_);
 				this->size_ = new_size_;
-				this->data_ = smart<char>(new_size_);
 			}
 
+			// notice the usage of the dbj::insider definition
+			// as  argument type
 			char & operator [] (inside_1_and_max idx_)
 			{
-				return data_[idx_]; //  std::unique_ptr<T[]> has this operator
+				//  std::unique_ptr<T[]> has this operator
+				return data_[idx_];
 			}
-
-			iterator data() const noexcept { return data_.get(); }
-
-			size_t const & size() const noexcept { return size_; }
-			DWORD const & dword() const noexcept { return static_cast<DWORD>(size_); }
 
 			value_type ** const address() const noexcept {
 				auto p = std::addressof(data_[0]);
 				return std::addressof(p);
 			}
-#pragma region std lib conformance
 
 			iterator begin() noexcept { return data_.get(); }
 			iterator end()   noexcept { return data_.get() + size_; }
 			const iterator begin() const noexcept { return data_.get(); }
 			const iterator end()   const noexcept { return data_.get() + size_; }
 
-			void fill(char val_ = char{}) const noexcept
-			{
-				::dbj::buf::fill(
-					std::reference_wrapper<pointer>(data_),
-					size(),
-					val_
-				);
-			}
-#pragma endregion 
+			value_type & front() noexcept { assert(valid()); return data_[0]; }
+			value_type & back()  noexcept { assert(valid()); return data_[size_-1]; }
 
-			// to avoid "never releasing smart pointer" syndrome
+			buffer const & fill(char val_) noexcept
+			{
+				// I do allow for default ctor which leaves the instance 
+				// in the invalid state, but I do not allow to use it
+				// this all complicates the usage
+				assert( this->valid());
+				// always send the size_
+				// data_[0] == '\0' is the state of 
+				// alocated but empty buffer
+				smart_buf::fill( data_, val_, size_ );
+				return *this;
+			}
+
+			// to avoid "never releasing assign pointer" syndrome
 			// we wil ban creation of this class on the heap
 			void* operator new(std::size_t sz) = delete;
 			void* operator new[](std::size_t sz) = delete;
 			void  operator delete(void* ptr, std::size_t sz) = delete;
 			void  operator delete[](void* ptr, std::size_t sz) = delete;
-		private:
-			mutable inside_1_and_max  size_;
-			mutable	pointer data_{}; // size == 0
-#pragma region char_buffer friends
 
-#ifdef DBJ_CONSOLE_SYSTEM
-// obviously this here will not work 
-// if ::dbj::console is not included 
-// *before*
-			void out(
-				const type & cb_
-			)
-			{
-				using namespace ::dbj::console;
-				prinf(L"{ size: %d, data: '%s' }", cb_.size(), cb_.data());
-			}
-#endif
+		private:
+
+			mutable inside_1_and_max  size_{}; // 0
+			mutable	pointer data_{}; // size == 0
+
+//  buffer friends start here
 
 			friend std::string to_string(const reference_type from_) noexcept {
 				// this will not copy the whole buffer
 				return { from_.data() };
-			}
-
-			friend std::wstring to_wstring(const reference_type from_) noexcept {
-				// this will not copy the whole buffer
-				std::string str_(from_.data());
-				// cast to wide ... but locale free!
-				return { str_.begin(), str_.end() };
 			}
 
 			friend std::vector<char> to_vector(const reference_type from_) noexcept {
@@ -288,30 +176,54 @@ please do let me know if problems there
 				return { str_.begin(), str_.end() };
 			}
 
-			/*
-			copy this one to the buffer of the same size
-			return error_code(std::errc::invalid_argument)
-			on different sizes
-			return OK error_code on no error
-			*/
-			[[nodiscard]] friend
-				std::error_code copy_to(const reference_type from_, reference_type target_)
-				noexcept /* beware: std::copy may throw bad_alloc! */
+			//  assignments are used to make "from" certain types
+			friend void assign(reference_type target_,
+				char const * from_, char const * to_)
 			{
-				if (from_.size() != target_.size())
-					return std::make_error_code(std::errc::invalid_argument);
+				target_.assign(from_, to_);
+			}
 
-				std::copy(from_.data_.get(), from_.data_.get() + from_.size(),
-					target_.data_.get());
+			friend void assign(reference_type target_, std::string str_)
+			{
+				// naughty ;)
+				target_.assign((char *)str_.data(), (char *)(str_.data() + str_.size()));
+			}
 
-				return std::error_code{}; // OK
+			friend void assign(reference_type target_, dbj::string_view strvw_)
+			{
+				// naughty ;)
+				target_.assign((char *)strvw_.data(), (char *)(strvw_.data() + strvw_.size()));
+			}
+
+			friend void assign(reference_type target_, std::vector<char> charvec_)
+			{
+				// naughty ;)
+				target_.assign((char *)charvec_.data(), (char *)(charvec_.data() + charvec_.size()));
+			}
+
+			friend
+				bool operator == (const reference_type left_, const reference_type right_)
+				noexcept
+			{
+				if (left_.size() != right_.size())
+					return false;
+
+				return std::equal(
+					left_.begin(), left_.end(),
+					right_.begin(), right_.end()
+				);
+			}
+
+			friend std::ostream & operator << (std::ostream & os, buffer const & cb_)
+			{
+				return os << cb_.data_.get();
 			}
 #ifdef _WIN32
 		public:
 			struct wide_copy_result {
 				std::error_code ec{};
 				size_t size{};
-				smart_warr pointer{};
+				std::unique_ptr<wchar_t[]> pointer{};
 			};
 		private:
 			/*
@@ -325,7 +237,8 @@ please do let me know if problems there
 				auto const & source_size_ = source_.size_;
 				auto & source_pointer_ = source_.data_;
 
-				smart_warr wp = ::dbj::buf::smart<wchar_t>(source_size_);
+				std::unique_ptr<wchar_t[]> wp = 
+					std::make_unique<wchar_t[]>(source_size_ + 1);
 
 				size_t rezult_size;
 				auto mbstowcs_errno = ::mbstowcs_s(
@@ -339,11 +252,48 @@ please do let me know if problems there
 				return { ec, source_size_ , std::move(wp) };
 			}
 #endif // _WIN32
-#pragma endregion // char_buffer friend utilities
-		}; // char_buffer
+
+			//  buffer friends end here
+		}; // buffer
 
 	} // buf
 } // dbj
 
 
-#endif // DBJ_LIGHT_BUFFER
+#ifdef DBJ_BUFFER_TESTING
+#define TU(x) std::wcout << std::boolalpha << L"\nExpression: '" << (#x) << L"'\n\tResult: '" << (x) << L"'\n"
+#include <iostream>
+namespace {
+	inline bool dbj_testing_dbj_comfy_buffer()
+	{
+		using namespace ::dbj::buf;
+		// 1
+		{
+			TU(buffer(BUFSIZ));
+
+			TU(buffer("string literall"));
+
+			buffer bf(BUFSIZ);
+			assign(bf, std::string("std::string"));
+			TU(bf);
+			assign(bf, dbj::string_view("std::stringview"));
+			TU(bf);
+		}
+		// 2
+		{
+			buffer		 buff_1 = buffer(0xF);
+			TU(buff_1.fill('*'));
+			TU(buff_1);
+			buffer		 buff_2 = buff_1;
+			TU(buff_1 == buff_2);
+		}
+		return true;
+	} // testing_dbj_buffer
+
+	static auto dbj_testing_dbj_comfy_buffer_result
+		= dbj_testing_dbj_comfy_buffer();
+}
+
+#endif // DBJ_BUFFER_TESTING
+#undef TU
+#undef DBJ_BUFFER_TESTING

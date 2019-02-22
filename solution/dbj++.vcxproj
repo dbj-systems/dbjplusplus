@@ -140,6 +140,7 @@
     <ClInclude Include="..\test\dbj_traits_testing.h" />
     <ClInclude Include="..\test\dbj_util_test.h" />
     <ClInclude Include="..\test\dbj_win32_tests.h" />
+    <ClInclude Include="..\test\zAllocator.h" />
     <ClInclude Include="..\util\dbj++util.h" />
     <ClInclude Include="..\util\dbj_arh.h" />
     <ClInclude Include="..\util\dbj_defval.h" />

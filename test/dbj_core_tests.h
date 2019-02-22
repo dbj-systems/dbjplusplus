@@ -33,12 +33,15 @@ DBJ_TEST_UNIT(core_format_utils)
 	// programdata path
 	::dbj::fmt::print("\nprogramdata path\n\t%s", u::program_data_path(ec_));
 
-	::dbj::fmt::print("\nchar_buffer\n\t%s",::dbj::buf::char_buffer("hello!"));
+	::dbj::fmt::print("\nchar_buffer\n\t%s",::dbj::buf::buffer("hello!"));
 }
 
 DBJ_TEST_UNIT(core_utils)
 {
 	std::error_code ec_;
+	using namespace ::dbj::buf;
+	using namespace ::dbj::fmt;
+	using namespace ::std::string_view_literals;
 
 	// uses u::TIME_STAMP_SIMPLE_MASK by default
 	DBJ_ATOM_TEST(u::make_time_stamp(ec_, u::TIME_STAMP_SIMPLE_MASK));
@@ -54,7 +57,7 @@ DBJ_TEST_UNIT(core_utils)
 	DBJ_ATOM_TEST(u::program_data_path(ec_));
 	DBJ_ATOM_TEST(ec_);
 
-	::dbj::buf::char_buffer cb("hello!");
+	::dbj::buf::buffer cb("hello!");
 
 	DBJ_TEST_ATOM( cb );
 	{
@@ -62,14 +65,11 @@ DBJ_TEST_UNIT(core_utils)
 		u8arr uar{ 0,1,2 };
 		std::unique_ptr<u8arr> smart_arr_;
 
-		::dbj::buf::assign(smart_arr_, uar);
+		assign(smart_arr_, uar);
 
-		::wprintf(L"\n\n%d\t%d\t%d", smart_arr_[0], smart_arr_[1], smart_arr_[2]);
-	}
-	{
-		::dbj::buf::smart_carr smart_buf_;
-		::dbj::buf::assign(smart_buf_, "jupi?");
-		::wprintf(L"\n\n%S\n", smart_buf_.get() );
+		print("\n\n%d\t%d\t%d"sv, smart_arr_[0], smart_arr_[1], smart_arr_[2]);
+
+		print("\n\n%S\n"sv, buf_type::make("jupi?"));
 	}
 }
 
