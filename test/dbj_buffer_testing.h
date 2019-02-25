@@ -5,6 +5,8 @@
 
 #include "../console/dbj_console_ops.h"
 
+#include "../test/zAllocator.h"
+
 
 DBJ_TEST_SPACE_OPEN(dbj_buffer)
 
@@ -91,7 +93,7 @@ namespace inner {
 
 	//deliberately not constexpr
 	inline auto const & buffer_size = ::dbj::buf::max_length ;
-	inline auto const & max_iterations = 0xFFFF;
+	inline auto const & max_iterations = 1000;
 
 	inline std::unique_ptr<char[]> naked_unique_ptr(size_t count_) {
 			return std::make_unique<char[]>(count_);
@@ -101,12 +103,26 @@ namespace inner {
 			return buffer(count_);
 	}
 
-	inline std::vector<unsigned char> vector_buffer(size_t count_) {
-			return std::vector<unsigned char>(count_);
+	inline std::vector<char> vector_buffer(size_t count_) {
+			return std::vector<char>(count_);
 	}
 
 	inline std::string string_buffer(size_t count_) {
-			return std::string( size_t(count_), char(0) );
+		return std::string(size_t(count_), char(0));
+	}
+
+	using char_allocator = esapi::zallocator<char>;
+	using zvector = std::vector< char, char_allocator >;
+	using zstring = std::basic_string< char, std::char_traits<char>, char_allocator >;
+
+	inline zvector 
+		vector_buffer_zallocator(size_t count_) {
+			return zvector(count_);
+	}
+
+	inline zstring
+		string_buffer_zallocator(size_t count_) {
+			return zstring( size_t(count_), char(0) );
 	}
 
 	/*
@@ -139,22 +155,22 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	using namespace inner;
 	print("\nWill make/destroy on the stack, and measure FOUR types of buffers. Buffer size will be ",
 		buffer_size, " chars each\n\tEach allocation/deallocation will happen ",
-		max_iterations, " times");
+		max_iterations, " times\n\n");
 
-	print("\n\nMeasuring unique_ptr<char[]> ");
-	print("\n\nunique_ptr<char[]> = ", measure(naked_unique_ptr, buffer_size), " ms.\n");
-	print("\n\nMeasuring dbj char buffer ");
-	print("\n\ndbj char buffer = ", measure(dbj_buffer, buffer_size), " ms.\n");
-	print("\n\nMeasuring std::vector ");
-	print("\n\nstd::vector = ", measure(vector_buffer, buffer_size), " ms.\n\n");
-	print("\n\nMeasuring std::string ");
-	print("\n\nstd::vector = ", measure(string_buffer, buffer_size), " ms.\n\n");
+	print( measure(naked_unique_ptr, buffer_size), " ms. \tunique_ptr<char[]>\n");
+	print( measure(dbj_buffer, buffer_size), " ms. \tdbj char buffer\n");
+	print( measure(vector_buffer, buffer_size), " ms. \tstd::vector\n" );
+	print( measure(vector_buffer_zallocator, buffer_size), " ms. \tzallocator + std::vector\n");
+	print( measure(string_buffer, buffer_size), " ms. \tstd::string\n");
+	print( measure(string_buffer_zallocator, buffer_size), " ms. \tzallocator + std::string\n\n");
 	
 	system("@pause");
 	system("@echo.");
 }
 
 DBJ_TEST_SPACE_CLOSE
+
+#undef _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
 
 #endif // DBJ_LIGHT_BUFFER_TESTING
 

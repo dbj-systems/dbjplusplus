@@ -1,4 +1,14 @@
 /*
+This is mainly for "I found a better allocator!" people. 
+Used in "dbj_buffer_testing.h". It yeilds (of course) slower results.
+
+ps: Kevin, Jeffrey and David did a good job. For that time and that context. 
+They clean the memory (::memset ) before delete, to make for a safe code. 
+The primary objective here was safety not speed ...
+
+dbj@dbj.org 2019 FEB
+*/
+/*
  * OWASP Enterprise Security API (ESAPI)
  *
  * This file is part of the Open Web Application Security Project (OWASP)
@@ -42,7 +52,6 @@ namespace esapi
 	class zallocator
 	{
 	public:
-
 		typedef T value_type;
 		typedef value_type* pointer;
 		typedef const value_type* const_pointer;
@@ -50,8 +59,6 @@ namespace esapi
 		typedef const value_type& const_reference;
 		typedef std::size_t size_type;
 		typedef std::ptrdiff_t difference_type;
-
-	public:
 
 		// tame the optimizer
 		static volatile void* g_dummy;
@@ -74,7 +81,10 @@ namespace esapi
 		inline const_pointer address(const_reference r) { return &r; }
 
 		// memory allocation
-		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0)
+		inline pointer allocate(
+			size_type cnt
+			// dbj removed -- , typename std::allocator<void>::const_pointer = 0
+		)
 		{
 			ASSERT(cnt > 0);
 			ASSERT(cnt <= max_size());

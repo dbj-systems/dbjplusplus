@@ -6,12 +6,12 @@
 namespace dbj::util {
 
 	extern "C" {
-		constexpr int dbj_atoi(const char *str)
+		constexpr std::uint64_t dbj_atoi( char const * str)
 		{
-			int res = 0; // Initialize result 
+			std::uint64_t res = 0; // Initialize result 
 			// Iterate through all characters of input string and 
 			// update result 
-			for (int i = 0; str[i] != '\0'; ++i)
+			for (std::uint64_t i = 0; str[i] != '\0'; ++i)
 				res = res * 10 + str[i] - '0';
 			// return result. 
 			return res;
@@ -19,9 +19,9 @@ namespace dbj::util {
 
 		constexpr std::uint64_t dbj_get_seed()
 		{
-			int hour = dbj_atoi(__TIME__);
-			int min = dbj_atoi(__TIME__ + 3);
-			int sec = dbj_atoi(__TIME__ + 6);
+			std::uint64_t hour = dbj_atoi(__TIME__);
+			std::uint64_t min = dbj_atoi(__TIME__ + 3);
+			std::uint64_t sec = dbj_atoi(__TIME__ + 6);
 			return 10000 * hour + 100 * min + sec;
 		}
 

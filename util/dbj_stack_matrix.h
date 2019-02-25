@@ -2,11 +2,16 @@
 
 #include "../win/dbj_uuid.h"
 /*
+
+Why this?
+---------
 T[][N] would be called "array of array [N] of T" and be an incomplete matrix_type,
 while T[][] would be an invalid matrix_type (all except the last dimensions
-must have a known size). T[N][M] is "array [N] of array[M] of T",
+must have a known size).
+
+T[N][M] is "array [N] of array[M] of T",
 while T[sizeX] is "array [sizeX] of T" where T is a pointer to an int.
-Creating a dynamically 2d array works like this:
+Creating dynamically an 2d array works like this:
 
  // C++11 onwards -- allocate (with initializatoin)
 	auto array = new double[M][N]();
@@ -17,8 +22,8 @@ This is a "hole" in C++'s matrix_type system, since the ordinary matrix_type sys
 of C++ doesn't have array dimensions with sizes not known at compile time,
 thus these are called "allocated types"
 
-But. If you are worrited about above being slow and scatered arround non contiguous
-memory bloakcs, you can use the following:
+But. If you are worried about above being slow and scatered arround non contiguous
+memory blocks, you can use the following:
 
 int *ary = new int[sizeX * sizeY]; // single memory block
 
@@ -67,7 +72,9 @@ Use like :
 	 two_dim_array(i, j) = 5
 Really just like modern macros. Could be the fastest solution.
 
-Whatever, first the all stack all static almost-a-pod variant.
+A bit of a conceptual and practila mess ..
+
+Thus from me first the all stack all static almost-a-pod variant.
 In a standard C++ way.
 */
 
@@ -76,7 +83,8 @@ In a standard C++ way.
 
 // NOTE: __COUNTER__ is also a GCC predefined macro 
 // not just MSVC
-#define DBJ_UID  __COUNTER__ + dbj::util::dbj_get_seed()
+// #define DBJ_UID  __COUNTER__ + dbj::util::dbj_get_seed()
+#define DBJ_UID  __COUNTER__ + 100
 // BIG WARNING: __COUNTER__ macro does not work in a loop. 
 // It is a macro, a simple text substituton pre-processing mechanism
 
@@ -89,7 +97,7 @@ namespace dbj::arr {
 		typename	T,
 		size_t		R,
 		size_t		C,
-		unsigned long UID_,
+		std::uint64_t UID_,
 		size_t		MAXSIZE = 0xFFFF
 		/*
 		INT_MAX as a absolute max is 0x7FFFFFFF -- limits.h
@@ -100,7 +108,8 @@ namespace dbj::arr {
 		class compile_time_stack_matrix final
 	{
 	public:
-		// this is like a 'this' for static template instances
+		using uid_type = std::uint64_t;
+		// 'type' is like a 'this' for static template instances
 		// without it code bellow will be much more complex
 		using type = compile_time_stack_matrix;
 		/*	we also clean const and volatile if used "by accident" */
@@ -114,9 +123,9 @@ namespace dbj::arr {
 		doesn't support creating executables that have
 		a load size of greater than 2GB
 
-		Since this is all on stack we have choosen here
+		Since this matrix is all on stack we have choosen here
 		much smaller MAXSIZE then INT_MAX  which is 0x7FFFFFFF -- limits.h
-		and thus enforce thzt as stack matrix size policy here
+		and thus enforce that as stack matrix size policy here
 		*/
 		static_assert(
 			(R * C * sizeof(value_type)) < /* = */ MAXSIZE,
@@ -136,16 +145,24 @@ namespace dbj::arr {
 		*/
 		inline static value_type data_[R][C]{};
 
+		/*
+		IMPOTANT: this is R x C matrix
+		*/
+
 	public:
 		/*
-		please make sure you do understan how this makes for template definition
+		please make sure you do understand how this makes for template definition
 		wide uid, because it is a template parameter.
 		compile_time_stack_matrix<int,4,4,0>
 		is different type vs
 		compile_time_stack_matrix<int,4,4,1>
+
+		thus: if not for the last parameter, all the stack matrices of the same size 
+		and type will share the same data. 
+		we add the last param and thus we have two different types.
 		*/
-		static constexpr const unsigned long  uuid() { return UID_; }
-		static constexpr const char * type_name() { return typeid(matrix_type).name(); }
+		static constexpr const uid_type  uuid() { return UID_; }
+		static constexpr char const * type_name() { return typeid(matrix_type).name(); }
 		static constexpr size_t rows() noexcept { return R; };
 		static constexpr size_t cols() noexcept { return C; };
 		static constexpr size_t size() noexcept {
@@ -191,7 +208,7 @@ namespace dbj::arr {
 		// bool (*fun)( value_type & val, size_t row, size_t col);
 		// if callback returns false, process stops
 		// if callback throws the exception, process stops
-		using callback = void(*)(value_type &, size_t, size_t);
+		using callback = bool(*)(value_type &, size_t, size_t);
 
 		/*
 		for each row visit every column
@@ -201,9 +218,10 @@ namespace dbj::arr {
 		{
 			for (size_t row_ = 0; row_ < R; row_++) {
 				for (size_t col_ = 0; col_ < C; col_++) {
-					if (false == fun(
-						(value_type &)type::data_[row_][col_], row_, col_
-					)) return;
+					bool result = 
+						fun((value_type &)type::data_[row_][col_], row_, col_); 
+					if (result == false)
+						return;
 				}
 			}
 		}
@@ -221,16 +239,70 @@ namespace dbj::arr {
 			print("\n", type::type_name());
 			for (int r = 0; r < R; r++)
 			{
-				print("\n[ ");
+				print("\n{ ");
 				for (int c = 0; c < C; c++)
-					// note how F has to be able to print type T of this matrix
-					print(" [", type::data_[r][c], "] ");
-				print(" ]");
+					// note how F has to be able to print the type T of this matrix
+					print(" {", type::data_[r][c], "} ");
+				print(" }");
 			}
 			print("\n");
 		}
 
-	};
+		template<typename A, typename B, typename R>
+		friend void stack_matrix_multiply();
+
+	}; // compile_time_stack_matrix<T,R,C,UID>
+
+	/*
+C11 code to multiply two matrices:
+https://codereview.stackexchange.com/questions/179043/matrix-multiplication-using-functions-in-c?answertab=active#tab-top
+	*/
+
+	/*
+	theory:
+	The definition of matrix multiplication is that:
+	if C = AB for an n × m matrix A and an m × p matrix B, then C is an n × p matrix 
+	https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm
+	*/
+
+	template<typename T, size_t N, size_t M, size_t P>
+	inline void multiply(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P])
+	{
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < P; j++) {
+				c[i][j] = 0;
+				for (int k = 0; k < M; k++) {
+					c[i][j] += a[i][k] * b[k][j];
+				}
+			}
+		}
+	}
+	/*
+	  A[n][m] x B[m][p] = R[n][p]
+
+	compile_time_stack_matrix<T,R,C,UID> matrix is R x C matrix
+	*/
+	template<typename A, typename B, typename R>
+	inline void stack_matrix_multiply()
+	{
+		// check types to match on all 3 matrices
+		static_assert(std::is_same_v<A::value_type, B::value_type>,
+			"\n\n" __FUNCSIG__ "\n");
+		static_assert(std::is_same_v<A::value_type, R::value_type>,
+			"\n\n" __FUNCSIG__ "\n");
+		// Rows of A must be the same as columns of B
+		static_assert(A::cols() == B::rows(),
+			"\n\n" __FUNCSIG__ "\n");
+		// R must be rows of A x cols of B
+		static_assert(R::rows() == A::rows(),
+			"\n\n" __FUNCSIG__ "\n");
+		static_assert(R::cols() == B::cols(),
+			"\n\n" __FUNCSIG__ "\n");
+
+		::dbj::arr::multiply
+			< A::value_type, A::rows(), A::cols(), B::cols() >
+		(A::data_, B::data_, R::data_);
+	}
 
 #pragma warning( pop )
 

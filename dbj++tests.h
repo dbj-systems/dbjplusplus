@@ -18,7 +18,7 @@
 // #define dbj_kalends_test   
 #define dbj_string_util_test   
 #define dbj_string_tests   
-// #define dbj_static_matrix_test 
+#define dbj_static_matrix_test 
 #define dbj_any_optional_tests
 
 
@@ -62,7 +62,7 @@
 #include "test\dbj_string_tests.h"  
 #endif
 #ifdef dbj_static_matrix_test   
-#include "test\dbj_static_matrix_test.h  
+#include "test\dbj_static_matrix_test.h"  
 #endif
 
 #ifdef dbj_core_tests   
