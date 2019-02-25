@@ -105,13 +105,13 @@ namespace dbj::arr {
 		a large array on the stack to be created
 		*/
 	>
-		class compile_time_stack_matrix final
+		class stack_matrix final
 	{
 	public:
 		using uid_type = std::uint64_t;
 		// 'type' is like a 'this' for static template instances
 		// without it code bellow will be much more complex
-		using type = compile_time_stack_matrix;
+		using type = stack_matrix;
 		/*	we also clean const and volatile if used "by accident" */
 		using value_type = std::remove_cv_t<T>;
 		using matrix_type = value_type[R][C];
@@ -129,12 +129,12 @@ namespace dbj::arr {
 		*/
 		static_assert(
 			(R * C * sizeof(value_type)) < /* = */ MAXSIZE,
-			"Total size of compile_time_stack_matrix must not exceed 0xFFFF (65536) bytes"
+			"Total size of stack_matrix must not exceed 0xFFFF (65536) bytes"
 			);
 
 		static_assert(
 			std::is_pod_v<value_type>,
-			"compile_time_stack_matrix can be made out of POD types only"
+			"stack_matrix can be made out of POD types only"
 			);
 
 		/*
@@ -153,9 +153,9 @@ namespace dbj::arr {
 		/*
 		please make sure you do understand how this makes for template definition
 		wide uid, because it is a template parameter.
-		compile_time_stack_matrix<int,4,4,0>
+		stack_matrix<int,4,4,0>
 		is different type vs
-		compile_time_stack_matrix<int,4,4,1>
+		stack_matrix<int,4,4,1>
 
 		thus: if not for the last parameter, all the stack matrices of the same size 
 		and type will share the same data. 
@@ -177,13 +177,13 @@ namespace dbj::arr {
 		construcotr is largely irrelevant for anything but
 		sanity cheks of the implementation
 		*/
-		constexpr explicit compile_time_stack_matrix()
+		constexpr explicit stack_matrix()
 		{
 			static_assert(2 == std::rank_v  <  matrix_type   >);
 			static_assert(R == std::extent_v< matrix_type, 0 >);
 			static_assert(C == std::extent_v< matrix_type, 1 >);
 		}
-		~compile_time_stack_matrix() { }
+		~stack_matrix() { }
 
 		/*
 		Not returning pointer but reference
@@ -251,36 +251,69 @@ namespace dbj::arr {
 		template<typename A, typename B, typename R>
 		friend void stack_matrix_multiply();
 
-	}; // compile_time_stack_matrix<T,R,C,UID>
+	}; // stack_matrix<T,R,C,UID>
 
-	/*
-C11 code to multiply two matrices:
-https://codereview.stackexchange.com/questions/179043/matrix-multiplication-using-functions-in-c?answertab=active#tab-top
-	*/
+	namespace inner {
+		/*
+	C11 code to multiply two matrices:
+	https://codereview.stackexchange.com/questions/179043/matrix-multiplication-using-functions-in-c?answertab=active#tab-top
+		*/
 
-	/*
-	theory:
-	The definition of matrix multiplication is that:
-	if C = AB for an n × m matrix A and an m × p matrix B, then C is an n × p matrix 
-	https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm
-	*/
+		/*
+		theory:
+		The definition of matrix multiplication is that:
+		if C = AB for an n × m matrix A and an m × p matrix B, then C is an n × p matrix
+		https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm
+		*/
 
-	template<typename T, size_t N, size_t M, size_t P>
-	inline void multiply(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P])
-	{
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < P; j++) {
-				c[i][j] = 0;
-				for (int k = 0; k < M; k++) {
-					c[i][j] += a[i][k] * b[k][j];
+		template<typename T, size_t N, size_t M, size_t P>
+		inline void multiply(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P])
+		{
+			for (int i = 0; i < N; i++) {
+				for (int j = 0; j < P; j++) {
+					c[i][j] = 0;
+					for (int k = 0; k < M; k++) {
+						c[i][j] += a[i][k] * b[k][j];
+					}
 				}
 			}
+		}
+
+		// one notch above the most simple iterative algorithm above
+		// is the one bellow .. the recursive version
+		template<typename T, size_t N, size_t M, size_t P>
+		inline void multi_rx(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P])
+		{
+			// i and j are used to keep the current cell of 
+			// result matrix C[i][j]. k is used to keep the
+			// current column number of A[.][k] and row 
+			// number of B[k][.] to be multiplied 
+			static int i = 0, j = 0, k = 0;
+
+			// If all rows traversed. 
+			if (i >= N)
+				return;
+
+			// If i < N 
+			if (j < P)
+			{
+				if (k < M)
+				{
+					c[i][j] += a[i][k] * b[k][j];
+					k++;
+					multi_rx(a, b, c);
+				}
+				k = 0;	j++;
+				multi_rx(a, b, c);
+			}
+			j = 0;	i++;
+			multi_rx(a, b, c);
 		}
 	}
 	/*
 	  A[n][m] x B[m][p] = R[n][p]
 
-	compile_time_stack_matrix<T,R,C,UID> matrix is R x C matrix
+	stack_matrix<T,R,C,UID> matrix is R x C matrix
 	*/
 	template<typename A, typename B, typename R>
 	inline void stack_matrix_multiply()
@@ -299,8 +332,9 @@ https://codereview.stackexchange.com/questions/179043/matrix-multiplication-usin
 		static_assert(R::cols() == B::cols(),
 			"\n\n" __FUNCSIG__ "\n");
 
-		::dbj::arr::multiply
-			< A::value_type, A::rows(), A::cols(), B::cols() >
+		// ::dbj::arr::multiply
+		::dbj::arr::inner::multi_rx
+			/*< A::value_type, A::rows(), A::cols(), B::cols() >*/
 		(A::data_, B::data_, R::data_);
 	}
 
