@@ -1,6 +1,7 @@
 #pragma once
 
 // #include "dbj_string_util.h"
+#include "../util/dbj_string_compare.h"
 
 DBJ_TEST_SPACE_OPEN(dbj_string_util)
 
@@ -139,7 +140,6 @@ DBJ_TEST_UNIT(clasical_string_utils)
 	);
 }
 
-#include "../util/dbj_string_compare.h"
 
 DBJ_TEST_UNIT(optimal_buffer)
 {
@@ -156,6 +156,18 @@ DBJ_TEST_UNIT(optimal_buffer)
 	[[maybe_unused]]  auto[ptr, erc] = std::to_chars(buf.data(), buf.data() + buf.size(), LONG_MAX);
 
 	DBJ_TEST_ATOM(::dbj::dbj_ordinal_string_compareA(buf.data(), "42", true));
+
+	{
+		// string split testing
+		std::string required_state = "ABR A\f \n KA DAB\r RA\t \v";
+		std::string  test_input(
+			"        AAABBBBRRRR AAAA        \f \n KKKKAAAAA         DDDAAAABBB\r RRRRAAAA      \t         \v     "
+		);
+
+		DBJ_ATOM_TEST(::dbj::str::fast_string_split(required_state));
+		DBJ_ATOM_TEST(::dbj::str::fast_string_split(test_input));
+		DBJ_ATOM_TEST(::dbj::str::fast_string_split("Andra\nBabra\tKa Dabra\vKod\fPekara"));
+	}
 }
 
 DBJ_TEST_SPACE_CLOSE

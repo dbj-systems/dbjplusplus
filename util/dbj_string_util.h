@@ -43,11 +43,11 @@ namespace dbj::str {
 		int i = 0;
 		bool isNegative = false;
 
-		/* Handle 0 explicitely, otherwise empty string is printed for 0 */
+		/* Handle 0 explicitly, otherwise empty string is printed for 0 */
 		if (num == 0)
 		{
-			str[i++] = '0';
-			str[i] = '\0';
+			str[0] = '0';
+			str[1] = '\0';
 			return str;
 		}
 
@@ -888,6 +888,9 @@ on them types only
 			return output_;
 		}
 
+#if 0 
+		// 2019 FEB 26 REMOVED
+		// use dbj::fmt suite from the core
 		template <size_t BUFSIZ_ = 1024U, typename ... Args>
 		static std::wstring
 			format(wchar_t const * const message, Args ... args) noexcept
@@ -915,6 +918,7 @@ on them types only
 			_ASSERTE(-1 != R);
 			return { buffer };
 		}
+#endif
 	}; // str_util_
 
 	typedef str_util<wchar_t> str_util_wide;
@@ -947,6 +951,8 @@ on them types only
 		template<size_t size = 80>
 		constexpr inline std::string_view  char_line(const char filler = '-')
 		{
+			// feed the static string view ctor with data from a
+			// static std::array
 			static std::string_view the_line_(
 				[&]
 			{
@@ -989,6 +995,37 @@ on them types only
 		{
 			return 0 == val_.compare(0, mat_.size(), mat_);
 		}
+
+// https://github.com/fenbf/StringViewTests/blob/master/StringViewTest.cpp
+// works on pointers rather than iterators
+// code by JFT
+// DBJ: changed argument types to be string_view, not string
+// now this is even faster
+// DBJ: made it so that delims are the standard white space chars
+
+			inline ::dbj::string_vector fast_string_split(
+				const string_view & str,
+				const string_view & delims = " \t\v\n\r\f"
+			)
+			{
+				::dbj::string_vector output;
+				//output.reserve(str.size() / 2);
+
+				for (
+					auto first = str.data(), second = str.data(), last = first + str.size();
+					second != last && first != last;
+					first = second + 1)
+				{
+					second = std::find_first_of(
+						first, last, std::cbegin(delims), std::cend(delims)
+					);
+
+					if (first != second)
+						output.emplace_back(first, second);
+				}
+
+				return output;
+			}
 
 	} // str
 } // dbj

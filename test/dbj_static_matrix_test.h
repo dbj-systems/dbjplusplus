@@ -51,8 +51,8 @@ DBJ_TEST_UNIT(dbj_static_matrix_multiplication)
 	  Cols of A must be the same as rows of B
 	  R must be A rows x B cols
 	*/
-	using A = stack_matrix<int, 3,			3,			DBJ_UID >;
-	using B = stack_matrix<int, A::cols(),	3,			DBJ_UID >;
+	using A = stack_matrix<int, 0xF,		0xF,	DBJ_UID >;
+	using B = stack_matrix<int, A::cols(),	0xF,	DBJ_UID >;
 	using R = stack_matrix<int, A::rows(),	B::cols(),	DBJ_UID >;
 
 	A::for_each(filler);
@@ -61,6 +61,39 @@ DBJ_TEST_UNIT(dbj_static_matrix_multiplication)
 	stack_matrix_multiply<A, B, R>();
 
 	R::printarr(::dbj::console::print);
+
+	std::reference_wrapper<int[A::rows()][A::cols()]> ref_a = std::ref(A::data());
+	A::matrix_ref_type mr_a = ref_a;
+
+	std::reference_wrapper<int[B::rows()][B::cols()]> ref_b = std::ref(B::data());
+	B::matrix_ref_type mr_b = ref_b;
+
+	std::reference_wrapper<int[R::rows()][R::cols()]> ref_r = std::ref(R::data());
+	R::matrix_ref_type mr_r = ref_r;
+
+	::dbj::console::print("\nRezut is checked by freivald to be: ", ::dbj::arr::inner::freivald(mr_a, mr_b, mr_r) );
+}
+
+DBJ_TEST_UNIT(naked_static_matrix) 
+{
+	using ::dbj::console::print;
+
+	int A[][3] = { {1,1,1},{1,1,1},{1,1,1} };
+	int B[][3] = { {1,1,1},{1,1,1},{1,1,1} };
+	int C[][3] = { {0,0,0},{0,0,0},{0,0,0} };
+
+	::dbj::arr::inner::multiply(A, B, C);
+	::dbj::console::print("\nresult:\n");
+	::dbj::console::print("\n", C[0]);
+	::dbj::console::print("\n", C[1]);
+	::dbj::console::print("\n", C[2]);
+
+	auto times = 0xFF;
+	print("\n\nNow we will ask Freivald ", times, ", times to check this result...\n");
+	for (int j = 0; j < times; j++) 
+	{
+		print("\nRezut is checked by freivald to be: ", ::dbj::arr::inner::freivald(A, B, C));
+	}
 }
 
 DBJ_TEST_UNIT(dbj_static_matrix) {

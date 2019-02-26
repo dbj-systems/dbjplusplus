@@ -154,7 +154,7 @@ namespace dbj::arr {
 		we add the last param and thus we have two different types, and keep them separate
 		*/
 		static constexpr const uid_type  uuid() { return UID_; }
-		static constexpr char const * type_name() { return typeid(matrix_type).name(); }
+		static constexpr char const * type_name() { return typeid(type).name(); }
 		static constexpr size_t rows() noexcept { return R; };
 		static constexpr size_t cols() noexcept { return C; };
 		static constexpr size_t size() noexcept {
@@ -229,7 +229,7 @@ namespace dbj::arr {
 		template<typename F>
 		constexpr static void printarr(F print)
 		{
-			print("\n", type::type_name());
+			print("\n", type::type_name(), "\n");
 			for (int r = 0; r < R; r++)
 			{
 				print("\n{ ");
@@ -274,6 +274,9 @@ namespace dbj::arr {
 
 		// one notch above the most simple iterative algorithm above
 		// is the one bellow .. the recursive version
+		// the only problem is it is very easily throwing a stack overflow
+		// so it is not used and in here is just as my tumbstone devoted to
+		// those developers falled going for easy optimisations
 		template<typename T, size_t N, size_t M, size_t P>
 		inline void multi_rx(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P])
 		{
@@ -401,7 +404,7 @@ namespace dbj::arr {
 			"\n\n" __FUNCSIG__ "\n");
 
 		/* template arguments are: < A::value_type, A::rows(), A::cols(), B::cols() >*/
-		::dbj::arr::inner::multi_rx(A::data_, B::data_, R::data_);
+		::dbj::arr::inner::multiply(A::data_, B::data_, R::data_);
 	}
 
 #pragma warning( pop )
