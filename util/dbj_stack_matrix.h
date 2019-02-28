@@ -3,8 +3,9 @@
 #include "../win/dbj_uuid.h"
 /*
 
-Why this?
----------
+Why this? Consider ...
+----------------------
+
 T[][N] would be called "array of array [N] of T" and be an incomplete matrix_type,
 while T[][] would be an invalid matrix_type (all except the last dimensions
 must have a known size).
@@ -57,21 +58,21 @@ This is certianly better memory layout but equaly certainly more
 computation intensive.
 
 We can now have lambdas return lvalue references, which can make things
-a little more user friendly:
+a (much) more user friendly:
 
 constexpr size_t num_cols = 0xF ;
 constexpr size_t num_rows = 0xF ;
 auto one_dim_array = new int[num_rows * num_cols];
-auto two_dim_elmnt = [num_cols, &one_dim_array](size_t row, size_t col) -> int&
+auto two_mtx_elmnt = [num_cols, &one_dim_array](size_t row, size_t col) -> int&
 {
    return one_dim_array[row*num_cols + col];
 }
-Use like :	 two_dim_elmnt(i, j) = 5
+Use like :	 two_mtx_elmnt(i, j) = 5
 Really just like modern macros. Could be the fastest solution.
 
 A bit of a conceptual and practila mess, this is ..
 
-Thus from mehere is the all stack all static almost-a-pod variant.
+Thus, from me, here is the all stack all static almost-a-pod variant.
 In a standard C++ way.
 */
 

@@ -28,7 +28,7 @@ DBJ_TEST_SPACE_CLOSE
 */
 
 #include "../core/dbj_synchro.h"
-// #include "dbj_micro_log.h"
+#include "../core/dbj_format.h"
 #include "../util/dbj_string_util.h"
 
 namespace dbj {

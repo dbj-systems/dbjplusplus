@@ -2,149 +2,239 @@
 #include "../dbj_gpl_license.h"
 #include "../util/dbj_stack_matrix.h"
 #include "../testfwork/dbj_testing.h"
+#include "../console/dbj_console_ops.h"
 
-DBJ_TEST_SPACE_OPEN(dbj_stack_matrix)
+namespace dbj_stack_matrix_testing {
 
-using namespace ::dbj::arr;
+	using namespace ::dbj::arr;
 
-template< typename MX, typename T >
-inline void test_mx(T new_val)
-{
-	dbj::console::print("\n ID: ", MX::uuid(), ", size: ", MX::size(), ", rank: ", MX::rank());
-	// can update this way -- auto & mx = MX::data() ; mx[1][1] = T(1);
-	// or this way -- MX::data(1, 1) = T(1) ;
-	// or this way
-	MX::for_each(
-		[&](typename MX::value_type & val, size_t r, size_t c)
-		->bool
+	template< typename MX, typename T >
+	inline void test_mx(T new_val)
 	{
-		val = new_val++;
-		noexcept(r, c); //dummy usage to pacify msvc
-		return true; // proceed
+		dbj::console::print("\n ID: ", MX::uuid(), ", size: ", MX::size(), ", rank: ", MX::rank());
+		// can update this way -- auto & mx = MX::data() ; mx[1][1] = T(1);
+		// or this way -- MX::data(1, 1) = T(1) ;
+		// or this way
+		MX::for_each(
+			[&](typename MX::value_type & val, size_t r, size_t c)
+			->bool
+		{
+			val = new_val++;
+			noexcept(r, c); //dummy usage to pacify msvc
+			return true; // proceed
+		}
+		);
+		MX::printarr(dbj::console::print);
 	}
-	);
-	MX::printarr(dbj::console::print);
-}
 
-template< typename MX>
-inline MX test_mx_arg_retval(MX the_mx)
-{
-	// leave the trace
-	the_mx.data(
-		the_mx.rows() - size_t(1),
-		the_mx.cols() - size_t(1)
-	) = typename MX::value_type(1234);
-	return the_mx;
-}
-
-DBJ_TEST_UNIT(dbj_static_matrix_multiplication) 
-{
-	// for_each() callback type
-	// bool(*)(value_type &, size_t, size_t);
-	auto filler = []( auto & val_, size_t col, size_t row) -> bool {
-		val_ = int(1); // int(col + row);
-		return true;
-	};
-	/*
-	  A[n][m] x B[m][p] = R[n][p]
-	  stack_matrix<T,R,C,UID> matrix is R x C matrix
-	  Cols of A must be the same as rows of B
-	  R must be A rows x B cols
-	*/
-	using A = stack_matrix<int, 0xF,		0xF,	DBJ_UID >;
-	using B = stack_matrix<int, A::cols(),	0xF,	DBJ_UID >;
-	using R = stack_matrix<int, A::rows(),	B::cols(),	DBJ_UID >;
-
-	A::for_each(filler);
-	B::for_each(filler);
-
-	stack_matrix_multiply<A, B, R>();
-
-	R::printarr(::dbj::console::print);
-
-	std::reference_wrapper<int[A::rows()][A::cols()]> ref_a = std::ref(A::data());
-	A::matrix_ref_type mr_a = ref_a;
-
-	std::reference_wrapper<int[B::rows()][B::cols()]> ref_b = std::ref(B::data());
-	B::matrix_ref_type mr_b = ref_b;
-
-	std::reference_wrapper<int[R::rows()][R::cols()]> ref_r = std::ref(R::data());
-	R::matrix_ref_type mr_r = ref_r;
-
-	::dbj::console::print("\nRezut is checked by freivald to be: ", ::dbj::arr::inner::freivald(mr_a, mr_b, mr_r) );
-}
-
-DBJ_TEST_UNIT(naked_static_matrix) 
-{
-	using ::dbj::console::print;
-
-	int A[][3] = { {1,1,1},{1,1,1},{1,1,1} };
-	int B[][3] = { {1,1,1},{1,1,1},{1,1,1} };
-	int C[][3] = { {0,0,0},{0,0,0},{0,0,0} };
-
-	::dbj::arr::inner::multiply(A, B, C);
-	::dbj::console::print("\nresult:\n");
-	::dbj::console::print("\n", C[0]);
-	::dbj::console::print("\n", C[1]);
-	::dbj::console::print("\n", C[2]);
-
-	auto times = 0xFF;
-	print("\n\nNow we will ask Freivald ", times, ", times to check this result...\n");
-	for (int j = 0; j < times; j++) 
+	template< typename MX>
+	inline MX test_mx_arg_retval(MX the_mx)
 	{
-		print("\nRezut is checked by freivald to be: ", ::dbj::arr::inner::freivald(A, B, C));
+		// leave the trace
+		the_mx.data(
+			the_mx.rows() - size_t(1),
+			the_mx.cols() - size_t(1)
+		) = typename MX::value_type(1234);
+		return the_mx;
 	}
-}
 
-DBJ_TEST_UNIT(dbj_static_matrix) {
+	DBJ_TEST_UNIT(dbj_static_matrix_multiplication)
+	{
+		// for_each() callback type
+		// bool(*)(value_type &, size_t, size_t);
+		auto filler = [](auto & val_, size_t col, size_t row) -> bool {
+			val_ = int(1); // int(col + row);
+			return true;
+		};
+		/*
+		  A[n][m] x B[m][p] = R[n][p]
+		  stack_matrix<T,R,C,UID> matrix is R x C matrix
+		  Cols of A must be the same as rows of B
+		  R must be A rows x B cols
+		*/
+		using A = stack_matrix<int, 0xF, 0xF, DBJ_UID >;
+		using B = stack_matrix<int, A::cols(), 0xF, DBJ_UID >;
+		using R = stack_matrix<int, A::rows(), B::cols(), DBJ_UID >;
 
-	constexpr size_t R = 3, C = 3;
+		A::for_each(filler);
+		B::for_each(filler);
 
-	// dbj static matrix solution
-	// NOTE! bellow are two different types 
-	// since DBJ_UID produces two different UID's
-	// NOTE! do not try or test DBJ_UID in a loop as that
-	// makes all the uid's to be the same; as DBJ_UID
-	// is replaced with a value only once and first, by a pre-processor
-	using mx9a = stack_matrix<int, R, C, DBJ_UID >;
-	using mx9b = stack_matrix<int, R, C, DBJ_UID >;
+		stack_matrix_multiply<A, B, R>();
+		R::printarr(::dbj::console::print);
+	}
 
-	_ASSERTE(mx9a::uuid() != mx9b::uuid());
+	DBJ_TEST_UNIT(using_dbj_static_matrix_as_storage)
+	{
+		// create storage for 3 int 3 x 3 matrices
+		using A = stack_matrix<int, 3, 3, DBJ_UID >;
+		using B = stack_matrix<int, 3, 3, DBJ_UID >;
+		using R = stack_matrix<int, 3, 3, DBJ_UID >;
+		// write into the matrices
+		A::data()[0][0] = 42;	A::data()[1][1] = 42;	A::data()[2][2] = 42;
+		B::data()[0][0] = 42;	B::data()[1][1] = 42;	B::data()[2][2] = 42;
 
-	test_mx<mx9a>(0);
-	test_mx<mx9b>(100);
+		// lets asume and imagine our internal multiplication function is 
+		// some external lib function
+		//	template<typename T, size_t N, size_t M, size_t P>
+		//	inline void multiply(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P]);
+		// we want to use but with the data kept inside dbj static matrix
+		// we can do it in a round-about way
+		std::reference_wrapper<int[A::rows()][A::cols()]> ref_a = std::ref(A::data());
+		A::matrix_ref_type mr_a = ref_a;
 
-	// instances are ok but perfectly
-	// redundant in this context
-	mx9a mxa = test_mx_arg_retval(mx9a());
-	mx9b mxb = test_mx_arg_retval(mx9b());
+		std::reference_wrapper<int[B::rows()][B::cols()]> ref_b = std::ref(B::data());
+		B::matrix_ref_type mr_b = ref_b;
 
-	mxa.printarr(dbj::console::print);
-	mxb.printarr(dbj::console::print);
-}
+		std::reference_wrapper<int[R::rows()][R::cols()]> ref_r = std::ref(R::data());
+		R::matrix_ref_type mr_r = ref_r;
 
+		::dbj::arr::inner::multiply(mr_a, mr_b, mr_r);
 
-DBJ_TEST_UNIT(cpp_dynamic_arrays)
-{
+		// or in a silly easy way
+		::dbj::arr::inner::multiply(A::data(), B::data(), R::data());
+
+	}
+
+	DBJ_TEST_UNIT(native_matrix_using_dbj_arr_space)
+	{
+		using ::dbj::console::print;
+
+		int A[][3] = { {1,1,1},{1,1,1},{1,1,1} };
+		int B[][3] = { {1,1,1},{1,1,1},{1,1,1} };
+		int C[][3] = { {0,0,0},{0,0,0},{0,0,0} };
+
+		::dbj::arr::inner::multiply(A, B, C);
+		print("\nresult:\n");
+		print("\n", C[0]);
+		print("\n", C[1]);
+		print("\n", C[2]);
+
+	}
+
+	DBJ_TEST_UNIT(dbj_static_matrix) {
+
+		constexpr size_t R = 3, C = 3;
+
+		// dbj static matrix solution
+		// NOTE! bellow are two different types 
+		// since DBJ_UID produces two different UID's
+		// NOTE! do not try or test DBJ_UID in a loop as that
+		// makes all the uid's to be the same; as DBJ_UID
+		// is replaced with a value only once and first, by a pre-processor
+		using mx9a = stack_matrix<int, R, C, DBJ_UID >;
+		using mx9b = stack_matrix<int, R, C, DBJ_UID >;
+
+		_ASSERTE(mx9a::uuid() != mx9b::uuid());
+
+		test_mx<mx9a>(0);
+		test_mx<mx9b>(100);
+
+		// instances are ok but perfectly
+		// redundant in this context
+		mx9a mxa = test_mx_arg_retval(mx9a());
+		mx9b mxb = test_mx_arg_retval(mx9b());
+
+		mxa.printarr(::dbj::console::print);
+		mxb.printarr(::dbj::console::print);
+	}
 	/*
-	for dynamic solution I will use std share_ptr as bellow
+		This is certainly better memory layout but equaly certainly more
+		computation intensive.
+
+		We can now have lambdas return lvalue references, which can make things
+		a (much) more user friendly. This could be the fastest solution.
 	*/
-	constexpr size_t R = 3;
-	constexpr size_t C = 3;
-	// shared pointer based solution
-	using matriq = std::shared_ptr<int[R][C]>;
-	matriq m3(new int[R][C]{ {1,2,3},{1,2,3},{1,2,3} });
-	m3.get()[1][1] = 42;
-	// printarr((int(&)[R][C])(*m3.get()));
+	namespace dbj::mtx
+	{
+		constexpr unsigned short max_cols = 0xFF;
+		constexpr unsigned short max_rows = 0xFF;
 
-	// shared pointer based *faster* solution
-	using matriq2 = std::shared_ptr<int[]>;
-	matriq2 m32(new int[R * C]{ 1,2,3,1,2,3,1,2,3 });
-	int r = 1, c = 1;
-	// *(m32.get() + r * C + c) = 42;
-	m32.get()[(r * C + c)] = 42;
-	// printarr((int(&)[R][C])(*m32.get()));
-}
+		template<typename T>
+		auto mtx(unsigned short rows_, unsigned short columns_)
+		{
+			static_assert(std::is_arithmetic_v <T>, "\n\nstatic assert in:\n\n" __FUNCSIG__ "\n\n\tOnly numbers please!\n\n");
 
-DBJ_TEST_SPACE_CLOSE
+			assert(columns_ <= max_cols);
+			assert(rows_ <= max_rows);
 
+			// question is when is this going out of scope?
+			auto arry = std::shared_ptr<T[]>(new T[rows_ * columns_]);
+
+			return [arry, rows_, columns_](size_t row_, size_t col_) -> T&
+			{
+				return arry[row_ * columns_ + col_];
+			};
+		}
+
+		auto for_each_cell = []
+		(unsigned short rows_, unsigned short columns_,
+			auto & mtx_, auto const & visitor_
+		)
+		{
+			assert(columns_ <= max_cols);
+			assert(rows_ <= max_rows);
+
+			for (auto j = 0; j < rows_; j++)
+				for (auto k = 0; k < columns_; k++)
+				{
+					if (false == visitor_(mtx_(j, k), j, k)) return;
+				}
+		};
+	} // mtx
+
+	DBJ_TEST_UNIT(dbj_lambda_arrays)
+	{
+		using namespace dbj::mtx;
+		using ::dbj::console::print;
+
+		// auto mx_max = mtx<int>(0xFF, 0xFF); // max size
+
+		auto R = 3, C = 3;
+
+		auto mx_1 = mtx<int>(R, C);
+		auto mx_2 = mtx<int>(R, C);
+		auto mx_3 = mtx<int>(R, C);
+
+		// population
+		auto put42 = [](auto & val_, auto row, auto cel) -> bool
+		{
+			val_ = 42;	return true;
+		};
+		for_each_cell(R, C, mx_1, put42) ;
+		for_each_cell(R, C, mx_2, put42) ;
+
+		// addition
+		auto adder_visitor = [&](auto & val_, auto row, auto cel) -> bool
+		{
+			mx_3(row, cel) = mx_1(row, cel) + mx_2(row, cel);
+			return true;
+		};
+
+		for_each_cell(R, C, mx_3, adder_visitor);
+
+		// display
+			auto printer_visitor = [R,C](auto & val_, short row, short col) 
+			{
+				using ::dbj::console::print;
+				static int col_counter_ = 1;
+				if ((0 == row)  && (0 == col) )	print("\ndbj::mtx {");
+				if (0 == (col % C ))	print("\n\t{");
+					// full display: print(" [", row,",",col,"] = ",val_, " ");
+					print(" ",val_, " ");
+				if ( 0 == ( col_counter_ % C)) print("}");
+				if ((R == row+1) && (C == col+1))	print("\n}\n");
+				col_counter_++;
+				return true;
+			};
+
+		print("\nMX 1");
+		for_each_cell(R, C, mx_1, printer_visitor);
+
+		print("\nMX 2");
+		for_each_cell(R, C, mx_2, printer_visitor);
+
+		print("\nMX 3");
+		for_each_cell(R, C, mx_3, printer_visitor);
+	}
+
+} // namespace dbj_stack_matrix_testing 

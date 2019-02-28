@@ -160,9 +160,11 @@ DBJ_TEST_UNIT(dbj_light_buffer_measure) {
 	print( measure(naked_unique_ptr, buffer_size), " ms. \tunique_ptr<char[]>\n");
 	print( measure(dbj_buffer, buffer_size), " ms. \tdbj char buffer\n");
 	print( measure(vector_buffer, buffer_size), " ms. \tstd::vector\n" );
-	print( measure(vector_buffer_zallocator, buffer_size), " ms. \tzallocator + std::vector\n");
+	// print( measure(vector_buffer_zallocator, buffer_size), " ms. \tzallocator + std::vector\n");
 	print( measure(string_buffer, buffer_size), " ms. \tstd::string\n");
-	print( measure(string_buffer_zallocator, buffer_size), " ms. \tzallocator + std::string\n\n");
+	// print( measure(string_buffer_zallocator, buffer_size), " ms. \tzallocator + std::string\n\n");
+
+	// extremely slow with zAllocator
 	
 	system("@pause");
 	system("@echo.");
