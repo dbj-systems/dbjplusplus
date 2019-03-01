@@ -12,6 +12,22 @@ namespace dbj {
 	namespace core {
 		namespace util {
 
+			// this is *very* tricky to het right
+			template<typename T>
+			constexpr T midpoint(T a, T b) noexcept 
+			{
+				// only numbers please
+				static_assert( std::is_arithmetic_v<T> );
+
+				return T((a) + ((b) - (a)) / 2);
+			}
+
+			// as per http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0811r2.html
+			constexpr int midpoint(int a, int b) noexcept {
+				using U = make_unsigned_t<int>;
+				return int(U(a) + (U(b) - U(a)) / 2);
+			}
+
 			// replaced the use of 
 			// std::string with buf_type
 			// everywhere in this file

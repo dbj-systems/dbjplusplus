@@ -9,7 +9,7 @@
 // #define dbj_commander_test   
 // #define dbj_console_test   
 // #define dbj_crt_testing 
-// #define dbj_core_tests
+#define dbj_core_tests
 // #define dbj_defval_testing   
 // #define dbj_kv_store_test   
 // #define dbj_array_testing   

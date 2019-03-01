@@ -126,7 +126,7 @@ namespace inner {
 	}
 
 	/*
-	measure the perofrmance of making/destroying three kinds of buffers
+	measure the performance of making/destroying three kinds of buffers
 	dbj buf, dbj buffer and vector<char>
 	size of the buffers is user defined 
 	*/

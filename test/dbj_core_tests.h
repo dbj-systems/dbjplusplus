@@ -43,6 +43,16 @@ DBJ_TEST_UNIT(core_utils)
 	using namespace ::dbj::fmt;
 	using namespace ::std::string_view_literals;
 
+	{
+		// mid value
+		// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0811r2.html
+		DBJ_TEST_ATOM( ::dbj::core::util::midpoint(3.3f, 7.7f ) );
+		DBJ_TEST_ATOM( ::dbj::core::util::midpoint(3.3, 7.7 ) );
+		DBJ_TEST_ATOM( ::dbj::core::util::midpoint(3U, 7U ) );
+		DBJ_TEST_ATOM( ::dbj::core::util::midpoint(3l, 7l ) );
+		// and so on ... numbers only
+	}
+
 	// uses u::TIME_STAMP_SIMPLE_MASK by default
 	DBJ_ATOM_TEST(u::make_time_stamp(ec_, u::TIME_STAMP_SIMPLE_MASK));
 	DBJ_ATOM_TEST(ec_);

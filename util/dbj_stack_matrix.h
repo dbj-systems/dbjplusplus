@@ -70,7 +70,7 @@ auto two_mtx_elmnt = [num_cols, &one_dim_array](size_t row, size_t col) -> int&
 Use like :	 two_mtx_elmnt(i, j) = 5
 Really just like modern macros. Could be the fastest solution.
 
-A bit of a conceptual and practila mess, this is ..
+A bit of a conceptual and practical mess, this is ..
 
 Thus, from me, here is the all stack all static almost-a-pod variant.
 In a standard C++ way.
@@ -137,17 +137,17 @@ namespace dbj::arr {
 		inline static value_type data_[R][C]{};
 
 		/*
-		IMPOTANT: this is R x C matrix
+		IMPORTANT: this is R x C matrix
 		*/
 
 	public:
 		/*
-		since it is static we must implement some mechinsm so that
-		every definition does NOT share this same 2d native array
+		we must implement some mechinsm so that
+		every type definition does NOT share this same 2d native array
 		this is the role of the UID__ template parameter
 
 		please make sure you do understand how this makes for template definition
-		wide uid, because it is a template parameter.
+
 		typeof  stack_matrix<int,4,4,0> != typeof stack_matrix<int,4,4,1>
 
 		thus: if not for the last parameter, all the stack matrices of the same size
