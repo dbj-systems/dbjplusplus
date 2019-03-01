@@ -7,11 +7,12 @@
 namespace dbj_stack_matrix_testing {
 
 	using namespace ::dbj::arr;
+	using ::dbj::console::print;
 
 	template< typename MX, typename T >
 	inline void test_mx(T new_val)
 	{
-		dbj::console::print("\n ID: ", MX::uuid(), ", size: ", MX::size(), ", rank: ", MX::rank());
+		print("\n ID: ", MX::uuid(), ", size: ", MX::weight(), ", rank: ", MX::rank());
 		// can update this way -- auto & mx = MX::data() ; mx[1][1] = T(1);
 		// or this way -- MX::data(1, 1) = T(1) ;
 		// or this way
@@ -32,8 +33,8 @@ namespace dbj_stack_matrix_testing {
 	{
 		// leave the trace
 		the_mx.data(
-			the_mx.rows() - size_t(1),
-			the_mx.cols() - size_t(1)
+			the_mx.height() - size_t(1),
+			the_mx.width() - size_t(1)
 		) = typename MX::value_type(1234);
 		return the_mx;
 	}
@@ -49,12 +50,12 @@ namespace dbj_stack_matrix_testing {
 		/*
 		  A[n][m] x B[m][p] = R[n][p]
 		  stack_matrix<T,R,C,UID> matrix is R x C matrix
-		  Cols of A must be the same as rows of B
-		  R must be A rows x B cols
+		  Cols of A must be the same as height of B
+		  R must be A height x B width
 		*/
 		using A = stack_matrix<int, 0xF, 0xF, DBJ_UID >;
-		using B = stack_matrix<int, A::cols(), 0xF, DBJ_UID >;
-		using R = stack_matrix<int, A::rows(), B::cols(), DBJ_UID >;
+		using B = stack_matrix<int, A::width(), 0xF, DBJ_UID >;
+		using R = stack_matrix<int, A::height(), B::width(), DBJ_UID >;
 
 		A::for_each(filler);
 		B::for_each(filler);
@@ -79,13 +80,13 @@ namespace dbj_stack_matrix_testing {
 		//	inline void multiply(T(&a)[N][M], T(&b)[M][P], T(&c)[N][P]);
 		// we want to use but with the data kept inside dbj static matrix
 		// we can do it in a round-about way
-		std::reference_wrapper<int[A::rows()][A::cols()]> ref_a = std::ref(A::data());
+		std::reference_wrapper<int[A::height()][A::width()]> ref_a = std::ref(A::data());
 		A::matrix_ref_type mr_a = ref_a;
 
-		std::reference_wrapper<int[B::rows()][B::cols()]> ref_b = std::ref(B::data());
+		std::reference_wrapper<int[B::height()][B::width()]> ref_b = std::ref(B::data());
 		B::matrix_ref_type mr_b = ref_b;
 
-		std::reference_wrapper<int[R::rows()][R::cols()]> ref_r = std::ref(R::data());
+		std::reference_wrapper<int[R::height()][R::width()]> ref_r = std::ref(R::data());
 		R::matrix_ref_type mr_r = ref_r;
 
 		::dbj::arr::inner::multiply(mr_a, mr_b, mr_r);

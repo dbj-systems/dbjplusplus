@@ -130,6 +130,16 @@ static_assert(compiletime_string_view_constant == "compile time" );
 
 namespace dbj {
 
+#ifndef ssize_t
+#define ssize_t signed long
+#endif
+
+	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1227r1.html
+	// dbj: this is dubious
+	ssize_t ssize( std::size_t signed_size ) {
+		return static_cast<ssize_t>(signed_size);
+	}
+
 	using namespace ::std;
 	using namespace ::std::string_view_literals;
 
