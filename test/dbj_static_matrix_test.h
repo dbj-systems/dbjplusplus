@@ -146,33 +146,49 @@ namespace dbj_stack_matrix_testing {
 	*/
 	namespace dbj::mtx
 	{
-		constexpr unsigned short max_cols = 0xFF;
-		constexpr unsigned short max_rows = 0xFF;
+		constexpr unsigned short max_width = 0xFF;
+		constexpr unsigned short max_height = 0xFF;
 
 		template<typename T>
-		auto mtx(unsigned short rows_, unsigned short columns_)
+		auto mtx(unsigned short height_, unsigned short width_)
 		{
+#ifdef _MSC_VER
 			static_assert(std::is_arithmetic_v <T>, "\n\nstatic assert in:\n\n" __FUNCSIG__ "\n\n\tOnly numbers please!\n\n");
+#else
+			static_assert(std::is_arithmetic_v <T>, "\n\nstatic assert in: dbj::mtx::mtx()\t\nOnly numbers please!\n\n");
+#endif
+			DBJ_VERIFY(width_ <= max_width);
+			DBJ_VERIFY(height_ <= max_height);
 
-			assert(columns_ <= max_cols);
-			assert(rows_ <= max_rows);
-
-			// question is when is this going out of scope?
-			auto arry = std::shared_ptr<T[]>(new T[rows_ * columns_]);
-
-			return [arry, rows_, columns_](size_t row_, size_t col_) -> T&
+			return [
+				arry = std::make_unique<T[]>(height_ * width_), height_, width_
+			]
+			(size_t row_, size_t col_) mutable->T&
 			{
-				return arry[row_ * columns_ + col_];
+					DBJ_VERIFY(row_ <= height_);
+					DBJ_VERIFY(col_ <= width_ );
+				// arry is moved into here
+				return arry[row_ * width_ + col_];
 			};
 		}
 
+		/*
+		visitor signature:
+
+		bool (*) (unsigned short rows_, unsigned short columns_,
+			auto & mtx_, auto const & visitor_);		
+
+			processing stops on false returned
+		*/
 		auto for_each_cell = []
 		(unsigned short rows_, unsigned short columns_,
 			auto & mtx_, auto const & visitor_
 		)
 		{
-			assert(columns_ <= max_cols);
-			assert(rows_ <= max_rows);
+			// not extremely usefull
+			// we do not know the dimension of the mtx_ 
+			DBJ_VERIFY(columns_ <= max_width);
+			DBJ_VERIFY(rows_ <= max_height);
 
 			for (auto j = 0; j < rows_; j++)
 				for (auto k = 0; k < columns_; k++)
