@@ -46,7 +46,7 @@ namespace dbj {
 			// time stamp size is max 22 + '\0'
 			// updates the ref to std::error_code argument accordingly
 			[[nodiscard]]
-			inline buf_type::pointer
+			inline typename buf_type::storage_t
 				make_time_stamp(
 					std::error_code & ec_,
 					char const * timestamp_mask_ = TIME_STAMP_SIMPLE_MASK
@@ -54,7 +54,7 @@ namespace dbj {
 			{
 				const size_t buf_len = 32U;
 				auto buffer_	= buf_type::make(buf_len);
-				char * buf = buffer_.get();
+				char * buf = buffer_.data();
 
 				ec_.clear();
 
@@ -83,7 +83,7 @@ namespace dbj {
 
 			/*	caller must check std::error_code ref arg	*/
 			[[nodiscard]] inline 
-				buf_type::pointer
+				buf_type::storage_t
 				dbj_get_envvar(std::string_view varname_, std::error_code & ec_ ) noexcept
 			{
 				_ASSERTE(!varname_.empty());
@@ -91,7 +91,7 @@ namespace dbj {
 				auto	bar = buf_type::make(buflen_);
 				ec_.clear(); // the OK 
 				::SetLastError(0);
-				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.get(), (DWORD)buflen_))
+				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.data(), (DWORD)buflen_))
 				{
 					ec_ = std::error_code(::GetLastError(), std::system_category());
 				}
@@ -99,7 +99,7 @@ namespace dbj {
 			}
 
 			/*	caller must check the ec_	*/
-			[[nodiscard]] inline buf_type::pointer
+			[[nodiscard]] inline buf_type::storage_t
 				program_data_path( std::error_code & ec_ ) noexcept
 			{
 					return dbj_get_envvar("ProgramData", ec_ );

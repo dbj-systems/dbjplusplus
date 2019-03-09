@@ -189,17 +189,22 @@ namespace dbj {
 		inline void terror
 		(char const * msg_, char const * file_, const unsigned line_)
 		{
-			assert(msg_ != nullptr);
-			assert(file_ != nullptr);
-			assert(line_ > 0);
-			::fprintf(stderr, "\n\ndbj++ Terminating ERROR:%s\n%s (%d)", msg_, file_, line_);
+			assert(msg_ != nullptr); assert(file_ != nullptr); assert(line_ > 0);
+			::fprintf(stderr, "\n\ndbj++ Terminating ERROR:%s\n\n%s (%d)\n\n", msg_, file_, line_);
+#ifdef _DEBUG
+#ifdef _MSC_VER
+			::system("@echo.");
+			::system("@pause");
+			::system("@echo.");
+#endif
+#endif
 			exit(EXIT_FAILURE);
 		}
 
 	} // nano
 
 // decades old VERIFY macro
-#define DBJ_VERIFY_(x, file, line ) if (false == (x) ) ::dbj::nano::terror( #x ", failed", file, line )
+#define DBJ_VERIFY_(x, file, line ) if (false == (x) ) ::dbj::nano::terror( "  " #x " , failed at", file, line )
 #define DBJ_VERIFY(x) DBJ_VERIFY_(x,__FILE__,__LINE__)
 
 

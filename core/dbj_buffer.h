@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
+#include <vector>
 
 /*
 	--------------------------------------------------------------------------------
@@ -36,20 +37,23 @@ namespace dbj {
 	namespace buf {
 
 		struct buffer final {
-
 			using smart_buf = typename ::dbj::buf::smart_buf<char>;
-
+			// yanb_t<CHAR>; aka
+			using storage_t = typename smart_buf::storage_t ;
 			using type = buffer;
 			using reference_type = type & ;
-
-			// alias for std::unique_ptr<char[]>
+			// this is the std::share_ptr<char>
 			using pointer = typename smart_buf::pointer ;
 
 			using value_type = typename smart_buf::value_type ;
 			using iterator = value_type * ;
+			using citerator = value_type const * ;
+		private:
+			inside_1_and_max  size_{}; // 0
+			storage_t data_{}; // size == 0
+		public:
 
 			// this is important
-			// default unique_ptr ctor leaves it made but in invalid state
 			bool valid() const noexcept { return this->data_.operator bool(); }
 
 			// allocated but empty yields true
@@ -57,21 +61,19 @@ namespace dbj {
 				return (valid() && this->data_[0] != '\0');
 			}
 
-			iterator data() const noexcept { 
-					return data_.get();
-			}
+			iterator data() noexcept { return data_.data();	}
+			citerator data() const noexcept { return data_.data();	}
 
-			size_t const & size() const noexcept { 
-					return this->size_;
-			}
+			size_t const & size() const noexcept { return this->size_;	}
+			size_t & size() noexcept { return this->size_;	}
 
 			// default 
 			buffer() : size_(0) { /* see the valid() comment above */ }
 
 			// sized but empty buffer
 			explicit buffer(inside_1_and_max new_size) noexcept
+				: size_(new_size)
 			{
-				this->reset(new_size);
 			}
 
 			// copy
@@ -87,17 +89,16 @@ namespace dbj {
 				}
 				return *this;
 			}
-			// move
-			// NOTE! it was found manualy (not compiler) implemented
+			// NOTE! it was found manualy implemented
 			// move in here, speeds up the moving by min 200%
 			buffer(buffer && another_) noexcept 	{
-				this->data_ = std::move(another_.data_);
+				this->data_ = another_.data_;
 				this->size_ = another_.size_;
 			}
 
 			buffer & operator = ( buffer && another_) noexcept {
 				if (&another_ != this) {
-					this->data_ = std::move(another_.data_);
+					this->data_ = another_.data_;
 					this->size_ = another_.size_;
 				}
 				return *this;
@@ -115,43 +116,42 @@ namespace dbj {
 
 			void assign(const buffer & another_) noexcept
 			{
-				this->reset(another_.size_);
-				
-				// std::copy(another_.begin(), another_.end(), this->begin());
-
-				std::memcpy(this->begin(), another_.begin(), this->size_);
+				this->data_ = another_.data_;
+				this->size_ = another_.size_;
 			}
 
 			void assign(char const * from_, char const * to_) noexcept
 			{
 				assert(from_ && to_);
-				this->reset(std::distance(from_, to_));
-				std::copy(from_, to_, this->begin());
+				this->size_ = (std::distance(from_, to_));
+				std::copy(from_, to_, this->data_.data());
 			}
 
-			void reset(inside_1_and_max new_size_) {
-				// (void)data_.release();
-				this->data_ = smart_buf::make(new_size_);
-				this->size_ = new_size_;
+			void assign(char const * from_ ) noexcept
+			{
+				assert(from_ );
+				this->size_ = std::strlen(from_);
+				this->data_.reset( from_ );
 			}
 
 			// notice the usage of the dbj::insider definition
 			// as  argument type
 			char & operator [] (inside_1_and_max idx_)
 			{
-				//  std::unique_ptr<T[]> has this operator
 				return data_[idx_];
 			}
 
+			// to be removed
+			[[deprecated]]
 			value_type ** const address() const noexcept {
-				auto p = std::addressof(data_[0]);
+				value_type * p = (value_type*)std::addressof(data_[0]);
 				return std::addressof(p);
 			}
 
-			iterator begin() noexcept { return data_.get(); }
-			iterator end()   noexcept { return data_.get() + size_; }
-			const iterator begin() const noexcept { return data_.get(); }
-			const iterator end()   const noexcept { return data_.get() + size_; }
+			iterator  begin() noexcept { return data_.data(); }
+			iterator  end()   noexcept { return data_.data() + size_; }
+			citerator begin() const noexcept { return data_.data(); }
+			citerator end()   const noexcept { return data_.data() + size_; }
 
 			value_type & front() noexcept { assert(valid()); return data_[0]; }
 			value_type & back()  noexcept { assert(valid()); return data_[size_-1]; }
@@ -169,7 +169,7 @@ namespace dbj {
 				return *this;
 			}
 
-			// to avoid "never releasing assign pointer" syndrome
+			// to avoid "never releasing smart pointer" syndrome
 			// we wil ban creation of this class on the heap
 			void* operator new(std::size_t sz) = delete;
 			void* operator new[](std::size_t sz) = delete;
@@ -178,18 +178,13 @@ namespace dbj {
 
 		private:
 
-			inside_1_and_max  size_{}; // 0
-			pointer data_{}; // size == 0
-
-//  buffer friends start here
+			//  buffer friends live here
 
 			friend std::string to_string(const reference_type from_) noexcept {
-				// this will not copy the whole buffer
 				return { from_.data() };
 			}
 
 			friend std::vector<char> to_vector(const reference_type from_) noexcept {
-				// this will not copy the whole buffer
 				std::string str_(from_.data());
 				return { str_.begin(), str_.end() };
 			}
@@ -203,20 +198,17 @@ namespace dbj {
 
 			friend void assign(reference_type target_, std::string str_)
 			{
-				// naughty ;)
-				target_.assign((char *)str_.data(), (char *)(str_.data() + str_.size()));
+				target_.assign( str_.c_str());
 			}
 
 			friend void assign(reference_type target_, dbj::string_view strvw_)
 			{
-				// naughty ;)
-				target_.assign((char *)strvw_.data(), (char *)(strvw_.data() + strvw_.size()));
+				target_.assign(strvw_.data());
 			}
 
 			friend void assign(reference_type target_, std::vector<char> charvec_)
 			{
-				// naughty ;)
-				target_.assign((char *)charvec_.data(), (char *)(charvec_.data() + charvec_.size()));
+				target_.assign(charvec_.data());
 			}
 
 			friend
@@ -231,11 +223,12 @@ namespace dbj {
 					right_.begin(), right_.end()
 				);
 			}
-
+#ifdef DBJ_BUFFERS_IOSTREAMS
 			friend std::ostream & operator << (std::ostream & os, buffer const & cb_)
 			{
-				return os << cb_.data_.get();
+				return os << cb_.data_.data();
 			}
+#endif
 #ifdef _WIN32
 		public:
 			struct wide_copy_result {
@@ -262,9 +255,10 @@ namespace dbj {
 				auto mbstowcs_errno = ::mbstowcs_s(
 					&rezult_size,
 					wp.get(), source_size_ + 1,
-					source_pointer_.get(), source_size_
+					source_pointer_.data(), source_size_
 				);
-				std::error_code ec{}; if (0 != mbstowcs_errno) {
+				std::error_code ec{}; // OK state
+				if (0 != mbstowcs_errno) {
 					ec = std::make_error_code(std::errc::invalid_argument);
 				}
 				return { ec, source_size_ , std::move(wp) };

@@ -29,7 +29,7 @@ namespace dbj {
 			return value.get() ;
 		}
 
-		inline char * frm_arg(  ::dbj::buf::buffer const & value) noexcept
+		inline char const * frm_arg(  ::dbj::buf::buffer const & value) noexcept
 		{
 			return value.data() ;
 		}
@@ -58,14 +58,14 @@ namespace dbj {
 		{
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
-			// 1: what is he size required
+			// 1: what is the size required
 			const size_t size = 1 + std::snprintf(nullptr, 0, fmt, frm_arg(args) ...);
 			// 2: use it at runtime
-			auto buf = std::make_unique<char[]>(size+1);
+			auto buf = std::make_unique<char[]>(size + 1);
 			// each arg becomes arg to the frm_arg() overload found
 			std::snprintf(buf.get(), size, fmt, frm_arg(args) ...);
 
-			return buf;
+			return dbj::buf::buff_pointer(buf.get());
 		}
 		// wide version
 		template<typename ... Args>
@@ -75,14 +75,14 @@ namespace dbj {
 		{
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
-			// 1: what is he size required
+			// 1: what is the size required
 			const size_t size = 1 + std::swprintf(nullptr, 0, fmt, frm_arg(args) ...);
 			// 2: use it at runtime
 			auto buf = std::make_unique<wchar_t[]>(size + 1);
 			// each arg becomes arg to the frm_arg() overload found
 			std::swprintf(buf.get(), size, fmt, frm_arg(args) ...);
 
-			return buf;
+			return dbj::buf::wbuff_pointer(buf.get());
 		}
 
 	template<typename ... Args>

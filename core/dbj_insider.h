@@ -1,8 +1,14 @@
 #pragma once
 namespace dbj {
 	namespace core {
-		namespace util {
-			/* no more repeated asserts == cleaner code, example:
+		namespace util 
+		{
+			/*
+			NOTE! This is run-time insider. It will not warn or work
+			at compile time!
+			--------------------------------------------------------
+			
+			no more repeated asserts == cleaner code, example:
 
 				using inside_42_and_max
 				   = insider<size_t, 42, BUFSIZ >;

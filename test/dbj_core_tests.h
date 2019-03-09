@@ -73,9 +73,9 @@ DBJ_TEST_UNIT(core_utils)
 	{
 		using u8arr = std::uint8_t[];
 		u8arr uar{ 0,1,2 };
-		std::unique_ptr<u8arr> smart_arr_;
+		std::shared_ptr<u8arr> smart_arr_;
 
-		assign(smart_arr_, uar);
+		smart_arr_.reset(uar);
 
 		print("\n\n%d\t%d\t%d"sv, smart_arr_[0], smart_arr_[1], smart_arr_[2]);
 

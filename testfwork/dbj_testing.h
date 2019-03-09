@@ -63,8 +63,7 @@ namespace dbj {
 				) noexcept
 					: ID(id_)
 					, TU(test_unit_)
-					, description( 
-						buffer::make( desc_ ) /* copy is made */)
+					, description( desc_ )
 				{
 				}
 
@@ -159,7 +158,7 @@ namespace dbj {
 
 			struct adder final {
 				inline auto operator ()(
-					std::unique_ptr<char[]> const & msg_, 
+					std::shared_ptr<char> const & msg_, 
 					testunittype tunit_ 
 					) const noexcept
 				{

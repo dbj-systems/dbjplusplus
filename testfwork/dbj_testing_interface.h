@@ -219,7 +219,7 @@ namespace dbj {
 		/// </code>
 		/// argument of the macro gets printed as a string and then
 		/// get's executed as a single expression 
-		/// of the lambda bodys
+		/// of the lambda body
 		/// whose return value is returned
 		/// </summary>
 		template<typename return_type>

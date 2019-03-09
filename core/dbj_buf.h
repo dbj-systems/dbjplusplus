@@ -14,11 +14,15 @@
 #include <cstddef>
 #include <cstring>
 
+// makes stremaing related operators 
+// on dbj buffer types
+// #ifdef DBJ_BUFFERS_IOSTREAMS
+
 // 2019-01-30	dbj@dbj.org	created
 //
 // char runtime dynamic buffer type
 // faster and lighter vs the usual suspects: string and vector
-// note: this is part of the core , thus we will try and absolutely minimise
+// note: this is part of the dbj++core , thus we will try and absolutely minimise
 // the dependancies  thus we will sometimes
 // reimplement things here which perhaps exist in other projects
 //
@@ -28,7 +32,162 @@
 namespace dbj {
 	namespace buf {
 
-		// plenty of space -- 65535
+#pragma region yanb (yet another buffer)
+
+		/*
+		Note: static_assert() will not kick-in before instantiation
+		of the template definition. Thus we use SFINAE to stop making
+		illegal types, from this template.
+		*/
+
+		template<
+			typename T,
+			std::enable_if_t<
+			std::is_same_v<char, T> ||
+			std::is_same_v<wchar_t, T>
+			, bool > = true
+		>
+			struct yanb_t final
+		{
+			using type = yanb_t;
+			using data_type = T;
+			using value_type = std::shared_ptr<data_type>;
+			using value_type_ref = std::reference_wrapper<value_type>;
+
+			struct inner final {
+
+				static void set_payload(
+					std::reference_wrapper< std::shared_ptr<char> > storage_ref,
+					char const * payload_
+				) {
+					assert(payload_ != nullptr);
+					storage_ref.get().reset(_strdup(payload_));
+				}
+
+				static void set_payload(
+					std::reference_wrapper< std::shared_ptr<wchar_t> > storage_ref,
+					wchar_t const * payload_
+				) {
+					assert(payload_ != nullptr);
+					storage_ref.get().reset(_wcsdup(payload_));
+				}
+				/*--------------------------------------------------------*/
+				static size_t length(
+					std::reference_wrapper< std::shared_ptr<char> > storage_ref
+				) {
+					assert(storage_ref.get());
+					return (std::strlen(storage_ref.get().get()));
+				}
+
+				static size_t length(
+					std::reference_wrapper< std::shared_ptr<wchar_t> > storage_ref
+				) {
+					assert(storage_ref.get());
+					return (std::wcslen(storage_ref.get().get()));
+				}
+
+			}; // inner
+
+			type & reset(data_type const * payload_)
+			{
+				inner::set_payload(this->data_, payload_);
+				return *this;
+			}
+
+			yanb_t(data_type const * payload_) {
+				inner::set_payload(this->data_, payload_);
+			}
+
+			size_t size() noexcept { return inner::length(this->data_); }
+			size_t size() const noexcept { return inner::length(this->data_); }
+
+			data_type * data() noexcept { return this->data_.get(); }
+			data_type const * data() const noexcept { return this->data_.get(); }
+
+			operator data_type * () noexcept { return this->data_.get(); }
+			operator data_type const * () const noexcept { return this->data_.get(); }
+
+			operator bool() noexcept { return data_.operator bool(); }
+			operator bool() const noexcept { return data_.operator bool(); }
+
+			yanb_t() = default;
+			yanb_t(yanb_t const &) = default;
+			yanb_t& operator = (yanb_t const &) = default;
+			yanb_t(yanb_t &&) = default;
+			yanb_t& operator = (yanb_t &&) = default;
+
+		private:
+			value_type data_{};
+
+#ifdef DBJ_BUFFERS_IOSTREAMS
+
+			/*
+			Careful, a big and recurring gotcha!
+			One can use both std::cout and std::wcout in one program.
+			Do not do that. The issue:
+
+			std::cout << yanb_t<wchar_t>(L"Hello?")
+			// prints: 0x000FFCD27, aka "the pointer address"
+
+			std::cout does not use std::wostream
+			std::wcout does not use std::ostream
+
+			Bellow is a version for programs targeting std::cout.
+			The wide version is trivial if you understand this one.
+			*/
+			friend  std::ostream &
+				operator << (std::ostream & os, yanb_t<data_type> const & bufy_)
+			{
+				if constexpr (std::is_same_v<wchar_t, data_type>) {
+					/*
+					This is just casting internaly and thus works only
+					for the ASCI subset.
+					This is not locale aware.
+					*/
+					std::wstring_view sv_(bufy_.data());
+					std::string str_(sv_.begin(), sv_.end());
+					return os << str_.c_str();
+				}
+				else {
+					return os << bufy_.data();
+				}
+			}
+#endif // DBJ_BUFFERS_IOSTREAMS
+
+		}; // yanb_t<T>
+
+		using yanb = yanb_t<char>;
+		using yanwb = yanb_t<wchar_t>;
+
+#ifdef DBJ_YANB_TESTING
+
+		void test_yanb()
+		{
+			{
+				auto mover = [](yanb bufy) { return bufy; };
+				yanb b1("abra");
+				yanb b2 = b1;
+				DBJ_TEST_ATOM(mover(b2));
+				DBJ_TEST_ATOM(mover("narrow dabra"));
+			}
+			{
+				auto mover = [](yanwb bufy) { return bufy; };
+				yanwb b1(L"abra");
+				DBJ_TEST_ATOM(b1);
+				DBJ_TEST_ATOM(b1.data());
+				yanwb b2 = b1;
+				DBJ_TEST_ATOM(mover(b2));
+				DBJ_TEST_ATOM(mover(L"wide dabra"));
+			}
+		}
+#endif // DBJ_YANB_TESTING
+
+#pragma endregion yanb (yet another buffer)
+
+		// it is not very usefull to have buffers of 
+		// unlimited size in programs
+		// thus we will define the upper limit
+		// it is
 		// in posix terms BUFSIZ * 2 * 64 aka 64KB
 		constexpr std::size_t max_length = UINT16_MAX;
 
@@ -41,7 +200,8 @@ namespace dbj {
 				>;
 		}
 
-		namespace {
+		// for pre C++17 kid's
+		namespace inner {
 			template<class T,
 				std::enable_if_t<is_array_v<T> && std::extent_v<T> == 0, int> = 0>
 				[[nodiscard]] inline std::unique_ptr<T> 
@@ -54,23 +214,31 @@ namespace dbj {
 			}
 		}
 
+		// this is basically just set of helpers
+		// to use the buffer from above
 		template<typename CHAR> struct smart_buf final
 		{
 			using type = smart_buf;
 			using value_type = CHAR;
-			using pointer = std::unique_ptr<value_type[]>;
+
+			using storage_t = yanb_t<CHAR>;
+
+			using pointer = typename storage_t::value_type ;
 			using ref_type = type & ;
 
 			// always use this function to make  
-			// fresh buff_type-es!
+			// buff of particular size
 			// array is sized & zeroed
-			static pointer make(inside_1_and_max size_) noexcept {
-				return std::make_unique<value_type[]>(size_ + 1);
+			static storage_t make(inside_1_and_max size_) noexcept {
+				return 
+				{
+				(std::make_unique<value_type[]>(size_ + 1)).get()
+				};
 			}
 
 			static bool
 				empty(
-					typename std::unique_ptr<value_type[]> & buff_
+					pointer buff_
 				) noexcept
 			{
 				return (buff_ && (buff_[0] != '\0'));
@@ -84,66 +252,67 @@ namespace dbj {
 			it will 'kick the bucket' on the length 0!
 			that is the point of using it
 			*/
-			static auto length(typename std::unique_ptr<value_type[]> & buf_ref_)
+			static auto length( pointer buf_)
 				noexcept -> inside_1_and_max
 			{
-				return std::strlen(buf_ref_.get());
+				return std::strlen(buf_.get());
 			}
 
-			// the base maker
-			static pointer make(value_type const * first_, value_type const * last_) noexcept
+			// the meta maker ;)
+			static storage_t make(
+				value_type const * first_, value_type const * last_
+			) noexcept
 			{
 				assert(first_ && last_);
 				size_t N = std::distance(first_, last_);
 				assert(N > 0);
-				pointer sp_ = make(N);
-				auto * rez_ = std::copy(first_, last_, sp_.get());
+				storage_t sp_ = make(N);
+				auto * rez_ = std::copy(first_, last_, sp_.data());
 				assert(rez_);
 				return sp_; // the move
 			}
 			// here we depend on a zero terminated string
-			static pointer make(value_type const * first_) noexcept
+			static storage_t make(value_type const * first_) noexcept
 			{
 				assert(first_);
 				// in case someone made and sent "\0" 
 				size_t N = (first_[0] == '\0' ? 1 : std::strlen(first_));
 				assert(N > 0);
-				return make(first_, first_ + N);
+				return { first_ };
 			}
 			/*	from array of char's	*/
 			template<size_t N>
-			static pointer make(const value_type(&charr)[N]) noexcept
+			static storage_t make(const value_type(&charr)[N]) noexcept
 			{
-				return make(charr, charr + N);
+				return { charr };
 			}
 			/* from string_view */
-			static  pointer	make(std::basic_string_view< value_type > sv_) noexcept
+			static  storage_t	make(std::basic_string_view< value_type > sv_) noexcept
 			{
-				return make(sv_.data(), sv_.data() + sv_.size());
+				return { sv_.data() };
 			}
 			/* from string  */
-			static  pointer	make(std::basic_string< value_type > sv_ )  noexcept
+			static  storage_t	make(std::basic_string< value_type > sv_ )  noexcept
 			{
-				return make(sv_.data(), sv_.data() + sv_.size());
+				return { sv_.c_str() };
 			}
 			/* from vector  */
-			static  pointer	make(std::vector< value_type > sv_ )  noexcept
+			static  storage_t	make(std::vector< value_type > sv_ )  noexcept
 			{
-				return make(sv_.data(), sv_.data() + sv_.size());
+				return { sv_.data() };
 			}
 			/* from array  */
 			template<size_t N>
-			static  pointer	make(std::array< value_type, N > sv_ )  noexcept
+			static  storage_t	make(std::array< value_type, N > sv_ )  noexcept
 			{
-				return make(sv_.data(), sv_.data() + sv_.size());
+				return { sv_.data() };
 			}
 
 			/* from An Other */
-			static pointer	make(
-				typename std::unique_ptr<value_type[]> & another_) noexcept
+			static storage_t make( storage_t another_) noexcept
 			{
-				assert(another_);
-				return make(another_.get());
+				assert( true == another_);
+				return { another_.data() };
 			}
 
 			/*
@@ -153,21 +322,24 @@ namespace dbj {
 			if you do not send the size and if it is found to be 0
 			and no fill will be done.
 			*/
-			static  std::unique_ptr<value_type[]> & 
+			static  storage_t &
 				fill(
-				typename std::unique_ptr<value_type[]> & buff_, 
+					storage_t & buff_,
 				value_type val_,
 				size_t N = 0
 				) noexcept
 			{
-				if ( ! empty(buff_) )
+				assert(buff_);
+				if ( buff_ )
 				{
-					if (!N) N = length(buff_);
-					::std::fill(buff_.get(), buff_.get() + N, val_);
+					const auto bufsiz_ = buff_.size();
+					N = (N >= 0 ? N : bufsiz_);
+					assert(N <= bufsiz_);
+					::std::fill(buff_.data(), buff_.data() + N, val_);
 				}
 				return buff_;
 			}
-		};
+		}; // smart_buf<CHAR>
 
 		using buff_type = typename smart_buf<char>::type;
 		using buff_pointer = typename smart_buf<char>::pointer;
@@ -178,18 +350,16 @@ namespace dbj {
 		using wbuff_ref_type = typename smart_buf<wchar_t>::ref_type;
 
 		/*
-		assign array to instance of unique_ptr<T[]>
+		assign array to instance of yanb_t
 		note: "any" type will do as long as std::unique_ptr
 		will accept it
 		*/
 		template<typename C, size_t N>
-		inline auto	assign(std::unique_ptr<C[]> & sp_, const C(&arr)[N]) noexcept -> std::unique_ptr<C[]> &
+		inline auto	assign(yanb_t<C> & sp_, const C(&arr)[N])
+			noexcept -> yanb_t<C> &
 		{
-			// sp_.release();
-			sp_ = std::make_unique<C[]>(N + 1);
 			assert(sp_);
-			void * rez_ = ::memcpy(sp_.get(), arr, N);
-			assert(rez_);
+			sp_.reset(arr);
 			return sp_;
 		}
 
@@ -245,6 +415,18 @@ namespace dbj {
 			std::unique_ptr<wchar_t[]> &  the_buffer_)
 		{
 			return os << the_buffer_.get();
+		}
+
+		inline std::ostream & operator << (std::ostream & os, 
+			yanb_t<char> & the_buffer_)
+		{
+			return os << the_buffer_.data();
+		}
+
+		inline std::wostream & operator << (std::wostream & os, 
+			yanb_t<wchar_t> &  the_buffer_)
+		{
+			return os << the_buffer_.data();
 		}
 
 	} // buf
