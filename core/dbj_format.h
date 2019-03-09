@@ -52,7 +52,7 @@ namespace dbj {
 		https://stackoverflow.com/a/39972671/10870835
 		*/
 		template<typename ... Args>
-		inline dbj::buf::buff_pointer
+		inline dbj::buf::yanb
 			to_buff(std::string_view format_, Args const & ...args)
 			noexcept
 		{
@@ -65,11 +65,11 @@ namespace dbj {
 			// each arg becomes arg to the frm_arg() overload found
 			std::snprintf(buf.get(), size, fmt, frm_arg(args) ...);
 
-			return dbj::buf::buff_pointer(buf.get());
+			return {buf.get()};
 		}
 		// wide version
 		template<typename ... Args>
-		inline dbj::buf::wbuff_pointer
+		inline dbj::buf::yanwb
 			to_buff(std::wstring_view format_, Args const & ...args)
 			noexcept
 		{
@@ -82,7 +82,7 @@ namespace dbj {
 			// each arg becomes arg to the frm_arg() overload found
 			std::swprintf(buf.get(), size, fmt, frm_arg(args) ...);
 
-			return dbj::buf::wbuff_pointer(buf.get());
+			return { buf.get() };
 		}
 
 	template<typename ... Args>
@@ -90,7 +90,7 @@ namespace dbj {
 		print(std::string_view format_, Args const & ... args)
 		noexcept
 	{
-		std::wprintf(L"%S", fmt::to_buff(format_, args...).get());
+		std::wprintf(L"%S", fmt::to_buff(format_, args...).data());
 	}
 
 	} // fmt
@@ -121,13 +121,13 @@ namespace dbj {
 		inline void trace(wchar_t const * const message, Args ... args) noexcept
 		{
 			auto buf_ = dbj::fmt::to_buff(message, args...);
-			::OutputDebugStringW(buf_.get()	);
+			::OutputDebugStringW(buf_.data()	);
 		}
 		template <typename ... Args>
 		inline void trace(const char * const message, Args ... args) noexcept
 		{
 			auto buf_ = dbj::fmt::to_buff(message, args...);
-			::OutputDebugStringA(buf_.get()	);
+			::OutputDebugStringA(buf_.data()	);
 		}
 
 #pragma warning( push )
@@ -138,13 +138,13 @@ namespace dbj {
 		extern "C" {
 
 			/*	transform path to filename,	delimiter is '\\' */
-			inline	smart_buf_type::pointer
+			inline	dbj::buf::yanb
 				filename(std::string_view file_path, const char delimiter_ = '\\')
 				noexcept
 			{
 				_ASSERTE(!file_path.empty());
 				size_t pos = file_path.find_last_of(delimiter_);
-				return
+				return 
 					dbj::fmt::to_buff("%s",
 					(std::string_view::npos != pos
 						? file_path.substr(pos, file_path.size()) 
@@ -158,7 +158,7 @@ namespace dbj {
 			*/
 			// inline std::string FILELINE(const std::string & file_path,
 			inline 
-				smart_buf_type::pointer
+				dbj::buf::yanb
 				fileline (std::string_view file_path,
 				          unsigned line_,
 				          std::string_view suffix = "")

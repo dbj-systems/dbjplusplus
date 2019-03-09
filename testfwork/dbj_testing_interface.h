@@ -71,12 +71,12 @@ namespace dbj {
 				::dbj::YEAR(), ::dbj::COMPANY(),
 				_MSC_FULL_VER,
 				internal::tuset_instance().size(),
-				narrow_path.get()
+				narrow_path.data()
 				);
 
 			_ASSERTE(buff_);
 
-			white_line(buff_.get());
+			white_line(buff_.data());
 		}
 
 		inline auto suffix() {
@@ -86,7 +86,7 @@ namespace dbj {
 				::dbj::LINE() , dbj::testing::ALLDN
 			);
 			_ASSERTE(buff_);
-			white_line(buff_.get());
+			white_line(buff_.data());
 			// no needed --> print(CMD::text_color_reset);
 		}
 
@@ -97,7 +97,7 @@ namespace dbj {
 				::dbj::LINE(), name_
 			);
 			_ASSERTE(buff_);
-			blue_line(buff_.get());
+			blue_line(buff_.data());
 		}
 
 		inline auto unit_suffix(const char * name_) {
@@ -107,7 +107,7 @@ namespace dbj {
 				::dbj::LINE(), name_
 			);
 			_ASSERTE(buff_);
-			blue_line(buff_.get());
+			blue_line(buff_.data());
 		}
 
 		inline auto space_prefix(const char * name_) {
@@ -117,7 +117,7 @@ namespace dbj {
 				::dbj::LINE(), name_
 			);
 			_ASSERTE(buff_);
-			white_line(buff_.get());
+			white_line(buff_.data());
 		}
 
 		inline auto space_suffix(const char * name_) {
@@ -127,7 +127,7 @@ namespace dbj {
 				::dbj::LINE(), name_
 			);
 			_ASSERTE(buff_);
-			white_line(buff_.get());
+			white_line(buff_.data());
 		}
 
 		/*  execute all the tests collected  */
@@ -163,7 +163,7 @@ namespace dbj {
 			prefix(argv[0]);
 			for (auto & tunode_ : internal::tuset_instance())
 			{
-				unit_prefix( tunode_.description.get() );
+				unit_prefix( tunode_.description.data() );
 				try {
 					white_line(" ");
 					internal::unit_execute( tunode_.TU );
@@ -190,7 +190,7 @@ namespace dbj {
 					}; // capture
 					handle_eptr(eptr);
 				}
-				unit_suffix(tunode_.description.get());
+				unit_suffix(tunode_.description.data());
 			}
 			suffix();
 		}

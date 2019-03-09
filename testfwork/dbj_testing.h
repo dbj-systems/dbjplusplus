@@ -48,18 +48,18 @@ namespace dbj {
 
 		namespace internal {
 
-			using buffer = typename ::dbj::buf::smart_buf<char>;
+			using buffer = typename ::dbj::buf::yanb;
 
 			struct TUNODE final 
 			{
 				size_t ID;
 				testunittype TU;
-				buffer::pointer description;
+				buffer description;
 
 				TUNODE(
 					size_t id_, 
 					testunittype test_unit_, 
-					buffer::pointer & desc_
+					buffer & desc_
 				) noexcept
 					: ID(id_)
 					, TU(test_unit_)
@@ -113,27 +113,28 @@ namespace dbj {
 		   {
 			   struct retval final {
 				   size_t id;
-				   buffer::pointer sid;
+				   buffer sid;
 			   };
 
 			   static size_t tid{ 0 };
-			   buffer::pointer id_str =
-				   dbj::fmt::to_buff("[TID:%03d]", tid++ );
-
-			   return retval{ tid, std::move(id_str) };
+			   buffer id_str =
+				   dbj::fmt::to_buff("[TID:%03d]", tid++);
+			   return retval{ tid, id_str };
 		   }
 
 				/// the actiual test unit function registration 
 				/// happens here
 			   inline  auto append
-			   (testunittype tunit_, buffer::pointer  const & description_)
+			   (testunittype tunit_, buffer const & description_)
 				   noexcept -> testunittype
 			   {
 				   auto next_ = next_test_id();
 
-				   buffer::pointer full_desc{
-					   dbj::fmt::to_buff("%s%s", next_.sid, description_)
-				   };
+				   buffer  full_desc =
+					   dbj::fmt::to_buff("%s%s",
+						   next_.sid.data(),
+						   description_.data()
+					   );
 	   
 				   /* vs insert(), std::set emplace() returns a rezult */
 				   auto rez = tuset_instance().emplace( 
@@ -144,10 +145,10 @@ namespace dbj {
 
 				   // NOTE: rez.second is false if no insertion ocured
 				   if (rez.second == false) {
-					   ::dbj::core::trace("\nNot inserted %s, because found already", full_desc.get());
+					   ::dbj::core::trace("\nNot inserted %s, because found already", full_desc.data());
 				   }
 				   else {
-					   ::dbj::core::trace("\nInserted test unit: %s", full_desc.get());
+					   ::dbj::core::trace("\nInserted test unit: %s", full_desc.data());
 				   }
 				   return tunit_; 
 			   }
@@ -158,13 +159,13 @@ namespace dbj {
 
 			struct adder final {
 				inline auto operator ()(
-					std::shared_ptr<char> const & msg_, 
+					std::string_view msg_, 
 					testunittype tunit_ 
 					) const noexcept
 				{
 					// mt safe in any build
 					dbj::sync::lock_unlock auto_lock;
-					return internal::append(tunit_, msg_);
+					return internal::append(tunit_, msg_.data());
 				}
 #ifdef _DEBUG
 				 adder ( )  noexcept {	
@@ -209,7 +210,7 @@ inline void name()
 #define DBJ_TEST_CASE( description, x ) \
 DBJ_TEST_CASE_IMPL ( description , DBJ_CONCAT( __dbj_test_unit__, x ) )
 
-#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( ::dbj::core::fileline(__FILE__, __LINE__) , x )
+#define DBJ_TEST_UNIT(x) DBJ_TEST_CASE( ::dbj::core::fileline(__FILE__, __LINE__).data() , x )
 
 #endif
 
