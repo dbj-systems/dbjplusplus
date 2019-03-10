@@ -4,32 +4,56 @@
 
 namespace dbj {
 	namespace fmt {
+
+		template<typename T>
+		using rfr = std::reference_wrapper<T>;
 		/*
 		somewhat inspired with
 		https://msdn.microsoft.com/en-us/magazine/dn913181.aspx
 		*/
 		template <typename T>
-		inline T const & frm_arg( T const & value) noexcept
+		inline T frm_arg( T value) noexcept
 		{
-			return value;
+			return value ;
 		}
 		// no pass by value allowed
-		template <typename T> T & frm_arg(T && value) = delete;
-
+		// that means: no temporaries
+		// template <typename T> T & frm_arg( rfr<T> && value) = delete;
+#if 1
 #pragma region dbj buffer and friends
 
 		// template <typename T>
-		inline char * frm_arg(  std::unique_ptr<char[]> const & value) noexcept
+		inline char * frm_arg(  rfr<std::unique_ptr<char[]>> value) noexcept
+		{
+			return value.get().get() ;
+		}
+
+		inline wchar_t * frm_arg( rfr< std::unique_ptr<wchar_t[]>> value) noexcept
+		{
+			return value.get().get() ;
+		}
+
+		inline char * frm_arg(  std::shared_ptr<char> value) noexcept
 		{
 			return value.get() ;
 		}
 
-		inline wchar_t * frm_arg(  std::unique_ptr<wchar_t[]> const & value) noexcept
+		inline wchar_t * frm_arg( std::shared_ptr<wchar_t> value) noexcept
 		{
 			return value.get() ;
 		}
 
-		inline char const * frm_arg(  ::dbj::buf::buffer const & value) noexcept
+		inline char const * frm_arg( ::dbj::buf::buffer::type value) noexcept
+		{
+			return value.data() ;
+		}
+
+		inline char const * frm_arg( ::dbj::buf::yanb::type value ) noexcept
+		{
+			return value.data() ;
+		}
+
+		inline wchar_t const * frm_arg( ::dbj::buf::yanwb::type value) noexcept
 		{
 			return value.data() ;
 		}
@@ -37,33 +61,36 @@ namespace dbj {
 #pragma endregion 
 
 		template <typename T>
-		inline T const * frm_arg(std::basic_string<T> const & value) noexcept
+		inline T const * frm_arg( std::basic_string<T> value) noexcept
 		{
 			return value.c_str();
 		}
 
 		template <typename T>
-		inline T const * frm_arg(std::basic_string_view<T> const & value) noexcept
+		inline T const * frm_arg( std::basic_string_view<T> value) noexcept
 		{
 			return value.data();
 		}
+#endif
 		/*
 		vaguely inspired by
 		https://stackoverflow.com/a/39972671/10870835
 		*/
 		template<typename ... Args>
 		inline dbj::buf::yanb
-			to_buff(std::string_view format_, Args const & ...args)
+			to_buff(std::string_view format_, Args /*const &*/ ...args)
 			noexcept
 		{
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
 			// 1: what is the size required
-			const size_t size = 1 + std::snprintf(nullptr, 0, fmt, frm_arg(args) ...);
+			size_t size = 1 + std::snprintf(nullptr, 0, fmt, frm_arg( args ) ...);
+			assert(size > 0);
 			// 2: use it at runtime
 			auto buf = std::make_unique<char[]>(size + 1);
 			// each arg becomes arg to the frm_arg() overload found
-			std::snprintf(buf.get(), size, fmt, frm_arg(args) ...);
+			size = std::snprintf(buf.get(), size, fmt, frm_arg( args ) ...);
+			assert(size > 0);
 
 			return {buf.get()};
 		}
@@ -76,18 +103,20 @@ namespace dbj {
 			static_assert(sizeof...(args) < 255, "\n\nmax 255 arguments allowed\n");
 			const auto fmt = format_.data();
 			// 1: what is the size required
-			const size_t size = 1 + std::swprintf(nullptr, 0, fmt, frm_arg(args) ...);
+			size_t size = 1 + std::swprintf(nullptr, 0, fmt, frm_arg(args) ...);
+			assert(size > 0);
 			// 2: use it at runtime
 			auto buf = std::make_unique<wchar_t[]>(size + 1);
 			// each arg becomes arg to the frm_arg() overload found
-			std::swprintf(buf.get(), size, fmt, frm_arg(args) ...);
+			size = std::swprintf(buf.get(), size, fmt, frm_arg(args) ...);
+			assert(size > 0);
 
 			return { buf.get() };
 		}
 
 	template<typename ... Args>
 	inline void
-		print(std::string_view format_, Args const & ... args)
+		print(std::string_view format_, Args /*const &*/ ... args)
 		noexcept
 	{
 		std::wprintf(L"%S", fmt::to_buff(format_, args...).data());

@@ -28,9 +28,6 @@ namespace dbj {
 				return int(U(a) + (U(b) - U(a)) / 2);
 			}
 
-			// replaced the use of 
-			// std::string with buf_type
-			// everywhere in this file
 			using buf_type = ::dbj::buf::buff_type;
 
 			// no can do, intelisense goes berserk  --> using namespace::std ;
@@ -46,14 +43,14 @@ namespace dbj {
 			// time stamp size is max 22 + '\0'
 			// updates the ref to std::error_code argument accordingly
 			[[nodiscard]]
-			inline typename buf_type::storage_t
+			inline typename dbj::buf::yanb
 				make_time_stamp(
 					std::error_code & ec_,
 					char const * timestamp_mask_ = TIME_STAMP_SIMPLE_MASK
 				) noexcept
 			{
-				const size_t buf_len = 32U;
-				auto buffer_	= buf_type::make(buf_len);
+				constexpr size_t buf_len = 32U;
+				std::array<char, buf_len + 1>  buffer_{ {0} };
 				char * buf = buffer_.data();
 
 				ec_.clear();
@@ -77,29 +74,29 @@ namespace dbj {
 				const auto strlen_buf = std::strlen(buf);
 				(void)::sprintf_s(buf + strlen_buf, buf_len - strlen_buf, ".%03d", millis);
 
-				return buffer_;
+				return { buffer_.data() };
 				// ec_ stays clear
 			};
 
 			/*	caller must check std::error_code ref arg	*/
 			[[nodiscard]] inline 
-				buf_type::storage_t
-				dbj_get_envvar(std::string_view varname_, std::error_code & ec_ ) noexcept
+				dbj::buf::yanb 
+				dbj_get_envvar(std::string_view varname_, std::error_code & ec_) noexcept
 			{
 				_ASSERTE(!varname_.empty());
-				size_t buflen_ = 256U;
-				auto	bar = buf_type::make(buflen_);
+				constexpr size_t buflen_ = 256U;
+				std::array<char, buflen_ > bar;
 				ec_.clear(); // the OK 
 				::SetLastError(0);
 				if (1 > ::GetEnvironmentVariableA(varname_.data(), bar.data(), (DWORD)buflen_))
 				{
 					ec_ = std::error_code(::GetLastError(), std::system_category());
 				}
-					return bar ;
+				return { bar.data() };
 			}
 
 			/*	caller must check the ec_	*/
-			[[nodiscard]] inline buf_type::storage_t
+			[[nodiscard]] inline dbj::buf::yanb
 				program_data_path( std::error_code & ec_ ) noexcept
 			{
 					return dbj_get_envvar("ProgramData", ec_ );

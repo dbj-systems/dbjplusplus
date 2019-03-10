@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -110,13 +110,10 @@
     <ClInclude Include="..\core\dbj_crt.h" />
     <ClInclude Include="..\core\dbj_format.h" />
     <ClInclude Include="..\core\dbj_insider.h" />
-    <ClInclude Include="..\core\dbj_main.h" />
     <ClInclude Include="..\core\dbj_synchro.h" />
     <ClInclude Include="..\core\dbj_traits.h" />
     <ClInclude Include="..\dbj++.h" />
     <ClInclude Include="..\dbj++tests.h" />
-    <ClInclude Include="..\dbj_commander.h" />
-    <ClInclude Include="..\dbj_error_concept.h" />
     <ClInclude Include="..\dbj_gpl_license.h" />
     <ClInclude Include="..\microlog\dbj_micro_log.h" />
     <ClInclude Include="..\microlog\dbj_micro_log_fwd.h" />
@@ -154,14 +151,7 @@
     <ClInclude Include="..\util\dbj_string_util.h" />
     <ClInclude Include="..\util\dbj_tokenizer.h" />
     <ClInclude Include="..\util\dbj_util.h" />
-    <ClInclude Include="..\win32\dbj_app_env.h" />
-    <ClInclude Include="..\win32\dbj_com.h" />
-    <ClInclude Include="..\win32\dbj_win32.h" />
-    <ClInclude Include="..\win32\dbj_win_inc.h" />
     <ClInclude Include="..\win\dbj_uuid.h" />
-    <ClInclude Include="dbj++win.h" />
-    <ClInclude Include="dbj_stack_matrix.h" />
-    <ClInclude Include="dbj_win_inc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes" />

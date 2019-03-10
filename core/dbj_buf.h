@@ -38,6 +38,18 @@ namespace dbj {
 		Note: static_assert() will not kick-in before instantiation
 		of the template definition. Thus we use SFINAE to stop making
 		illegal types, from this template.
+
+		BUT! 
+
+		That yanb_t<T> template declaration bellow will leave the type defined as:
+		yanb<char> --- creates --> yanb_t<char,1>
+		yanb_t<char> -- as a type will  not exist! ever.
+		just: yanb_t<char,1>
+
+		SO!
+
+		the correct way of using it "upstream" for SFINAE is:
+		yanb_t<char>::type
 		*/
 
 		template<
@@ -264,20 +276,16 @@ namespace dbj {
 			) noexcept
 			{
 				assert(first_ && last_);
-				size_t N = std::distance(first_, last_);
-				assert(N > 0);
-				storage_t sp_ = make(N);
-				auto * rez_ = std::copy(first_, last_, sp_.data());
-				assert(rez_);
-				return sp_; // the move
+				std::basic_string_view<value_type> sv_ (
+					first_, std::distance(first_, last_)
+					);
+				assert(sv_.size() > 0);
+				return { sv_.data() }; 
 			}
 			// here we depend on a zero terminated string
 			static storage_t make(value_type const * first_) noexcept
 			{
 				assert(first_);
-				// in case someone made and sent "\0" 
-				size_t N = (first_[0] == '\0' ? 1 : std::strlen(first_));
-				assert(N > 0);
 				return { first_ };
 			}
 			/*	from array of char's	*/

@@ -124,7 +124,8 @@ namespace dbj {
 			{
 				assert(from_ && to_);
 				this->size_ = (std::distance(from_, to_));
-				std::copy(from_, to_, this->data_.data());
+				std::string sv_(from_, to_);
+				this->data_.reset(sv_.c_str());
 			}
 
 			void assign(char const * from_ ) noexcept
