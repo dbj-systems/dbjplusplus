@@ -49,12 +49,10 @@ namespace dbj {
 					char const * timestamp_mask_ = TIME_STAMP_SIMPLE_MASK
 				) noexcept
 			{
-				constexpr size_t buf_len = 32U;
-				std::array<char, buf_len + 1>  buffer_{ {0} };
-				char * buf = buffer_.data();
-
 				ec_.clear();
-
+				constexpr size_t buf_len = 64U;
+				std::array<char, buf_len>  buffer_{ {0} };
+				char * buf = buffer_.data();
 				// Get the current time
 				auto now = h::system_clock::now();
 				// Format the date/time

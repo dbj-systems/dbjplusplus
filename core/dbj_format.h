@@ -60,6 +60,17 @@ namespace dbj {
 
 #pragma endregion 
 
+		inline char const * frm_arg( std::error_code value) noexcept
+		{
+			if (value.value() == 0)
+				// MSVC STL does have an empty string here ...
+				return "OK";
+			else {
+				auto str = value.message();
+				return (str.empty() ? "Empty" : value.message().c_str());
+			}
+		}
+
 		template <typename T>
 		inline T const * frm_arg( std::basic_string<T> value) noexcept
 		{
@@ -114,6 +125,11 @@ namespace dbj {
 			return { buf.get() };
 		}
 
+/*
+BIG NOTE: if you mistake the formating code probably everything
+on the console and in the app will go *very* wrong, and UCRT
+crash will be spectacular
+*/
 	template<typename ... Args>
 	inline void
 		print(std::string_view format_, Args /*const &*/ ... args)
