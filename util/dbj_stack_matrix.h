@@ -1,11 +1,17 @@
-#pragma once
+/*
+check it out here: https://godbolt.org/z/75En717ra
+*/
 
-// #include "../win/dbj_uuid.h"
+// on godbolt we can include stand alone headers direct from https
+// ptc::print
+// we use it on the bottom 
+#include <https://raw.githubusercontent.com/JustWhit3/ptc-print/main/include/ptc/print.hpp>
+
 /*
 IMPORTANT: Terminology
 
-Matrix has HEIGHT and WIDTH
-HEIGHT is made of 0..number of ROWS
+Matrix has HEIGHT_ and WIDTH
+HEIGHT_ is made of 0..number of ROWS
 WIDTH is made of 0 ... number of COLUMNS
 
 I like to express matrix dimensions as height X width
@@ -86,6 +92,15 @@ Thus, from me, here is the all stack all static almost-a-pod variant.
 In a standard WIDTH++ way.
 */
 
+#ifndef __FUNCSIG__
+#define __FUNCSIG__ " function() "
+#endif
+
+#include <cstddef>
+#include <cstdlib>
+#include <typeinfo>
+#include <type_traits>
+
 #pragma warning( push)
 #pragma warning( disable: 4307 )
 
@@ -104,7 +119,7 @@ namespace dbj::arr {
 	*/
 	template <
 		typename	T,
-		size_t		HEIGHT,
+		size_t		HEIGHT_,
 		size_t		WIDTH,
 		size_t      UID_
 	>
@@ -120,8 +135,8 @@ namespace dbj::arr {
 
 		/*	we also clean const and volatile if used "by accident" */
 		using value_type = std::remove_cv_t<T>;
-		using matrix_type = value_type[HEIGHT][WIDTH];
-		using matrix_ref_type = value_type(&)[HEIGHT][WIDTH];
+		using matrix_type = value_type[HEIGHT_][WIDTH];
+		using matrix_ref_type = value_type(&)[HEIGHT_][WIDTH];
 	private:
 		/* here we enforce usage policies first, specifically
 
@@ -134,7 +149,7 @@ namespace dbj::arr {
 		and thus enforce that as stack matrix size policy here
 		*/
 		static_assert(
-			(HEIGHT * WIDTH * sizeof(value_type)) < type::MAX_WEIGHT,
+			(HEIGHT_ * WIDTH * sizeof(value_type)) < type::MAX_WEIGHT,
 			"Total weight of stack_matrix must not exceed 0xFFFF (65536) bytes"
 			);
 
@@ -146,10 +161,10 @@ namespace dbj::arr {
 		/*
 		almost just a pod 2D array on stack
 		*/
-		inline static value_type data_[HEIGHT][WIDTH]{};
+		inline static value_type data_[HEIGHT_][WIDTH]{};
 
 		/*
-		IMPORTANT: this is HEIGHT x WIDTH matrix
+		IMPORTANT: this is HEIGHT_ x WIDTH matrix
 		*/
 
 	public:
@@ -168,15 +183,15 @@ namespace dbj::arr {
 		*/
 		static constexpr const uid_type  uuid() { return UID_; }
 		static constexpr char const * type_name() { return typeid(type).name(); }
-		static constexpr size_t height() noexcept { return HEIGHT; };
+		static constexpr size_t height() noexcept { return HEIGHT_; };
 		static constexpr size_t width() noexcept { return WIDTH; };
 		static constexpr size_t weight() noexcept {
 
-			static_assert(sizeof(matrix_type) == (HEIGHT * WIDTH * sizeof(value_type)));
+			static_assert(sizeof(matrix_type) == (HEIGHT_ * WIDTH * sizeof(value_type)));
 			
 			return sizeof(matrix_type);
-			// same as: HEIGHT * WIDTH * sizeof(value_type);
-			// same as sizeof(value_type[HEIGHT][WIDTH]) 
+			// same as: HEIGHT_ * WIDTH * sizeof(value_type);
+			// same as sizeof(value_type[HEIGHT_][WIDTH]) 
 		};
 		static constexpr size_t rank()		noexcept { return std::rank_v  <  matrix_type   >; }
 		static constexpr size_t max_weight()	noexcept { return type::MAX_WEIGHT; };
@@ -188,7 +203,7 @@ namespace dbj::arr {
 		constexpr explicit stack_matrix()
 		{
 			static_assert(2 == std::rank_v  <  matrix_type   >);
-			static_assert(HEIGHT == std::extent_v< matrix_type, 0 >);
+			static_assert(HEIGHT_ == std::extent_v< matrix_type, 0 >);
 			static_assert(WIDTH == std::extent_v< matrix_type, 1 >);
 		}
 		~stack_matrix() { }
@@ -232,7 +247,7 @@ namespace dbj::arr {
 		template<typename F>
 		constexpr static void for_each(const F & fun)
 		{
-			for (size_t row_ = 0; row_ < HEIGHT; row_++) {
+			for (size_t row_ = 0; row_ < HEIGHT_; row_++) {
 				for (size_t col_ = 0; col_ < WIDTH; col_++) {
 					bool result =
 						fun((value_type &)type::data_[row_][col_], row_, col_);
@@ -254,7 +269,7 @@ namespace dbj::arr {
 		constexpr static void printarr(F print)
 		{
 			print("\n", type::type_name(), "\n");
-			for (int r = 0; r < HEIGHT; r++)
+			for (int r = 0; r < HEIGHT_; r++)
 			{
 				print("\n{ ");
 				for (int c = 0; c < WIDTH; c++)
@@ -264,10 +279,10 @@ namespace dbj::arr {
 			print("\n");
 		}
 
-		template<typename A, typename B, typename HEIGHT>
+		template<typename A, typename B, typename C>
 		friend void stack_matrix_multiply();
 
-	}; // stack_matrix<T,HEIGHT,WIDTH,UID>
+	}; // stack_matrix<T,HEIGHT_,WIDTH,UID>
 
 	namespace inner {
 
@@ -411,31 +426,57 @@ namespace dbj::arr {
 		}
 	} // inner
 	/*
-	  A[n][m] x B[m][p] = HEIGHT[n][p]
+	  A[n][m] x B[m][p] = HEIGHT_[n][p]
 
-	stack_matrix<T,HEIGHT,WIDTH,UID> matrix is HEIGHT x WIDTH matrix
+	stack_matrix<T,HEIGHT_,WIDTH,UID> matrix is HEIGHT_ x WIDTH matrix
 	*/
-	template<typename A, typename B, typename HEIGHT >
+	template<typename A, typename B, typename C >
 	inline void stack_matrix_multiply()
 	{
 		// check types to match on all 3 matrices
-		static_assert(std::is_same_v<A::value_type, B::value_type>,
+		static_assert(std::is_same_v<typename A::value_type, typename B::value_type> ,
 			"\n\n" __FUNCSIG__ "\n");
-		static_assert(std::is_same_v<A::value_type, HEIGHT::value_type>,
+		static_assert(std::is_same_v<typename A::value_type, typename C::value_type>,
 			"\n\n" __FUNCSIG__ "\n");
 		// Rows of A must be the same as columns of B
 		static_assert(A::width() == B::height(),
 			"\n\n" __FUNCSIG__ "\n");
-		// HEIGHT must be height of A x width of B
-		static_assert(HEIGHT::height() == A::height(),
+		// HEIGHT_ must be height of A x width of B
+		static_assert(C::height() == A::height(),
 			"\n\n" __FUNCSIG__ "\n");
-		static_assert(HEIGHT::width() == B::width(),
+		static_assert(C::width() == B::width(),
 			"\n\n" __FUNCSIG__ "\n");
 
 		/* template arguments are: < A::value_type, A::height(), A::width(), B::width() >*/
-		::dbj::arr::inner::multiply(A::data_, B::data_, HEIGHT::data_);
+		::dbj::arr::inner::multiply(A::data_, B::data_, C::data_);
+        
+        auto print = 
+		     [](const auto & first_param, auto && ... params)
+             {
+
+             };
+		// F has to be a variadic print function
+		// lambda example of such a function:
+		//
+		// inline auto print = 
+		//     [](const auto & first_param, auto && ... params);
+		//
+		// note how F has to be able to print the type T of the matrix
+		// template<typename F>
+		C::printarr(ptc::print);
 	}
 
 #pragma warning( pop )
 
 } // eof namespace dbj::arr
+
+int main (void) 
+{
+    using namespace dbj::arr ;
+    stack_matrix_multiply<
+    stack_matrix<int,3,3,0>, 
+    stack_matrix<int,3,3,1>, 
+    stack_matrix<int,3,3,2> 
+    >();
+    return 42;
+}
