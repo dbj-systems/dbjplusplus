@@ -1,6 +1,8 @@
 # FFWD to 2022
 
-Welcome. This repo is a see of probably usefull C++. But surely full of now redundant code.
+## Caveat Emptor
+
+Welcome. This repo is a sea of probably usefull C++. But surely full of now redundant code.
 This was made in days before std::print, std::format and such.
 And these days we use Sheredom's UTEST and UBENCH
 
