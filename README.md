@@ -1,3 +1,11 @@
+# FFWD to 2022
+
+Welcome. This repo is a see of probably usefull C++. But surely full of now redundant code.
+This was made in days before std::print, std::format and such.
+And these days we use Sheredom's UTEST and UBENCH
+
+And above it all, I am now back to [C23](https://devclass.com/2022/08/08/c23-is-done-declares-iso-project-editor-heres-whats-new/).
+
 # dbjplusplus
 ## A Modern & Standard C++ lib 
 
