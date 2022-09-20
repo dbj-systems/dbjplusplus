@@ -1,3 +1,6 @@
+
+#error this does not work any more; go to dbj_stack_matrix.h please, it is now a godbolt standalone
+
 #pragma once
 #include "../dbj_gpl_license.h"
 #include "../util/dbj_stack_matrix.h"
