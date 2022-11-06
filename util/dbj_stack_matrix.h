@@ -1,5 +1,8 @@
 /*
+**********************************************************
 This is standalone GODBOLT only !
+***********************************************************
+Article is here: https://dbj.org/c-how-to-create-unique-types-from-the-same-template-all-stack-simple-matrix/
 
 check it out here: https://godbolt.org/z/75En717ra
 */
